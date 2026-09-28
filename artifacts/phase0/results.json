@@ -1,0 +1,126 @@
+{
+  "sample_stats": {
+    "n_jobs": 95,
+    "n_nodes": 4613,
+    "n_obs": 1620918,
+    "gcd_temp_mean": 48.143755575544226,
+    "gcd_temp_std": 7.7774398589855425,
+    "gcd_temp_min": 28.0,
+    "gcd_temp_max": 86.0
+  },
+  "node_reuse": {
+    "total_nodes": 4613,
+    "nodes_in_1_job": 3568,
+    "nodes_in_2plus_jobs": 1045,
+    "nodes_in_5plus_jobs": 1,
+    "max_jobs_per_node": 5,
+    "median_jobs_per_node": 1.0,
+    "reuse_fraction": 0.22653370908302622
+  },
+  "h1_power": {
+    "r2_global": 0.5887287213650041,
+    "r2_within_job": 0.32445629510916324,
+    "beta_global": 0.05257606045877272,
+    "beta_within_job": 0.03923513783663711,
+    "n_obs": 1620918
+  },
+  "h2_node_icc": {
+    "icc_global_residual": {
+      "icc": 0.6249906831273426,
+      "f_stat": 81.37725176582255,
+      "p_value": 0.0,
+      "k_groups": 4613,
+      "MS_between": 1647.630037438806,
+      "MS_within": 20.2468134728874,
+      "n0_harmonic": 48.22826818149735
+    },
+    "icc_within_job_residual": {
+      "icc": 0.3400792889982078,
+      "f_stat": 25.853645111213915,
+      "p_value": 0.0,
+      "k_groups": 4613,
+      "MS_between": 491.38560985182636,
+      "MS_within": 19.006434401727354,
+      "n0_harmonic": 48.22826818149735
+    },
+    "icc_ci95": [
+      0.36345711103699213,
+      0.41472616734821816
+    ],
+    "n_fingerprinted_nodes": 4613,
+    "fingerprint_range_degC": [
+      -4.877989630308441,
+      4.723525140982643
+    ]
+  },
+  "h3_stability": {
+    "n_common_nodes": 774,
+    "r_stability": 0.6959211992402948,
+    "p_stability": 3.963464725111469e-113,
+    "spearman_r": 0.7243992498771524,
+    "spearman_p": 7.725724547817939e-127,
+    "split_time": "2025-04-09 06:32:08+00:00",
+    "n_first_half_jobs": 59,
+    "n_second_half_jobs": 36
+  },
+  "gcd_analysis": {
+    "icc_by_gcd": {
+      "0": 0.7934656598207579,
+      "1": 0.8504625623559694,
+      "2": 0.8197354427428801,
+      "3": 0.8513339002361089,
+      "4": 0.7992525065740977,
+      "5": 0.8088699467787672,
+      "6": 0.8277304859931259,
+      "7": 0.8611245311264776
+    },
+    "gcd_position_means": {
+      "0": 1.6834976706390397,
+      "1": 3.5266663764366206,
+      "2": -2.279762885162229,
+      "3": -1.165433737250992,
+      "4": 1.0431537246656422,
+      "5": 2.156531312702066,
+      "6": -2.9940380511674327,
+      "7": -1.9707872874111834
+    },
+    "f_gcd_position": 84154.11718302988,
+    "p_gcd_position": 0.0
+  },
+  "spatial": {
+    "n_spatial_nodes": 4613,
+    "n_racks": 77,
+    "n_chassis": 8,
+    "icc_by_rack": {
+      "icc": 0.11149952879637229,
+      "f_stat": 8.458532607807022,
+      "p_value": 0.0,
+      "k_groups": 77,
+      "MS_between": 9.610315486810823,
+      "MS_within": 1.1361681667977177,
+      "n0_harmonic": 59.4344192128978
+    },
+    "icc_by_chassis": {
+      "icc": 0.004095717233335741,
+      "f_stat": 3.011637679027422,
+      "p_value": 0.003704453135210617,
+      "k_groups": 8,
+      "MS_between": 3.830586444466776,
+      "MS_within": 1.2719280513530515,
+      "n0_harmonic": 489.14474945003514
+    }
+  },
+  "negative_controls": {
+    "nc1_permuted_icc": 0.0,
+    "nc2_r_correct": 0.2621126464753724,
+    "nc2_r_wrong": 0.03955346817597336,
+    "nc3_r2_job_demeaned": 0.3400792889982078,
+    "nc3_r2_random_group": 0.5887316776622254
+  },
+  "verdict": {
+    "verdict": "GO-REFRAME",
+    "rationale": "ICC=0.340 > 0.05 (CI_lo=0.363), but marginal signal warrants more data before full commitment",
+    "icc_key": 0.3400792889982078,
+    "r_stability_key": 0.6959211992402948
+  }
+}

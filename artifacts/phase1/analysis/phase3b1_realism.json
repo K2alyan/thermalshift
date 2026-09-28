@@ -1,0 +1,48 @@
+{
+  "stateful_vs_nonstateful": {
+    "dT_pred_nonstateful": 2.290892526229428,
+    "dT_pred_stateful": 1.4493027220494132,
+    "oracle_overestimate": 0.841589804180015
+  },
+  "test_job_overlap": {
+    "n_jobs_no_overlap": 222,
+    "n_jobs_some_overlap": 2415,
+    "max_simultaneous": 141
+  },
+  "stateful_summary": {
+    "Historical_F_mean": -0.07761078102052887,
+    "Random_F_mean": -0.056881512486377135,
+    "Fingerprint_F_mean": -1.5921919515184002,
+    "Historical_hot_rate": 0.7318923018581721,
+    "Random_hot_rate": 0.7523701175578309,
+    "Fingerprint_hot_rate": 0.006446719757299962,
+    "dT_pred_Random_degC": -0.019835837060329802,
+    "dT_pred_Fingerprint_degC": 1.4493027220494132
+  },
+  "utilization": {
+    "Historical_Gini": 0.2792447713160775,
+    "Fingerprint_Gini": 0.6886895123283414,
+    "Historical_coolest10pct_share": 0.09494377337108519,
+    "Fingerprint_coolest10pct_share": 0.5053311713470644,
+    "Historical_coolest20pct_share": 0.2028972829568439,
+    "Fingerprint_coolest20pct_share": 0.7041089232893477
+  },
+  "topology": {
+    "hist_mean_cabinets": 0.391353811149033,
+    "fp_stat_mean_cabinets": 0.38680318543799774,
+    "mean_cabinet_delta": -0.004550625711035267,
+    "frac_jobs_more_cabs": 0.1539628365566932
+  },
+  "empirical_thresholds": {
+    "T_p90": 58.760029411764705,
+    "T_p95": 60.602770562770566,
+    "T_p99": 64.48555089118199,
+    "exceedance_hist_p90": 0.10011376564277588,
+    "exceedance_fp_p90": 0.06408797876374668,
+    "exceedance_hist_p95": 0.05005688282138794,
+    "exceedance_fp_p95": 0.026924535456958665,
+    "exceedance_hist_p99": 0.010238907849829351,
+    "exceedance_fp_p99": 0.0075843761850587785
+  },
+  "n_jobs_infeasible_stateful": 0
+}

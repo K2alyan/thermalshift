@@ -1,0 +1,163 @@
+{
+  "topology_mapped": 2000,
+  "topology_cohort_total": 2000,
+  "T_p95_threshold": 60.602770562770566,
+  "hist_p95_exceedance": 0.05005688282138794,
+  "historical": {
+    "label": "Historical",
+    "dT_pred_degC": 0.0,
+    "p95_exceedance": 0.05005688282138794,
+    "p95_exceedance_reduction": 0.0,
+    "gini": 0.2792447713160775,
+    "coolest10_share": 0.09494377337108519,
+    "max_node_hours": 152.67305555555552,
+    "zero_work_nodes": 0,
+    "n_infeasible": 0
+  },
+  "random_nocap": {
+    "label": "Random (no cap)",
+    "n_jobs": 2637,
+    "mean_F_mean": -0.04217455326857285,
+    "dT_pred_degC": -0.03390892633584672,
+    "p95_exceedance": 0.04740235115661737,
+    "p95_exceedance_reduction": 0.053030303030303094,
+    "gini": 0.2088663971196274,
+    "coolest10_share": 0.10476799206766184,
+    "max_node_hours": 138.0222222222222,
+    "zero_work_nodes": 0,
+    "n_infeasible": 0
+  },
+  "fingerprint_nocap": {
+    "label": "Fingerprint (no cap)",
+    "n_jobs": 2637,
+    "mean_F_mean": -1.5921919515184002,
+    "dT_pred_degC": 1.449302722049413,
+    "p95_exceedance": 0.026924535456958665,
+    "p95_exceedance_reduction": 0.46212121212121215,
+    "gini": 0.6886895123283414,
+    "coolest10_share": 0.5053311713470644,
+    "max_node_hours": 484.46805555555557,
+    "zero_work_nodes": 179,
+    "n_infeasible": 0
+  },
+  "policy_A_sweep": [
+    {
+      "label": "FP-cap-5pct",
+      "n_jobs": 2637,
+      "mean_F_mean": -0.6434059364653989,
+      "dT_pred_degC": 0.5414093842451961,
+      "p95_exceedance": 0.038680318543799774,
+      "p95_exceedance_reduction": 0.22727272727272718,
+      "gini": 0.2728954455547159,
+      "coolest10_share": 0.1296961639191046,
+      "max_node_hours": 107.96250000000002,
+      "zero_work_nodes": 7,
+      "n_infeasible": 0
+    },
+    {
+      "label": "FP-cap-10pct",
+      "n_jobs": 2637,
+      "mean_F_mean": -0.6696665283172308,
+      "dT_pred_degC": 0.566538144588214,
+      "p95_exceedance": 0.03754266211604096,
+      "p95_exceedance_reduction": 0.2499999999999999,
+      "gini": 0.29248712994583803,
+      "coolest10_share": 0.1327877738681659,
+      "max_node_hours": 103.51527777777777,
+      "zero_work_nodes": 0,
+      "n_infeasible": 0
+    },
+    {
+      "label": "FP-cap-20pct",
+      "n_jobs": 2637,
+      "mean_F_mean": -0.7455186766877633,
+      "dT_pred_degC": 0.6391210653639766,
+      "p95_exceedance": 0.03640500568828214,
+      "p95_exceedance_reduction": 0.2727272727272728,
+      "gini": 0.3332743281601831,
+      "coolest10_share": 0.14148239462428241,
+      "max_node_hours": 105.0975,
+      "zero_work_nodes": 3,
+      "n_infeasible": 0
+    },
+    {
+      "label": "FP-cap-30pct",
+      "n_jobs": 2637,
+      "mean_F_mean": -0.793749752832557,
+      "dT_pred_degC": 0.6852733821269297,
+      "p95_exceedance": 0.0360257868790292,
+      "p95_exceedance_reduction": 0.2803030303030303,
+      "gini": 0.36228578560174696,
+      "coolest10_share": 0.1503751872461693,
+      "max_node_hours": 110.87638888888887,
+      "zero_work_nodes": 18,
+      "n_infeasible": 0
+    },
+    {
+      "label": "FP-cap-50pct",
+      "n_jobs": 2637,
+      "mean_F_mean": -0.8929862567317621,
+      "dT_pred_degC": 0.7802327927080791,
+      "p95_exceedance": 0.03526734926052332,
+      "p95_exceedance_reduction": 0.2954545454545454,
+      "gini": 0.41289997278947554,
+      "coolest10_share": 0.17358865884667546,
+      "max_node_hours": 137.39444444444445,
+      "zero_work_nodes": 8,
+      "n_infeasible": 0
+    },
+    {
+      "label": "FP-cap-100pct",
+      "n_jobs": 2637,
+      "mean_F_mean": -1.0528440538712063,
+      "dT_pred_degC": 0.9332007187908132,
+      "p95_exceedance": 0.03375047402351156,
+      "p95_exceedance_reduction": 0.3257575757575758,
+      "gini": 0.49087163595169936,
+      "coolest10_share": 0.22562131292617238,
+      "max_node_hours": 122.55444444444446,
+      "zero_work_nodes": 23,
+      "n_infeasible": 0
+    }
+  ],
+  "policy_B_tier_nocap": {
+    "label": "Power-tiered (no cap)",
+    "n_jobs": 2637,
+    "mean_F_mean": -0.5020593398075908,
+    "dT_pred_degC": 0.4061548259033395,
+    "p95_exceedance": 0.02578687902919985,
+    "p95_exceedance_reduction": 0.48484848484848486,
+    "gini": 0.33894776244851843,
+    "coolest10_share": 0.22400836699683468,
+    "max_node_hours": 288.56944444444434,
+    "zero_work_nodes": 0,
+    "n_infeasible": 0
+  },
+  "policy_B_tier_cap20": {
+    "label": "Power-tiered (delta=20%)",
+    "n_jobs": 2637,
+    "mean_F_mean": -0.28342913678498577,
+    "dT_pred_degC": 0.1969475846310088,
+    "p95_exceedance": 0.03185437997724687,
+    "p95_exceedance_reduction": 0.36363636363636365,
+    "gini": 0.22373515542003664,
+    "coolest10_share": 0.14522281378428636,
+    "max_node_hours": 122.77861111111112,
+    "zero_work_nodes": 0,
+    "n_infeasible": 0
+  },
+  "power_thresholds_W": {
+    "p50": 896.4571428571429,
+    "p80": 1496.4923809523812,
+    "p95": 1955.5884126984126
+  },
+  "delta_sweep": [
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.5,
+    1.0
+  ],
+  "hist_fleet_avg_node_hours": 39.45368875
+}

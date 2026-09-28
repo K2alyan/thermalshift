@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Claude Code local config (never publish)
+.claude/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Source telemetry / large derived data
+job-telemetry/
+data/
+*.parquet
+
+# Temporary / intermediate outputs
+*.tmp
+*.log
+*_log.txt
+phase3b_mc_checkpoint.json
+globus_batch.txt
+
+# Local environment config
+.env.*

@@ -1,0 +1,42 @@
+{
+  "rack_diagnosis": {
+    "n_racks_analyzed": 76,
+    "n_hot_racks": 0,
+    "n_cold_racks": 3,
+    "hot_rack_frac": 0.0,
+    "fp_fleet_mean_C": -0.0241,
+    "fp_fleet_std_C": 1.3298,
+    "hot_threshold_C": 1.3057,
+    "n_hot_nodes_cohort": 280,
+    "n_cold_nodes_cohort": 246
+  },
+  "arrhenius": {
+    "q10_assumption": 2.0,
+    "rfr_fleet_mean": 1.00254,
+    "rfr_hot_nodes": 1.15002,
+    "rfr_cold_nodes": 0.85414,
+    "hot_vs_cold_rfr_ratio": 1.3464,
+    "excess_failure_burden_hot_nodes_pct": 14.71,
+    "n_hot_nodes_fleet_est": 1396,
+    "n_cold_nodes_fleet_est": 1227
+  },
+  "scheduling_counterfactual": {
+    "jobs_analyzed": 47568,
+    "T_threshold_C": 50.82,
+    "mean_max_T_baseline_C": 48.9983,
+    "mean_max_T_policyA_C": 43.3298,
+    "mean_delta_T_C": 5.6685,
+    "p95_delta_T_C": 7.7195,
+    "max_delta_T_C": 12.0972,
+    "jobs_above_threshold_baseline": 8511,
+    "jobs_above_threshold_policyA": 46,
+    "pct_above_baseline": 17.89,
+    "pct_above_policyA": 0.1,
+    "exceedance_reduction_pct": 99.46,
+    "stressed_node_hours_baseline": 3731308.9,
+    "stressed_node_hours_policyA": 67566.0,
+    "node_hours_recovered": 3663742.9,
+    "total_cohort_node_hours": 4283129.3,
+    "pct_node_hours_destressed": 85.539
+  }
+}

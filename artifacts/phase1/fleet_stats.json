@@ -1,0 +1,104 @@
+{
+  "n_jobs": 152400,
+  "n_unique_nodes": 9856,
+  "collection_start": "2024-01-17 00:14:14+00:00",
+  "collection_end": "2026-01-01 04:58:38+00:00",
+  "span_days": 715,
+  "n_unique_project_prefix": 36,
+  "completion_state": {
+    "COMPLETED": 93795,
+    "TIMEOUT": 48412,
+    "CANCELLED": 10193
+  },
+  "gpu_enabled": {
+    "None": 62943,
+    "true": 61466,
+    "false": 27991
+  },
+  "queue": {
+    "batch-normal": 129704,
+    "batch-debug": 17835,
+    "extended-normal": 3192,
+    "batch-spi-normal": 1083,
+    "batch-spi-debug": 296,
+    "extended-debug": 284,
+    "batch-hackathon": 4,
+    "extended-hackathon": 2
+  },
+  "jobs_per_node_percentiles": {
+    "p0": 664.0,
+    "p1": 795.0,
+    "p5": 1194.0,
+    "p10": 1518.0,
+    "p25": 1778.0,
+    "p50": 2011.0,
+    "p75": 2150.0,
+    "p90": 2279.0,
+    "p95": 2332.0,
+    "p99": 2394.0,
+    "p100": 2542.0
+  },
+  "jobs_per_node_mean": 1928.4416599025974,
+  "node_reuse_counts": {
+    ">=2": 9856,
+    ">=5": 9856,
+    ">=10": 9856,
+    ">=20": 9856,
+    ">=50": 9856,
+    ">=100": 9856,
+    ">=250": 9856,
+    ">=500": 9856
+  },
+  "node_reuse_fractions": {
+    ">=2_frac": 1.0,
+    ">=5_frac": 1.0,
+    ">=10_frac": 1.0,
+    ">=20_frac": 1.0,
+    ">=50_frac": 1.0,
+    ">=100_frac": 1.0,
+    ">=250_frac": 1.0,
+    ">=500_frac": 1.0
+  },
+  "temporal_span_per_node_days": {
+    "p0": 400.47208333333333,
+    "p5": 708.9146064814815,
+    "p25": 714.8309143518519,
+    "p50": 714.8614814814815,
+    "p75": 714.8755671296296,
+    "p90": 714.9616898148148,
+    "p95": 714.9951822916667,
+    "p99": 715.0353883101852,
+    "p100": 715.1590277777777
+  },
+  "n_unique_dates_per_node": {
+    "p50": 209.0,
+    "p75": 212.0,
+    "p90": 215.0,
+    "p95": 217.0,
+    "p99": 220.0,
+    "p100": 226.0
+  },
+  "projects_per_node": {
+    "pct_with_2plus": 1.0,
+    "pct_with_3plus": 1.0,
+    "pct_with_5plus": 1.0
+  },
+  "topology": {
+    "n_racks": 77,
+    "n_chassis": 8,
+    "n_slots": 8
+  },
+  "cohort": {
+    "n_nodes": 2000,
+    "n_jobs": 52413,
+    "min_jobs_per_node": 1700,
+    "median_jobs_per_node": 2252.0,
+    "max_jobs_per_node": 2542,
+    "median_span_days": 714.8755555555556,
+    "max_span_days": 715.0375,
+    "n_racks": 72,
+    "n_with_2plus_projects": 2000,
+    "n_with_5plus_projects": 2000,
+    "estimated_download_gb": 368.42666221969813
+  }
+}

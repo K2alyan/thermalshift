@@ -1,0 +1,58 @@
+{
+  "policy_summary": [
+    {
+      "label": "Historical",
+      "n_jobs": 2637,
+      "mean_F_mean": -0.07761078102052887,
+      "mean_F_p95": 1.1774935117425995,
+      "hot_node_rate": 0.1503121015567575,
+      "dT_vs_hist": 0.0,
+      "mean_headroom": 11.91261941663037
+    },
+    {
+      "label": "Random feasible",
+      "n_jobs": 2637,
+      "mean_F_mean": -0.06433199164391383,
+      "mean_F_p95": 1.2135133587656994,
+      "hot_node_rate": 0.15059378803326784,
+      "dT_vs_hist": -0.012706473554482936,
+      "mean_headroom": 11.899912943075888
+    },
+    {
+      "label": "Fingerprint-only",
+      "n_jobs": 2637,
+      "mean_F_mean": -2.4716880369818917,
+      "mean_F_p95": -2.0408708548727796,
+      "hot_node_rate": 0.00020898364343192576,
+      "dT_vs_hist": 2.290892526229428,
+      "mean_headroom": 14.203511942859796
+    },
+    {
+      "label": "ThermalShift",
+      "n_jobs": 2637,
+      "mean_F_mean": -2.4716880369818917,
+      "mean_F_p95": -2.0408708548727796,
+      "hot_node_rate": 0.00020898364343192576,
+      "dT_vs_hist": 2.290892526229428,
+      "mean_headroom": 14.203511942859796
+    }
+  ],
+  "n_jobs_total": 2637,
+  "n_jobs_feasible": 2637,
+  "n_jobs_infeasible": 0,
+  "n_jobs_skipped": 0,
+  "model_params": {
+    "beta_F": 0.9569,
+    "beta_P": 0.014731
+  },
+  "thresholds": {
+    "F_hot": 1.0,
+    "T_risk": 60.0
+  },
+  "power_quartile_boundaries_W": {
+    "p25": 667.3125,
+    "p50": 896.4571428571429,
+    "p75": 1349.5181818181818
+  },
+  "rand_policy_trials": 100
+}

@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+type: software
+title: "ThermalShift: Telemetry-aware workload placement using persistent server thermal fingerprints"
+version: 0.1.0
+date-released: "2026-09-28"
+license: MIT
+repository-code: "https://github.com/kkottapalli/thermalshift"
+authors:
+  - family-names: Kottapalli
+    given-names: Kalyan
+    email: kalyan.kottapalli@poppy.com
+keywords:
+  - hpc
+  - scheduling
+  - thermal-management
+  - data-center
+  - gpu
+  - sustainability
+  - systems-research
+  - frontier
+abstract: >
+  ThermalShift demonstrates that persistent machine-level thermal differences
+  on the Frontier supercomputer can be converted into a workload-placement signal.
+  Across 30 matched historical-replay Monte Carlo scenarios, fingerprint-aware
+  scheduling (FP-cap-10) outperformed thermally unaware random placement in all 30
+  scenarios. Among 29 uncensored scenarios, the median paired feasible-capacity
+  advantage was +15.5 percentage points (bootstrap 95% CI: +11.5 to +21.9 pp).

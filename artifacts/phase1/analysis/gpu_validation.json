@@ -1,0 +1,52 @@
+{
+  "FA": {
+    "label": "FA",
+    "n_nodes": 1976,
+    "pearson_r": 0.8622,
+    "pearson_p": 0.0,
+    "pearson_ci_95": [
+      0.8469,
+      0.8766
+    ],
+    "spearman_r": 0.8697,
+    "spearman_p": 0.0,
+    "icc_2_1": 0.8445,
+    "icc_ci_95": [
+      0.8269,
+      0.8598
+    ],
+    "sign_agreement": 0.8472,
+    "mae_C": 0.4458
+  },
+  "FC": {
+    "label": "FC",
+    "n_nodes": 1466,
+    "pearson_r": 0.8698,
+    "pearson_p": 0.0,
+    "pearson_ci_95": [
+      0.8562,
+      0.8809
+    ],
+    "spearman_r": 0.8686,
+    "spearman_p": 0.0,
+    "icc_2_1": 0.8471,
+    "icc_ci_95": [
+      0.8311,
+      0.8597
+    ],
+    "sign_agreement": 0.8458,
+    "mae_C": 0.4588
+  },
+  "temporal_stability_fleet": {
+    "icc_2_1": 0.7085,
+    "pearson_r": 0.7927,
+    "n_nodes": 1976
+  },
+  "null_permutation": {
+    "observed_FC_icc": 0.8471,
+    "null_mean_icc": -0.0001,
+    "null_p95_icc": 0.03684,
+    "p_value": 0.0,
+    "n_permutations": 1000
+  }
+}
