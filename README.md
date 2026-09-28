@@ -284,4 +284,4 @@ thermalops/
 
 Frontier supercomputer: Oak Ridge Leadership Computing Facility, ORNL.
 Hardware: HPE Cray EX, 77 Olympus rack HPE cabinets x 128 AMD compute nodes = 9,856 nodes; 4 AMD MI250X GPUs per node.
-Dataset: OLCF job telemetry 2024–2025.
+Dataset: OLCF Frontier job telemetry 2024–2025. DOI: [10.13139/OLCF/3013979](https://doi.ccs.ornl.gov/dataset/2cfa2292-3f9d-549c-b2d2-c9aff1557218).

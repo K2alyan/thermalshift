@@ -8,6 +8,7 @@ power/temperature telemetry) from Oak Ridge Leadership Computing Facility.
 **Job-level metadata** (`frontier-completed-job-info.parquet`):
 Available through the OLCF Open Data Initiative.
 DOI: 10.13139/OLCF/3013979
+Dataset page: https://doi.ccs.ornl.gov/dataset/2cfa2292-3f9d-549c-b2d2-c9aff1557218
 Request access at: https://www.olcf.ornl.gov/
 
 **Per-node telemetry** (power and temperature at 2-second resolution):
