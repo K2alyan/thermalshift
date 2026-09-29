@@ -1,0 +1,269 @@
+{
+  "script": "r1_m2_stress_test.py",
+  "git_sha": "e458af378d082bef0d980399ecec71e3db632d11",
+  "timestamp": "2026-09-29T05:39:53.616975Z",
+  "input_files": {
+    "phase3a_fingerprint_2024.parquet": "0afee1b2727aa8b45ecd1aae3018cc7e3651fef7b855afb6394ea3d72c39d3a4",
+    "m2_test_job_availability.csv": "849655e92d0c06c1b8be591bf499565520859d72081d59effade3126900ce72e"
+  },
+  "design": {
+    "n_fp_nodes": 2000,
+    "n_test_jobs": 2637,
+    "n_scenarios": 30,
+    "avail_fractions": [
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6
+    ],
+    "rng_seed_base": 42,
+    "crn_note": "Common random numbers: same available-node draw per (scenario, fraction) for both policies. Within available set, Random-cap-10 uses a per-(scenario, job) seed. FP-cap-10 always selects n_required nodes with lowest FA_2024 (deterministic given available set).",
+    "fp_cap_10_note": "FP-cap-10: select n_required nodes with lowest FA_2024 from available set. FA_2024 is the 2024-training frozen fingerprint. Lower FA = historically cooler node = more thermal headroom.",
+    "observed_occupancy_note": "The 2025 test-job dataset captures jobs that ran, not true production occupancy at each instant. Observed n_available_fp (M2 base) is a LOWER BOUND on true occupancy. This stress test evaluates FP advantage at controlled synthetic occupancy levels (90% to 40%).",
+    "n_required_quartile_boundaries": {
+      "q1_max": 16,
+      "q2_max": 48,
+      "q3_max": 101,
+      "q4_max": 256
+    }
+  },
+  "by_available_fraction": [
+    {
+      "avail_frac": 0.1,
+      "n_avail_nodes": 200,
+      "pct_feasible": 93.66704588547591,
+      "drop_rate_pct": 6.332954114524081,
+      "paired_fa_advantage": {
+        "mean_delta_fa_fp_minus_random": -1.4216931502408607,
+        "pct_jobs_fp_cooler": 98.85964912280701,
+        "mean_fa_fp": -1.4598106864033342,
+        "mean_fa_random": -0.03811753616247341
+      },
+      "median_avail_req_ratio": 5.0,
+      "by_quartile": {
+        "q1": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.288730059039607,
+          "n_jobs_per_scen": 659
+        },
+        "q2": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.609166723619123,
+          "n_jobs_per_scen": 623
+        },
+        "q3": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.1103392745131553,
+          "n_jobs_per_scen": 695
+        },
+        "q4": {
+          "drop_rate_pct": 25.303030303030305,
+          "pct_feasible": 74.69696969696969,
+          "mean_delta_fa": -0.46473084703137585,
+          "n_jobs_per_scen": 660
+        }
+      }
+    },
+    {
+      "avail_frac": 0.2,
+      "n_avail_nodes": 400,
+      "pct_feasible": 100.0,
+      "drop_rate_pct": 0.0,
+      "paired_fa_advantage": {
+        "mean_delta_fa_fp_minus_random": -1.7707630874529268,
+        "pct_jobs_fp_cooler": 100.0,
+        "mean_fa_fp": -1.8097102613824343,
+        "mean_fa_random": -0.038947173929507216
+      },
+      "median_avail_req_ratio": 8.333333333333334,
+      "by_quartile": {
+        "q1": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.6375357341318852,
+          "n_jobs_per_scen": 659
+        },
+        "q2": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.9790778041372379,
+          "n_jobs_per_scen": 623
+        },
+        "q3": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.5341230685769913,
+          "n_jobs_per_scen": 695
+        },
+        "q4": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -0.9578563760332532,
+          "n_jobs_per_scen": 660
+        }
+      }
+    },
+    {
+      "avail_frac": 0.3,
+      "n_avail_nodes": 600,
+      "pct_feasible": 100.0,
+      "drop_rate_pct": 0.0,
+      "paired_fa_advantage": {
+        "mean_delta_fa_fp_minus_random": -1.9840072918873675,
+        "pct_jobs_fp_cooler": 100.0,
+        "mean_fa_fp": -2.0243010040410874,
+        "mean_fa_random": -0.04029371215372031
+      },
+      "median_avail_req_ratio": 12.5,
+      "by_quartile": {
+        "q1": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.8071426784987117,
+          "n_jobs_per_scen": 659
+        },
+        "q2": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.174614019429408,
+          "n_jobs_per_scen": 623
+        },
+        "q3": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.744946415879154,
+          "n_jobs_per_scen": 695
+        },
+        "q4": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.2339362279330355,
+          "n_jobs_per_scen": 660
+        }
+      }
+    },
+    {
+      "avail_frac": 0.4,
+      "n_avail_nodes": 800,
+      "pct_feasible": 100.0,
+      "drop_rate_pct": 0.0,
+      "paired_fa_advantage": {
+        "mean_delta_fa_fp_minus_random": -2.1349904373478,
+        "pct_jobs_fp_cooler": 100.0,
+        "mean_fa_fp": -2.169223286342647,
+        "mean_fa_random": -0.03423284899484629
+      },
+      "median_avail_req_ratio": 16.666666666666668,
+      "by_quartile": {
+        "q1": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.9526132626299004,
+          "n_jobs_per_scen": 659
+        },
+        "q2": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.3170478990945904,
+          "n_jobs_per_scen": 623
+        },
+        "q3": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.8897974680282428,
+          "n_jobs_per_scen": 695
+        },
+        "q4": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.4049508512083135,
+          "n_jobs_per_scen": 660
+        }
+      }
+    },
+    {
+      "avail_frac": 0.5,
+      "n_avail_nodes": 1000,
+      "pct_feasible": 100.0,
+      "drop_rate_pct": 0.0,
+      "paired_fa_advantage": {
+        "mean_delta_fa_fp_minus_random": -2.257324663509481,
+        "pct_jobs_fp_cooler": 100.0,
+        "mean_fa_fp": -2.293429051763618,
+        "mean_fa_random": -0.03610438825413703
+      },
+      "median_avail_req_ratio": 20.833333333333332,
+      "by_quartile": {
+        "q1": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -3.0861165300511026,
+          "n_jobs_per_scen": 659
+        },
+        "q2": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.4331325024954986,
+          "n_jobs_per_scen": 623
+        },
+        "q3": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.006095111898663,
+          "n_jobs_per_scen": 695
+        },
+        "q4": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.5283889281008456,
+          "n_jobs_per_scen": 660
+        }
+      }
+    },
+    {
+      "avail_frac": 0.6,
+      "n_avail_nodes": 1200,
+      "pct_feasible": 100.0,
+      "drop_rate_pct": 0.0,
+      "paired_fa_advantage": {
+        "mean_delta_fa_fp_minus_random": -2.3602298369702606,
+        "pct_jobs_fp_cooler": 100.0,
+        "mean_fa_fp": -2.397875284806708,
+        "mean_fa_random": -0.037645447836447195
+      },
+      "median_avail_req_ratio": 25.0,
+      "by_quartile": {
+        "q1": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -3.2114627949673045,
+          "n_jobs_per_scen": 659
+        },
+        "q2": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.5255989240973062,
+          "n_jobs_per_scen": 623
+        },
+        "q3": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -2.10051386456411,
+          "n_jobs_per_scen": 695
+        },
+        "q4": {
+          "drop_rate_pct": 0.0,
+          "pct_feasible": 100.0,
+          "mean_delta_fa": -1.627677019124918,
+          "n_jobs_per_scen": 660
+        }
+      }
+    }
+  ],
+  "elapsed_seconds": 11.8
+}

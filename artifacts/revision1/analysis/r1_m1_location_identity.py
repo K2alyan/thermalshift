@@ -48,11 +48,14 @@ N_PERM     = 2000
 PERM_SEED  = 7
 XNAME_RE   = re.compile(r"x(\d+)c(\d+)s(\d+)b(\d+)n(\d+)")
 
-# F^P computation parameters
-FP_CACHE        = OUT_DIR / "fp_power_adjusted.parquet"
-FP_SAMPLE_N     = 1000   # training jobs to sample (all ~3945 would work but take ~30min)
-FP_MIN_NODES    = 4      # min fp nodes with T and P data per job to use that job
-FP_MIN_JOBS_NODE = 5     # min qualifying jobs per node to report F^P
+# F^P and FA_restricted computation parameters
+FP_CACHE             = OUT_DIR / "fp_power_adjusted.parquet"
+FA_RESTRICTED_CACHE  = OUT_DIR / "fa_restricted.parquet"
+FP_SAMPLE_N          = None   # use all pre-2025 training jobs (~3945)
+FP_MIN_NODES         = 4      # min fp nodes with T and P data per job to use that job
+FP_MIN_JOBS_NODE     = 5      # min qualifying jobs per node to report F^P
+FA_RESTR_MIN_JOBS    = 5      # same threshold for restricted fingerprint
+GCD_REQUIRED         = 8      # all GCD channels required for restricted fingerprint
 
 def git_sha():
     try:
@@ -300,7 +303,7 @@ print(f"\n    [Frozen / no-refit R2 summary]")
 print(f"    Location-only (combined LOO):    {r2_frozen_loc:.4f}")
 print(f"    Repeated-position (cross-cab):   {r2_frozen_pos:.4f}")
 print(f"    Individual F_2024:               {r2_frozen_F:.4f}")
-print(f"    Incremental R2 from F:           {delta_r2_frozen:.4f}")
+print(f"    Diff in frozen predictive R2 (not a partial R2): {delta_r2_frozen:.4f}")
 
 # Calibrated OLS — reference only, clearly labeled
 # (slope+intercept fitted to 2025 Y data — NOT the primary comparison)
@@ -318,7 +321,7 @@ coef_both, _, _, _ = lstsq(np.column_stack([np.ones(valid.sum()), X_both[valid]]
 y_hat_both_cal = np.column_stack([np.ones(valid.sum()), X_both[valid]]) @ coef_both
 r2_both_calib = float(1 - ((Y_v - y_hat_both_cal)**2).sum() / ((Y_v - Y_v.mean())**2).sum())
 
-print(f"\n    [Calibrated OLS R2 — slope+intercept fitted to 2025, reference only]")
+print(f"\n    [Calibrated OLS R2 -- slope+intercept fitted to 2025, reference only]")
 print(f"    Location-only OLS R2:  {r2_loc_calib:.4f}")
 print(f"    Location + F OLS R2:   {r2_both_calib:.4f}")
 
@@ -326,7 +329,7 @@ print(f"    Location + F OLS R2:   {r2_both_calib:.4f}")
 # M1.4  Permutation null (2,000 draws x 3 shuffle strategies)
 # ─────────────────────────────────────────────────────────────────────
 print(f"\n[1.4] Permutation null ({N_PERM} draws each) ...")
-p_threshold_str = f"p < 1/{N_PERM+1} ≈ {1/(N_PERM+1):.4f}"
+p_threshold_str = f"p < 1/{N_PERM+1} (~{1/(N_PERM+1):.4f})"
 rng2 = np.random.default_rng(PERM_SEED + 1)
 F_vals = node_df["FA_2024"].values.copy()
 Y_vals = Y.copy()
@@ -375,34 +378,29 @@ for null_name, strat in [
           f"p95={np.percentile(null_rs,95):.4f}, {p_str}")
 
 # ─────────────────────────────────────────────────────────────────────
-# M1.5  Full-channel restriction note (Phase 0C showed >99% all-8-GCD)
+# M1.5 + M1.6 shared training-data pass
+# M1.5: Full-8-GCD restricted fingerprint sensitivity
+#   Build FA_restricted using only training job-node pairs where all
+#   GCD_REQUIRED channels have >= 5 valid timestamps.
+# M1.6: Power-adjusted fingerprint F^P
+#   For each qualifying 2024 training job j:
+#     T_ij = a_j + b_j * P_ij + e_ij   (OLS fit per job across fp nodes)
+#     F^P_i = mean_j(e_ij)              (frozen on 2024, tested on Y_2025)
+# One pass reads each training temperature file once for both analyses.
 # ─────────────────────────────────────────────────────────────────────
-m15_note = (
-    "Phase 0C GCD census (500 train sample + 2637 test jobs) found >99% of "
-    "node-job observations have all 8 GCD channels present with >=5 valid "
-    "timestamps. Restricting the fingerprint to jobs where all 8 GCD channels "
-    "are valid would exclude <1% of training observations and produce an "
-    "FA_restricted that is indistinguishable from the unrestricted FA_2024. "
-    "A separate restricted-channel fingerprint is therefore not informative."
-)
-print(f"\n[1.5] {m15_note[:90]}...")
+both_cached = FP_CACHE.exists() and FA_RESTRICTED_CACHE.exists()
 
-# ─────────────────────────────────────────────────────────────────────
-# M1.6  Power-adjusted fingerprint F^P
-# For each qualifying 2024 training job j:
-#   T_ij = a_j + b_j * P_ij + e_ij   (OLS fit across fp nodes in job j)
-#   F^P_i = mean_j(e_ij)              (frozen on 2024, tested on Y_2025)
-# ─────────────────────────────────────────────────────────────────────
-print("\n[1.6] Power-adjusted fingerprint F^P ...")
-
-if FP_CACHE.exists():
-    print(f"    Loading cached F^P from {FP_CACHE}")
-    fp_pa = pd.read_parquet(FP_CACHE)
+if both_cached:
+    print(f"\n[1.5/1.6] Loading cached F^P and FA_restricted ...")
+    fp_pa       = pd.read_parquet(FP_CACHE)
+    fa_restr_df = pd.read_parquet(FA_RESTRICTED_CACHE)
     n_fp_jobs_used = int(fp_pa["n_jobs"].max()) if "n_jobs" in fp_pa.columns else -1
+    n_fa_jobs_used = int(fa_restr_df["n_jobs"].max()) if "n_jobs" in fa_restr_df.columns else -1
+    print(f"    F^P:           {len(fp_pa)} nodes loaded")
+    print(f"    FA_restricted: {len(fa_restr_df)} nodes loaded")
 else:
-    print(f"    Computing F^P from training telemetry (sample up to {FP_SAMPLE_N} jobs)...")
+    print(f"\n[1.5/1.6] Computing FA_restricted + F^P from all pre-2025 training jobs ...")
 
-    # Get training job list (pre-2025 from globus_batch.txt)
     with open(PHASE1_DIR / "globus_batch.txt") as _bf:
         _blines = [l.strip() for l in _bf if l.strip()]
     _bpat = re.compile(r"(\d{4}-\d{2}-\d{2})/(\d{6})")
@@ -415,29 +413,32 @@ else:
 
     if FP_SAMPLE_N and len(train_job_df) > FP_SAMPLE_N:
         train_job_df = train_job_df.sample(n=FP_SAMPLE_N, random_state=42)
-    print(f"    Training jobs to process: {len(train_job_df)}")
+    n_train_total = len(train_job_df)
+    print(f"    Training jobs to process: {n_train_total}")
 
-    resid_acc: dict[str, list] = {}
-    jobs_used = 0
+    resid_acc:     dict[str, list] = {}   # F^P: power-residuals per node
+    fa_restr_acc:  dict[str, list] = {}   # FA_restricted: delta_T_p95 per node
+    jobs_fp_used   = 0
+    jobs_fa_used   = 0
 
     for ki, (_, tj) in enumerate(train_job_df.iterrows()):
-        if ki % 50 == 0:
-            print(f"    ... {ki}/{len(train_job_df)} jobs (qualifying: {jobs_used})", end="\r")
+        if ki % 100 == 0:
+            print(f"    ... {ki}/{n_train_total} "
+                  f"(fp={jobs_fp_used} fa_restr={jobs_fa_used})", end="\r")
 
         jid   = str(int(tj["job_idx"])).zfill(6)
         ddir  = tj["date_dir"]
         tpath = TELE_DIR / ddir / jid / f"{jid}-cleaned-temperature.parquet"
         ppath = TELE_DIR / ddir / jid / f"{jid}-cleaned-power.parquet"
 
-        if not tpath.exists() or not ppath.exists():
+        if not tpath.exists():
             continue
         try:
             tmp = pd.read_parquet(tpath)
-            pwr = pd.read_parquet(ppath)
         except Exception:
             continue
 
-        # Map fp nodes -> their GCD temperature columns
+        # Map fp nodes -> GCD temperature columns
         node_gcd_map: dict[str, list] = {}
         for c in tmp.columns:
             if c.startswith("frontier") and "_gcd" in c and "ncount" not in c:
@@ -445,7 +446,36 @@ else:
                 if node in fp_hostname_set:
                     node_gcd_map.setdefault(node, []).append(c)
 
-        # Map fp nodes -> their node-level power column
+        # ── FA_restricted: require all GCD_REQUIRED channels, each >= 5 valid ts ──
+        fa_qual: dict[str, float] = {}   # node -> T_p95
+        for node, gcols in node_gcd_map.items():
+            if len(gcols) < GCD_REQUIRED:
+                continue
+            t_mat = tmp[gcols].values.astype(float)
+            # All channels must have >= 5 valid timestamps
+            if not all(np.sum(np.isfinite(t_mat[:, ci])) >= 5
+                       for ci in range(t_mat.shape[1])):
+                continue
+            t_mean_ts = np.nanmean(t_mat, axis=1)
+            finite_ts = t_mean_ts[np.isfinite(t_mean_ts)]
+            if len(finite_ts) < 5:
+                continue
+            fa_qual[node] = float(np.percentile(finite_ts, 95))
+
+        if len(fa_qual) >= FP_MIN_NODES:
+            job_mean_t = float(np.mean(list(fa_qual.values())))
+            for node, t_p95 in fa_qual.items():
+                fa_restr_acc.setdefault(node, []).append(t_p95 - job_mean_t)
+            jobs_fa_used += 1
+
+        # ── F^P: also requires node-level power column ──
+        if not ppath.exists():
+            continue
+        try:
+            pwr = pd.read_parquet(ppath)
+        except Exception:
+            continue
+
         node_pwr_map: dict[str, str] = {}
         for c in pwr.columns:
             if c.startswith("frontier") and c.endswith("_node"):
@@ -489,10 +519,26 @@ else:
         resids = T_arr - X_job @ coefs
         for node, r in zip(node_list, resids):
             resid_acc.setdefault(node, []).append(float(r))
-        jobs_used += 1
+        jobs_fp_used += 1
 
-    print(f"\n    Done: {jobs_used} qualifying jobs used")
+    print(f"\n    Pass complete: {jobs_fp_used} jobs for F^P, {jobs_fa_used} for FA_restricted")
 
+    # Build FA_restricted
+    fa_restr_rows = []
+    for node, deltas in fa_restr_acc.items():
+        if len(deltas) >= FA_RESTR_MIN_JOBS:
+            fa_restr_rows.append({
+                "hostname":        node,
+                "FA_restricted":   float(np.mean(deltas)),
+                "n_jobs":          len(deltas),
+                "FA_restricted_std": float(np.std(deltas)),
+            })
+    fa_restr_df = pd.DataFrame(fa_restr_rows)
+    fa_restr_df.to_parquet(FA_RESTRICTED_CACHE, index=False)
+    n_fa_jobs_used = jobs_fa_used
+    print(f"    FA_restricted: {len(fa_restr_df)} nodes (min {FA_RESTR_MIN_JOBS} jobs each)")
+
+    # Build F^P
     fp_rows = []
     for node, resids in resid_acc.items():
         if len(resids) >= FP_MIN_JOBS_NODE:
@@ -503,13 +549,79 @@ else:
                 "F_power_std": float(np.std(resids)),
             })
     fp_pa = pd.DataFrame(fp_rows)
-    n_fp_jobs_used = jobs_used
-    print(f"    F^P computed for {len(fp_pa)} of {len(fp_hostname_set)} fp nodes "
-          f"(min {FP_MIN_JOBS_NODE} jobs each)")
+    n_fp_jobs_used = jobs_fp_used
+    print(f"    F^P: {len(fp_pa)} nodes (min {FP_MIN_JOBS_NODE} jobs each)")
     fp_pa.to_parquet(FP_CACHE, index=False)
-    print(f"    Saved cache: {FP_CACHE}")
+    print(f"    Saved caches: {FP_CACHE.name}, {FA_RESTRICTED_CACHE.name}")
 
-# Test F^P on Y_2025
+# ─────────────────────────────────────────────────────────────────────
+# M1.5  Full-8-GCD restricted fingerprint sensitivity (results)
+# ─────────────────────────────────────────────────────────────────────
+print("\n[1.5] Full-8-GCD restricted fingerprint sensitivity ...")
+fa_restr_map = fa_restr_df.set_index("hostname")["FA_restricted"].to_dict()
+node_df["FA_restricted"] = node_df["hostname"].map(fa_restr_map)
+restr_valid = (node_df["FA_restricted"].notna() & node_df["Y_2025"].notna() &
+               node_df["FA_2024"].notna())
+
+if restr_valid.sum() >= 50:
+    FA_r  = node_df.loc[restr_valid, "FA_restricted"].values
+    FA_u  = node_df.loc[restr_valid, "FA_2024"].values
+    Y_r   = node_df.loc[restr_valid, "Y_2025"].values
+
+    r_restr    = pearson_r(FA_r, Y_r)
+    r2_restr   = frozen_r2(Y_r, FA_r)
+    mae_restr  = mae(Y_r, FA_r)
+    rmse_restr = rmse(Y_r, FA_r)
+
+    r_unrestr    = pearson_r(FA_u, Y_r)
+    r2_unrestr   = frozen_r2(Y_r, FA_u)
+    mae_unrestr  = mae(Y_r, FA_u)
+    rmse_unrestr = rmse(Y_r, FA_u)
+
+    r_restr_vs_unrestr = pearson_r(FA_r, FA_u)
+
+    delta_r    = r_restr   - r_unrestr
+    delta_r2   = r2_restr  - r2_unrestr
+    delta_mae  = mae_restr - mae_unrestr
+    delta_rmse = rmse_restr - rmse_unrestr
+
+    print(f"    Nodes with FA_restricted: {restr_valid.sum()}")
+    print(f"    r(FA_restricted, FA_2024): {r_restr_vs_unrestr:.4f}")
+    print(f"    Restricted:   r={r_restr:.4f}  R2={r2_restr:.4f}  MAE={mae_restr:.4f}")
+    print(f"    Unrestricted: r={r_unrestr:.4f}  R2={r2_unrestr:.4f}  MAE={mae_unrestr:.4f}")
+    print(f"    Delta (restr-unrestr): dr={delta_r:+.4f}  dR2={delta_r2:+.4f}  dMAE={delta_mae:+.4f}")
+
+    m15_result = {
+        "status": "RUN",
+        "n_nodes_restricted": int(restr_valid.sum()),
+        "gcd_channels_required": GCD_REQUIRED,
+        "min_valid_ts_per_channel": 5,
+        "n_training_jobs_used": n_fa_jobs_used,
+        "r_restricted_vs_unrestricted_fingerprint": jf(r_restr_vs_unrestr),
+        "restricted_FA_on_Y2025": {
+            "pearson_r":  jf(r_restr),
+            "r2_frozen":  jf(r2_restr),
+            "mae":        jf(mae_restr),
+            "rmse":       jf(rmse_restr),
+        },
+        "unrestricted_FA_same_nodes": {
+            "pearson_r":  jf(r_unrestr),
+            "r2_frozen":  jf(r2_unrestr),
+            "mae":        jf(mae_unrestr),
+            "rmse":       jf(rmse_unrestr),
+        },
+        "delta_restricted_minus_unrestricted": {
+            "delta_r":      jf(delta_r),
+            "delta_r2":     jf(delta_r2),
+            "delta_mae":    jf(delta_mae),
+            "delta_rmse":   jf(delta_rmse),
+        },
+    }
+else:
+    print(f"    WARNING: only {restr_valid.sum()} valid nodes for FA_restricted.")
+    m15_result = {"status": "insufficient_data", "n_valid": int(restr_valid.sum())}
+
+# M1.6 Test F^P on Y_2025
 fp_power_map = fp_pa.set_index("hostname")["F_power"].to_dict()
 node_df["F_power"] = node_df["hostname"].map(fp_power_map)
 fp_valid = node_df["F_power"].notna() & node_df["Y_2025"].notna() & node_df["FA_2024"].notna()
@@ -534,8 +646,8 @@ if fp_valid.sum() >= 100:
 
     m16 = {
         "n_nodes": int(fp_valid.sum()),
-        "n_training_jobs_used": n_fp_jobs_used,
-        "training_sample_size": FP_SAMPLE_N,
+        "n_training_jobs_qualifying": n_fp_jobs_used,
+        "training_sample_cap": FP_SAMPLE_N,
         "min_jobs_per_node": FP_MIN_JOBS_NODE,
         "F_power_vs_Y2025": {
             "pearson_r": float(r_fp),
@@ -735,10 +847,10 @@ perm_p_within_chassis = null_results["C_within_chassis"]["empirical_p"]
 r_indiv = loc_results["F_individual_F"]["pearson_r"]
 r_loc   = loc_results["D_combined_loc"]["pearson_r"]
 
-print(f"    Frozen R2 — location-only (combined LOO):  {r2_frozen_loc:.4f}")
-print(f"    Frozen R2 — repeated-position (cross-cab): {r2_frozen_pos:.4f}")
-print(f"    Frozen R2 — individual F_2024:             {r2_frozen_F:.4f}")
-print(f"    Incremental frozen R2 from F:              {delta_r2_frozen:.4f}")
+print(f"    Frozen R2 - location-only (combined LOO):  {r2_frozen_loc:.4f}")
+print(f"    Frozen R2 - repeated-position (cross-cab): {r2_frozen_pos:.4f}")
+print(f"    Frozen R2 - individual F_2024:             {r2_frozen_F:.4f}")
+print(f"    Diff in frozen predictive R2 (F minus location, not a partial R2): {delta_r2_frozen:.4f}")
 print(f"    Within-chassis permutation:                {null_results['C_within_chassis']['p_display']}")
 print(f"    Individual F Pearson r(Y_2025):            {r_indiv:.4f}")
 print(f"    Combined-location Pearson r(Y_2025):       {r_loc:.4f}")
@@ -751,7 +863,7 @@ if delta_r2_frozen > 0.50 and perm_p_within_chassis < 0.01 and r_indiv > 0.80:
         f"frozen R2={r2_frozen_loc:.3f}. Repeated-position model (cross-cabinet) "
         f"predicts with frozen R2={r2_frozen_pos:.3f}. "
         f"Individual F_2024 predicts Y_2025 with frozen R2={r2_frozen_F:.3f}. "
-        f"Incremental frozen R2 from F beyond location = {delta_r2_frozen:.3f}. "
+        f"Difference in frozen predictive R2 (F minus location-only, not a partial R2) = {delta_r2_frozen:.3f}. "
         f"Within-chassis permutation {null_results['C_within_chassis']['p_display']}. "
         "These results support a persistent node-slot thermal fingerprint that is not "
         "reducible to cabinet or chassis location effects. "
@@ -872,11 +984,17 @@ result = {
             "separately for reference."
         ),
         "predictors_frozen": loc_results,
-        "frozen_incremental": {
+        "frozen_predictive_r2_comparison": {
             "r2_frozen_location_combined": jf(r2_frozen_loc),
             "r2_frozen_repeated_position": jf(r2_frozen_pos),
             "r2_frozen_individual_F":      jf(r2_frozen_F),
-            "delta_r2_F_minus_location":   jf(delta_r2_frozen),
+            "difference_in_frozen_predictive_R2": jf(delta_r2_frozen),
+            "note": (
+                "difference_in_frozen_predictive_R2 = r2_frozen_individual_F - "
+                "r2_frozen_location_combined. This is the difference in standalone "
+                "frozen predictive performance, NOT a partial R2 from a combined model "
+                "with independently fitted coefficients."
+            ),
         },
         "calibrated_ols_reference": {
             "note": "slope+intercept fitted to 2025 Y — NOT the primary comparison",
@@ -892,10 +1010,7 @@ result = {
 
     "m1_4_permutation_null": null_results,
 
-    "m1_5_full_channel_restriction": {
-        "status": "NOT RUN — not informative",
-        "reason": m15_note,
-    },
+    "m1_5_full_channel_restriction": m15_result,
 
     "m1_6_power_adjusted_fingerprint": m16,
 
@@ -912,8 +1027,8 @@ result = {
         "key_stats": {
             "r2_frozen_location_only":       jf(r2_frozen_loc),
             "r2_frozen_repeated_position":   jf(r2_frozen_pos),
-            "r2_frozen_individual_F":        jf(r2_frozen_F),
-            "incremental_frozen_R2_from_F":  jf(delta_r2_frozen),
+            "r2_frozen_individual_F":                jf(r2_frozen_F),
+            "difference_in_frozen_predictive_R2":    jf(delta_r2_frozen),
             "within_chassis_permutation":    null_results["C_within_chassis"]["p_display"],
             "individual_F_pearson_r":        float(r_indiv),
             "combined_location_pearson_r":   float(r_loc),

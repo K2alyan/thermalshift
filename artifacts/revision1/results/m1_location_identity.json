@@ -1,7 +1,7 @@
 {
   "script": "r1_m1_location_identity.py",
-  "git_sha": "e61b037c703e231a18147cc6638fad5c7876b4cf",
-  "timestamp": "2026-09-29T05:03:14.206751Z",
+  "git_sha": "e458af378d082bef0d980399ecec71e3db632d11",
+  "timestamp": "2026-09-29T05:36:27.812703Z",
   "input_files": {
     "phase3a_fingerprint_2024.parquet": "0afee1b2727aa8b45ecd1aae3018cc7e3651fef7b855afb6394ea3d72c39d3a4",
     "phase3a_test_set.parquet": "b97c4df326a9154352bfba8b60f6d163c381ed4dd6193b49c3518a8fc7c59516",
@@ -89,11 +89,12 @@
         "rmse": 0.39459020876544304
       }
     },
-    "frozen_incremental": {
+    "frozen_predictive_r2_comparison": {
       "r2_frozen_location_combined": 0.05846979220614623,
       "r2_frozen_repeated_position": 0.07755770034225029,
       "r2_frozen_individual_F": 0.8482261482495985,
-      "delta_r2_F_minus_location": 0.7897563560434523
+      "difference_in_frozen_predictive_R2": 0.7897563560434523,
+      "note": "difference_in_frozen_predictive_R2 = r2_frozen_individual_F - r2_frozen_location_combined. This is the difference in standalone frozen predictive performance, NOT a partial R2 from a combined model with independently fitted coefficients."
     },
     "calibrated_ols_reference": {
       "note": "slope+intercept fitted to 2025 Y \u2014 NOT the primary comparison",
@@ -115,7 +116,7 @@
       "null_p95": 0.03606847301710882,
       "null_p99": 0.049883095469924914,
       "empirical_p": 0.0,
-      "p_display": "p < 1/2001 \u2248 0.0005"
+      "p_display": "p < 1/2001 (~0.0005)"
     },
     "B_within_cabinet": {
       "strategy": "cabinet",
@@ -125,7 +126,7 @@
       "null_p95": 0.22734586988463687,
       "null_p99": 0.2405647124508385,
       "empirical_p": 0.0,
-      "p_display": "p < 1/2001 \u2248 0.0005"
+      "p_display": "p < 1/2001 (~0.0005)"
     },
     "C_within_chassis": {
       "strategy": "chassis",
@@ -135,29 +136,51 @@
       "null_p95": 0.2725474511340745,
       "null_p99": 0.2853118985635473,
       "empirical_p": 0.0,
-      "p_display": "p < 1/2001 \u2248 0.0005"
+      "p_display": "p < 1/2001 (~0.0005)"
     }
   },
   "m1_5_full_channel_restriction": {
-    "status": "NOT RUN \u2014 not informative",
-    "reason": "Phase 0C GCD census (500 train sample + 2637 test jobs) found >99% of node-job observations have all 8 GCD channels present with >=5 valid timestamps. Restricting the fingerprint to jobs where all 8 GCD channels are valid would exclude <1% of training observations and produce an FA_restricted that is indistinguishable from the unrestricted FA_2024. A separate restricted-channel fingerprint is therefore not informative."
+    "status": "RUN",
+    "n_nodes_restricted": 1994,
+    "gcd_channels_required": 8,
+    "min_valid_ts_per_channel": 5,
+    "n_training_jobs_used": 2499,
+    "r_restricted_vs_unrestricted_fingerprint": 0.9869661545736198,
+    "restricted_FA_on_Y2025": {
+      "pearson_r": 0.9154671512099466,
+      "r2_frozen": 0.7900363029564,
+      "mae": 0.3274259188725178,
+      "rmse": 0.4608942132439784
+    },
+    "unrestricted_FA_same_nodes": {
+      "pearson_r": 0.9276396662437985,
+      "r2_frozen": 0.8515817064562443,
+      "mae": 0.2620319628673891,
+      "rmse": 0.3875010349113574
+    },
+    "delta_restricted_minus_unrestricted": {
+      "delta_r": -0.01217251503385186,
+      "delta_r2": -0.061545403499844276,
+      "delta_mae": 0.0653939560051287,
+      "delta_rmse": 0.07339317833262099
+    }
   },
   "m1_6_power_adjusted_fingerprint": {
-    "n_nodes": 1829,
-    "n_training_jobs_used": 625,
-    "training_sample_size": 1000,
+    "n_nodes": 1994,
+    "n_training_jobs_qualifying": 2501,
+    "training_sample_cap": null,
     "min_jobs_per_node": 5,
     "F_power_vs_Y2025": {
-      "pearson_r": 0.8993416600932032,
-      "r2_frozen": 0.7785605208317634,
-      "mae": 0.3168201871842998,
-      "rmse": 0.45595821922000496
+      "pearson_r": 0.9203006212726524,
+      "r2_frozen": 0.8216424140237542,
+      "mae": 0.30100818582743477,
+      "rmse": 0.4247906437381402
     },
     "FA_2024_vs_Y2025_same_nodes": {
-      "pearson_r": 0.9292660148992437,
-      "r2_frozen": 0.8544422941089019
+      "pearson_r": 0.9276396662437985,
+      "r2_frozen": 0.8515817064562443
     },
-    "r_FA_vs_FP": 0.9603814204791165,
+    "r_FA_vs_FP": 0.9805248650233708,
     "note": "F^P_i = mean_j(e_ij) where e_ij = T_p95_ij - (a_j + b_j*P_ij), OLS fit per 2024 training job j across fingerprinted nodes. T_p95=p95 of mean(GCD temperature channels) per node-job; P=mean(node-level power) per node-job. Frozen on 2024 training jobs, tested prospectively on 2025 Y_2025.",
     "fa_split_half_r_even_odd": 0.35297827042148044,
     "fa_spearman_brown_full_year": 0.5217796591981044
@@ -187,17 +210,17 @@
   },
   "m1_verdict": {
     "classification": "RESOLVED IN FAVOUR OF NODE-SPECIFIC SIGNAL",
-    "note": "Location group means (cabinet/chassis LOO) predict Y_2025 with frozen R2=0.058. Repeated-position model (cross-cabinet) predicts with frozen R2=0.078. Individual F_2024 predicts Y_2025 with frozen R2=0.848. Incremental frozen R2 from F beyond location = 0.790. Within-chassis permutation p < 1/2001 \u2248 0.0005. These results support a persistent node-slot thermal fingerprint that is not reducible to cabinet or chassis location effects. Whether the fingerprint follows the physical hardware or the permanent rack slot cannot be resolved because hostname and xname are in 1:1 correspondence throughout.",
+    "note": "Location group means (cabinet/chassis LOO) predict Y_2025 with frozen R2=0.058. Repeated-position model (cross-cabinet) predicts with frozen R2=0.078. Individual F_2024 predicts Y_2025 with frozen R2=0.848. Difference in frozen predictive R2 (F minus location-only, not a partial R2) = 0.790. Within-chassis permutation p < 1/2001 (~0.0005). These results support a persistent node-slot thermal fingerprint that is not reducible to cabinet or chassis location effects. Whether the fingerprint follows the physical hardware or the permanent rack slot cannot be resolved because hostname and xname are in 1:1 correspondence throughout.",
     "key_stats": {
       "r2_frozen_location_only": 0.05846979220614623,
       "r2_frozen_repeated_position": 0.07755770034225029,
       "r2_frozen_individual_F": 0.8482261482495985,
-      "incremental_frozen_R2_from_F": 0.7897563560434523,
-      "within_chassis_permutation": "p < 1/2001 \u2248 0.0005",
+      "difference_in_frozen_predictive_R2": 0.7897563560434523,
+      "within_chassis_permutation": "p < 1/2001 (~0.0005)",
       "individual_F_pearson_r": 0.9258770969716581,
       "combined_location_pearson_r": 0.3165029329911154,
       "topology_artifact_note": "board_level_variance_decomp_R2=1.0 is structural (each fp node is uniquely identified at the board level in Frontier's xname hierarchy). Primary evidence for node-specific signal is prediction-based (M1.3)."
     }
   },
-  "elapsed_seconds": 67.0
+  "elapsed_seconds": 251.2
 }
