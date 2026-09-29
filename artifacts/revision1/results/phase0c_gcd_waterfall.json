@@ -1,0 +1,48 @@
+{
+  "script": "r1_00c_gcd_census_waterfall.py",
+  "git_sha": "e61b037c703e231a18147cc6638fad5c7876b4cf",
+  "timestamp": "2026-09-29T04:06:40.692949Z",
+  "input_sha256": {
+    "phase3a_fingerprint_2024.parquet": "0afee1b2727aa8b45ecd1aae3018cc7e3651fef7b855afb6394ea3d72c39d3a4",
+    "phase3a_test_set.parquet": "b97c4df326a9154352bfba8b60f6d163c381ed4dd6193b49c3518a8fc7c59516",
+    "globus_batch.txt": "1e67d8b729a43dc8b9020eeb75e5705f43a8f331c07616079eeb9572e846061d"
+  },
+  "waterfall_4358_to_2637": {
+    "n_candidate_2025": 4358,
+    "n_missing_telemetry": 0,
+    "n_no_fp_gcd_cols": 0,
+    "n_lt_min_nodes": 1720,
+    "n_all_ts_short": 1,
+    "n_qualified": 2637,
+    "n_frozen_test_set": 2637,
+    "reconciliation_gap": 0,
+    "min_fp_nodes_threshold": 3,
+    "min_valid_ts_threshold": 5
+  },
+  "gcd_channel_census": {
+    "n_node_job_obs": 74056,
+    "train_sample_size": 500,
+    "test_jobs_size": 2637,
+    "by_split": {
+      "train": {
+        "n": 8882,
+        "pct_all_8_gcd_cols": 100.0,
+        "pct_all_8_valid_channels": 99.65097950911957,
+        "pct_all_8_channels_min_ts": 99.56090970502139,
+        "n_gcd_cols_distribution": {
+          "8": 8882
+        }
+      },
+      "test": {
+        "n": 65174,
+        "pct_all_8_gcd_cols": 100.0,
+        "pct_all_8_valid_channels": 98.97044833829442,
+        "pct_all_8_channels_min_ts": 98.93055512934606,
+        "n_gcd_cols_distribution": {
+          "8": 65174
+        }
+      }
+    }
+  },
+  "m1_5_conclusion": "If pct_all_8_channels_min_ts >= 99.0% in both train and test splits, the full-channel restriction analysis (M1.5) would be identical to the unrestricted FA_2024 fingerprint and is unnecessary."
+}

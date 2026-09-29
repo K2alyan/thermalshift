@@ -1,0 +1,97 @@
+{
+  "script": "r1_00_integrity_audit.py",
+  "git_sha": "e61b037c703e231a18147cc6638fad5c7876b4cf",
+  "timestamp": "2026-09-29T03:53:21.354249Z",
+  "raw_data_path": "C:\\Users\\kalya\\OneDrive\\Documents\\frontier-job-centric-telemetry-dataset",
+  "input_sha256": {
+    "frontier-completed-job-info.parquet": "e7a8213889a3847d8335bd346129bd8f731b7f6dd0153ffda4563e16b25aa4a3",
+    "cohort_manifest.csv": "a80b88e2e8952092cfc3e4abbfcb7b3bcc8ccb3f5c415226e7b55bd1a4298c9d",
+    "globus_batch.txt": "1e67d8b729a43dc8b9020eeb75e5705f43a8f331c07616079eeb9572e846061d"
+  },
+  "phase_0_1_fingerprint_key": {
+    "conclusion": "F_i is keyed by HOSTNAME (frontier##### OS identity), not xname (hardware location).",
+    "evidence": "Temperature telemetry columns use frontier##### hostnames (e.g. frontier00001_gpu0_gcd0). Fingerprint F_i is aggregated by hostname. xname is the hardware location parsed from node_list; hostname is the OS-level identity.",
+    "n_unique_hostnames": 9856,
+    "hostnames_to_exactly_1_xname": 9856,
+    "hostnames_to_multi_xname": 0,
+    "xnames_to_exactly_1_hostname": 9856,
+    "xnames_to_multi_hostname": 0,
+    "cohort_hostnames_exactly_1_xname": 2000,
+    "cohort_hostnames_multi_xname": 0,
+    "cohort_era_changed_xname_pre_post_2025": "N/A (era column missing)",
+    "multi_xname_cohort_examples": []
+  },
+  "phase_0_2_telemetry": {
+    "column_pattern": "{hostname}_gpu{g}_gcd{k}  (hostname-keyed, 8 GCD channels 0-7)",
+    "example_columns": [
+      "frontier00066_gpu0_gcd0",
+      "frontier00024_gpu0_gcd0",
+      "frontier04989_gpu0_gcd0"
+    ],
+    "sensor_type": "GCD temperature channel (junction/package/edge unspecified in public dataset documentation; labeled 'gcd' in column name)",
+    "n_jobs_sampled": 60,
+    "gcd_channel_count_distribution": {
+      "8": 3373
+    },
+    "fraction_all_8_gcd": 1.0,
+    "timestamp_interval_seconds": {
+      "p5": 60.0,
+      "p50": 60.0,
+      "p95": 60.0,
+      "n_intervals_sampled": 2407
+    },
+    "cpu_channel_present_fraction": 1.0
+  },
+  "phase_0_3_provenance": {
+    "n_fleet_jobs": 152400,
+    "n_longitudinal_globus": 8304,
+    "n_pre2025_train": 3945,
+    "n_2025plus_candidate": 4359,
+    "n_2025_test_jobs_frozen": 2637,
+    "job_107165_in_globus_batch": true,
+    "manifest_note": "cohort_job_list.csv (52,413 entries) is the COHORT stratified sample, NOT the 8,303 longitudinal analysis set. The 8,303 jobs are recoverable from globus_batch.txt.",
+    "selection_distributions": [
+      {
+        "label": "all_fleet_152400",
+        "n_jobs": 152400,
+        "node_count_median": 4.0,
+        "node_count_p25": 1.0,
+        "node_count_p75": 21.0,
+        "node_count_max": 9450,
+        "run_time_median_h": 0.7677777777777778,
+        "run_time_p95_h": 2.007222222222222
+      },
+      {
+        "label": "longitudinal_8303",
+        "n_jobs": 8304,
+        "node_count_median": 30.0,
+        "node_count_p25": 6.0,
+        "node_count_p75": 73.0,
+        "node_count_max": 9400,
+        "run_time_median_h": 0.5031944444444445,
+        "run_time_p95_h": 1.9477777777777778
+      },
+      {
+        "label": "pre2025_train",
+        "n_jobs": 3945,
+        "node_count_median": 32.0,
+        "node_count_p25": 12.0,
+        "node_count_p75": 98.0,
+        "node_count_max": 256,
+        "run_time_median_h": 0.4688888888888889,
+        "run_time_p95_h": 1.9054999999999993
+      },
+      {
+        "label": "2025plus_candidate",
+        "n_jobs": 4359,
+        "node_count_median": 16.0,
+        "node_count_p25": 4.0,
+        "node_count_p75": 64.0,
+        "node_count_max": 9400,
+        "run_time_median_h": 0.5355555555555556,
+        "run_time_p95_h": 1.9650277777777776
+      }
+    ]
+  },
+  "elapsed_seconds": 15.1
+}
