@@ -1,0 +1,27 @@
+{
+  "script": "r1_m4_threshold_audit.py",
+  "timestamp": "2026-09-29T16:30:03.081300Z",
+  "subset_462_jobs": {
+    "n_jobs": 462,
+    "n_node_job_pairs": 17780,
+    "selection_rule": "Jobs from 1000-job random sample of 3,945 pre-2025 training jobs that qualified for power-model slope estimation (>= 8 fp nodes per job, each with >= 8 GCD channels and >= 5 valid timestamps). TRAIN_SAMPLE_N=1000, seed=42 in r1_m3_thermal_model.py.",
+    "p90_C": 61.800625,
+    "p95_C": 63.625,
+    "p99_C": 66.2638125,
+    "mean_C": 49.097694473458674
+  },
+  "full_population": {
+    "n_pre2025_jobs_in_batch": 3945,
+    "n_contributing_jobs": 3940,
+    "n_node_job_pairs": 77627,
+    "selection_rule": "All pre-2025 jobs in globus_batch.txt with at least one fp node having >= 8 GCD channels and >= 5 valid timestamps. No minimum fp-nodes-per-job requirement.",
+    "p90_C": 61.875,
+    "p95_C": 63.625,
+    "p99_C": 66.6625,
+    "mean_C": 49.85338425449663
+  },
+  "delta_p95_full_minus_subset_C": 0.0,
+  "verdict": "Full-population p95=63.6250 C vs subset p95=63.6250 C (delta=+0.0000 C). Difference < 0.5 C: subset threshold is a reliable estimate.",
+  "recommended_primary_threshold_C": 63.625,
+  "elapsed_seconds": 149.6
+}

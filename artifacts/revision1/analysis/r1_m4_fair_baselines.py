@@ -58,6 +58,7 @@ TABLE_DIR  = REV1_DIR / "tables"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 DATA_DIR   = Path(os.environ.get("THERMALSHIFT_DATA_DIR", ""))
+SMOKE_ONLY = os.environ.get("M4_SMOKE_ONLY", "0").strip().lower() in ("1", "true", "yes")
 
 # ── Constants ──────────────────────────────────────────────────────────
 BETA_F_FROZEN     = 1.12484352       # training-median frozen slope (Gate D)
@@ -113,10 +114,48 @@ def _dt64_to_h(a, b):
     return float((b - a).astype("int64")) / 3.6e6
 
 # ══════════════════════════════════════════════════════════════════════
+# DESIGN AUDIT — printed before any data load
+# ══════════════════════════════════════════════════════════════════════
+_DESIGN_AUDIT = {
+    # Items IN this script (M4-primary)
+    "primary_residual_model_K5"        : True,
+    "model_identity_B_ref_s"           : True,
+    "primary_threshold_2024_p95"       : True,  # 63.625 C (audit confirmed = full-pop p95)
+    "secondary_threshold_legacy_60_60" : True,   # computed and stored in every lambda row
+    "correct_Gate_C_topology"          : True,
+    "gate_C_cabinet_p99_power"         : True,
+    "conservative_C_lower_primary"     : True,
+    "four_policies_P0_P1_P2_P3"       : True,
+    "5_scenario_smoke_gate"            : True,
+    "30_scenario_main_run"             : True,
+    "availability_sensitivity_f_10_60" : True,
+    "bootstrap_CI_for_median_delta_C"  : True,
+    "stratification_4_dimensions"      : True,   # ncoh, node_count, ppn, runtime
+    # Items NOT in this script → r1_m4_sensitivity.py
+    "residual_sensitivity_K1_K3_K10"   : False,
+    "parametric_residual_sensitivity"  : False,
+    "threshold_sensitivity_p90_p99"    : False,
+    "cabinet_span_metrics"             : False,
+}
+
+print("=" * 70)
+print("M4 DESIGN AUDIT")
+print("=" * 70)
+for item, implemented in _DESIGN_AUDIT.items():
+    tag = "[M4-primary]" if implemented else "[M4-sensitivity]"
+    print(f"  {tag:<18} {item}")
+print()
+_missing = [k for k, v in _DESIGN_AUDIT.items() if not v]
+if _missing:
+    print(f"  Items deferred to r1_m4_sensitivity.py: {len(_missing)}")
+    for m in _missing:
+        print(f"    - {m}")
+print("=" * 70)
+
+# ══════════════════════════════════════════════════════════════════════
 # [0] Load core data
 # ══════════════════════════════════════════════════════════════════════
-print("=" * 70)
-print("M4: Fair-baseline Monte-Carlo Capacity Experiment")
+print("\nM4: Fair-baseline Monte-Carlo Capacity Experiment")
 print("=" * 70)
 t_script = time.time()
 
@@ -244,14 +283,27 @@ jobs_sorted = job_agg.sort_values("start_time").reset_index(drop=True)
 n_base = len(jobs_sorted)
 print(f"    {n_base} base test jobs")
 
-# Job-size quartiles (by n_cohort)
-_nc_arr  = jobs_sorted["n_cohort"].values
-_q_cuts  = np.percentile(_nc_arr, [25, 50, 75])
-_job_q   = (np.digitize(_nc_arr, _q_cuts) + 1).clip(1, 4)
-job_quartile: dict[int, int] = {
-    int(jid): int(q) for jid, q in zip(jobs_sorted["job_idx"].values, _job_q)
-}
-print(f"    n_cohort quartile boundaries: p25={_q_cuts[0]:.0f} p50={_q_cuts[1]:.0f} p75={_q_cuts[2]:.0f}")
+# Job stratification: quartiles by n_cohort, node_count, power_per_node, runtime
+def _make_quartile_map(arr, jids, label):
+    cuts = np.percentile(arr, [25, 50, 75])
+    q    = (np.digitize(arr, cuts) + 1).clip(1, 4)
+    mapping = {int(jid): int(qi) for jid, qi in zip(jids, q)}
+    print(f"    {label} quartile bounds: p25={cuts[0]:.2f} p50={cuts[1]:.2f} p75={cuts[2]:.2f}")
+    return mapping, cuts
+
+_jids = jobs_sorted["job_idx"].values
+job_quartile_ncoh, _q_cuts_ncoh = _make_quartile_map(
+    jobs_sorted["n_cohort"].values,   _jids, "n_cohort")
+job_quartile_nc,   _q_cuts_nc   = _make_quartile_map(
+    jobs_sorted["node_count"].fillna(0).values, _jids, "node_count")
+job_quartile_ppn,  _q_cuts_ppn  = _make_quartile_map(
+    jobs_sorted["power_per_node"].fillna(0).values, _jids, "power_per_node")
+job_quartile_rt,   _q_cuts_rt   = _make_quartile_map(
+    jobs_sorted["run_time"].fillna(0).values, _jids, "runtime")
+
+# Primary n_cohort quartile (used in loop)
+job_quartile = job_quartile_ncoh   # for backward compat label
+_q_cuts      = _q_cuts_ncoh
 
 # Historical per-node utilisation
 hist_node_hours: dict[str, float] = {n: 0.0 for n in cohort_list}
@@ -610,6 +662,7 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
     _rng = np.random.default_rng(policy_seed)
 
     B_primary = 0.0; S_primary = 0.0
+    n_cabs_per_job: list[int] = []   # cabinet span per admitted job (syn + base)
     B_secondary = 0.0; S_secondary = 0.0
     syn_node_hours = 0.0
     n_syn_admit  = 0
@@ -617,7 +670,18 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
     n_drop_phys  = 0
     n_drop_la    = 0
     n_base_unserved = 0
-    # Per-quartile counters (Q1=smallest, Q4=largest, by n_cohort)
+    # Per-stratification counters: attempted, admitted, drop_cap, drop_physical, drop_la
+    # Keys: "ncoh", "nc", "ppn", "rt" → each a dict of quartile→{attempted, admitted, ...}
+    def _empty_strat():
+        return {q: {"attempted": 0, "admitted": 0,
+                    "drop_cap": 0, "drop_physical": 0, "drop_la": 0}
+                for q in range(1, 5)}
+    strat_ncoh = _empty_strat()
+    strat_nc   = _empty_strat()
+    strat_ppn  = _empty_strat()
+    strat_rt   = _empty_strat()
+
+    # backward-compat aliases for old q_admit / q_drop
     q_admit  = {q: 0 for q in range(1, 5)}
     q_drop   = {q: 0 for q in range(1, 5)}
     cohort_records: list[dict] = []
@@ -655,8 +719,18 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
                 avail_unc = [n for n in eligible if n not in bg_busy and n not in cf_busy_now]
                 if len(avail_unc) < k:
                     n_drop_phys += 1
+                    _drop_key = "drop_physical"
                 else:
                     n_drop_cap += 1
+                    _drop_key = "drop_cap"
+                # Update all four stratifications
+                for _strat, _qmap in ((strat_ncoh, job_quartile_ncoh),
+                                      (strat_nc,   job_quartile_nc),
+                                      (strat_ppn,  job_quartile_ppn),
+                                      (strat_rt,   job_quartile_rt)):
+                    _q = _qmap.get(parent_jid, 4)
+                    _strat[_q]["attempted"] += 1
+                    _strat[_q][_drop_key]   += 1
                 q_drop[job_quartile.get(parent_jid, 4)] += 1
                 continue
             available = avail_capped
@@ -682,6 +756,13 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
         if is_syn and selected:
             if not look_ahead_safe(selected, t_j, t_e, cf_busy):
                 n_drop_la += 1
+                for _strat, _qmap in ((strat_ncoh, job_quartile_ncoh),
+                                      (strat_nc,   job_quartile_nc),
+                                      (strat_ppn,  job_quartile_ppn),
+                                      (strat_rt,   job_quartile_rt)):
+                    _q = _qmap.get(parent_jid, 4)
+                    _strat[_q]["attempted"] += 1
+                    _strat[_q]["drop_la"]   += 1
                 q_drop[job_quartile.get(parent_jid, 4)] += 1
                 continue
 
@@ -709,6 +790,13 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
                 n_syn_admit    += 1
                 syn_node_hours += len(selected) * rt_h
                 q_admit[job_quartile.get(parent_jid, 4)] += 1
+                for _strat, _qmap in ((strat_ncoh, job_quartile_ncoh),
+                                      (strat_nc,   job_quartile_nc),
+                                      (strat_ppn,  job_quartile_ppn),
+                                      (strat_rt,   job_quartile_rt)):
+                    _q = _qmap.get(parent_jid, 4)
+                    _strat[_q]["attempted"] += 1
+                    _strat[_q]["admitted"]  += 1
 
             cc: dict[int, int] = {}
             for nd in selected:
@@ -717,11 +805,22 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
                     cc[c] = cc.get(c, 0) + 1
             if cc:
                 cohort_records.append({"t_s": t_j, "t_e": t_e, "ppn": ppn, "cab_counts": cc})
+                n_cabs_per_job.append(len(cc))
 
     if n_base_unserved > 0:
         raise AssertionError(
             f"Base-job invariant violated: {n_base_unserved} unserved "
             f"(lam={lambda_val:.2f}, policy={policy})")
+
+    # Gini coefficient of cf_util (utilisation distribution across eligible nodes)
+    u_vals = np.array([cf_util.get(n, 0.0) for n in eligible], dtype=float)
+    if u_vals.sum() > 0:
+        u_sorted = np.sort(u_vals)
+        n_u = len(u_sorted)
+        cum  = np.cumsum(u_sorted)
+        gini = float(1 - 2 * cum[:-1].sum() / (n_u * cum[-1]))
+    else:
+        gini = float("nan")
 
     capacity_unlock_pct = syn_node_hours / hist_total_nh * 100.0
 
@@ -749,9 +848,20 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
         "n_drop_la"          : n_drop_la,
         "n_base_unserved"    : n_base_unserved,
         "syn_node_hours"     : syn_node_hours,
-        # Per-quartile (Q1=smallest n_cohort, Q4=largest)
+        "util_gini"          : jf(gini),
+        # Per-quartile (Q1=smallest, Q4=largest) — legacy n_cohort
         "q_admit"            : q_admit,
         "q_drop"             : q_drop,
+        # Full stratification: attempted/admitted/drop_* by quartile for 4 dimensions
+        # (Q1=smallest, Q4=largest; by n_cohort, node_count, power_per_node, runtime)
+        "strat_ncoh"         : strat_ncoh,
+        "strat_nc"           : strat_nc,
+        "strat_ppn"          : strat_ppn,
+        "strat_rt"           : strat_rt,
+        # Cabinet span
+        "cab_span_median"    : jf(float(np.median(n_cabs_per_job)) if n_cabs_per_job else None),
+        "cab_span_p90"       : jf(float(np.percentile(n_cabs_per_job, 90)) if n_cabs_per_job else None),
+        "cab_span_mean"      : jf(float(np.mean(n_cabs_per_job)) if n_cabs_per_job else None),
     }
 
 # ══════════════════════════════════════════════════════════════════════
@@ -947,6 +1057,30 @@ for s_idx in range(N_SCENARIOS):
 
 assert smoke_ok, "Smoke test never passed"
 
+if SMOKE_ONLY:
+    print("\n" + "="*70)
+    print("SMOKE_ONLY mode: stopping after 5-scenario smoke gate.")
+    print("="*70)
+    print("\nSMOKE RESULTS SUMMARY")
+    print(f"{'Policy':<20} {'median C_lower':>14} {'min':>8} {'max':>8}")
+    print("-"*54)
+    for pol in POLICY_IDS:
+        c_lo_vals = [s["crossings"][pol]["C_lower_pct"] for s in scenario_results]
+        finite = [v for v in c_lo_vals if v is not None]
+        if finite:
+            print(f"  {pol:<18} {float(np.median(finite)):>12.2f}%  "
+                  f"{float(min(finite)):>6.2f}%  {float(max(finite)):>6.2f}%")
+        else:
+            print(f"  {pol:<18} {'N/A':>12}")
+    dc_smoke = [s["delta_C_lower_fp_minus_random"] for s in scenario_results]
+    dc_finite = [v for v in dc_smoke if v is not None]
+    if dc_finite:
+        print(f"\n  Paired FP-Random ΔC_lower: median={float(np.median(dc_finite)):.2f} pp  "
+              f"[{float(min(dc_finite)):.2f}, {float(max(dc_finite)):.2f}]")
+
+    print("\nFor full 30-scenario run: unset M4_SMOKE_ONLY or set M4_SMOKE_ONLY=0")
+    import sys; sys.exit(0)
+
 # ══════════════════════════════════════════════════════════════════════
 # [15] Availability sensitivity (Random vs FP; N_AVAIL_SCENARIOS)
 # ══════════════════════════════════════════════════════════════════════
@@ -1074,25 +1208,46 @@ print(f"\n  Paired ΔC_lower (FP − Random): "
       f"p95={np.percentile(dc_arr,95):.2f} pp  "
       f"n={len(dc_arr)}")
 
-# Bootstrap CI for paired mean
-boot_rng    = np.random.default_rng(BOOTSTRAP_SEED)
-boot_means  = [float(np.mean(boot_rng.choice(dc_arr, size=len(dc_arr), replace=True)))
-               for _ in range(N_BOOTSTRAP)]
-boot_ci_lo  = float(np.percentile(boot_means, 2.5))
-boot_ci_hi  = float(np.percentile(boot_means, 97.5))
-print(f"  Bootstrap 95% CI for mean ΔC_lower: [{boot_ci_lo:.2f}, {boot_ci_hi:.2f}] pp")
+# Bootstrap CI for paired MEDIAN (primary statistic)
+boot_rng     = np.random.default_rng(BOOTSTRAP_SEED)
+boot_medians = [float(np.median(boot_rng.choice(dc_arr, size=len(dc_arr), replace=True)))
+                for _ in range(N_BOOTSTRAP)]
+boot_ci_lo   = float(np.percentile(boot_medians, 2.5))
+boot_ci_hi   = float(np.percentile(boot_medians, 97.5))
+# Secondary: bootstrap CI for mean
+boot_rng2    = np.random.default_rng(BOOTSTRAP_SEED + 1)
+boot_means2  = [float(np.mean(boot_rng2.choice(dc_arr, size=len(dc_arr), replace=True)))
+                for _ in range(N_BOOTSTRAP)]
+boot_mean_ci_lo = float(np.percentile(boot_means2, 2.5))
+boot_mean_ci_hi = float(np.percentile(boot_means2, 97.5))
+
+n_pos  = int((dc_arr > 0).sum())
+n_zero = int((dc_arr == 0).sum())
+n_neg  = int((dc_arr < 0).sum())
+print(f"  Bootstrap 95% CI for MEDIAN ΔC_lower: [{boot_ci_lo:.2f}, {boot_ci_hi:.2f}] pp  (primary)")
+print(f"  Bootstrap 95% CI for mean  ΔC_lower: [{boot_mean_ci_lo:.2f}, {boot_mean_ci_hi:.2f}] pp  (secondary)")
+print(f"  Sign counts: +={n_pos}  0={n_zero}  -={n_neg}  "
+      f"win_rate={100*n_pos/len(dc_arr):.1f}%")
 
 paired_stats = {
-    "n_scenarios"     : int(len(dc_arr)),
-    "median_pp"       : jf(float(np.median(dc_arr))),
-    "mean_pp"         : jf(float(np.mean(dc_arr))),
-    "p5_pp"           : jf(float(np.percentile(dc_arr,  5))),
-    "p25_pp"          : jf(float(np.percentile(dc_arr, 25))),
-    "p75_pp"          : jf(float(np.percentile(dc_arr, 75))),
-    "p95_pp"          : jf(float(np.percentile(dc_arr, 95))),
-    "win_rate_pct"    : jf(float((dc_arr > 0).mean() * 100)),
-    "bootstrap_mean_ci_95_lo": jf(boot_ci_lo),
-    "bootstrap_mean_ci_95_hi": jf(boot_ci_hi),
+    "primary_statistic" : "paired median ΔC_lower,s = C_lower,FP,s − C_lower,Random10,s",
+    "n_scenarios"       : int(len(dc_arr)),
+    "min_pp"            : jf(float(dc_arr.min())),
+    "q1_pp"             : jf(float(np.percentile(dc_arr, 25))),
+    "median_pp"         : jf(float(np.median(dc_arr))),
+    "q3_pp"             : jf(float(np.percentile(dc_arr, 75))),
+    "max_pp"            : jf(float(dc_arr.max())),
+    "mean_pp"           : jf(float(np.mean(dc_arr))),
+    "p5_pp"             : jf(float(np.percentile(dc_arr,  5))),
+    "p95_pp"            : jf(float(np.percentile(dc_arr, 95))),
+    "n_positive"        : n_pos,
+    "n_zero"            : n_zero,
+    "n_negative"        : n_neg,
+    "win_rate_pct"      : jf(float(n_pos / len(dc_arr) * 100)),
+    "bootstrap_median_ci_95_lo": jf(boot_ci_lo),
+    "bootstrap_median_ci_95_hi": jf(boot_ci_hi),
+    "bootstrap_mean_ci_95_lo"  : jf(boot_mean_ci_lo),
+    "bootstrap_mean_ci_95_hi"  : jf(boot_mean_ci_hi),
 }
 
 # ══════════════════════════════════════════════════════════════════════
@@ -1100,27 +1255,23 @@ paired_stats = {
 # ══════════════════════════════════════════════════════════════════════
 print(f"\nSaving output ...")
 
+def _clean_val(v):
+    if isinstance(v, dict):
+        # Nested dict: convert int keys to str, recurse into values
+        return {str(dk): _clean_val(dv) for dk, dv in v.items()}
+    elif isinstance(v, (np.integer,)):
+        return int(v)
+    elif isinstance(v, (np.floating, float)):
+        return jf(v)
+    elif isinstance(v, (np.ndarray,)):
+        return v.tolist()
+    else:
+        return v
+
 def serialize_lambda_rows(rows_by_policy):
     out = {}
     for pol, rows in rows_by_policy.items():
-        cleaned = []
-        for r in rows:
-            rc = {}
-            for k, v in r.items():
-                if isinstance(v, dict):
-                    # Convert int keys to strings (e.g., q_admit, q_drop)
-                    rc[k] = {str(dk): (int(dv) if isinstance(dv, (int, np.integer))
-                                       else jf(float(dv))) for dk, dv in v.items()}
-                elif isinstance(v, (np.integer,)):
-                    rc[k] = int(v)
-                elif isinstance(v, (np.floating, float)):
-                    rc[k] = jf(v)
-                elif isinstance(v, (np.ndarray,)):
-                    rc[k] = v.tolist()
-                else:
-                    rc[k] = v
-            cleaned.append(rc)
-        out[pol] = cleaned
+        out[pol] = [{k: _clean_val(v) for k, v in r.items()} for r in rows]
     return out
 
 scen_out = []
@@ -1167,15 +1318,19 @@ result = {
             "P2_loc"    : "lowest position-mean FA (chassis/slot/board/node_pos across cabs), same cap",
             "P3_compact": "greedy cabinet-minimising selection, same cap",
         },
-        "job_size_quartiles": {
-            "variable"  : "n_cohort (fp nodes per job)",
-            "p25"       : jf(float(_q_cuts[0])),
-            "p50"       : jf(float(_q_cuts[1])),
-            "p75"       : jf(float(_q_cuts[2])),
-            "q1_max"    : int(_q_cuts[0]),
-            "q2_max"    : int(_q_cuts[1]),
-            "q3_max"    : int(_q_cuts[2]),
-            "q4_max"    : int(_nc_arr.max()),
+        "stratification_quartile_boundaries": {
+            "n_cohort"      : {"p25": jf(float(_q_cuts_ncoh[0])),
+                               "p50": jf(float(_q_cuts_ncoh[1])),
+                               "p75": jf(float(_q_cuts_ncoh[2]))},
+            "node_count"    : {"p25": jf(float(_q_cuts_nc[0])),
+                               "p50": jf(float(_q_cuts_nc[1])),
+                               "p75": jf(float(_q_cuts_nc[2]))},
+            "power_per_node": {"p25": jf(float(_q_cuts_ppn[0])),
+                               "p50": jf(float(_q_cuts_ppn[1])),
+                               "p75": jf(float(_q_cuts_ppn[2]))},
+            "runtime"       : {"p25": jf(float(_q_cuts_rt[0])),
+                               "p50": jf(float(_q_cuts_rt[1])),
+                               "p75": jf(float(_q_cuts_rt[2]))},
         },
         "interpretation" : "C_lower = exposure-constrained workload headroom; "
                            "NOT a claim about physical thermal or power limits violated in production",
