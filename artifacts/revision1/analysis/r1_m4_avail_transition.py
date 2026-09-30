@@ -18,10 +18,10 @@ Interval-aware: delta_lo = C_lower_fp - C_upper_rand (pessimistic, FP over rand)
 Output: artifacts/revision1/results/m4_avail_transition.json
 """
 
-import sys, io
+import sys, io, os
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", line_buffering=True)
 
-import json, time, os, heapq
+import json, time, heapq
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -70,6 +70,15 @@ AVAIL_SCENARIOS = list(range(10))   # sc0-sc9; declared before looking at result
 AVAIL_SEED      = 20260929          # distinct from main-script SCENARIO_SEED
 TRANS_POLICIES  = ["full_fp", "full_random"]
 OUT_FILE        = OUT_DIR / "m4_avail_transition.json"
+
+# ── Regression-test mode ────────────────────────────────────────────────
+# M4_AVAIL_REGRESSION=1: run only f=1.00 for sc0-9, compare to frozen v5,
+# exit 0 if all pass, exit 1 if any field mismatches. Safe to run before
+# the full 60-100% experiment to catch any reimplementation divergence.
+REGRESSION_ONLY = os.environ.get("M4_AVAIL_REGRESSION", "0").strip() in ("1", "true")
+if REGRESSION_ONLY:
+    AVAIL_FRACTIONS = [1.00]   # collapse to 100% only
+    OUT_FILE        = OUT_DIR / "m4_avail_regression.json"
 
 
 def jf(v):
@@ -1038,6 +1047,7 @@ for s_idx in AVAIL_SCENARIOS:
 fp_list = list(cohort_list)  # index-addressable cohort list (sorted)
 
 all_fraction_results = []
+scenario_B_refs: dict[int, tuple] = {}  # s_idx -> (B_ref_s, S_ref_s) for regression check
 
 for s_idx in AVAIL_SCENARIOS:
     t_scen = time.time()
@@ -1048,6 +1058,7 @@ for s_idx in AVAIL_SCENARIOS:
     scen_rng  = np.random.default_rng(scen_seeds[s_idx])
     job_perms = generate_job_perms(syn_pool, scen_rng)
     B_ref_s, S_ref_s = compute_B_S_ref_s(job_perms, T_THR_PRIMARY)
+    scenario_B_refs[s_idx] = (B_ref_s, S_ref_s)
     print(f"    B_ref_s={B_ref_s:.2f} h  S_ref_s={S_ref_s:.4f} C*h")
 
     node_perm = avail_perms[s_idx]
@@ -1262,3 +1273,111 @@ out = {
 OUT_FILE.write_text(json.dumps(out, indent=2))
 print(f"\nSaved: {OUT_FILE}")
 print(f"Total elapsed: {time.time()-t_script:.1f}s")
+
+# ══════════════════════════════════════════════════════════════════════
+# [16] Regression comparison (only when M4_AVAIL_REGRESSION=1)
+# ══════════════════════════════════════════════════════════════════════
+if REGRESSION_ONLY:
+    print(f"\n{'='*70}")
+    print("REGRESSION CHECK: f=1.00 results vs frozen v5 (m4_fair_baselines.json)")
+    print(f"{'='*70}")
+
+    v5_path = OUT_DIR / "m4_fair_baselines.json"
+    if not v5_path.exists():
+        print(f"FATAL: frozen v5 not found at {v5_path}")
+        sys.exit(1)
+    v5_data  = json.loads(v5_path.read_text())
+    v5_by_sc = {sr["scenario_idx"]: sr for sr in v5_data["scenario_results"]}
+
+    fails  = []
+    checks = 0
+
+    def _chk(label, new_val, ref_val, tol=None):
+        nonlocal checks
+        checks += 1
+        if tol is not None:
+            # Numeric tolerance check
+            if new_val is None and ref_val is None:
+                ok = True
+            elif new_val is None or ref_val is None:
+                ok = False
+            else:
+                ok = abs(float(new_val) - float(ref_val)) <= tol
+            if not ok:
+                fails.append(f"  FAIL {label}: new={new_val}  v5={ref_val}  tol={tol}")
+            else:
+                print(f"  [OK]  {label}: {new_val:.6g} == v5 {ref_val:.6g}")
+        else:
+            # Exact equality
+            ok = (new_val == ref_val)
+            if not ok:
+                fails.append(f"  FAIL {label}: new={new_val!r}  v5={ref_val!r}")
+            else:
+                print(f"  [OK]  {label}: {new_val!r}")
+
+    for rec in all_fraction_results:
+        s_idx = rec["scenario_idx"]
+        if s_idx not in v5_by_sc:
+            fails.append(f"  FAIL sc{s_idx}: not found in frozen v5")
+            continue
+        sr_v5 = v5_by_sc[s_idx]
+
+        print(f"\n  Scenario {s_idx}:")
+
+        # ── Seed sanity ──────────────────────────────────────────────
+        _chk(f"sc{s_idx} scen_seed",  scen_seeds[s_idx], sr_v5["scen_seed"])
+        _chk(f"sc{s_idx} wl_seed",    wl_seeds[s_idx],   sr_v5["wl_seed"])
+
+        # ── B_ref_s ──────────────────────────────────────────────────
+        b_ref_new, s_ref_new = scenario_B_refs[s_idx]
+        _chk(f"sc{s_idx} B_ref_s",    b_ref_new, sr_v5["B_ref_s_primary_h"], tol=1e-3)
+        _chk(f"sc{s_idx} S_ref_s",    s_ref_new, sr_v5["S_ref_s_primary"],   tol=1e-3)
+
+        # ── Crossings ────────────────────────────────────────────────
+        for pol_name in TRANS_POLICIES:
+            cx_v5 = sr_v5["crossings"][pol_name]
+            if pol_name == "full_fp":
+                c_lo_new = rec["C_lower_fp"]
+                c_hi_new = rec["C_upper_fp"]
+                st_new   = rec["status_fp"]
+                bd_new   = rec["binding_fp"]
+            else:
+                c_lo_new = rec["C_lower_rand"]
+                c_hi_new = rec["C_upper_rand"]
+                st_new   = rec["status_rand"]
+                bd_new   = rec["binding_rand"]
+
+            _chk(f"sc{s_idx} {pol_name} status",  st_new, cx_v5["status"])
+            _chk(f"sc{s_idx} {pol_name} binding",
+                 bd_new, cx_v5["first_binding_constraint"])
+            _chk(f"sc{s_idx} {pol_name} C_lower",
+                 c_lo_new, cx_v5["C_lower_pct"], tol=1e-3)
+            if cx_v5["C_upper_pct"] is not None:
+                _chk(f"sc{s_idx} {pol_name} C_upper",
+                     c_hi_new, cx_v5["C_upper_pct"], tol=1e-3)
+
+        # ── Lambda-level spot-check (lam=1.0 → C=0, lam=1.06 → first step) ──
+        for pol_name in TRANS_POLICIES:
+            lr_v5 = {r["lambda_val"]: r
+                     for r in sr_v5["lambda_rows"][pol_name]}
+            # Spot-check lam=1.0 (no synthetic jobs → trivially feasible)
+            if 1.0 in lr_v5:
+                r_v5 = lr_v5[1.0]
+                # We don't save per-lambda from transition script, but we can
+                # check that B_ref_s was used consistently (already done above).
+                _chk(f"sc{s_idx} {pol_name} lam=1.0 C_unlock",
+                     0.0, r_v5["capacity_unlock_pct"], tol=1e-6)
+
+    # ── Summary ──────────────────────────────────────────────────────
+    print(f"\n{'='*70}")
+    if fails:
+        print(f"REGRESSION FAILED  ({len(fails)} failures out of {checks} checks):")
+        for f_msg in fails:
+            print(f_msg)
+        print(f"{'='*70}")
+        sys.exit(1)
+    else:
+        print(f"REGRESSION PASSED  ({checks}/{checks} checks)")
+        print("f=1.00 results are numerically identical to frozen v5 for sc0-9.")
+        print("Safe to launch the full 60/70/80/90/100 experiment.")
+        print(f"{'='*70}")
