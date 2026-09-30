@@ -16,10 +16,11 @@ Output: artifacts/revision1/results/m4_canonical_comparisons.json
 import json, pathlib, numpy as np
 from collections import Counter
 
-OUT_DIR    = pathlib.Path(__file__).resolve().parents[3] / "artifacts" / "revision1" / "results"
-V5_PATH    = OUT_DIR / "m4_fair_baselines.json"
-RAND_PATH  = OUT_DIR / "m4_random_canonical.json"
-OUT_FILE   = OUT_DIR / "m4_canonical_comparisons.json"
+OUT_DIR        = pathlib.Path(__file__).resolve().parents[3] / "artifacts" / "revision1" / "results"
+V5_PATH        = OUT_DIR / "m4_fair_baselines.json"
+RAND_PATH      = OUT_DIR / "m4_random_canonical.json"
+CANON_POL_PATH = OUT_DIR / "m4_canonical_policies.json"
+OUT_FILE       = OUT_DIR / "m4_canonical_comparisons.json"
 
 HELD_OUT_START = 5   # sc5-29 for fp_spread comparison
 
@@ -111,45 +112,91 @@ def summarize_pair(name_a: str, name_b: str,
     }
 
 
-def main():
-    for p in (V5_PATH, RAND_PATH):
-        if not p.exists():
-            raise FileNotFoundError(
-                f"{p.name} not found. "
-                f"{'Run r1_m4_random_canonical.py first.' if 'canonical' in p.name else ''}")
+def _sensitivity(pol_label: str, cx_v5_pol: dict, cx_can_pol: dict,
+                 cx_rand_can: dict, scenarios: list[int]) -> dict:
+    """Compare v5 vs canonical C_lower per scenario; count verdict flips vs canonical_rand."""
+    deltas: list[float] = []
+    verdicts_changed = 0
+    clo_v5_vals: list[float] = []
+    clo_can_vals: list[float] = []
+    for s in scenarios:
+        if s not in cx_v5_pol or s not in cx_can_pol:
+            continue
+        lo_v5  = cx_v5_pol[s]["C_lower_pct"]
+        lo_can = cx_can_pol[s]["C_lower_pct"]
+        deltas.append(abs(lo_can - lo_v5))
+        clo_v5_vals.append(lo_v5)
+        clo_can_vals.append(lo_can)
+        if s in cx_rand_can:
+            verd_v5  = interval_compare(cx_v5_pol[s],  cx_rand_can[s])["verdict"]
+            verd_can = interval_compare(cx_can_pol[s], cx_rand_can[s])["verdict"]
+            if verd_v5 != verd_can:
+                verdicts_changed += 1
+    return {
+        "policy"           : pol_label,
+        "n_scenarios"      : len(deltas),
+        "old_C_lower_med"  : jf(float(np.median(clo_v5_vals)))  if clo_v5_vals else None,
+        "canon_C_lower_med": jf(float(np.median(clo_can_vals))) if clo_can_vals else None,
+        "med_abs_delta_pp" : jf(float(np.median(deltas)))       if deltas      else None,
+        "max_abs_delta_pp" : jf(float(np.max(deltas)))          if deltas      else None,
+        "verdicts_changed" : verdicts_changed,
+    }
 
-    v5   = json.loads(V5_PATH.read_text())
-    rand = json.loads(RAND_PATH.read_text())
+
+def main():
+    for p in (V5_PATH, RAND_PATH, CANON_POL_PATH):
+        if not p.exists():
+            hint = ""
+            if "random_canonical" in p.name:
+                hint = " Run r1_m4_random_canonical.py first."
+            elif "canonical_policies" in p.name:
+                hint = " Run r1_m4_canonical_policies.py first."
+            raise FileNotFoundError(f"{p.name} not found.{hint}")
+
+    v5        = json.loads(V5_PATH.read_text())
+    rand      = json.loads(RAND_PATH.read_text())
+    canon_pol = json.loads(CANON_POL_PATH.read_text())
 
     # Index by scenario
-    v5_by_sc = {sr["scenario_idx"]: sr for sr in v5["scenario_results"]}
-    rand_by_sc = {sr["scenario_idx"]: sr for sr in rand["scenario_results"]}
+    v5_by_sc        = {sr["scenario_idx"]: sr for sr in v5["scenario_results"]}
+    rand_by_sc      = {sr["scenario_idx"]: sr for sr in rand["scenario_results"]}
+    canon_pol_by_sc = {sr["scenario_idx"]: sr for sr in canon_pol["scenario_results"]}
 
     def cx(by_sc: dict, pol: str) -> dict:
         return {s: sr["crossings"][pol] for s, sr in by_sc.items() if pol in sr["crossings"]}
 
-    cx_fp       = cx(v5_by_sc,   "full_fp")
-    cx_loc      = cx(v5_by_sc,   "full_loc")
-    cx_spread   = cx(v5_by_sc,   "full_fp_spread")
-    cx_rand_v5  = cx(v5_by_sc,   "full_random")
-    cx_rand_can = cx(rand_by_sc, "full_random")
+    # Authoritative sources per selector audit (m4_selector_audit.json):
+    #   FP        → v5 (immune: all 2000 FA_2024 values unique)
+    #   FP-spread → v5 (immune: zero within-cabinet FA ties; cabinet key already total-order)
+    #   Location  → canonical rerun (vulnerable: 1933/2000 nodes share location score)
+    #   Random    → canonical rerun (always vulnerable: sorted(available) fix applied)
+    cx_fp       = cx(v5_by_sc,        "full_fp")
+    cx_loc_v5   = cx(v5_by_sc,        "full_loc")         # for sensitivity comparison only
+    cx_loc_can  = cx(canon_pol_by_sc,  "full_loc")         # authoritative
+    cx_spread   = cx(v5_by_sc,        "full_fp_spread")
+    cx_rand_v5  = cx(v5_by_sc,        "full_random")
+    cx_rand_can = cx(rand_by_sc,      "full_random")
 
-    all_30    = list(range(30))
-    held_out  = list(range(HELD_OUT_START, 30))
+    all_30   = list(range(30))
+    held_out = list(range(HELD_OUT_START, 30))
 
     print("=" * 70)
-    print("M4 CANONICAL COMPARISONS  (canonical_random = new reference baseline)")
+    print("M4 CANONICAL COMPARISONS")
+    print("  Random    → m4_random_canonical.json  (sorted fix; always vulnerable)")
+    print("  Location  → m4_canonical_policies.json (tie-broken; 1933/2000 tied)")
+    print("  FP        → m4_fair_baselines.json     (immune; v5 is authoritative)")
+    print("  FP-spread → m4_fair_baselines.json     (immune; v5 is authoritative)")
     print("=" * 70)
 
     comparisons = {}
     comparisons["fp_vs_canonical_rand"]     = summarize_pair(
-        "full_fp", "canonical_random", cx_fp, cx_rand_can, all_30)
+        "full_fp",            "canonical_random", cx_fp,      cx_rand_can, all_30)
     comparisons["loc_vs_canonical_rand"]    = summarize_pair(
-        "full_loc", "canonical_random", cx_loc, cx_rand_can, all_30)
+        "full_loc_canonical", "canonical_random", cx_loc_can, cx_rand_can, all_30)
     comparisons["spread_vs_canonical_rand"] = summarize_pair(
-        "full_fp_spread", "canonical_random", cx_spread, cx_rand_can, held_out)
+        "full_fp_spread",     "canonical_random", cx_spread,  cx_rand_can, held_out)
 
-    # Document the realization shift (v5 random vs canonical random)
+    # Realization shift: v5 random vs canonical random
     print("\n  Realization shift check (v5_random vs canonical_random, all 30):")
     shift_rows = []
     for s in all_30:
@@ -168,22 +215,53 @@ def main():
     print(f"    (Near-zero shift confirms uniform sampling has same distribution;")
     print(f"     any residual shift is sampling noise, not a systematic bias.)")
     comparisons["realization_shift_v5_vs_canonical"] = {
-        "note"  : "v5 random minus canonical random; should be near zero in expectation",
-        "rows"  : shift_rows,
+        "note"       : "canonical_random minus v5_random; near zero in expectation",
+        "rows"       : shift_rows,
         "diff_median": jf(float(np.median(diffs))),
         "diff_p25"   : jf(float(np.percentile(diffs, 25))),
         "diff_p75"   : jf(float(np.percentile(diffs, 75))),
     }
 
+    # ── Sensitivity table ──────────────────────────────────────────────
+    print(f"\n{'='*70}")
+    print("CANONICALIZATION SENSITIVITY TABLE")
+    print(f"{'='*70}")
+    hdr = (f"  {'Policy':<24} {'Old C_lo':>9} {'Canon C_lo':>11} "
+           f"{'Med|Δ|':>8} {'Max|Δ|':>8} {'Verdicts chg':>14}")
+    print(hdr)
+    print("  " + "-" * 78)
+
+    sens_rows = [
+        _sensitivity("full_random",          cx_rand_v5, cx_rand_can, cx_rand_can, all_30),
+        _sensitivity("full_loc",              cx_loc_v5,  cx_loc_can,  cx_rand_can, all_30),
+        _sensitivity("full_fp (immune)",      cx_fp,      cx_fp,       cx_rand_can, all_30),
+        _sensitivity("full_fp_spread (imm.)", cx_spread,  cx_spread,   cx_rand_can, held_out),
+    ]
+
+    for row in sens_rows:
+        print(f"  {row['policy']:<24} "
+              f"{row['old_C_lower_med']:>9.2f}% "
+              f"{row['canon_C_lower_med']:>10.2f}% "
+              f"{row['med_abs_delta_pp']:>7.3f}pp "
+              f"{row['max_abs_delta_pp']:>7.3f}pp "
+              f"{row['verdicts_changed']:>13}")
+
     out = {
-        "source_v5"    : "m4_fair_baselines.json",
-        "source_random": "m4_random_canonical.json",
-        "note"         : ("Canonical comparisons use m4_random_canonical.json as the "
-                          "full_random reference. The v5 full_random baseline is archived "
-                          "in m4_fair_baselines.json under key 'legacy_random_realization' "
-                          "label; it is hash-order-dependent and not exactly reproducible."),
-        "n_bootstrap"  : N_BOOTSTRAP,
-        "comparisons"  : comparisons,
+        "source_v5"         : "m4_fair_baselines.json",
+        "source_random"     : "m4_random_canonical.json",
+        "source_loc"        : "m4_canonical_policies.json",
+        "note"              : (
+            "Authoritative sources per selector audit (m4_selector_audit.json): "
+            "Random → m4_random_canonical.json (sorted(available) fix; always vulnerable). "
+            "Location → m4_canonical_policies.json (tie-broken (FA_loc,hostname); "
+            "1933/2000 nodes share location score). "
+            "FP → m4_fair_baselines.json (immune: all 2000 FA_2024 values unique). "
+            "FP-spread → m4_fair_baselines.json (immune: zero within-cabinet FA ties; "
+            "cabinet selection already total-order in v5)."
+        ),
+        "n_bootstrap"       : N_BOOTSTRAP,
+        "comparisons"       : comparisons,
+        "sensitivity_table" : sens_rows,
     }
     OUT_FILE.write_text(json.dumps(out, indent=2))
     print(f"\nSaved: {OUT_FILE}")
