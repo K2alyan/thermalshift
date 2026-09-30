@@ -422,23 +422,25 @@ def look_ahead_safe(selected_nodes, t_s_ms: int, t_e_ms: int,
 
 
 def select_fp(available: list[str], k: int) -> list[str]:
-    avail_F = np.array([FA_dict[n] for n in available])
-    order   = np.argsort(avail_F)
-    return [available[i] for i in order[:min(k, len(available))]]
+    # Sort by (FA_2024, node_name) for deterministic tie-breaking regardless of input order.
+    # np.argsort without an explicit key is not stable for ties and depends on input position,
+    # which is hash-order-dependent when available comes from a Python set.
+    sorted_avail = sorted(available, key=lambda n: (FA_dict[n], n))
+    return sorted_avail[:min(k, len(sorted_avail))]
 
 
 def select_loc(available: list[str], k: int) -> list[str]:
-    avail_L = np.array([LOC_FA_dict.get(n, 0.0) for n in available])
-    order   = np.argsort(avail_L)
-    return [available[i] for i in order[:min(k, len(available))]]
+    sorted_avail = sorted(available, key=lambda n: (LOC_FA_dict.get(n, 0.0), n))
+    return sorted_avail[:min(k, len(sorted_avail))]
 
 
 def select_compact(available: list[str], k: int, rng_local) -> list[str]:
     if k >= len(available):
-        return available[:]
+        return sorted(available)
     cab_groups: dict[int, list] = defaultdict(list)
-    for n in available:
+    for n in sorted(available):  # deterministic build order for cab_groups
         cab_groups[fp_cab.get(n, -1)].append(n)
+    # nodes within each cabinet are already sorted by name (from sorted(available) above)
     sorted_cabs = sorted(cab_groups.keys(),
                          key=lambda c: (-len(cab_groups[c]),
                                         int(rng_local.integers(0, 1000))))
@@ -455,6 +457,11 @@ def select_compact(available: list[str], k: int, rng_local) -> list[str]:
 
 
 def select_random(available: list[str], k: int, rng_local) -> list[str]:
+    # Sort before drawing so node order is PYTHONHASHSEED-independent.
+    # v5 did not do this, so full_random crossing values will differ from v5
+    # (which used an unknown PYTHONHASHSEED). The regression check treats
+    # full_random crossings as informational only.
+    available = sorted(available)
     n_avail = len(available)
     idx = rng_local.choice(n_avail, size=min(k, n_avail), replace=False)
     return [available[i] for i in idx]
@@ -467,13 +474,15 @@ def select_fp_spread(available: list[str], k: int,
     if k == 0:
         return []
     if k == len(available):
-        return list(available)
+        return sorted(available)
     cab_nodes: dict[int, list[str]] = {}
-    for n in available:
+    for n in sorted(available):  # deterministic build order
         c = fp_cab.get(n, -1)
         cab_nodes.setdefault(c, []).append(n)
     for c in cab_nodes:
-        cab_nodes[c].sort(key=lambda n: FA_dict.get(n, 0.0))
+        # Explicit (FA_2024, node_name) tie-break; v5 used FA_2024 only which is
+        # unstable when two nodes share the same fingerprint value.
+        cab_nodes[c].sort(key=lambda n: (FA_dict.get(n, 0.0), n))
     selected: list[str] = []
     for _ in range(k):
         if not cab_nodes:
@@ -853,6 +862,15 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
         "util_gini"          : jf(gini),
         "q_admit"            : q_admit,
         "q_drop"             : q_drop,
+        "strat_ncoh"         : strat_ncoh,
+        "strat_nc"           : strat_nc,
+        "strat_ppn"          : strat_ppn,
+        "strat_rt"           : strat_rt,
+        "cab_span_median"    : jf(float(np.median(n_cabs_per_job)) if n_cabs_per_job else None),
+        "cab_span_p90"       : jf(float(np.percentile(n_cabs_per_job, 90)) if n_cabs_per_job else None),
+        "cab_span_mean"      : jf(float(np.mean(n_cabs_per_job)) if n_cabs_per_job else None),
+        "mean_F_syn"         : jf(sum_F_syn / n_F_syn) if n_F_syn > 0 else None,
+        "cool10_share"       : jf(cool10_nh / syn_node_hours) if syn_node_hours > 0 else None,
     }
 
 
@@ -1065,9 +1083,11 @@ for s_idx in AVAIL_SCENARIOS:
 
     for f in AVAIL_FRACTIONS:
         n_avail   = round(f * N_FP)
-        avail_set = (None if f == 1.0
+        # f=1.00 passes explicit full set (not None) so regression tests the same
+        # avail_nodes != None code branch as all other fractions.
+        avail_set = (set(cohort_list) if f == 1.0
                      else {fp_list[int(node_perm[i])] for i in range(n_avail)})
-        avail_tag = f"f={f:.0%}  n={n_avail if avail_set is not None else N_FP}"
+        avail_tag = f"f={f:.0%}  n={len(avail_set)}"
 
         crossings: dict[str, dict] = {}
 
@@ -1282,21 +1302,28 @@ if REGRESSION_ONLY:
     print("REGRESSION CHECK: f=1.00 results vs frozen v5 (m4_fair_baselines.json)")
     print(f"{'='*70}")
 
-    v5_path = OUT_DIR / "m4_fair_baselines.json"
-    if not v5_path.exists():
-        print(f"FATAL: frozen v5 not found at {v5_path}")
-        sys.exit(1)
-    v5_data  = json.loads(v5_path.read_text())
-    v5_by_sc = {sr["scenario_idx"]: sr for sr in v5_data["scenario_results"]}
+    # Load frozen v5 (full_fp reference) and canonical random (full_random reference).
+    # Both must pass with hard equality — no warn-only exceptions.
+    v5_path   = OUT_DIR / "m4_fair_baselines.json"
+    rand_path = OUT_DIR / "m4_random_canonical.json"
+    for p, label in ((v5_path, "m4_fair_baselines.json"),
+                     (rand_path, "m4_random_canonical.json")):
+        if not p.exists():
+            print(f"FATAL: reference file not found: {p}")
+            print("Run r1_m4_random_canonical.py first, then retry regression.")
+            sys.exit(1)
+
+    v5_data     = json.loads(v5_path.read_text())
+    v5_by_sc    = {sr["scenario_idx"]: sr for sr in v5_data["scenario_results"]}
+    rand_data   = json.loads(rand_path.read_text())
+    rand_by_sc  = {sr["scenario_idx"]: sr for sr in rand_data["scenario_results"]}
 
     fails  = []
-    checks = 0
+    checks = [0]
 
     def _chk(label, new_val, ref_val, tol=None):
-        nonlocal checks
-        checks += 1
+        checks[0] += 1
         if tol is not None:
-            # Numeric tolerance check
             if new_val is None and ref_val is None:
                 ok = True
             elif new_val is None or ref_val is None:
@@ -1304,80 +1331,85 @@ if REGRESSION_ONLY:
             else:
                 ok = abs(float(new_val) - float(ref_val)) <= tol
             if not ok:
-                fails.append(f"  FAIL {label}: new={new_val}  v5={ref_val}  tol={tol}")
+                fails.append(f"  FAIL {label}: new={new_val}  ref={ref_val}  tol={tol}")
             else:
-                print(f"  [OK]  {label}: {new_val:.6g} == v5 {ref_val:.6g}")
+                print(f"  [OK]  {label}: {new_val:.6g} == ref {ref_val:.6g}")
         else:
-            # Exact equality
             ok = (new_val == ref_val)
             if not ok:
-                fails.append(f"  FAIL {label}: new={new_val!r}  v5={ref_val!r}")
+                fails.append(f"  FAIL {label}: new={new_val!r}  ref={ref_val!r}")
             else:
                 print(f"  [OK]  {label}: {new_val!r}")
 
     for rec in all_fraction_results:
         s_idx = rec["scenario_idx"]
-        if s_idx not in v5_by_sc:
-            fails.append(f"  FAIL sc{s_idx}: not found in frozen v5")
-            continue
-        sr_v5 = v5_by_sc[s_idx]
-
         print(f"\n  Scenario {s_idx}:")
 
-        # ── Seed sanity ──────────────────────────────────────────────
+        # ── Seed sanity (v5 is the authoritative seed record) ────────
         _chk(f"sc{s_idx} scen_seed",  scen_seeds[s_idx], sr_v5["scen_seed"])
         _chk(f"sc{s_idx} wl_seed",    wl_seeds[s_idx],   sr_v5["wl_seed"])
 
-        # ── B_ref_s ──────────────────────────────────────────────────
+        # ── B_ref_s (shared by both policies; compare against v5) ────
         b_ref_new, s_ref_new = scenario_B_refs[s_idx]
         _chk(f"sc{s_idx} B_ref_s",    b_ref_new, sr_v5["B_ref_s_primary_h"], tol=1e-3)
         _chk(f"sc{s_idx} S_ref_s",    s_ref_new, sr_v5["S_ref_s_primary"],   tol=1e-3)
 
         # ── Crossings ────────────────────────────────────────────────
+        # full_fp → compare against frozen v5 (m4_fair_baselines.json)
+        # full_random → compare against canonical random (m4_random_canonical.json)
+        # Both are hard failures; no warn-only exceptions.
         for pol_name in TRANS_POLICIES:
-            cx_v5 = sr_v5["crossings"][pol_name]
             if pol_name == "full_fp":
+                if s_idx not in v5_by_sc:
+                    fails.append(f"  FAIL sc{s_idx}: not found in v5 reference")
+                    continue
+                cx_ref = v5_by_sc[s_idx]["crossings"][pol_name]
                 c_lo_new = rec["C_lower_fp"]
                 c_hi_new = rec["C_upper_fp"]
                 st_new   = rec["status_fp"]
                 bd_new   = rec["binding_fp"]
             else:
+                if s_idx not in rand_by_sc:
+                    fails.append(f"  FAIL sc{s_idx}: not found in canonical random reference")
+                    continue
+                cx_ref = rand_by_sc[s_idx]["crossings"][pol_name]
                 c_lo_new = rec["C_lower_rand"]
                 c_hi_new = rec["C_upper_rand"]
                 st_new   = rec["status_rand"]
                 bd_new   = rec["binding_rand"]
 
-            _chk(f"sc{s_idx} {pol_name} status",  st_new, cx_v5["status"])
+            _chk(f"sc{s_idx} {pol_name} status",   st_new, cx_ref["status"])
             _chk(f"sc{s_idx} {pol_name} binding",
-                 bd_new, cx_v5["first_binding_constraint"])
+                 bd_new, cx_ref["first_binding_constraint"])
             _chk(f"sc{s_idx} {pol_name} C_lower",
-                 c_lo_new, cx_v5["C_lower_pct"], tol=1e-3)
-            if cx_v5["C_upper_pct"] is not None:
+                 c_lo_new, cx_ref["C_lower_pct"], tol=1e-3)
+            if cx_ref["C_upper_pct"] is not None:
                 _chk(f"sc{s_idx} {pol_name} C_upper",
-                     c_hi_new, cx_v5["C_upper_pct"], tol=1e-3)
+                     c_hi_new, cx_ref["C_upper_pct"], tol=1e-3)
 
-        # ── Lambda-level spot-check (lam=1.0 → C=0, lam=1.06 → first step) ──
+        # ── Lambda-level spot-check: lam=1.0 → C_unlock=0 ──────────
         for pol_name in TRANS_POLICIES:
-            lr_v5 = {r["lambda_val"]: r
-                     for r in sr_v5["lambda_rows"][pol_name]}
-            # Spot-check lam=1.0 (no synthetic jobs → trivially feasible)
-            if 1.0 in lr_v5:
-                r_v5 = lr_v5[1.0]
-                # We don't save per-lambda from transition script, but we can
-                # check that B_ref_s was used consistently (already done above).
+            # Use v5 lambda_rows for full_fp; canonical for full_random
+            ref_src = v5_by_sc if pol_name == "full_fp" else rand_by_sc
+            if s_idx not in ref_src:
+                continue
+            lr_ref = {r["lambda_val"]: r
+                      for r in ref_src[s_idx]["lambda_rows"][pol_name]}
+            if 1.0 in lr_ref:
                 _chk(f"sc{s_idx} {pol_name} lam=1.0 C_unlock",
-                     0.0, r_v5["capacity_unlock_pct"], tol=1e-6)
+                     0.0, lr_ref[1.0]["capacity_unlock_pct"], tol=1e-6)
 
     # ── Summary ──────────────────────────────────────────────────────
     print(f"\n{'='*70}")
     if fails:
-        print(f"REGRESSION FAILED  ({len(fails)} failures out of {checks} checks):")
+        print(f"REGRESSION FAILED  ({len(fails)} failures out of {checks[0]} checks):")
         for f_msg in fails:
             print(f_msg)
         print(f"{'='*70}")
         sys.exit(1)
     else:
-        print(f"REGRESSION PASSED  ({checks}/{checks} checks)")
-        print("f=1.00 results are numerically identical to frozen v5 for sc0-9.")
+        print(f"REGRESSION PASSED  ({checks[0]}/{checks[0]} checks)")
+        print("full_fp vs frozen v5: exact match.")
+        print("full_random vs canonical: exact match.")
         print("Safe to launch the full 60/70/80/90/100 experiment.")
         print(f"{'='*70}")
