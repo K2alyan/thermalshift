@@ -32,7 +32,7 @@ Output: artifacts/revision1/results/m4_avail_transition.json
 import sys, io, os
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", line_buffering=True)
 
-import json, time, heapq
+import json, time, heapq, hashlib, subprocess
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -1249,8 +1249,12 @@ for s_idx in AVAIL_SCENARIOS:
 
         row = {
             "scenario_idx": s_idx,
+            "scen_seed"   : int(scen_seeds[s_idx]),
+            "wl_seed"     : int(wl_seeds[s_idx]),
             "avail_frac"  : f,
             "n_avail"     : n_avail,
+            "B_ref_s"     : jf(B_ref_s),
+            "S_ref_s"     : jf(S_ref_s),
             "crossings"   : row_crossings,
         }
         row.update(cmp_results)
@@ -1393,6 +1397,28 @@ out = {
     "scenario_rows"     : all_fraction_results,
     "elapsed_s"         : round(time.time() - t_script, 1),
 }
+
+if REGRESSION_ONLY:
+    def _sha256(p: Path) -> str:
+        return hashlib.sha256(p.read_bytes()).hexdigest()
+    try:
+        git_sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True, cwd=REPO_ROOT).strip()
+    except Exception:
+        git_sha = "unknown"
+    ref_hashes = {
+        "m4_fair_baselines.json"   : _sha256(OUT_DIR / "m4_fair_baselines.json"),
+        "m4_random_canonical.json" : _sha256(OUT_DIR / "m4_random_canonical.json"),
+    }
+    if INCLUDE_LOC and (OUT_DIR / "m4_canonical_policies.json").exists():
+        ref_hashes["m4_canonical_policies.json"] = _sha256(
+            OUT_DIR / "m4_canonical_policies.json")
+    out["provenance"] = {
+        "git_sha"      : git_sha,
+        "script_sha256": _sha256(Path(__file__).resolve()),
+        "ref_hashes"   : ref_hashes,
+    }
+
 OUT_FILE.write_text(json.dumps(out, indent=2))
 print(f"\nSaved: {OUT_FILE}")
 print(f"Total elapsed: {time.time()-t_script:.1f}s")
