@@ -60,8 +60,12 @@ N_REFINE_GRID   = 3
 POLICY_IDS = ["full_random", "full_fp", "full_loc", "full_compact",
               "marginal_random", "marginal_fp", "full_fp_spread"]
 
-# Policies run by this script (in this order)
-TRANS_POLICIES = ["full_loc", "full_fp", "full_fp_spread"]
+# full_loc: authoritative canonical rerun — Location is vulnerable (1933/2000 ties).
+# full_fp, full_fp_spread: immune per selector audit; rerun on sc0-9 only as
+# implementation verification. Their v5 outputs remain the authoritative reference.
+LOC_POLICY      = "full_loc"
+VERIFY_POLICIES = ["full_fp", "full_fp_spread"]
+VERIFY_SCENARIOS = list(range(10))   # sc0-9 only for verification reruns
 
 OUT_FILE = OUT_DIR / "m4_canonical_policies.json"
 
@@ -94,7 +98,7 @@ def _rec_te_ms(r):
 print("\nM4 Canonical Policy Rerun: full_loc, full_fp, full_fp_spread")
 print("=" * 70)
 print(f"Scenarios:  sc0-sc{N_SCENARIOS-1}")
-print(f"Policies:   {TRANS_POLICIES}")
+print(f"Loc policy: {LOC_POLICY}  (all {N_SCENARIOS} scenarios, authoritative)")
 print(f"Purpose:    canonical loc rerun + verification of immune policies")
 print("=" * 70)
 t_script = time.time()
@@ -1007,13 +1011,81 @@ n_extra_max = int(np.ceil((LAMBDA_MAX_EXT - 1.0) * n_base))
 print(f"\nSynthetic pool size: {n_extra_max} jobs (covers lam up to {LAMBDA_MAX_EXT})")
 
 # ══════════════════════════════════════════════════════════════════════
-# [13] Main rerun loop — full_loc, full_fp, full_fp_spread, all 30 scenarios
+# [13] Main rerun loop
+#   full_loc:   all 30 scenarios (canonical, authoritative)
+#   full_fp:    sc0-9 only (verification — immune, must match v5)
+#   full_fp_spread: sc0-9 only (verification — immune, must match v5)
 # ══════════════════════════════════════════════════════════════════════
 print(f"\n{'='*70}")
-print(f"Running {TRANS_POLICIES}: {N_SCENARIOS} scenarios x {len(LAMBDA_SWEEP)} lambdas")
+print(f"full_loc:       all {N_SCENARIOS} scenarios (canonical, authoritative)")
+print(f"full_fp/spread: sc{VERIFY_SCENARIOS[0]}-{VERIFY_SCENARIOS[-1]} only (verification)")
 print(f"{'='*70}")
 
-scenario_results: list[dict] = []
+loc_results:    list[dict] = []   # full_loc, all 30 — goes into output JSON
+verify_results: list[dict] = []   # fp/fp_spread, sc0-9 — verification only, not in output
+
+def _run_one_policy(pol_name: str, route_key: str, p_seed: int,
+                    syn_pool, job_perms, B_ref_s, S_ref_s) -> dict:
+    """Run one (policy, scenario) crossing. Returns crossing dict + lambda_rows."""
+    pol_rows: list[dict] = []
+    for lam in LAMBDA_SWEEP:
+        n_syn = int(round((lam - 1.0) * n_base))
+        syn_sub = (syn_pool.iloc[:n_syn].copy() if n_syn > 0
+                   else pd.DataFrame(columns=list(syn_pool.columns)))
+        try:
+            res = capacity_replay_m4(
+                syn_sub, route_key, lam,
+                policy_seed=p_seed, job_perms=job_perms,
+                avail_nodes=None, marginal=False,
+            )
+        except AssertionError as exc:
+            res = {"lambda_val": lam, "policy": route_key,
+                   "invariant_violated": True,
+                   "capacity_unlock_pct": n_syn / n_base * 100.0,
+                   "B_primary_h": float("nan"),
+                   "S_primary_Cdoth": float("nan"),
+                   "B_cab_ratio": float("nan")}
+        pol_rows.append(res)
+        if not res.get("invariant_violated"):
+            br = res["B_primary_h"] / max(B_ref_s, 1e-9)
+            print(f"      lam={lam:.2f}  C={res['capacity_unlock_pct']:5.1f}%  "
+                  f"B_ratio={br:.3f}  n_admit={res.get('n_syn_admit', 0)}")
+    cx = classify_crossing(pol_rows, B_ref_s, S_ref_s, B_cab_hist)
+    if cx["right_censored"]:
+        for lam_ext in LAMBDA_SWEEP_EXT:
+            n_syn = int(round((lam_ext - 1.0) * n_base))
+            if n_syn > len(syn_pool):
+                break
+            syn_sub = syn_pool.iloc[:n_syn].copy()
+            try:
+                res = capacity_replay_m4(
+                    syn_sub, route_key, lam_ext,
+                    policy_seed=p_seed, job_perms=job_perms,
+                    avail_nodes=None, marginal=False,
+                )
+            except AssertionError:
+                res = {"lambda_val": lam_ext, "policy": route_key,
+                       "invariant_violated": True,
+                       "capacity_unlock_pct": n_syn / n_base * 100.0,
+                       "B_primary_h": float("nan"),
+                       "S_primary_Cdoth": float("nan"),
+                       "B_cab_ratio": float("nan")}
+            pol_rows.append(res)
+            cx = classify_crossing(pol_rows, B_ref_s, S_ref_s, B_cab_hist)
+            if not cx["right_censored"]:
+                break
+    if cx["status"] == "exact_bracket" and cx["C_upper_pct"] is not None:
+        if cx["C_upper_pct"] - cx["C_lower_pct"] > TARGET_PP:
+            cx, extra = refine_crossing_bracket(
+                cx, route_key, job_perms=job_perms, policy_seed=p_seed,
+                syn_pool=syn_pool, n_base=n_base,
+                b_ref_s=B_ref_s, s_ref_s=S_ref_s, lambda_rows=pol_rows,
+            )
+            pol_rows.extend(extra)
+    print(f"    [{pol_name}] {cx['status']}  C=[{cx['C_lower_pct']:.2f},"
+          f"{cx.get('C_upper_pct','—')}]%  binding={cx['first_binding_constraint']}")
+    return {"cx": cx, "rows": pol_rows}
+
 
 for s_idx in range(N_SCENARIOS):
     t_scen = time.time()
@@ -1026,129 +1098,69 @@ for s_idx in range(N_SCENARIOS):
     B_ref_s, S_ref_s = compute_B_S_ref_s(job_perms, T_THR_PRIMARY)
     print(f"    B_ref_s={B_ref_s:.2f} h  S_ref_s={S_ref_s:.4f} C*h")
 
-    crossings_sc: dict[str, dict]      = {}
-    lambda_rows_sc: dict[str, list]    = {}
-
-    for pol_name in TRANS_POLICIES:
-        route_key  = _POL_ROUTE[pol_name]
-        p_seed     = pol_seeds[pol_name][s_idx]
-        print(f"  [{pol_name}]")
-
-        pol_rows: list[dict] = []
-
-        # Main lambda sweep
-        for lam in LAMBDA_SWEEP:
-            n_syn = int(round((lam - 1.0) * n_base))
-            syn_sub = (syn_pool.iloc[:n_syn].copy() if n_syn > 0
-                       else pd.DataFrame(columns=list(syn_pool.columns)))
-            try:
-                res = capacity_replay_m4(
-                    syn_sub, route_key, lam,
-                    policy_seed=p_seed,
-                    job_perms=job_perms,
-                    avail_nodes=None,
-                    marginal=False,
-                )
-            except AssertionError as exc:
-                res = {"lambda_val": lam, "policy": route_key,
-                       "invariant_violated": True,
-                       "capacity_unlock_pct": n_syn / n_base * 100.0,
-                       "B_primary_h": float("nan"),
-                       "S_primary_Cdoth": float("nan"),
-                       "B_cab_ratio": float("nan")}
-            pol_rows.append(res)
-            if not res.get("invariant_violated"):
-                br = res["B_primary_h"] / max(B_ref_s, 1e-9)
-                print(f"      lam={lam:.2f}  C={res['capacity_unlock_pct']:5.1f}%  "
-                      f"B_ratio={br:.3f}  n_admit={res.get('n_syn_admit', 0)}")
-
-        cx = classify_crossing(pol_rows, B_ref_s, S_ref_s, B_cab_hist)
-
-        # Extension sweep for right-censored
-        if cx["right_censored"]:
-            for lam_ext in LAMBDA_SWEEP_EXT:
-                n_syn = int(round((lam_ext - 1.0) * n_base))
-                if n_syn > len(syn_pool):
-                    break
-                syn_sub = syn_pool.iloc[:n_syn].copy()
-                try:
-                    res = capacity_replay_m4(
-                        syn_sub, route_key, lam_ext,
-                        policy_seed=p_seed,
-                        job_perms=job_perms,
-                        avail_nodes=None,
-                        marginal=False,
-                    )
-                except AssertionError:
-                    res = {"lambda_val": lam_ext, "policy": route_key,
-                           "invariant_violated": True,
-                           "capacity_unlock_pct": n_syn / n_base * 100.0,
-                           "B_primary_h": float("nan"),
-                           "S_primary_Cdoth": float("nan"),
-                           "B_cab_ratio": float("nan")}
-                pol_rows.append(res)
-                cx = classify_crossing(pol_rows, B_ref_s, S_ref_s, B_cab_hist)
-                if not cx["right_censored"]:
-                    break
-
-        # Adaptive refinement
-        if cx["status"] == "exact_bracket" and cx["C_upper_pct"] is not None:
-            gap = cx["C_upper_pct"] - cx["C_lower_pct"]
-            if gap > TARGET_PP:
-                cx, extra = refine_crossing_bracket(
-                    cx, route_key,
-                    job_perms=job_perms,
-                    policy_seed=p_seed,
-                    syn_pool=syn_pool,
-                    n_base=n_base,
-                    b_ref_s=B_ref_s,
-                    s_ref_s=S_ref_s,
-                    lambda_rows=pol_rows,
-                )
-                pol_rows.extend(extra)
-
-        print(f"    [{pol_name}] Crossing: status={cx['status']}  "
-              f"C_lower={cx['C_lower_pct']:.2f}%  "
-              f"C_upper={cx.get('C_upper_pct', 'None')}%  "
-              f"binding={cx['first_binding_constraint']}")
-
-        crossings_sc[pol_name]   = cx
-        lambda_rows_sc[pol_name] = pol_rows
-
-    scenario_results.append({
+    # ── full_loc: always (all 30 scenarios) ──────────────────────────
+    print(f"  [full_loc]")
+    r_loc = _run_one_policy(LOC_POLICY, _POL_ROUTE[LOC_POLICY],
+                             pol_seeds[LOC_POLICY][s_idx],
+                             syn_pool, job_perms, B_ref_s, S_ref_s)
+    loc_results.append({
         "scenario_idx"      : s_idx,
         "scen_seed"         : scen_seeds[s_idx],
         "wl_seed"           : wl_seeds[s_idx],
         "B_ref_s_primary_h" : B_ref_s,
         "S_ref_s_primary"   : S_ref_s,
-        "crossings"         : crossings_sc,
-        "lambda_rows"       : lambda_rows_sc,
+        "crossings"         : {LOC_POLICY: r_loc["cx"]},
+        "lambda_rows"       : {LOC_POLICY: r_loc["rows"]},
     })
+
+    # ── full_fp / full_fp_spread: sc0-9 verification only ────────────
+    if s_idx in VERIFY_SCENARIOS:
+        vx: dict[str, dict] = {}
+        vr: dict[str, list] = {}
+        for pol_name in VERIFY_POLICIES:
+            print(f"  [{pol_name}]")
+            r_pol = _run_one_policy(pol_name, _POL_ROUTE[pol_name],
+                                    pol_seeds[pol_name][s_idx],
+                                    syn_pool, job_perms, B_ref_s, S_ref_s)
+            vx[pol_name] = r_pol["cx"]
+            vr[pol_name] = r_pol["rows"]
+        verify_results.append({
+            "scenario_idx"      : s_idx,
+            "scen_seed"         : scen_seeds[s_idx],
+            "wl_seed"           : wl_seeds[s_idx],
+            "B_ref_s_primary_h" : B_ref_s,
+            "S_ref_s_primary"   : S_ref_s,
+            "crossings"         : vx,
+            "lambda_rows"       : vr,
+        })
     print(f"    Elapsed: {time.time()-t_scen:.0f}s")
 
 # ══════════════════════════════════════════════════════════════════════
-# [14] Summary and save
+# [14] Summary and save (full_loc only — authoritative canonical output)
 # ══════════════════════════════════════════════════════════════════════
 print(f"\n{'='*70}")
-print("CANONICAL POLICY CROSSING SUMMARY")
+print(f"FULL_LOC CROSSING SUMMARY (canonical — all {N_SCENARIOS} scenarios)")
 print(f"{'='*70}")
 from collections import Counter
-for pol_name in TRANS_POLICIES:
-    statuses = [sr["crossings"][pol_name]["status"] for sr in scenario_results]
-    c_lowers = [sr["crossings"][pol_name]["C_lower_pct"] for sr in scenario_results]
-    print(f"\n  {pol_name}:")
-    for st, cnt in Counter(statuses).most_common():
-        print(f"    {st}: {cnt}")
-    print(f"    C_lower median: {float(np.median(c_lowers)):.2f}%  "
-          f"[p25={float(np.percentile(c_lowers, 25)):.2f}%, "
-          f"p75={float(np.percentile(c_lowers, 75)):.2f}%]")
+statuses = [sr["crossings"][LOC_POLICY]["status"] for sr in loc_results]
+c_lowers = [sr["crossings"][LOC_POLICY]["C_lower_pct"] for sr in loc_results]
+print(f"\n  {LOC_POLICY}:")
+for st, cnt in Counter(statuses).most_common():
+    print(f"    {st}: {cnt}")
+print(f"    C_lower median: {float(np.median(c_lowers)):.2f}%  "
+      f"[p25={float(np.percentile(c_lowers, 25)):.2f}%, "
+      f"p75={float(np.percentile(c_lowers, 75)):.2f}%]")
 
 out = {
-    "method"          : "canonical_policies_rerun",
-    "policies"        : TRANS_POLICIES,
+    "method"          : "canonical_loc_rerun",
+    "policies"        : [LOC_POLICY],
     "note"            : (
-        "full_loc: canonical rerun with tie-broken select_loc — authoritative reference. "
-        "full_fp and full_fp_spread: hash-immune in v5; rerun here as verification. "
+        "full_loc: canonical rerun with tie-broken select_loc (FA_loc, hostname) — "
+        "authoritative reference for Location comparisons. "
+        "full_fp and full_fp_spread are hash-immune; v5 outputs in m4_fair_baselines.json "
+        "remain the authoritative reference for those policies. "
+        "FP/FP-spread verification results (sc0-9 only) are NOT included here; "
+        "see stdout for verification summary. "
         "All seeds, pool, residuals, lambda grid, refinement, thresholds, topology "
         "are identical to v5 (m4_fair_baselines.json)."
     ),
@@ -1156,14 +1168,15 @@ out = {
     "beta_f_frozen"   : BETA_F_FROZEN,
     "t_thr_primary_C" : T_THR_PRIMARY,
     "n_scenarios"     : N_SCENARIOS,
-    "scenario_results": scenario_results,
+    "scenario_results": loc_results,
     "elapsed_s"       : round(time.time() - t_script, 1),
 }
 OUT_FILE.write_text(json.dumps(out, indent=2))
 print(f"\nSaved: {OUT_FILE}")
 
 # ══════════════════════════════════════════════════════════════════════
-# [15] Post-run comparison against v5 (m4_fair_baselines.json)
+# [15] Post-run verification: fp/fp_spread vs v5 (VERIFY_SCENARIOS only)
+#       Location shift report (informational, loc_results vs v5)
 # ══════════════════════════════════════════════════════════════════════
 print(f"\n{'='*70}")
 print("POST-RUN VERIFICATION vs v5 (m4_fair_baselines.json)")
@@ -1177,57 +1190,85 @@ v5_sc = {sc["scenario_idx"]: sc for sc in v5["scenario_results"]}
 TOL_PP = 1e-3   # tolerance in percentage points for immune-policy verification
 
 verification_failed = False
+verify_by_sc = {sr["scenario_idx"]: sr for sr in verify_results}
 
-for immune_pol in ["full_fp", "full_fp_spread"]:
+for immune_pol in VERIFY_POLICIES:
     print(f"\nVERIFICATION: {immune_pol} vs v5 (should be exact — immune policy)")
     exact_count = 0
-    for sr in scenario_results:
-        si  = sr["scenario_idx"]
+    for s_idx in sorted(verify_by_sc.keys()):
+        sr       = verify_by_sc[s_idx]
         cx_canon = sr["crossings"][immune_pol]
-        cx_v5    = v5_sc[si]["crossings"][immune_pol]
+        cx_v5    = v5_sc[s_idx]["crossings"][immune_pol]
 
+        # Status check
+        ok_status = (cx_canon["status"] == cx_v5["status"])
+
+        # C_lower check
         canon_lo = cx_canon["C_lower_pct"]
         v5_lo    = cx_v5["C_lower_pct"]
         diff_lo  = canon_lo - v5_lo
+        ok_lo    = abs(diff_lo) <= TOL_PP
 
+        # C_upper check
         canon_up = cx_canon.get("C_upper_pct")
         v5_up    = cx_v5.get("C_upper_pct")
         diff_up  = (canon_up - v5_up) if (canon_up is not None and v5_up is not None) else None
+        ok_up    = (diff_up is None or abs(diff_up) <= TOL_PP)
 
-        sign_lo = "+" if diff_lo >= 0 else ""
-        ok_lo   = abs(diff_lo) <= TOL_PP
+        # Binding constraint check
+        bind_canon = cx_canon.get("first_binding_constraint")
+        bind_v5    = cx_v5.get("first_binding_constraint")
+        ok_bind    = (bind_canon == bind_v5)
 
-        up_str = ""
-        ok_up  = True
-        if diff_up is not None:
-            sign_up = "+" if diff_up >= 0 else ""
-            ok_up   = abs(diff_up) <= TOL_PP
-            up_str  = f"  C_upper: canon={canon_up:.4f} v5={v5_up:.4f} diff={sign_up}{diff_up:.4f}pp"
+        # B_ref / S_ref check (same scenario → must match exactly)
+        b_canon = sr["B_ref_s_primary_h"]
+        s_canon = sr["S_ref_s_primary"]
+        b_v5    = v5_sc[s_idx]["B_ref_s_primary_h"]
+        s_v5    = v5_sc[s_idx]["S_ref_s_primary"]
+        ok_bref = abs(b_canon - b_v5) < 1e-6
+        ok_sref = abs(s_canon - s_v5) < 1e-6
 
-        ok = ok_lo and ok_up
+        ok  = ok_status and ok_lo and ok_up and ok_bind and ok_bref and ok_sref
         tag = "OK" if ok else "FAIL"
         if ok:
             exact_count += 1
         else:
             verification_failed = True
+            if not ok_status:
+                print(f"  sc{s_idx}: STATUS MISMATCH  canon={cx_canon['status']}  "
+                      f"v5={cx_v5['status']}")
+            if not ok_bref or not ok_sref:
+                print(f"  sc{s_idx}: B_ref/S_ref MISMATCH  "
+                      f"canon=({b_canon:.6f},{s_canon:.6f})  v5=({b_v5:.6f},{s_v5:.6f})")
+            if not ok_bind:
+                print(f"  sc{s_idx}: BINDING MISMATCH  canon={bind_canon}  v5={bind_v5}")
 
-        print(f"  sc{si}: canonical={canon_lo:.4f}  v5={v5_lo:.4f}  "
-              f"diff={sign_lo}{diff_lo:.4f}pp{up_str}  {tag}")
+        sign_lo = "+" if diff_lo >= 0 else ""
+        up_str  = ""
+        if diff_up is not None:
+            sign_up = "+" if diff_up >= 0 else ""
+            up_str  = (f"  C_upper: canon={canon_up:.4f} v5={v5_up:.4f} "
+                       f"diff={sign_up}{diff_up:.4f}pp")
+        print(f"  sc{s_idx}: canon={canon_lo:.4f}  v5={v5_lo:.4f}  "
+              f"diff={sign_lo}{diff_lo:.4f}pp{up_str}  "
+              f"bind={'OK' if ok_bind else 'FAIL'}  {tag}")
 
-    print(f"  {exact_count}/{N_SCENARIOS} exact matches (tol={TOL_PP} pp)")
+    print(f"  {exact_count}/{len(VERIFY_SCENARIOS)} exact matches "
+          f"(tol={TOL_PP} pp, sc{VERIFY_SCENARIOS[0]}-{VERIFY_SCENARIOS[-1]} only)")
 
 if verification_failed:
     print("\nVERIFICATION FAIL: immune policy result does not match v5 exactly.")
     print("This suggests a selector or seed mismatch. Investigate before proceeding.")
     sys.exit(1)
 else:
-    print(f"\nAll immune-policy verifications passed.")
+    print(f"\nAll immune-policy verifications passed "
+          f"(sc{VERIFY_SCENARIOS[0]}-{VERIFY_SCENARIOS[-1]}).")
 
 # Location shift report (informational only — does not fail)
-print(f"\nLOCATION SHIFT (canonical - v5):")
+print(f"\nLOCATION SHIFT (canonical - v5, all {N_SCENARIOS} scenarios):")
 loc_diffs_lo: list[float] = []
 loc_diffs_up: list[float] = []
-for sr in scenario_results:
+for sr in loc_results:
     si       = sr["scenario_idx"]
     cx_canon = sr["crossings"]["full_loc"]
     cx_v5    = v5_sc[si]["crossings"]["full_loc"]
