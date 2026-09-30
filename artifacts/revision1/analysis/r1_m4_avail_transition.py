@@ -1414,8 +1414,11 @@ if REGRESSION_ONLY:
         ref_hashes["m4_canonical_policies.json"] = _sha256(
             OUT_DIR / "m4_canonical_policies.json")
     try:
+        # --untracked-files=no: output files (.json etc.) are untracked but
+        # not uncommitted edits; only check tracked-file modifications.
         git_porcelain = subprocess.check_output(
-            ["git", "status", "--porcelain"], text=True, cwd=REPO_ROOT).strip()
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            text=True, cwd=REPO_ROOT).strip()
         git_status_clean = (git_porcelain == "")
     except Exception:
         git_status_clean = None
