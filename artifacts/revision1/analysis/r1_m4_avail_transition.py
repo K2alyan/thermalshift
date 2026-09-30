@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-M4 Availability Transition — Scope-Condition Experiment.
+M4 Static Candidate-Pool Sensitivity — Scope-Condition Experiment.
 Post-hoc. Does NOT modify m4_fair_baselines.json.
 
-Purpose: How much placement freedom does the scheduler need before thermal
-fingerprints are useful? This is an operational scope condition, not an
-additional efficacy result — the main efficacy result stands on canonical
-full-cohort comparisons.
+Purpose: How much placement freedom (fraction of the fingerprinted cohort
+exposed to the scheduler) does the system need before thermal fingerprints
+are useful? This is a static candidate-pool sensitivity, NOT an occupancy-
+matched simulation of time-varying node availability: the subset is fixed
+for the entire scenario, not drawn from real production occupancy patterns.
 
 Fractions: 60%, 70%, 80%, 90%, 100% (expanding-subset design)
 Scenarios:  sc0-sc4 (dev) + sc5-sc9 (held-out) = 10 total, pre-declared
@@ -17,6 +18,10 @@ Design:     perm_s = RNG(AVAIL_SEED + s_idx).permutation(N_FP)
 
 Pairs reported: fp_vs_rand, spread_vs_rand, spread_vs_fp
                 (+ loc_vs_rand, spread_vs_loc if Location included)
+
+Interval semantics: right-censored results are [C_lower, +inf); only
+directional calls proven by available bounds are made; otherwise the
+verdict is indeterminate_censored.
 
 At f=1.00 in regression mode, requires exact reproduction of authoritative
 canonical/frozen results before the 60-100% experiment is accepted.
@@ -31,7 +36,7 @@ import json, time, heapq
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 # ── Paths (identical to r1_m4_fair_baselines.py) ───────────────────────
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -97,19 +102,36 @@ def jf(v):
     return None if (np.isnan(f) or np.isinf(f)) else f
 
 def _icmp(cx_a, cx_b):
-    """Interval-aware comparison. A is 'better'. Returns delta_lo, delta_hi, verdict."""
+    """Interval-aware comparison. A is 'better'. Returns delta_lo, delta_hi, verdict.
+
+    Right-censored results are treated as [C_lower, +inf). Only directional calls
+    proven by the available bounds are made. Otherwise: indeterminate_censored.
+    delta_lo / delta_hi are None when the corresponding side is unbounded.
+    """
+    rc_a = (cx_a.get("status") == "right_censored")
+    rc_b = (cx_b.get("status") == "right_censored")
+
     lo_a = cx_a["C_lower_pct"] if cx_a["C_lower_pct"] is not None else 0.0
-    hi_a = cx_a["C_upper_pct"] if cx_a["C_upper_pct"] is not None else lo_a
     lo_b = cx_b["C_lower_pct"] if cx_b["C_lower_pct"] is not None else 0.0
-    hi_b = cx_b["C_upper_pct"] if cx_b["C_upper_pct"] is not None else lo_b
-    delta_lo = lo_a - hi_b
-    delta_hi = hi_a - lo_b
-    if delta_lo > 0:
+
+    # hi is None when the side is unbounded (right-censored → +inf)
+    hi_a = None if rc_a else (cx_a["C_upper_pct"] if cx_a["C_upper_pct"] is not None else lo_a)
+    hi_b = None if rc_b else (cx_b["C_upper_pct"] if cx_b["C_upper_pct"] is not None else lo_b)
+
+    # delta_lo = C_lower_A - C_upper_B: None when B is unbounded
+    delta_lo = None if rc_b else lo_a - hi_b
+    # delta_hi = C_upper_A - C_lower_B: None when A is unbounded
+    delta_hi = None if rc_a else hi_a - lo_b
+
+    if delta_lo is not None and delta_lo > 0:
         verdict = "def_a_better"
-    elif delta_hi < 0:
+    elif delta_hi is not None and delta_hi < 0:
         verdict = "def_b_better"
+    elif rc_a or rc_b:
+        verdict = "indeterminate_censored"
     else:
         verdict = "indistinguishable"
+
     return {"delta_lo": jf(delta_lo), "delta_hi": jf(delta_hi), "verdict": verdict}
 
 def _col_to_dt64ms(series):
@@ -1210,8 +1232,10 @@ for s_idx in AVAIL_SCENARIOS:
             print(f"    {avail_tag}  {pn}  [{lo:.2f},{hi:.2f}]%  {cx['status']}")
         for key, _, _ in _PAIRS:
             c = cmp_results[key]
+            dlo_s = f"{c['delta_lo']:+.2f}" if c['delta_lo'] is not None else " --- "
+            dhi_s = f"{c['delta_hi']:+.2f}" if c['delta_hi'] is not None else " --- "
             print(f"    {avail_tag}  {key}  "
-                  f"dlo={c['delta_lo']:+.2f}  dhi={c['delta_hi']:+.2f}  {c['verdict']}")
+                  f"dlo={dlo_s}  dhi={dhi_s}  {c['verdict']}")
 
         row_crossings = {
             pn: {
@@ -1274,33 +1298,52 @@ for f in AVAIL_FRACTIONS:
         if not pr:
             continue
         np_ = len(pr)
-        n_defA = sum(1 for r in pr if r[pair_key]["verdict"] == "def_a_better")
-        n_ind  = sum(1 for r in pr if r[pair_key]["verdict"] == "indistinguishable")
-        n_defB = sum(1 for r in pr if r[pair_key]["verdict"] == "def_b_better")
+        n_defA  = sum(1 for r in pr if r[pair_key]["verdict"] == "def_a_better")
+        n_ind   = sum(1 for r in pr if r[pair_key]["verdict"] == "indistinguishable")
+        n_defB  = sum(1 for r in pr if r[pair_key]["verdict"] == "def_b_better")
+        n_indet = sum(1 for r in pr if r[pair_key]["verdict"] == "indeterminate_censored")
         dlo_vals = [r[pair_key]["delta_lo"] for r in pr
                     if r[pair_key]["delta_lo"] is not None]
         dhi_vals = [r[pair_key]["delta_hi"] for r in pr
                     if r[pair_key]["delta_hi"] is not None]
         med_dlo = float(np.median(dlo_vals)) if dlo_vals else None
         med_dhi = float(np.median(dhi_vals)) if dhi_vals else None
+        dlo_s = f"{med_dlo:+.2f}" if med_dlo is not None else " --- "
+        dhi_s = f"{med_dhi:+.2f}" if med_dhi is not None else " --- "
+        indet_s = f"  indet={n_indet}/{np_}" if n_indet else ""
         print(f"    {pair_key}:  def_a={n_defA}/{np_}  ind={n_ind}/{np_}  "
-              f"def_b={n_defB}/{np_}  "
-              f"dlo_med={med_dlo:+.2f}  dhi_med={med_dhi:+.2f}")
+              f"def_b={n_defB}/{np_}{indet_s}  "
+              f"dlo_med={dlo_s}  dhi_med={dhi_s}")
         pair_summaries[pair_key] = {
-            "n"                   : np_,
-            "n_def_a_better"      : n_defA,
-            "n_indistinguishable" : n_ind,
-            "n_def_b_better"      : n_defB,
-            "delta_lo_median"     : jf(med_dlo),
-            "delta_hi_median"     : jf(med_dhi),
+            "n"                        : np_,
+            "n_def_a_better"           : n_defA,
+            "n_indistinguishable"      : n_ind,
+            "n_def_b_better"           : n_defB,
+            "n_indeterminate_censored" : n_indet,
+            "delta_lo_median"          : jf(med_dlo),
+            "delta_hi_median"          : jf(med_dhi),
         }
 
+    # Binding constraint breakdown per policy — shows WHY headroom disappears
+    binding_breakdown: dict = {}
+    for pn in TRANS_POLICIES:
+        ctr = Counter(
+            r["crossings"][pn]["first_binding_constraint"]
+            for r in rows
+            if pn in r["crossings"]
+        )
+        binding_breakdown[pn] = dict(sorted(ctr.items(), key=lambda x: -x[1]))
+    for pn, bkd in binding_breakdown.items():
+        short = pn.replace("full_", "").replace("_spread", "-spread")
+        print(f"    binding [{short}]: {bkd}")
+
     fraction_summaries.append({
-        "avail_frac"      : f,
-        "n_avail"         : n_avail,
-        "n_scenarios"     : n,
-        "C_lower_medians" : {pn: jf(v) for pn, v in pol_medians.items()},
-        "pair_summaries"  : pair_summaries,
+        "avail_frac"        : f,
+        "n_avail"           : n_avail,
+        "n_scenarios"       : n,
+        "C_lower_medians"   : {pn: jf(v) for pn, v in pol_medians.items()},
+        "pair_summaries"    : pair_summaries,
+        "binding_breakdown" : binding_breakdown,
     })
 
 # Transition detection: first fraction where fp_vs_rand shows def_a_better (held-out)
@@ -1336,14 +1379,16 @@ out = {
     "target_pp"         : TARGET_PP,
     "beta_f_frozen"     : BETA_F_FROZEN,
     "t_thr_primary_C"   : T_THR_PRIMARY,
-    "note": ("Expanding-subset design: perm_s = RNG(AVAIL_SEED+s_idx).permutation(N_FP); "
-             "avail_f_s = fp_list[perm_s[:round(f*N_FP)]]. "
-             "The 60% subset is always a prefix of the 70% subset, etc. "
-             "f=1.00 passes explicit full cohort set (same code path as f<1). "
-             "Full crossing refinement applied. Pairs: fp_vs_rand, spread_vs_rand, "
-             "spread_vs_fp (+ loc_vs_rand, spread_vs_loc if AVAIL_INCLUDE_LOC=1). "
+    "note": ("Static candidate-pool sensitivity: the subset is fixed for the entire "
+             "scenario and is NOT drawn from real production occupancy patterns — "
+             "this is a stress test of placement freedom, not a simulation of "
+             "time-varying node availability. "
+             "Expanding-subset design: perm_s = RNG(AVAIL_SEED+s_idx).permutation(N_FP); "
+             "pool_f_s = fp_list[perm_s[:round(f*N_FP)]]; A60 is always a prefix of A70, etc. "
+             "f=1.00 passes the explicit full cohort set. "
              "Interval-aware: delta_lo = C_lower_A - C_upper_B (pessimistic); "
-             "verdicts: def_a_better / indistinguishable / def_b_better."),
+             "right-censored treated as [C_lower, +inf); "
+             "verdicts: def_a_better / indistinguishable / def_b_better / indeterminate_censored."),
     "fraction_summaries": fraction_summaries,
     "scenario_rows"     : all_fraction_results,
     "elapsed_s"         : round(time.time() - t_script, 1),
