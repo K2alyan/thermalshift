@@ -25,6 +25,9 @@ Also reports canonicalization sensitivity table and realization shift.
 Output: artifacts/revision1/results/m4_canonical_comparisons.json
 """
 
+import sys, io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", line_buffering=True)
+
 import json, pathlib, numpy as np
 from collections import Counter
 
