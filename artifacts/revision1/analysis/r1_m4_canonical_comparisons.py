@@ -1,14 +1,26 @@
 #!/usr/bin/env python3
 """
 M4 Canonical Comparisons.
-Post-processing only. Reads frozen v5 outputs + canonical random rerun.
+Post-processing only. Reads frozen v5 outputs + canonical reruns.
 
-Computes interval-aware comparisons using canonical full_random as baseline:
-  - full_fp vs canonical_random        (all 30 scenarios)
-  - full_loc vs canonical_random       (all 30 scenarios)
-  - full_fp_spread vs canonical_random (held-out sc5-29, n=25)
+Interval-aware comparisons (authoritative sources per selector audit):
+  Random    → m4_random_canonical.json   (sorted fix; always vulnerable)
+  Location  → m4_canonical_policies.json (tie-broken; 1933/2000 nodes tied)
+  FP        → m4_fair_baselines.json     (immune; v5 is authoritative)
+  FP-spread → m4_fair_baselines.json     (immune; v5 is authoritative)
 
-Also reports v5 full_random vs canonical_random to document the realization shift.
+Baseline comparisons (all 30):
+  full_fp vs canonical_random
+  full_loc_canonical vs canonical_random
+
+Baseline comparisons (held-out sc5-29):
+  full_fp_spread vs canonical_random
+
+Primary policy-design comparisons (held-out sc5-29):
+  full_fp_spread vs full_fp
+  full_fp_spread vs full_loc_canonical
+
+Also reports canonicalization sensitivity table and realization shift.
 
 Output: artifacts/revision1/results/m4_canonical_comparisons.json
 """
@@ -80,43 +92,61 @@ def summarize_pair(name_a: str, name_b: str,
     n_def_b   = sum(1 for r in rows if r["verdict"] == "definitely_B_better")
 
     dlo_vals  = [r["delta_lo"] for r in rows if r["delta_lo"] is not None]
+    dhi_vals  = [r["delta_hi"] for r in rows if r["delta_hi"] is not None]
     clo_a     = [r["C_lower_A"] for r in rows if r["C_lower_A"] is not None]
     clo_b     = [r["C_lower_B"] for r in rows if r["C_lower_B"] is not None]
 
     dlo_ci = bootstrap_median_ci(dlo_vals, N_BOOTSTRAP, BOOTSTRAP_SEED) if dlo_vals else None
+    dhi_ci = bootstrap_median_ci(dhi_vals, N_BOOTSTRAP, BOOTSTRAP_SEED) if dhi_vals else None
 
     print(f"\n  {name_a} vs {name_b} (n={n}):")
     print(f"    Definitely A better: {n_def_a}/{n} ({100*n_def_a/n:.1f}%)")
     print(f"    Indistinguishable:   {n_ind}/{n}")
     print(f"    Definitely B better: {n_def_b}/{n}")
     if dlo_ci:
-        print(f"    delta_lo median: {dlo_ci['median']:+.2f} pp  "
-              f"95% CI [{dlo_ci['ci_lo_95']:+.2f}, {dlo_ci['ci_hi_95']:+.2f}]")
+        a = np.array(dlo_vals)
+        print(f"    delta_lo: median={dlo_ci['median']:+.2f} pp  "
+              f"95% CI [{dlo_ci['ci_lo_95']:+.2f}, {dlo_ci['ci_hi_95']:+.2f}]  "
+              f"Q1={float(np.percentile(a,25)):+.2f}  Q3={float(np.percentile(a,75)):+.2f}")
+    if dhi_ci:
+        b = np.array(dhi_vals)
+        print(f"    delta_hi: median={dhi_ci['median']:+.2f} pp  "
+              f"95% CI [{dhi_ci['ci_lo_95']:+.2f}, {dhi_ci['ci_hi_95']:+.2f}]  "
+              f"Q1={float(np.percentile(b,25)):+.2f}  Q3={float(np.percentile(b,75)):+.2f}")
     if clo_a:
         print(f"    C_lower medians: {name_a}={float(np.median(clo_a)):.2f}%  "
               f"{name_b}={float(np.median(clo_b)):.2f}%")
 
     return {
-        "name_A"           : name_a,
-        "name_B"           : name_b,
-        "scenarios"        : scenarios,
-        "n"                : n,
-        "n_definitely_A"   : n_def_a,
+        "name_A"             : name_a,
+        "name_B"             : name_b,
+        "scenarios"          : scenarios,
+        "n"                  : n,
+        "n_definitely_A"     : n_def_a,
         "n_indistinguishable": n_ind,
-        "n_definitely_B"   : n_def_b,
-        "pct_definitely_A" : round(100 * n_def_a / n, 1) if n else None,
-        "delta_lo_ci"      : dlo_ci,
-        "C_lower_A_median" : jf(float(np.median(clo_a))) if clo_a else None,
-        "C_lower_B_median" : jf(float(np.median(clo_b))) if clo_b else None,
-        "scenario_rows"    : rows,
+        "n_definitely_B"     : n_def_b,
+        "pct_definitely_A"   : round(100 * n_def_a / n, 1) if n else None,
+        "delta_lo_ci"        : dlo_ci,
+        "delta_hi_ci"        : dhi_ci,
+        "C_lower_A_median"   : jf(float(np.median(clo_a))) if clo_a else None,
+        "C_lower_B_median"   : jf(float(np.median(clo_b))) if clo_b else None,
+        "scenario_rows"      : rows,
     }
 
 
 def _sensitivity(pol_label: str, cx_v5_pol: dict, cx_can_pol: dict,
-                 cx_rand_can: dict, scenarios: list[int]) -> dict:
-    """Compare v5 vs canonical C_lower per scenario; count verdict flips vs canonical_rand."""
+                 cx_rand_can: dict, scenarios: list[int],
+                 compute_verdict_change: bool = True) -> dict:
+    """Compare v5 vs canonical C_lower per scenario.
+
+    compute_verdict_change=False for Random: comparing canonical random against
+    canonical random (the reference) is circular and produces a trivial result.
+    For Random use status_changes / binding_changes instead.
+    """
     deltas: list[float] = []
     verdicts_changed = 0
+    status_changes   = 0
+    binding_changes  = 0
     clo_v5_vals: list[float] = []
     clo_can_vals: list[float] = []
     for s in scenarios:
@@ -127,19 +157,27 @@ def _sensitivity(pol_label: str, cx_v5_pol: dict, cx_can_pol: dict,
         deltas.append(abs(lo_can - lo_v5))
         clo_v5_vals.append(lo_v5)
         clo_can_vals.append(lo_can)
-        if s in cx_rand_can:
+        if cx_v5_pol[s].get("status") != cx_can_pol[s].get("status"):
+            status_changes += 1
+        if (cx_v5_pol[s].get("first_binding_constraint") !=
+                cx_can_pol[s].get("first_binding_constraint")):
+            binding_changes += 1
+        if compute_verdict_change and s in cx_rand_can:
             verd_v5  = interval_compare(cx_v5_pol[s],  cx_rand_can[s])["verdict"]
             verd_can = interval_compare(cx_can_pol[s], cx_rand_can[s])["verdict"]
             if verd_v5 != verd_can:
                 verdicts_changed += 1
     return {
-        "policy"           : pol_label,
-        "n_scenarios"      : len(deltas),
-        "old_C_lower_med"  : jf(float(np.median(clo_v5_vals)))  if clo_v5_vals else None,
-        "canon_C_lower_med": jf(float(np.median(clo_can_vals))) if clo_can_vals else None,
-        "med_abs_delta_pp" : jf(float(np.median(deltas)))       if deltas      else None,
-        "max_abs_delta_pp" : jf(float(np.max(deltas)))          if deltas      else None,
-        "verdicts_changed" : verdicts_changed,
+        "policy"                          : pol_label,
+        "n_scenarios"                     : len(deltas),
+        "old_C_lower_med"                 : jf(float(np.median(clo_v5_vals)))          if clo_v5_vals else None,
+        "canon_C_lower_med"               : jf(float(np.median(clo_can_vals)))         if clo_can_vals else None,
+        "med_abs_delta_pp"                : jf(float(np.median(deltas)))               if deltas      else None,
+        "p95_abs_delta_pp"                : jf(float(np.percentile(deltas, 95)))       if deltas      else None,
+        "max_abs_delta_pp"                : jf(float(np.max(deltas)))                  if deltas      else None,
+        "status_changes"                  : status_changes,
+        "binding_changes"                 : binding_changes,
+        "verdicts_changed_vs_canonical_rand": verdicts_changed if compute_verdict_change else None,
     }
 
 
@@ -196,8 +234,19 @@ def main():
     comparisons["spread_vs_canonical_rand"] = summarize_pair(
         "full_fp_spread",     "canonical_random", cx_spread,  cx_rand_can, held_out)
 
+    # Primary policy-design comparisons: does topology-aware spread beat simpler policies?
+    print(f"\n{'='*70}")
+    print("PRIMARY POLICY-DESIGN COMPARISONS (held-out sc5-29, n=25)")
+    print(f"{'='*70}")
+    comparisons["spread_vs_fp"] = summarize_pair(
+        "full_fp_spread", "full_fp",            cx_spread, cx_fp,      held_out)
+    comparisons["spread_vs_canonical_loc"] = summarize_pair(
+        "full_fp_spread", "full_loc_canonical", cx_spread, cx_loc_can, held_out)
+
     # Realization shift: v5 random vs canonical random
-    print("\n  Realization shift check (v5_random vs canonical_random, all 30):")
+    print(f"\n{'='*70}")
+    print("REALIZATION SHIFT CHECK (v5_random vs canonical_random, all 30)")
+    print(f"{'='*70}")
     shift_rows = []
     for s in all_30:
         if s not in cx_rand_v5 or s not in cx_rand_can:
@@ -208,12 +257,13 @@ def main():
         shift_rows.append({"scenario_idx": s, "v5_C_lower": v5_lo,
                             "canonical_C_lower": cn_lo, "diff": diff})
     diffs = [r["diff"] for r in shift_rows]
-    print(f"    C_lower shift (canonical - v5): "
+    print(f"  C_lower shift (canonical - v5): "
           f"median={float(np.median(diffs)):+.2f} pp  "
           f"[p25={float(np.percentile(diffs,25)):+.2f}, "
           f"p75={float(np.percentile(diffs,75)):+.2f}]")
-    print(f"    (Near-zero shift confirms uniform sampling has same distribution;")
-    print(f"     any residual shift is sampling noise, not a systematic bias.)")
+    print(f"  (A small aggregate shift would be consistent with the expectation that")
+    print(f"   canonicalization changes the realized random draw, not the intended")
+    print(f"   uniform-sampling distribution.)")
     comparisons["realization_shift_v5_vs_canonical"] = {
         "note"       : "canonical_random minus v5_random; near zero in expectation",
         "rows"       : shift_rows,
@@ -226,25 +276,35 @@ def main():
     print(f"\n{'='*70}")
     print("CANONICALIZATION SENSITIVITY TABLE")
     print(f"{'='*70}")
-    hdr = (f"  {'Policy':<24} {'Old C_lo':>9} {'Canon C_lo':>11} "
-           f"{'Med|Δ|':>8} {'Max|Δ|':>8} {'Verdicts chg':>14}")
-    print(hdr)
-    print("  " + "-" * 78)
+    print(f"  {'Policy':<24} {'Old C_lo':>9} {'Canon C_lo':>11} "
+          f"{'Med|Δ|':>8} {'p95|Δ|':>7} {'Max|Δ|':>8}  Notes")
+    print("  " + "-" * 82)
 
+    # Random: compute_verdict_change=False — comparing canonical rand to itself is circular
     sens_rows = [
-        _sensitivity("full_random",          cx_rand_v5, cx_rand_can, cx_rand_can, all_30),
+        _sensitivity("full_random",          cx_rand_v5, cx_rand_can, cx_rand_can, all_30,
+                     compute_verdict_change=False),
         _sensitivity("full_loc",              cx_loc_v5,  cx_loc_can,  cx_rand_can, all_30),
         _sensitivity("full_fp (immune)",      cx_fp,      cx_fp,       cx_rand_can, all_30),
         _sensitivity("full_fp_spread (imm.)", cx_spread,  cx_spread,   cx_rand_can, held_out),
     ]
 
     for row in sens_rows:
-        print(f"  {row['policy']:<24} "
-              f"{row['old_C_lower_med']:>9.2f}% "
-              f"{row['canon_C_lower_med']:>10.2f}% "
-              f"{row['med_abs_delta_pp']:>7.3f}pp "
-              f"{row['max_abs_delta_pp']:>7.3f}pp "
-              f"{row['verdicts_changed']:>13}")
+        base = (f"  {row['policy']:<24} "
+                f"{row['old_C_lower_med']:>9.2f}% "
+                f"{row['canon_C_lower_med']:>10.2f}% "
+                f"{row['med_abs_delta_pp']:>7.3f}pp "
+                f"{row['p95_abs_delta_pp']:>6.3f}pp "
+                f"{row['max_abs_delta_pp']:>7.3f}pp")
+        vc = row["verdicts_changed_vs_canonical_rand"]
+        if vc is None:
+            # Random: verdict-vs-rand metric is N/A; show status/binding changes instead
+            note = (f"  status_chg={row['status_changes']}  "
+                    f"bind_chg={row['binding_changes']}  verdicts_vs_rand=N/A")
+        else:
+            note = (f"  verdicts_vs_rand={vc}  "
+                    f"status_chg={row['status_changes']}  bind_chg={row['binding_changes']}")
+        print(base + note)
 
     out = {
         "source_v5"         : "m4_fair_baselines.json",
