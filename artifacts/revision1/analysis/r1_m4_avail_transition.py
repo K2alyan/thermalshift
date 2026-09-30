@@ -1413,10 +1413,17 @@ if REGRESSION_ONLY:
     if INCLUDE_LOC and (OUT_DIR / "m4_canonical_policies.json").exists():
         ref_hashes["m4_canonical_policies.json"] = _sha256(
             OUT_DIR / "m4_canonical_policies.json")
+    try:
+        git_porcelain = subprocess.check_output(
+            ["git", "status", "--porcelain"], text=True, cwd=REPO_ROOT).strip()
+        git_status_clean = (git_porcelain == "")
+    except Exception:
+        git_status_clean = None
     out["provenance"] = {
-        "git_sha"      : git_sha,
-        "script_sha256": _sha256(Path(__file__).resolve()),
-        "ref_hashes"   : ref_hashes,
+        "git_sha"         : git_sha,
+        "git_status_clean": git_status_clean,
+        "script_sha256"   : _sha256(Path(__file__).resolve()),
+        "ref_hashes"      : ref_hashes,
     }
 
 OUT_FILE.write_text(json.dumps(out, indent=2))
@@ -1539,17 +1546,38 @@ if REGRESSION_ONLY:
                 _chk(f"sc{s_idx} {pol_name} lam=1.0 C_unlock",
                      0.0, lr_ref[1.0]["capacity_unlock_pct"], tol=1e-6)
 
-    # Summary
+    # Machine-readable audit — written to JSON regardless of outcome,
+    # so the file always records its own verdict and cannot be mistaken
+    # for a passing run by mere existence.
+    is_clean = out.get("provenance", {}).get("git_status_clean") is True
+    out["regression_audit"] = {
+        "status"                 : "FAIL" if fails else "PASS",
+        "n_checks"               : checks[0],
+        "n_failures"             : len(fails),
+        "failures"               : fails,
+        "crossing_tolerance_pp"  : 0.001,
+        "B_ref_tolerance_h"      : 1e-3,
+        "S_ref_tolerance_Cdoth"  : 1e-3,
+        "authorized_for_full_run": (not fails) and is_clean,
+    }
+    OUT_FILE.write_text(json.dumps(out, indent=2))
+
     print(f"\n{'='*70}")
     if fails:
         print(f"REGRESSION FAILED  ({len(fails)} failures out of {checks[0]} checks):")
         for f_msg in fails:
             print(f_msg)
+        print(f"authorized_for_full_run: false")
         print(f"{'='*70}")
         sys.exit(1)
     else:
         print(f"REGRESSION PASSED  ({checks[0]}/{checks[0]} checks)")
         for pol_name, ref_path in REF_BY_POL.items():
             print(f"  {pol_name} vs {ref_path.name}: exact match.")
-        print("Safe to launch the full 60/70/80/90/100 experiment.")
+        print(f"git_status_clean: {is_clean}")
+        print(f"authorized_for_full_run: {(not fails) and is_clean}")
+        if (not fails) and is_clean:
+            print("Safe to launch the full 60/70/80/90/100 experiment.")
+        elif not is_clean:
+            print("WARNING: working tree is not clean — authorized_for_full_run is false.")
         print(f"{'='*70}")
