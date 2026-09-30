@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
 """
-M4 Availability Transition Experiment.
+M4 Availability Transition — Scope-Condition Experiment.
 Post-hoc. Does NOT modify m4_fair_baselines.json.
 
-Fractions: 60%, 70%, 80%, 90%, 100% (extending existing 10%-60% sensitivity)
-Scenarios:  sc0-sc4 (dev) + sc5-sc9 (held-out) = 10 total, pre-declared
-Policies:   full_fp and full_random only
-Design:     Expanding-subset — each scenario uses one fixed permutation
-            perm_s = RNG(AVAIL_SEED + s_idx).permutation(N_FP)
-            avail_f_s = {fp_list[perm_s[i]] for i in range(round(f * N_FP))}
-            f=1.00 -> avail_nodes=None (unrestricted cohort)
+Purpose: How much placement freedom does the scheduler need before thermal
+fingerprints are useful? This is an operational scope condition, not an
+additional efficacy result — the main efficacy result stands on canonical
+full-cohort comparisons.
 
-Full crossing refinement (refine_crossing_bracket) per policy x fraction x scenario.
-Interval-aware: delta_lo = C_lower_fp - C_upper_rand (pessimistic, FP over rand)
-                delta_hi = C_upper_fp - C_lower_rand (optimistic)
+Fractions: 60%, 70%, 80%, 90%, 100% (expanding-subset design)
+Scenarios:  sc0-sc4 (dev) + sc5-sc9 (held-out) = 10 total, pre-declared
+Policies:   canonical Random, frozen/canonical FP, FP-spread
+            (+ canonical Location if AVAIL_INCLUDE_LOC=1, default on)
+Design:     perm_s = RNG(AVAIL_SEED + s_idx).permutation(N_FP)
+            A60 ⊂ A70 ⊂ A80 ⊂ A90 ⊂ A100
+
+Pairs reported: fp_vs_rand, spread_vs_rand, spread_vs_fp
+                (+ loc_vs_rand, spread_vs_loc if Location included)
+
+At f=1.00 in regression mode, requires exact reproduction of authoritative
+canonical/frozen results before the 60-100% experiment is accepted.
 
 Output: artifacts/revision1/results/m4_avail_transition.json
 """
@@ -68,7 +74,10 @@ POLICY_MAP = {
 AVAIL_FRACTIONS = [0.60, 0.70, 0.80, 0.90, 1.00]
 AVAIL_SCENARIOS = list(range(10))   # sc0-sc9; declared before looking at results
 AVAIL_SEED      = 20260929          # distinct from main-script SCENARIO_SEED
-TRANS_POLICIES  = ["full_fp", "full_random"]
+INCLUDE_LOC     = os.environ.get("AVAIL_INCLUDE_LOC", "1").strip() in ("1", "true")
+TRANS_POLICIES  = ["full_fp", "full_fp_spread", "full_random"]
+if INCLUDE_LOC:
+    TRANS_POLICIES.append("full_loc")
 OUT_FILE        = OUT_DIR / "m4_avail_transition.json"
 
 # ── Regression-test mode ────────────────────────────────────────────────
@@ -86,6 +95,22 @@ def jf(v):
         return None
     f = float(v)
     return None if (np.isnan(f) or np.isinf(f)) else f
+
+def _icmp(cx_a, cx_b):
+    """Interval-aware comparison. A is 'better'. Returns delta_lo, delta_hi, verdict."""
+    lo_a = cx_a["C_lower_pct"] if cx_a["C_lower_pct"] is not None else 0.0
+    hi_a = cx_a["C_upper_pct"] if cx_a["C_upper_pct"] is not None else lo_a
+    lo_b = cx_b["C_lower_pct"] if cx_b["C_lower_pct"] is not None else 0.0
+    hi_b = cx_b["C_upper_pct"] if cx_b["C_upper_pct"] is not None else lo_b
+    delta_lo = lo_a - hi_b
+    delta_hi = hi_a - lo_b
+    if delta_lo > 0:
+        verdict = "def_a_better"
+    elif delta_hi < 0:
+        verdict = "def_b_better"
+    else:
+        verdict = "indistinguishable"
+    return {"delta_lo": jf(delta_lo), "delta_hi": jf(delta_hi), "verdict": verdict}
 
 def _col_to_dt64ms(series):
     s = pd.to_datetime(series, utc=True)
@@ -1165,45 +1190,47 @@ for s_idx in AVAIL_SCENARIOS:
 
             crossings[pol_name] = cx
 
-        # Interval-aware comparison: FP vs Random
-        cx_fp   = crossings["full_fp"]
-        cx_rand = crossings["full_random"]
+        # Interval-aware comparisons (all pairs)
+        _PAIRS = [("fp_vs_rand", "full_fp", "full_random")]
+        if "full_fp_spread" in crossings:
+            _PAIRS.append(("spread_vs_rand", "full_fp_spread", "full_random"))
+            _PAIRS.append(("spread_vs_fp",   "full_fp_spread", "full_fp"))
+        if "full_loc" in crossings:
+            _PAIRS.append(("loc_vs_rand",   "full_loc",       "full_random"))
+            _PAIRS.append(("spread_vs_loc", "full_fp_spread", "full_loc"))
 
-        lo_fp   = cx_fp["C_lower_pct"]
-        hi_fp   = cx_fp["C_upper_pct"] if cx_fp["C_upper_pct"] is not None else lo_fp
-        lo_rand = cx_rand["C_lower_pct"]
-        hi_rand = cx_rand["C_upper_pct"] if cx_rand["C_upper_pct"] is not None else lo_rand
+        cmp_results: dict[str, dict] = {
+            key: _icmp(crossings[pol_a], crossings[pol_b])
+            for key, pol_a, pol_b in _PAIRS
+        }
 
-        delta_lo = lo_fp - hi_rand   # pessimistic
-        delta_hi = hi_fp - lo_rand   # optimistic
+        for pn, cx in crossings.items():
+            lo = cx["C_lower_pct"] if cx["C_lower_pct"] is not None else 0.0
+            hi = cx["C_upper_pct"] if cx["C_upper_pct"] is not None else lo
+            print(f"    {avail_tag}  {pn}  [{lo:.2f},{hi:.2f}]%  {cx['status']}")
+        for key, _, _ in _PAIRS:
+            c = cmp_results[key]
+            print(f"    {avail_tag}  {key}  "
+                  f"dlo={c['delta_lo']:+.2f}  dhi={c['delta_hi']:+.2f}  {c['verdict']}")
 
-        if delta_lo > 0:
-            verdict = "definitely_fp_better"
-        elif delta_hi < 0:
-            verdict = "definitely_rand_better"
-        else:
-            verdict = "indistinguishable"
+        row_crossings = {
+            pn: {
+                "C_lower_pct"             : jf(cx["C_lower_pct"]),
+                "C_upper_pct"             : jf(cx["C_upper_pct"]),
+                "status"                  : cx["status"],
+                "first_binding_constraint": cx["first_binding_constraint"],
+            }
+            for pn, cx in crossings.items()
+        }
 
-        print(f"    {avail_tag}  "
-              f"fp=[{lo_fp:.2f},{hi_fp:.2f}]%  rand=[{lo_rand:.2f},{hi_rand:.2f}]%  "
-              f"dlo={delta_lo:+.2f}  dhi={delta_hi:+.2f}  {verdict}")
-
-        all_fraction_results.append({
-            "scenario_idx"   : s_idx,
-            "avail_frac"     : f,
-            "n_avail"        : n_avail if avail_set is not None else N_FP,
-            "C_lower_fp"     : jf(lo_fp),
-            "C_upper_fp"     : jf(hi_fp),
-            "C_lower_rand"   : jf(lo_rand),
-            "C_upper_rand"   : jf(hi_rand),
-            "delta_lo"       : jf(delta_lo),
-            "delta_hi"       : jf(delta_hi),
-            "verdict"        : verdict,
-            "status_fp"      : cx_fp["status"],
-            "status_rand"    : cx_rand["status"],
-            "binding_fp"     : cx_fp["first_binding_constraint"],
-            "binding_rand"   : cx_rand["first_binding_constraint"],
-        })
+        row = {
+            "scenario_idx": s_idx,
+            "avail_frac"  : f,
+            "n_avail"     : n_avail,
+            "crossings"   : row_crossings,
+        }
+        row.update(cmp_results)
+        all_fraction_results.append(row)
 
     print(f"    Scenario {s_idx} elapsed: {time.time()-t_scen:.0f}s")
 
@@ -1214,57 +1241,86 @@ print(f"\n{'='*70}")
 print("AVAILABILITY TRANSITION SUMMARY")
 print(f"{'='*70}")
 
+_ALL_PAIRS = ["fp_vs_rand", "spread_vs_rand", "spread_vs_fp",
+              "loc_vs_rand", "spread_vs_loc"]
+active_pairs = [p for p in _ALL_PAIRS
+                if any(p in r for r in all_fraction_results)]
+
 fraction_summaries = []
 for f in AVAIL_FRACTIONS:
-    rows = [r for r in all_fraction_results if r["avail_frac"] == f]
-    n    = len(rows)
+    rows   = [r for r in all_fraction_results if r["avail_frac"] == f]
+    n      = len(rows)
+    n_avail = rows[0]["n_avail"] if rows else round(f * N_FP)
 
-    n_defA  = sum(1 for r in rows if r["verdict"] == "definitely_fp_better")
-    n_ind   = sum(1 for r in rows if r["verdict"] == "indistinguishable")
-    n_defB  = sum(1 for r in rows if r["verdict"] == "definitely_rand_better")
+    print(f"\n  f={f:.0%}  n_avail={n_avail}  n_scenarios={n}")
 
-    dlo_vals = [r["delta_lo"] for r in rows if r["delta_lo"] is not None]
-    dhi_vals = [r["delta_hi"] for r in rows if r["delta_hi"] is not None]
-    clo_fp   = [r["C_lower_fp"]   for r in rows if r["C_lower_fp"]   is not None]
-    clo_rand = [r["C_lower_rand"] for r in rows if r["C_lower_rand"] is not None]
+    pol_medians: dict = {}
+    for pn in TRANS_POLICIES:
+        vals = [r["crossings"][pn]["C_lower_pct"]
+                for r in rows
+                if pn in r["crossings"]
+                and r["crossings"][pn]["C_lower_pct"] is not None]
+        pol_medians[pn] = float(np.median(vals)) if vals else None
 
-    med_dlo  = float(np.median(dlo_vals)) if dlo_vals else None
-    med_dhi  = float(np.median(dhi_vals)) if dhi_vals else None
-    med_fp   = float(np.median(clo_fp))   if clo_fp   else None
-    med_rand = float(np.median(clo_rand)) if clo_rand else None
+    med_line = "    C_lower medians:"
+    for pn, med in pol_medians.items():
+        short = pn.replace("full_", "").replace("_spread", "-spread")
+        med_line += f"  {short}={med:.2f}%" if med is not None else f"  {short}=None"
+    print(med_line)
 
-    n_avail  = rows[0]["n_avail"] if rows else round(f * N_FP)
-
-    print(f"\n  f={f:.0%}  n_avail={n_avail}")
-    print(f"    Definitely FP better: {n_defA}/{n}  |  "
-          f"Indistinguishable: {n_ind}/{n}  |  "
-          f"Definitely Rand better: {n_defB}/{n}")
-    if med_dlo is not None:
-        print(f"    delta_lo median={med_dlo:+.2f} pp  "
-              f"delta_hi median={med_dhi:+.2f} pp")
-    print(f"    C_lower median: fp={med_fp:.2f}%  rand={med_rand:.2f}%")
+    pair_summaries: dict = {}
+    for pair_key in active_pairs:
+        pr = [r for r in rows if pair_key in r and r[pair_key] is not None]
+        if not pr:
+            continue
+        np_ = len(pr)
+        n_defA = sum(1 for r in pr if r[pair_key]["verdict"] == "def_a_better")
+        n_ind  = sum(1 for r in pr if r[pair_key]["verdict"] == "indistinguishable")
+        n_defB = sum(1 for r in pr if r[pair_key]["verdict"] == "def_b_better")
+        dlo_vals = [r[pair_key]["delta_lo"] for r in pr
+                    if r[pair_key]["delta_lo"] is not None]
+        dhi_vals = [r[pair_key]["delta_hi"] for r in pr
+                    if r[pair_key]["delta_hi"] is not None]
+        med_dlo = float(np.median(dlo_vals)) if dlo_vals else None
+        med_dhi = float(np.median(dhi_vals)) if dhi_vals else None
+        print(f"    {pair_key}:  def_a={n_defA}/{np_}  ind={n_ind}/{np_}  "
+              f"def_b={n_defB}/{np_}  "
+              f"dlo_med={med_dlo:+.2f}  dhi_med={med_dhi:+.2f}")
+        pair_summaries[pair_key] = {
+            "n"                   : np_,
+            "n_def_a_better"      : n_defA,
+            "n_indistinguishable" : n_ind,
+            "n_def_b_better"      : n_defB,
+            "delta_lo_median"     : jf(med_dlo),
+            "delta_hi_median"     : jf(med_dhi),
+        }
 
     fraction_summaries.append({
-        "avail_frac"           : f,
-        "n_avail"              : n_avail,
-        "n_scenarios"          : n,
-        "n_definitely_fp"      : n_defA,
-        "n_indistinguishable"  : n_ind,
-        "n_definitely_rand"    : n_defB,
-        "pct_definitely_fp"    : round(100 * n_defA / n, 1) if n else None,
-        "delta_lo_median"      : jf(med_dlo),
-        "delta_hi_median"      : jf(med_dhi),
-        "C_lower_fp_median"    : jf(med_fp),
-        "C_lower_rand_median"  : jf(med_rand),
+        "avail_frac"      : f,
+        "n_avail"         : n_avail,
+        "n_scenarios"     : n,
+        "C_lower_medians" : {pn: jf(v) for pn, v in pol_medians.items()},
+        "pair_summaries"  : pair_summaries,
     })
 
-# Transition threshold: first fraction where any scenario shows definite FP advantage
-print("\n  Transition detection (held-out sc5-9 only):")
+# Transition detection: first fraction where fp_vs_rand shows def_a_better (held-out)
+print("\n  Transition detection (fp_vs_rand, held-out sc5-9):")
 for f in AVAIL_FRACTIONS:
     held = [r for r in all_fraction_results
             if r["avail_frac"] == f and r["scenario_idx"] >= 5]
-    n_defA = sum(1 for r in held if r["verdict"] == "definitely_fp_better")
-    print(f"    f={f:.0%}  definitely_fp_better: {n_defA}/{len(held)}")
+    n_defA = sum(1 for r in held
+                 if "fp_vs_rand" in r and r["fp_vs_rand"]["verdict"] == "def_a_better")
+    print(f"    f={f:.0%}  fp_vs_rand def_a_better: {n_defA}/{len(held)}")
+
+if "spread_vs_rand" in active_pairs:
+    print("\n  Transition detection (spread_vs_rand, held-out sc5-9):")
+    for f in AVAIL_FRACTIONS:
+        held = [r for r in all_fraction_results
+                if r["avail_frac"] == f and r["scenario_idx"] >= 5]
+        n_defA = sum(1 for r in held
+                     if "spread_vs_rand" in r
+                     and r["spread_vs_rand"]["verdict"] == "def_a_better")
+        print(f"    f={f:.0%}  spread_vs_rand def_a_better: {n_defA}/{len(held)}")
 
 # ══════════════════════════════════════════════════════════════════════
 # [15] Save output
@@ -1283,9 +1339,11 @@ out = {
     "note": ("Expanding-subset design: perm_s = RNG(AVAIL_SEED+s_idx).permutation(N_FP); "
              "avail_f_s = fp_list[perm_s[:round(f*N_FP)]]. "
              "The 60% subset is always a prefix of the 70% subset, etc. "
-             "f=1.00 uses avail_nodes=None (unrestricted cohort). "
-             "Full crossing refinement applied; interval-aware comparison: "
-             "delta_lo = C_lower_fp - C_upper_rand (pessimistic)."),
+             "f=1.00 passes explicit full cohort set (same code path as f<1). "
+             "Full crossing refinement applied. Pairs: fp_vs_rand, spread_vs_rand, "
+             "spread_vs_fp (+ loc_vs_rand, spread_vs_loc if AVAIL_INCLUDE_LOC=1). "
+             "Interval-aware: delta_lo = C_lower_A - C_upper_B (pessimistic); "
+             "verdicts: def_a_better / indistinguishable / def_b_better."),
     "fraction_summaries": fraction_summaries,
     "scenario_rows"     : all_fraction_results,
     "elapsed_s"         : round(time.time() - t_script, 1),
@@ -1299,24 +1357,40 @@ print(f"Total elapsed: {time.time()-t_script:.1f}s")
 # ══════════════════════════════════════════════════════════════════════
 if REGRESSION_ONLY:
     print(f"\n{'='*70}")
-    print("REGRESSION CHECK: f=1.00 results vs frozen v5 (m4_fair_baselines.json)")
+    print("REGRESSION CHECK: f=1.00 results vs frozen/canonical references")
     print(f"{'='*70}")
 
-    # Load frozen v5 (full_fp reference) and canonical random (full_random reference).
-    # Both must pass with hard equality — no warn-only exceptions.
-    v5_path   = OUT_DIR / "m4_fair_baselines.json"
-    rand_path = OUT_DIR / "m4_random_canonical.json"
-    for p, label in ((v5_path, "m4_fair_baselines.json"),
-                     (rand_path, "m4_random_canonical.json")):
+    v5_path      = OUT_DIR / "m4_fair_baselines.json"
+    rand_path    = OUT_DIR / "m4_random_canonical.json"
+    can_pol_path = OUT_DIR / "m4_canonical_policies.json"
+
+    # Maps each policy to its authoritative reference file.
+    # full_fp and full_fp_spread are immune — both live in frozen v5.
+    REF_BY_POL = {
+        "full_fp":        v5_path,
+        "full_fp_spread": v5_path,
+        "full_random":    rand_path,
+    }
+    if INCLUDE_LOC:
+        REF_BY_POL["full_loc"] = can_pol_path
+
+    required_paths = sorted(set(REF_BY_POL.values()), key=str)
+    for p in required_paths:
         if not p.exists():
             print(f"FATAL: reference file not found: {p}")
-            print("Run r1_m4_random_canonical.py first, then retry regression.")
             sys.exit(1)
 
-    v5_data     = json.loads(v5_path.read_text())
-    v5_by_sc    = {sr["scenario_idx"]: sr for sr in v5_data["scenario_results"]}
-    rand_data   = json.loads(rand_path.read_text())
-    rand_by_sc  = {sr["scenario_idx"]: sr for sr in rand_data["scenario_results"]}
+    v5_data    = json.loads(v5_path.read_text())
+    v5_by_sc   = {sr["scenario_idx"]: sr for sr in v5_data["scenario_results"]}
+    rand_data  = json.loads(rand_path.read_text())
+    rand_by_sc = {sr["scenario_idx"]: sr for sr in rand_data["scenario_results"]}
+
+    ref_by_sc_map: dict = {v5_path: v5_by_sc, rand_path: rand_by_sc}
+    if INCLUDE_LOC and can_pol_path.exists():
+        can_pol_data = json.loads(can_pol_path.read_text())
+        can_pol_by_sc = {sr["scenario_idx"]: sr
+                         for sr in can_pol_data["scenario_results"]}
+        ref_by_sc_map[can_pol_path] = can_pol_by_sc
 
     fails  = []
     checks = [0]
@@ -1343,63 +1417,58 @@ if REGRESSION_ONLY:
 
     for rec in all_fraction_results:
         s_idx = rec["scenario_idx"]
+        sr_v5 = v5_by_sc.get(s_idx)
         print(f"\n  Scenario {s_idx}:")
 
-        # ── Seed sanity (v5 is the authoritative seed record) ────────
-        _chk(f"sc{s_idx} scen_seed",  scen_seeds[s_idx], sr_v5["scen_seed"])
-        _chk(f"sc{s_idx} wl_seed",    wl_seeds[s_idx],   sr_v5["wl_seed"])
+        # Seed sanity (v5 is the authoritative seed record)
+        if sr_v5 is not None:
+            _chk(f"sc{s_idx} scen_seed", scen_seeds[s_idx], sr_v5["scen_seed"])
+            _chk(f"sc{s_idx} wl_seed",   wl_seeds[s_idx],   sr_v5["wl_seed"])
+            b_ref_new, s_ref_new = scenario_B_refs[s_idx]
+            _chk(f"sc{s_idx} B_ref_s",   b_ref_new, sr_v5["B_ref_s_primary_h"], tol=1e-3)
+            _chk(f"sc{s_idx} S_ref_s",   s_ref_new, sr_v5["S_ref_s_primary"],   tol=1e-3)
+        else:
+            fails.append(f"  FAIL sc{s_idx}: not found in v5 reference")
 
-        # ── B_ref_s (shared by both policies; compare against v5) ────
-        b_ref_new, s_ref_new = scenario_B_refs[s_idx]
-        _chk(f"sc{s_idx} B_ref_s",    b_ref_new, sr_v5["B_ref_s_primary_h"], tol=1e-3)
-        _chk(f"sc{s_idx} S_ref_s",    s_ref_new, sr_v5["S_ref_s_primary"],   tol=1e-3)
-
-        # ── Crossings ────────────────────────────────────────────────
-        # full_fp → compare against frozen v5 (m4_fair_baselines.json)
-        # full_random → compare against canonical random (m4_random_canonical.json)
-        # Both are hard failures; no warn-only exceptions.
+        # Per-policy crossing checks (hard fail, no warn-only)
         for pol_name in TRANS_POLICIES:
-            if pol_name == "full_fp":
-                if s_idx not in v5_by_sc:
-                    fails.append(f"  FAIL sc{s_idx}: not found in v5 reference")
-                    continue
-                cx_ref = v5_by_sc[s_idx]["crossings"][pol_name]
-                c_lo_new = rec["C_lower_fp"]
-                c_hi_new = rec["C_upper_fp"]
-                st_new   = rec["status_fp"]
-                bd_new   = rec["binding_fp"]
-            else:
-                if s_idx not in rand_by_sc:
-                    fails.append(f"  FAIL sc{s_idx}: not found in canonical random reference")
-                    continue
-                cx_ref = rand_by_sc[s_idx]["crossings"][pol_name]
-                c_lo_new = rec["C_lower_rand"]
-                c_hi_new = rec["C_upper_rand"]
-                st_new   = rec["status_rand"]
-                bd_new   = rec["binding_rand"]
-
-            _chk(f"sc{s_idx} {pol_name} status",   st_new, cx_ref["status"])
+            ref_path  = REF_BY_POL[pol_name]
+            ref_by_sc = ref_by_sc_map.get(ref_path, {})
+            if s_idx not in ref_by_sc:
+                fails.append(f"  FAIL sc{s_idx} {pol_name}: not in {ref_path.name}")
+                continue
+            cx_ref = ref_by_sc[s_idx]["crossings"][pol_name]
+            cx_new = rec["crossings"].get(pol_name)
+            if cx_new is None:
+                fails.append(f"  FAIL sc{s_idx} {pol_name}: missing from avail results")
+                continue
+            _chk(f"sc{s_idx} {pol_name} status",
+                 cx_new["status"], cx_ref["status"])
             _chk(f"sc{s_idx} {pol_name} binding",
-                 bd_new, cx_ref["first_binding_constraint"])
+                 cx_new["first_binding_constraint"],
+                 cx_ref["first_binding_constraint"])
             _chk(f"sc{s_idx} {pol_name} C_lower",
-                 c_lo_new, cx_ref["C_lower_pct"], tol=1e-3)
+                 cx_new["C_lower_pct"], cx_ref["C_lower_pct"], tol=1e-3)
             if cx_ref["C_upper_pct"] is not None:
                 _chk(f"sc{s_idx} {pol_name} C_upper",
-                     c_hi_new, cx_ref["C_upper_pct"], tol=1e-3)
+                     cx_new["C_upper_pct"], cx_ref["C_upper_pct"], tol=1e-3)
 
-        # ── Lambda-level spot-check: lam=1.0 → C_unlock=0 ──────────
+        # Lambda-level spot-check: lam=1.0 reference row must show C_unlock=0
         for pol_name in TRANS_POLICIES:
-            # Use v5 lambda_rows for full_fp; canonical for full_random
-            ref_src = v5_by_sc if pol_name == "full_fp" else rand_by_sc
-            if s_idx not in ref_src:
+            ref_path  = REF_BY_POL[pol_name]
+            ref_by_sc = ref_by_sc_map.get(ref_path, {})
+            if s_idx not in ref_by_sc:
                 continue
-            lr_ref = {r["lambda_val"]: r
-                      for r in ref_src[s_idx]["lambda_rows"][pol_name]}
+            sr_ref = ref_by_sc[s_idx]
+            if "lambda_rows" not in sr_ref:
+                continue
+            lr_pol = sr_ref["lambda_rows"].get(pol_name, [])
+            lr_ref = {r["lambda_val"]: r for r in lr_pol}
             if 1.0 in lr_ref:
                 _chk(f"sc{s_idx} {pol_name} lam=1.0 C_unlock",
                      0.0, lr_ref[1.0]["capacity_unlock_pct"], tol=1e-6)
 
-    # ── Summary ──────────────────────────────────────────────────────
+    # Summary
     print(f"\n{'='*70}")
     if fails:
         print(f"REGRESSION FAILED  ({len(fails)} failures out of {checks[0]} checks):")
@@ -1409,7 +1478,7 @@ if REGRESSION_ONLY:
         sys.exit(1)
     else:
         print(f"REGRESSION PASSED  ({checks[0]}/{checks[0]} checks)")
-        print("full_fp vs frozen v5: exact match.")
-        print("full_random vs canonical: exact match.")
+        for pol_name, ref_path in REF_BY_POL.items():
+            print(f"  {pol_name} vs {ref_path.name}: exact match.")
         print("Safe to launch the full 60/70/80/90/100 experiment.")
         print(f"{'='*70}")
