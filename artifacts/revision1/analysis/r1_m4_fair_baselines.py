@@ -745,32 +745,29 @@ def select_random(available: list[str], k: int, rng_local) -> list[str]:
 
 def select_fp_spread(available: list[str], k: int,
                      cab_active_count: dict[int, int],
-                     ) -> tuple[list[str], dict[int, int]]:
+                     ) -> list[str]:
     """FP-spread-cap-10: balance concurrent cohort-node occupancy across cabinets,
     then select the coolest available node within the chosen cabinet.
 
-    Selection is ITERATIVE within each job: after choosing each node the temporary
-    occupancy count for that cabinet is incremented, so the next node selection
-    reflects the emerging intra-job placement. This prevents all k nodes from being
-    drawn from the same cabinet when k is large relative to cabinet size.
+    Selection is ITERATIVE within each job: after choosing each node a local
+    temporary occupancy count for that cabinet is incremented, so the next node
+    selection reflects the emerging intra-job placement. This prevents all k nodes
+    from being drawn from the same cabinet when k is large relative to cabinet size.
 
     Uses ONLY: current eligibility, frozen FA_2024, frozen topology (fp_cab /
     cab_eligible_count), and the current concurrent cab_active_count snapshot.
     No future power, no realized temperatures, no residuals, no fitted weights.
 
-    Returns (selected_nodes, updated_cab_active_count).
-    Caller must commit the returned dict to replace the live cab_active_count."""
+    Returns selected_nodes only. The caller commits cab_active_count updates in
+    the standard per-node admission loop (same as all other policies), so that
+    dropped jobs (look-ahead failures) do not leave phantom counts."""
     k    = min(k, len(available))
-    temp = dict(cab_active_count)   # working copy; committed by caller after selection
+    temp = dict(cab_active_count)   # local working copy for intra-job tie-breaking only
 
     if k == 0:
-        return [], temp
+        return []
     if k == len(available):
-        for n in available:
-            c = fp_cab.get(n, -1)
-            if c >= 0:
-                temp[c] = temp.get(c, 0) + 1
-        return list(available), temp
+        return list(available)
 
     # Group nodes by cabinet; pre-sort each group by FA_2024 ascending (coolest first).
     # Pre-sorting is O(|available| log |available|) done once; each iteration then just
@@ -792,9 +789,9 @@ def select_fp_spread(available: list[str], k: int,
         if not cab_nodes[best_c]:
             del cab_nodes[best_c]
         selected.append(best_n)
-        temp[best_c] = temp.get(best_c, 0) + 1  # reflect selection for next iteration
+        temp[best_c] = temp.get(best_c, 0) + 1  # local only; not committed to caller
 
-    return selected, temp
+    return selected
 
 # ══════════════════════════════════════════════════════════════════════
 # [12] capacity_replay_m4
@@ -1005,8 +1002,7 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
         if policy == "fp":
             selected = select_fp(available, k)
         elif policy == "fp_spread":
-            # Iterative selection commits intra-job occupancy into temp; returns updated dict
-            selected, cab_active_count = select_fp_spread(available, k, cab_active_count)
+            selected = select_fp_spread(available, k, cab_active_count)
         elif policy == "loc":
             selected = select_loc(available, k)
         elif policy == "compact":
@@ -1040,13 +1036,11 @@ def capacity_replay_m4(syn_subset, policy: str, lambda_val: float,
             if _new_util >= u_max and n not in cap_exceeded:
                 cap_exceeded.add(n)
                 available_set.discard(n)            # already discarded above but safe
-            # Maintain concurrent cabinet occupancy.
-            # fp_spread already committed via select_fp_spread's returned temp dict;
-            # all other policies (including base jobs in full-replacement mode) update here.
-            if policy != "fp_spread":
-                _nc = fp_cab.get(n, -1)
-                if _nc >= 0:
-                    cab_active_count[_nc] = cab_active_count.get(_nc, 0) + 1
+            # Maintain concurrent cabinet occupancy. All policies (including fp_spread)
+            # commit here, after look-ahead passes, so dropped jobs leave no phantom counts.
+            _nc = fp_cab.get(n, -1)
+            if _nc >= 0:
+                cab_active_count[_nc] = cab_active_count.get(_nc, 0) + 1
 
         if selected:
             F_arr    = np.array([FA_dict[n] for n in selected])
