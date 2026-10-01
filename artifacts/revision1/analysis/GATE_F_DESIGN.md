@@ -1,7 +1,8 @@
 # Gate F Design: Dynamic Feasible-Choice Sensitivity
 
 **Date:** 2026-09-30
-**Status:** Design — requires sign-off before implementation
+**Amended:** 2026-09-30 — hash construction and event_uid frozen; unit tests specified
+**Status:** Approved for implementation
 
 ---
 
@@ -93,33 +94,100 @@ At each job arrival, identify cohort nodes that are:
 
 This is the **policy-neutral available pool** for that event. It does not depend on thermal fingerprint, location, power, residual, future workload, or any policy state.
 
-### 4.2 Pseudorandom priority (deterministic, policy-neutral)
+### 4.2 Node priority: frozen BLAKE2b keyed hash
 
-Assign every node a deterministic priority number for each job arrival:
+Every node receives a deterministic, policy-neutral priority for each scheduling event. The construction is frozen here and must not be altered by the implementer.
+
+**Priority function (canonical definition):**
 
 ```
-priority(node, job) = hash(scenario_seed ‖ job_event_id ‖ hostname)
+priority(scenario_seed, event_uid, hostname)
+    = uint64_big_endian(
+        BLAKE2b(
+            key     = uint64_big_endian(scenario_seed),   # 8-byte key
+            message = UTF8(event_uid) || 0x00 || UTF8(hostname),
+            digest_size = 8
+        )
+      )
 ```
 
-The hash must be:
-- **Deterministic**: same inputs always produce same priority.
-- **Independent of all policy signals**: no thermal fingerprint, no location, no power, no current utilization, no residual, no future workload.
-- **Consistent across ratios**: the same priority ordering is used at every ratio for the same job arrival. This enforces nesting.
+**Sort key** (ascending): `(priority, hostname)` — hostname is the deterministic tie-breaker for the vanishingly unlikely case of a 64-bit digest collision.
 
-Implementation note: a seeded PRG (e.g., `numpy.random.default_rng(hash(scenario_seed, event_id))`) sampling one value per hostname, where the hash is computed before drawing, is acceptable. Document the exact hash construction in the implementation.
+**Python reference implementation:**
 
-### 4.3 Nested shortlists
+```python
+import hashlib
 
-Sort the policy-neutral available pool by ascending priority. The external shortlist for ratio r is the first m = min(ceil(r × k), n_available) nodes in this order.
+def choice_priority(
+    scenario_seed: int,
+    event_uid: str,
+    hostname: str,
+) -> tuple[int, str]:
+    key = scenario_seed.to_bytes(8, "big", signed=False)
+    msg = (
+        event_uid.encode("utf-8")
+        + b"\x00"
+        + hostname.encode("utf-8")
+    )
+    digest = hashlib.blake2b(msg, key=key, digest_size=8).digest()
+    return int.from_bytes(digest, "big"), hostname
+```
 
-By construction:
+The NUL byte `0x00` separates `event_uid` from `hostname`. This is safe as long as neither field contains a NUL character, which is enforced by the event_uid construction below and the hostnames used in this fleet. If either field could ever contain NUL, length-prefix both strings instead.
+
+**Why a keyed hash, not a seeded RNG:**
+- No Python set/list ordering dependence.
+- No PRNG state dependence.
+- No dependence on how many other candidate nodes exist at the time of the call.
+- Removing one node does not reshuffle the priorities of any other node.
+- Adding a candidate does not reshuffle existing nodes.
+- The same (scenario, event, node) always produces the same priority, regardless of execution order.
+- Nested shortlists (`C_{1.0} ⊆ C_{1.25} ⊆ ...`) follow automatically from taking longer prefixes.
+- All four policies receive byte-for-byte identical external shortlists.
+- Reproduction requires only three pieces of metadata: scenario_seed, event_uid, hostname.
+
+### 4.3 Event UID: frozen definition
+
+`event_uid` must be:
+- **Globally unique** within a scenario (no two scheduling events share the same uid).
+- **Deterministic**: generated from the scenario workload before any policy replay begins.
+- **Policy-independent**: identical across all four policies and all choice ratios.
+- **Stable**: does not change if the replay is rerun with the same seeds.
+
+**Do not use `job_idx` alone for synthetic events.** Synthetic workload generation creates copies or descendants of historical base jobs. Two synthetic events that share a base parent would inherit the same `job_idx` and therefore get identical node priorities, breaking independence.
+
+**Frozen uid scheme:**
+
+| Job type | event_uid |
+|----------|-----------|
+| Base job | `base:<job_idx>` |
+| Synthetic job | `syn:<scenario_seed>:<synthetic_ordinal>` |
+
+where `synthetic_ordinal` is the zero-based index of the synthetic job in the deterministic sorted order of the complete synthetic workload for that scenario (sorted by start_time, then by stable synthetic identity). This ordering must be computed and locked before any policy replay begins.
+
+### 4.4 Shortlist construction (per job arrival)
+
+```python
+import math
+
+# available_nodes: policy-neutral pool for this event (§4.1)
+ordered = sorted(
+    available_nodes,
+    key=lambda h: choice_priority(scenario_seed, event_uid, h),
+)
+
+m = min(len(ordered), math.ceil(choice_ratio * k))
+candidate_shortlist = ordered[:m]
+```
+
+By construction, shortlists are nested across ratios for the same event:
 ```
 C_{1.0} ⊆ C_{1.25} ⊆ C_{1.5} ⊆ C_{2.0} ⊆ C_{4.0} ⊆ C_{8.0} ⊆ C_{unrestricted}
 ```
 
-The nesting is exact (not approximate) because priorities are fixed per event.
+The nesting is exact (not approximate): `ordered` is computed once per event from fixed priorities, and `C_r` is simply `ordered[:m_r]`.
 
-### 4.4 Per-policy endogenous filtering and selection
+### 4.5 Per-policy endogenous filtering and selection
 
 Each policy receives the **same external shortlist** for ratio r at each job arrival. It then:
 
@@ -129,7 +197,7 @@ Each policy receives the **same external shortlist** for ratio r at each job arr
 
 **Critical:** shortlist construction happens fresh at every job arrival from the current policy-neutral pool. Nodes are never permanently removed from consideration for the duration of a scenario as in the M4 static-pool test.
 
-### 4.5 No-choice negative control
+### 4.6 No-choice negative control
 
 When m = k (r = 1.0, or when n_available ≤ k), every eligible node is the same for every policy (the shortlist has exactly k nodes, and all have the same endogenous eligibility by definition of the neutral pool). All four policies must select the same k nodes. Verify this assertion holds in the dev scenarios.
 
@@ -310,11 +378,35 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 
 ---
 
-## 13. Implementation checklist (pre-run)
+## 13. Required unit tests (must pass before any scenario run)
 
-- [ ] Pseudorandom priority hash specified and documented (exact construction, no policy signals).
-- [ ] Nesting property verified for sc0 at lambda=1.06: `C_{1.0} ⊆ C_{1.25} ⊆ ... ⊆ C_unrestricted`.
-- [ ] No-choice control assertion verified: at r=1.0, all four policies select same nodes.
+The following six tests must exist in the test suite and pass before sc0–4 are run. They are not optional.
+
+**Test 1 — Determinism:** Calling `choice_priority(seed, event_uid, hostname)` twice with identical arguments returns an identical `(int, str)` tuple.
+
+**Test 2 — Input-order independence:** Given a set of hostnames passed in two different Python iteration orders (e.g., sorted ascending vs. sorted descending), `sorted(hostnames, key=lambda h: choice_priority(seed, uid, h))` produces the same ranked list both times.
+
+**Test 3 — Single-node stability:** Given a shortlist `ordered` for event E, removing one node from `available_nodes` and recomputing leaves the relative order of all remaining nodes unchanged.
+
+**Test 4 — Nesting:** For a fixed event with `n_available = 20` and `k = 4`, verify:
+```
+shortlist(r=1.0)  ⊆  shortlist(r=1.25)  ⊆  shortlist(r=1.5)
+                  ⊆  shortlist(r=2.0)   ⊆  shortlist(r=4.0)
+                  ⊆  shortlist(r=8.0)   ⊆  shortlist(r=unrestricted)
+```
+by set containment of the node lists at each ratio.
+
+**Test 5 — Cross-policy shortlist identity:** At a fixed (sc, lambda, ratio, event), all four policies receive byte-for-byte identical `candidate_shortlist` lists before endogenous filtering.
+
+**Test 6 — Synthetic uid uniqueness:** Generate a scenario's complete synthetic workload. Verify that no two synthetic events share the same `event_uid` (`syn:<scenario_seed>:<synthetic_ordinal>`), and that base and synthetic events never collide (`base:*` vs `syn:*` are disjoint namespaces by prefix).
+
+---
+
+## 14. Implementation checklist (pre-run)
+
+- [ ] Unit tests 1–6 all pass (§13).
+- [ ] Nesting property verified in sc0 dev run at lambda=1.06: `C_{1.0} ⊆ ... ⊆ C_unrestricted`.
+- [ ] No-choice control assertion verified in sc0: at r=1.0, all four policies select same nodes.
 - [ ] At r=unrestricted, lambda rows for sc0–4 match M4 source files (metric-for-metric).
 - [ ] At r=unrestricted, reconstructed crossings for sc0–4 match M4 v3 scenario_rows.
 - [ ] 0 choice-constrained drops at r=unrestricted.
@@ -326,7 +418,7 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 
 ---
 
-## 14. Output files (to be produced)
+## 15. Output files (to be produced)
 
 | File | Contents |
 |------|----------|
@@ -338,7 +430,7 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 
 ---
 
-## 15. Relationship to paper framing
+## 16. Relationship to paper framing
 
 M4 finding (frozen): *"Topology-aware thermal scheduling clearly improves over Random. FP-spread improves over plain FP. However, FP-spread and a strong location-only baseline are not consistently distinguishable."*
 
