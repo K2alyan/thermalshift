@@ -110,7 +110,8 @@ def _git_provenance() -> dict:
         short = subprocess.check_output(
             ["git", "rev-parse", "--short", "HEAD"], cwd=str(REPO_ROOT), text=True).strip()
         dirty = bool(subprocess.check_output(
-            ["git", "status", "--porcelain"], cwd=str(REPO_ROOT), text=True).strip())
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            cwd=str(REPO_ROOT), text=True).strip())
     except Exception:
         full = short = "unknown"; dirty = None
     return {"git_commit_full": full, "git_commit_short": short, "git_dirty": dirty}
