@@ -4,6 +4,7 @@
 **Amended:** 2026-09-30 — hash construction and event_uid frozen; unit tests specified
 **Amended:** 2026-09-30 — §4.6 no-choice control corrected; generation_ordinal frozen; terminology clarified
 **Amended:** 2026-09-30 — §4.1 external pool corrected (exogenous blockers only); §5 base-job placement corrected; §6 preflight strengthened
+**Amended:** 2026-09-30 — drop-cause semantics frozen (E_full/E_r); terminology finalized; §8.2 priority description corrected; §11 r=1 annotation fixed; realized-choice diagnostics added. Design frozen.
 **Status:** Approved for implementation
 
 ---
@@ -79,16 +80,15 @@ where `n_available` = policy-neutral cohort nodes not blocked by background load
 
 **Terminology (frozen):**
 
-| Term | Definition |
-|------|-----------|
-| *k* | Job cohort node count (nodes required) |
-| *m* | External shortlist size = min(ceil(r × k), n_available) |
-| `external_choice_multiplier` | Controlled quantity: m / k. This is what the experiment manipulates. |
-| `post_filter_eligible_multiplier` | Observed per-policy quantity: n_policy_eligible / k after endogenous filtering. Policy-specific; can differ across policies for the same event. |
+| Term | Symbol | Definition |
+|------|--------|-----------|
+| *k* | — | Job cohort node count (nodes required) |
+| *m* | — | External shortlist size = min(ceil(r × k), n_available) |
+| `nominal_choice_ratio` | r | The experimental treatment variable. Set by the design; identical across all policies. |
+| `realized_external_multiplier` | m / k | Observed after exogenous availability. Equals r when n_available ≥ ceil(r × k); lower otherwise. Shared across policies at the same event. |
+| `post_filter_eligible_multiplier` | \|E_r\| / k | Per-policy, per-event. Observed after endogenous filtering. Can differ across policies for the same event because replay states diverge. |
 
-Do not describe `external_choice_multiplier` as the "realized feasible-choice ratio." After endogenous filtering, each policy has its own eligible set; two policies at the same nominal r can have different `post_filter_eligible_multiplier` values because their replay states have diverged. Report both quantities; do not conflate them.
-
-The primary x-axis uses `external_choice_multiplier` (controlled). Report `post_filter_eligible_multiplier` (per-policy, per-lambda, median across jobs) alongside it.
+The primary x-axis is `nominal_choice_ratio` r (the manipulated variable). Report `realized_external_multiplier` and `post_filter_eligible_multiplier` as diagnostic observations alongside it. Do not label `realized_external_multiplier` as the "realized feasible-choice ratio" — that term would conflate the controlled external shortlist with the policy-specific post-filter eligible set.
 
 ---
 
@@ -209,13 +209,52 @@ The nesting is exact (not approximate): `ordered` is computed once per event fro
 
 ### 4.5 Per-policy endogenous filtering and selection
 
-Each policy receives the **same external shortlist** for ratio r at each job arrival. It then:
+Each policy receives the **same external shortlist** for ratio r at each job arrival. It then applies endogenous filtering and selection according to job type.
 
-1. Intersects the shortlist with its own **endogenous eligibility** — counterfactual base-job occupancy, current synthetic occupancy, utilization cap, look-ahead/QoS constraints, any other policy-specific state — to form its **eligible set**. Because base-job placements are counterfactually replayed under each policy, base-job occupancy is policy-specific and belongs here.
-2. Applies its frozen selector (random / lowest-FP / lowest-location-score / FP-spread rule) to the eligible set.
-3. If the eligible set has fewer than *k* nodes: the job is recorded as a **choice-constrained drop** and not admitted.
+**Define two sets for every policy/event:**
 
-**Critical:** shortlist construction happens fresh at every job arrival from the current policy-neutral pool. Nodes are never permanently removed from consideration for the duration of a scenario as in the M4 static-pool test.
+```
+E_full  = endogenous-eligible nodes from the complete exogenous universe
+           (all cohort nodes not blocked by background; no shortlist applied)
+E_r     = E_full ∩ external_shortlist(r)
+```
+
+**Synthetic job logic:**
+
+```
+if |E_full| < k:
+    # Insufficient eligible nodes even with unrestricted choice — not caused
+    # by Gate F's shortlist. Use existing M4 drop classification:
+    #   n_drop_cap / n_drop_physical / n_drop_la as appropriate.
+    # Do NOT increment n_drop_choice_constrained.
+
+elif |E_r| < k:
+    # Shortlist caused the failure. The same policy state had enough eligible
+    # nodes under unrestricted external choice, but Gate F hid too many.
+    n_drop_choice_constrained += 1
+    # Synthetic job is not admitted.
+
+else:
+    # Apply frozen selector to E_r.
+```
+
+**Base job logic:**
+
+```
+if |E_r| < k:
+    # The shortlist is too restrictive for the base job.
+    # Do NOT drop or under-serve the base job — the QoS invariant is hard.
+    # Mark this replay point infeasible / invariant_violated.
+    # This is recorded as a base-shortlist invariant failure, not a
+    # choice-constrained drop.
+
+else:
+    # Place all k nodes under the frozen M4 full-policy rules.
+```
+
+This preserves the causal interpretation: `n_drop_choice_constrained` means the placement could have succeeded under the same policy state with unrestricted external choice, but Gate F's shortlist prevented it. It does not fire when the placement would have failed anyway.
+
+**Critical:** shortlist construction happens fresh at every job arrival from the current exogenous universe. Nodes are never permanently removed for an entire scenario.
 
 ### 4.6 No-choice negative control
 
@@ -241,13 +280,18 @@ Historical base jobs retain their original start times, durations, and requested
 
 This is the M4 **full-policy** replay model. It is not the marginal-policy model in which base jobs keep their historical node assignments. If implemented as marginal-policy, the unrestricted preflight cannot reproduce M4 v3.
 
-### New drop category
-Record separately:
-- `n_drop_choice_constrained`: job dropped because the restricted shortlist contains fewer than *k* policy-eligible nodes (shortlist too small after endogenous filtering).
-- `n_drop_cap`: existing utilization-cap drops.
-- `n_drop_physical`, `n_drop_la`: existing categories.
+### Drop classification (Gate F)
 
-At r = unrestricted, `n_drop_choice_constrained` must be zero for all policies (preflight check).
+Existing M4 drop categories (`n_drop_cap`, `n_drop_physical`, `n_drop_la`) are preserved and retain their M4 semantics.
+
+**New Gate F categories:**
+
+| Field | Fires when | Scope |
+|-------|-----------|-------|
+| `n_drop_choice_constrained` | Synthetic job: \|E_full\| ≥ k but \|E_r\| < k (shortlist is the cause) | Synthetic only |
+| `n_base_shortlist_invariant_failure` | Base job: \|E_r\| < k (base job cannot be placed; replay point is infeasible) | Base only |
+
+`n_drop_choice_constrained` must be zero at r = unrestricted (preflight check). `n_base_shortlist_invariant_failure` must also be zero at r = unrestricted; any non-zero value at any ratio is a signal that the choice ratio is too restrictive relative to the base workload's placement requirements and must be reported prominently.
 
 ---
 
@@ -295,13 +339,15 @@ Reuse the M4 lambda sweep: `[1.0, 1.06, 1.1, 1.15, 1.2, 1.3, 1.4, 1.5, 1.55, 1.6
 
 ### 8.2 Scenario structure
 
-For each scenario (sc), for each lambda, for each ratio r: run all four policies on the **same shortlist** (generated from the same priority draw for that (sc, lambda, r) triple). Each (sc, lambda, r, policy) produces one row of metrics.
+For each scenario (sc), for each lambda, for each ratio r: run all four policies on the **same external shortlist**. Each (sc, lambda, r, policy) produces one row of metrics.
+
+The node priority ranking at each scheduling event is fixed by `(scenario_seed, event_uid, hostname)` — it does not depend on lambda or choice ratio. The same event therefore has the same node ordering at every ratio level in which it appears and at every lambda where that event is replayed. Choice ratios simply take longer prefixes of this common ordering. This provides strong common-random-number structure across all ratios.
 
 ### 8.3 Output structure
 
 Per scenario, per ratio, per policy, per lambda:
 - All fields in M4 lambda_rows (capacity_unlock_pct, B_primary_ratio, etc.)
-- Additionally: `m_shortlist`, `external_choice_multiplier` (= m/k), `m_eligible`, `post_filter_eligible_multiplier` (= m_eligible/k), `n_drop_choice_constrained`
+- Additionally: `m_shortlist`, `nominal_choice_ratio` (= r), `realized_external_multiplier` (= m/k), `m_eligible` (= |E_r|), `post_filter_eligible_multiplier` (= |E_r|/k), `n_drop_choice_constrained`, `n_base_shortlist_invariant_failure`
 
 Per scenario, per ratio, per policy:
 - Reconstructed crossing (C_lower_pct, C_upper_pct, status, first_binding) via v3 capacity-order first-violation estimand.
@@ -328,11 +374,15 @@ Per ratio, per comparison pair:
 | `infeasible`, `first_binding` | Feasibility and binding constraint |
 | `n_syn_admit` | Admitted synthetic jobs |
 | `n_drop_cap`, `n_drop_physical`, `n_drop_la` | Existing drop categories |
-| `n_drop_choice_constrained` | New: shortlist too small |
+| `n_drop_choice_constrained` | New: synthetic job dropped due to shortlist (|E_full|≥k but |E_r|<k) |
+| `n_base_shortlist_invariant_failure` | New: base job could not be placed due to shortlist |
 | `syn_node_hours` | Admitted synthetic node-hours |
-| `m_shortlist_median` | Median shortlist size m across jobs at this lambda |
-| `external_choice_multiplier_median` | Median m/k (controlled); constant at nominal r unless n_available < ceil(r×k) |
-| `post_filter_eligible_multiplier_median` | Median n_policy_eligible/k (per-policy, observed after endogenous filtering) |
+| `m_shortlist_p10/p50/p90` | Distribution of shortlist size m across jobs at this lambda |
+| `realized_external_multiplier_p10/p50/p90` | Distribution of m/k (shared across policies for same event) |
+| `post_filter_eligible_multiplier_p10/p50/p90` | Per-policy distribution of |E_r|/k after endogenous filtering |
+| `frac_post_filter_below_1` | Fraction of job events where post_filter_eligible_multiplier < 1.0 (eligible set smaller than job size) |
+| `frac_choice_constrained_drops` | n_drop_choice_constrained / n_syn_scheduled (synthetic jobs attempted at this lambda) |
+| `frac_base_shortlist_failures` | n_base_shortlist_invariant_failure / n_base_scheduled |
 | `mean_F_syn` | Mean thermal fingerprint of admitted synthetic nodes |
 | `loc_score_median` | Median location score of selected nodes |
 | `cab_span_median`, `cab_span_p90` | Cabinet span |
@@ -383,7 +433,7 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 
 ## 11. Primary figure specification
 
-**x-axis:** `external_choice_multiplier` (controlled m/k), with r=1.0 at left and r=unrestricted at right. This is the manipulated quantity. Do not label it "realized feasible-choice ratio"; that conflates the controlled external shortlist with the policy-specific post-filter eligible set.
+**x-axis:** `nominal_choice_ratio` r (the manipulated variable), with r=1.0 at left and r=unrestricted at right. Label ticks with nominal r values. Do not label the axis as "realized feasible-choice ratio" or use `realized_external_multiplier` as the primary axis; those are diagnostic observations, not experimental treatments.
 
 **y-axis:** median conservative scheduling advantage, delta_lo (pp).
 
@@ -397,7 +447,7 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 **Annotations:**
 - Shaded 95% bootstrap CI band on each curve.
 - Horizontal dashed line at delta_lo = 0.
-- Vertical dashed line at r = 1.0 (no-choice control; all curves must converge to 0 or indistinguishable).
+- Vertical dashed line at r = 1.0 as a negative-control marker. Do not impose convergence as an acceptance criterion: as established in §4.6, policy states can diverge even at r = 1.0. Audit the r = 1.0 behavior empirically and report whether comparisons collapse as expected; treat unexpected divergence as a diagnostic finding, not a test failure.
 - Right endpoint reproduces M4 v3 held-out results.
 
 **Secondary figure (optional):** same axes but y = n_definitely_A / n (fraction of definite wins), for the same 5 pairs.
