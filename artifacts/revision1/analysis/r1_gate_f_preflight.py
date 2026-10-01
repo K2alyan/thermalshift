@@ -25,6 +25,9 @@ import pandas as pd
 from pathlib import Path
 from collections import defaultdict
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from r1_gate_f_helpers import gate_f_shortlist as _gf_shortlist
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 P1_DIR    = REPO_ROOT / "artifacts" / "phase1" / "analysis"
 REV1_DIR  = REPO_ROOT / "artifacts" / "revision1"
@@ -442,14 +445,13 @@ def load_simulation_data():
 # ══════════════════════════════════════════════════════════════════════════════
 # PART 2 — r=1 event-level identity verification
 # ══════════════════════════════════════════════════════════════════════════════
-def gate_f_shortlist(full_eligible, scenario_seed: int, event_uid: str, k: int) -> list:
-    """Gate F shortlist at r=1.0: exactly k nodes by BLAKE2b rank (§4.2 GATE_F_DESIGN.md)."""
-    key = scenario_seed.to_bytes(8, "big", signed=False)
-    def _pri(hostname):
-        msg = event_uid.encode("utf-8") + b"\x00" + hostname.encode("utf-8")
-        return int.from_bytes(hashlib.blake2b(msg, key=key, digest_size=8).digest(), "big"), hostname
-    ordered = sorted(full_eligible, key=_pri)
-    return ordered[:min(len(ordered), k)]
+def fp_equivalent(a: float, b: float) -> bool:
+    """True iff |a-b| <= max(8*spacing(max(|a|,|b|,1)), 1e-12)."""
+    if a == b:
+        return True
+    scale = max(abs(a), abs(b), 1.0)
+    tol = max(8 * np.spacing(scale), 1e-12)
+    return abs(a - b) <= tol
 
 
 def select_fp(available, k, FA_dict):
@@ -667,8 +669,9 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
             event_uid = f"base:{jid}"
 
         # Compute shortlist from first policy's available (identical across policies)
-        C_p_r = gate_f_shortlist(available_per_pol[GATE_F_POLICIES[0]],
-                                  scen_seed, event_uid, k)
+        # r=1.0: m = min(ceil(1.0 * k), |A_full|) = k (when |A_full| >= k, guaranteed above)
+        C_p_r = _gf_shortlist(available_per_pol[GATE_F_POLICIES[0]],
+                               scen_seed, event_uid, 1.0, k)
         # |C_p_r| = k (guaranteed for syn since avail >= k; base may < k handled above)
 
         # Stage 2 — run all 4 selectors on C_p_r
@@ -834,30 +837,31 @@ def pairwise_r1_audit(gf_r1_sc0: dict) -> dict:
 # ── Lambda-row identity check (from saved r=1 output) ────────────────────────
 def r1_lambda_rows_identical(gf_r1_sc0: dict) -> dict:
     """
-    Check that saved lambda_rows are identical across all 4 policies at r=1.
+    Check that saved lambda_rows are equivalent across all 4 policies at r=1.
 
-    Separates count fields (must be exactly identical — hard assertion) from
-    float-sum fields (may differ by ±1 ULP due to floating-point summation order).
+    Count fields (n_syn_admit, drops): must be bit-for-bit identical — hard assertion.
+    Float fields: must satisfy fp_equivalent(a, b), i.e. |a-b| <= max(8*ULP, 1e-12).
 
     At r=1 all policies select the same k-node SET but in different orderings
     (fp: FA-ascending, random: random permutation, etc.). numpy computes
     (T_hats - thr).clip(min=0).sum() in insertion order, so different orderings
-    can produce ±1 ULP differences in S_primary_Cdoth. This is expected
-    floating-point behavior, not a scientific deviation — the selected NODE SETS
-    and all count metrics are identical.
+    produce ±1 ULP differences in S_primary_Cdoth. This is expected floating-point
+    behavior, not a scientific deviation.
     """
     ratios_r1 = gf_r1_sc0["scenario_results"][0]["ratios"]["1.0"]
     pol0_rows = ratios_r1[GATE_F_POLICIES[0]]["lambda_rows"]
     pol0_lams = {r["lambda_val"] for r in pol0_rows}
 
-    INT_ROW    = ["n_syn_admit", "n_drop_cap", "n_drop_physical", "n_drop_la",
-                  "n_base_unserved"]
-    FLOAT_ROW  = ["capacity_unlock_pct", "B_primary_h", "S_primary_Cdoth",
-                  "B_cab_ratio", "syn_node_hours", "B_primary_ratio", "S_primary_ratio"]
+    INT_ROW   = ["n_syn_admit", "n_drop_cap", "n_drop_physical", "n_drop_la",
+                 "n_base_unserved"]
+    FLOAT_ROW = ["capacity_unlock_pct", "B_primary_h", "S_primary_Cdoth",
+                 "B_cab_ratio", "syn_node_hours", "B_primary_ratio", "S_primary_ratio"]
 
-    count_mismatches = []
-    float_diffs: dict[str, list[float]] = {f: [] for f in FLOAT_ROW}
-    max_abs_diff_by_field: dict[str, float] = {}
+    count_mismatches: list[dict] = []
+    float_mismatches: list[dict] = []
+    field_max_diff: dict[str, float] = {f: 0.0 for f in FLOAT_ROW}
+    field_max_tol:  dict[str, float] = {f: 0.0 for f in FLOAT_ROW}
+    field_fp_pass:  dict[str, bool]  = {f: True for f in FLOAT_ROW}
 
     pol0_by_lam = {r["lambda_val"]: r for r in pol0_rows}
     for pol in GATE_F_POLICIES[1:]:
@@ -869,41 +873,54 @@ def r1_lambda_rows_identical(gf_r1_sc0: dict) -> dict:
                 count_mismatches.append({"pol": pol, "lam": lam, "issue": "missing"})
                 continue
             for f in INT_ROW:
-                v0 = ref_row.get(f)
-                vp = comp_row.get(f)
+                v0 = ref_row.get(f); vp = comp_row.get(f)
                 if v0 != vp:
                     count_mismatches.append({"pol": pol, "lam": lam, "field": f,
                                              "ref": v0, "got": vp})
             for f in FLOAT_ROW:
-                v0 = ref_row.get(f)
-                vp = comp_row.get(f)
-                if v0 is not None and vp is not None:
-                    try:
-                        float_diffs[f].append(abs(float(v0) - float(vp)))
-                    except (TypeError, ValueError):
-                        pass
+                v0 = ref_row.get(f); vp = comp_row.get(f)
+                if v0 is None and vp is None:
+                    continue
+                if v0 is None or vp is None:
+                    field_fp_pass[f] = False
+                    float_mismatches.append({"pol": pol, "lam": lam, "field": f,
+                                             "ref": v0, "got": vp, "reason": "one_is_none"})
+                    continue
+                try:
+                    a, b = float(v0), float(vp)
+                    diff  = abs(a - b)
+                    scale = max(abs(a), abs(b), 1.0)
+                    tol   = max(8 * np.spacing(scale), 1e-12)
+                    field_max_diff[f] = max(field_max_diff[f], diff)
+                    field_max_tol[f]  = max(field_max_tol[f], tol)
+                    if not fp_equivalent(a, b):
+                        field_fp_pass[f] = False
+                        float_mismatches.append({"pol": pol, "lam": lam, "field": f,
+                                                 "ref": v0, "got": vp,
+                                                 "diff": diff, "tol": tol})
+                except (TypeError, ValueError):
+                    pass
 
-    for f in FLOAT_ROW:
-        max_abs_diff_by_field[f] = max(float_diffs[f]) if float_diffs[f] else 0.0
-
-    counts_identical = len(count_mismatches) == 0
-    # S_primary_Cdoth ±1 ULP differences are expected; all other floats should be exact
-    float_diffs_unexpected = {f: d for f, d in max_abs_diff_by_field.items()
-                               if f != "S_primary_Cdoth" and d > 0.0}
-    raw_lambda_rows_identical = counts_identical and not float_diffs_unexpected
+    counts_identical      = len(count_mismatches) == 0
+    floats_fp_equivalent  = all(field_fp_pass.values())
+    lambda_rows_equiv     = counts_identical and floats_fp_equivalent
 
     return {
-        "raw_lambda_rows_identical"  : raw_lambda_rows_identical,
-        "count_fields_identical"     : counts_identical,
-        "max_abs_diff_by_float_field": max_abs_diff_by_field,
-        "float_diff_note"            : (
+        "lambda_rows_equivalent_within_fp_tolerance": lambda_rows_equiv,
+        "count_fields_identical"                    : counts_identical,
+        "float_fields_fp_equivalent"                : floats_fp_equivalent,
+        "max_abs_diff_by_float_field"               : field_max_diff,
+        "permitted_tol_by_float_field"              : field_max_tol,
+        "float_diff_note"                           : (
             "S_primary_Cdoth ±1 ULP differences are expected: all policies select "
             "the same k-node SET at r=1 but in different orderings, so numpy's "
             "sequential sum produces different float rounding. Not a scientific "
-            "deviation. Count fields (n_syn_admit, drops) are exactly identical."
+            "deviation. Count fields (n_syn_admit, drops) are exactly identical. "
+            "fp_equivalent(a,b): |a-b| <= max(8*spacing(max(|a|,|b|,1)), 1e-12)."
         ),
-        "n_lambda_points"            : len(pol0_lams),
-        "count_mismatches"           : count_mismatches[:10],
+        "n_lambda_points"                           : len(pol0_lams),
+        "count_mismatches"                          : count_mismatches[:10],
+        "float_mismatches_beyond_fp_tolerance"      : float_mismatches[:10],
     }
 
 
@@ -931,6 +948,10 @@ if __name__ == "__main__":
     print(f"  GF r=1:          gate_f_sc0-0_1p0.json "
           f"(produced under commit 89b3cfa)")
 
+    # Derive lambda points from saved r=1 output (all points in the sweep)
+    _r1_ref_rows = gf_r1["scenario_results"][0]["ratios"]["1.0"][GATE_F_POLICIES[0]]["lambda_rows"]
+    R1_VERIFY_LAMBDAS = sorted([row["lambda_val"] for row in _r1_ref_rows])
+
     # ── Part 1: Unrestricted sc0 audit ─────────────────────────────────────
     unr_audit = run_unrestricted_audit(gf_unr_sc0, refs)
     print(f"\n  Unrestricted overall: {'PASS' if unr_audit['overall_pass'] else 'FAIL'}")
@@ -938,18 +959,26 @@ if __name__ == "__main__":
     # ── Part 1b: Lambda-row identity at r=1 (from saved file) ─────────────
     print("\nChecking r=1 lambda_rows identity (from saved output) ...")
     lr_check = r1_lambda_rows_identical(gf_r1)
-    print(f"  raw_lambda_rows_identical:  {lr_check['raw_lambda_rows_identical']}  "
+    _lr_equiv = lr_check["lambda_rows_equivalent_within_fp_tolerance"]
+    print(f"  lambda_rows_equivalent_within_fp_tolerance:  {_lr_equiv}  "
           f"({lr_check['n_lambda_points']} lambda points)")
     print(f"  count_fields_identical:     {lr_check['count_fields_identical']}")
+    print(f"  float_fields_fp_equivalent: {lr_check['float_fields_fp_equivalent']}")
     max_diffs = lr_check["max_abs_diff_by_float_field"]
+    max_tols  = lr_check["permitted_tol_by_float_field"]
     non_zero_floats = {f: d for f, d in max_diffs.items() if d > 0.0}
     if non_zero_floats:
         print(f"  float max_abs_diff (non-zero): {non_zero_floats}")
+        print(f"  permitted_tol (corresponding):  "
+              f"{ {f: max_tols[f] for f in non_zero_floats} }")
         print(f"  [{lr_check['float_diff_note']}]")
     else:
         print(f"  all float fields: max_abs_diff=0.0 (exact)")
     if lr_check["count_mismatches"]:
         print(f"  COUNT MISMATCHES (unexpected): {lr_check['count_mismatches']}")
+    if lr_check["float_mismatches_beyond_fp_tolerance"]:
+        print(f"  FLOAT MISMATCHES BEYOND TOLERANCE: "
+              f"{lr_check['float_mismatches_beyond_fp_tolerance']}")
 
     # ── Part 1c: Pairwise verdict and delta-symmetry audit ─────────────────
     print("\nPairwise verdict and delta-symmetry audit (from saved r=1 output) ...")
@@ -972,7 +1001,7 @@ if __name__ == "__main__":
         "created_date"     : "2026-09-30",
         "git_head_preflight_run" : head,
         "git_commit_unrestricted_run": "df4022c",
-        "git_commit_r1_run"          : "89b3cfa",
+        "git_commit_r1_run"          : gf_r1.get("git_head", "89b3cfa"),
         "source_files"     : {
             "gf_unrestricted" : "gate_f_dev_results.json",
             "gf_r1"           : "gate_f_sc0-0_1p0.json",
@@ -1122,25 +1151,27 @@ if __name__ == "__main__":
 
     # Aggregate
     aggregate = {
-        "n_lambda_points_verified"               : len(R1_VERIFY_LAMBDAS),
-        "lambda_points"                          : R1_VERIFY_LAMBDAS,
-        "n_events_checked"                       : total_sel_checked,
-        "n_events_selected_sets_identical"       : total_sel_identical,
-        "n_lookahead_events_checked"             : total_la_checked,
-        "n_lookahead_outcomes_identical"         : total_la_identical,
-        "n_state_snapshots_checked"              : total_state_checked,
-        "n_state_snapshots_identical"            : total_state_identical,
-        "raw_lambda_rows_identical"              : lr_check["count_fields_identical"],
-        "count_fields_identical"                 : lr_check["count_fields_identical"],
-        "float_max_abs_diff_by_field"            : lr_check["max_abs_diff_by_float_field"],
-        "float_diff_note"                        : lr_check["float_diff_note"],
-        "crossing_intervals_identical"           : pw_audit["crossing_intervals_identical"],
-        "pairwise_verdicts_all_indistinguishable": pw_audit["pairwise_verdicts_all_indistinguishable"],
-        "delta_interval_symmetry_pass"           : pw_audit["delta_interval_symmetry_pass"],
-        "event_level_all_pass"                   : all_pass,
-        "per_lambda_results"                     : verify_results,
-        "pairwise_verdicts"                      : pw_audit["pairwise_verdicts"],
-        "crossing_intervals"                     : pw_audit["crossing_intervals"],
+        "n_lambda_points_verified"                   : len(R1_VERIFY_LAMBDAS),
+        "lambda_points"                              : R1_VERIFY_LAMBDAS,
+        "n_events_checked"                           : total_sel_checked,
+        "n_events_selected_sets_identical"           : total_sel_identical,
+        "n_lookahead_events_checked"                 : total_la_checked,
+        "n_lookahead_outcomes_identical"             : total_la_identical,
+        "n_state_snapshots_checked"                  : total_state_checked,
+        "n_state_snapshots_identical"                : total_state_identical,
+        "lambda_rows_equivalent_within_fp_tolerance" : lr_check["lambda_rows_equivalent_within_fp_tolerance"],
+        "count_fields_identical"                     : lr_check["count_fields_identical"],
+        "float_fields_fp_equivalent"                 : lr_check["float_fields_fp_equivalent"],
+        "float_max_abs_diff_by_field"                : lr_check["max_abs_diff_by_float_field"],
+        "permitted_tol_by_float_field"               : lr_check["permitted_tol_by_float_field"],
+        "float_diff_note"                            : lr_check["float_diff_note"],
+        "crossing_intervals_identical"               : pw_audit["crossing_intervals_identical"],
+        "pairwise_verdicts_all_indistinguishable"    : pw_audit["pairwise_verdicts_all_indistinguishable"],
+        "delta_interval_symmetry_pass"               : pw_audit["delta_interval_symmetry_pass"],
+        "event_level_all_pass"                       : all_pass,
+        "per_lambda_results"                         : verify_results,
+        "pairwise_verdicts"                          : pw_audit["pairwise_verdicts"],
+        "crossing_intervals"                         : pw_audit["crossing_intervals"],
     }
 
     print(f"\n{'='*70}")
@@ -1151,13 +1182,14 @@ if __name__ == "__main__":
     print(f"  n_lookahead_outcomes_identical:   {aggregate['n_lookahead_outcomes_identical']}")
     print(f"  n_state_snapshots_checked:        {aggregate['n_state_snapshots_checked']}")
     print(f"  n_state_snapshots_identical:      {aggregate['n_state_snapshots_identical']}")
-    print(f"  raw_lambda_rows_identical:        {aggregate['raw_lambda_rows_identical']}  "
-          f"(count fields only; S_primary_Cdoth ±1 ULP expected, see float_diff_note)")
+    print(f"  lambda_rows_equivalent_within_fp_tolerance: "
+          f"{aggregate['lambda_rows_equivalent_within_fp_tolerance']}  "
+          f"(counts exact; S_primary_Cdoth ±1 ULP within fp_equivalent tolerance)")
     print(f"  crossing_intervals_identical:     {aggregate['crossing_intervals_identical']}")
     print(f"  pairwise_verdicts_indisting.:     {aggregate['pairwise_verdicts_all_indistinguishable']}")
     print(f"  delta_interval_symmetry_pass:     {aggregate['delta_interval_symmetry_pass']}")
     overall = (aggregate["event_level_all_pass"]
-               and aggregate["count_fields_identical"]
+               and aggregate["lambda_rows_equivalent_within_fp_tolerance"]
                and aggregate["crossing_intervals_identical"]
                and aggregate["pairwise_verdicts_all_indistinguishable"]
                and aggregate["delta_interval_symmetry_pass"]
@@ -1165,13 +1197,16 @@ if __name__ == "__main__":
     print(f"\n  GATE F PREFLIGHT OVERALL: {'PASS' if overall else 'FAIL'}")
     print(f"{'='*70}")
 
+    # Derive producing commit from the loaded r=1 JSON (if stored), else use HEAD
+    _r1_producing_commit = gf_r1.get("git_head", "89b3cfa")
+
     # Save combined artifact
     audit_r1 = {
         "artifact_type"                  : "gate_f_preflight_r1_sc0",
         "created_date"                   : "2026-09-30",
         "git_head_preflight_run"         : head,
         "git_commit_unrestricted_run"    : "df4022c",
-        "git_commit_r1_run"              : "89b3cfa",
+        "git_commit_r1_run"              : _r1_producing_commit,
         "source_files": {
             "gf_unrestricted": "gate_f_dev_results.json",
             "gf_r1"          : "gate_f_sc0-0_1p0.json",

@@ -68,6 +68,7 @@ GATE_F_ALG = {   # full policy name -> base algorithm name
     "full_loc"       : "loc",
     "full_fp_spread" : "fp_spread",
 }
+GATE_F_TRACE_R1 = int(os.environ.get("GATE_F_TRACE_R1", "0"))
 N_DEV         = int(os.environ.get("GATE_F_N_DEV", "5"))    # sc0-N_DEV-1
 N_FIRST       = int(os.environ.get("GATE_F_N_FIRST", "0"))  # start at scenario N_FIRST
 
@@ -482,7 +483,8 @@ def select_fp_spread_canonical(available, k, cab_active_count):
 # ══════════════════════════════════════════════════════════════════════════════
 def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
                             policy_seed: int, job_perms: dict,
-                            scen_seed: int, r) -> dict:
+                            scen_seed: int, r,
+                            collect_trace: bool = False) -> dict:
     """
     Run one (policy, lambda, ratio) Gate F scenario.
 
@@ -536,6 +538,7 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
     n_drop_phys  = 0
     n_drop_la    = 0
     n_base_unserved = 0
+    _trace: list = []
     cab_active_count: dict[int, int] = {}
     sum_F_syn = 0.0; n_F_syn = 0
     cool10_nh = 0.0
@@ -641,9 +644,19 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
         else:
             selected = select_random_canonical(C_p_r, k, _rng)
 
+        # Record selection digest for trace (only when collect_trace=True, i.e. r=1.0)
+        if collect_trace:
+            _tr_uid     = event_uid
+            _tr_sel_dig = hashlib.sha256(",".join(sorted(selected)).encode()).hexdigest()[:16]
+            _tr_la_out  = None
+
         # ── Stage 3: look-ahead (synthetic only, unchanged from M4) ─────────
         if is_syn and selected:
-            if not look_ahead_safe(selected, t_j_ms, t_e_ms, cf_busy_ms):
+            _la_safe = look_ahead_safe(selected, t_j_ms, t_e_ms, cf_busy_ms)
+            if not _la_safe:
+                if collect_trace:
+                    _trace.append({"uid": _tr_uid, "sel_dig": _tr_sel_dig,
+                                   "la_out": False, "state_dig": None})
                 n_drop_la += 1
                 for _strat, _qmap in ((strat_ncoh, job_quartile_ncoh),
                                       (strat_nc,   job_quartile_nc),
@@ -654,6 +667,8 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
                     _strat[_q]["drop_la"]   += 1
                 q_drop[job_quartile.get(parent_jid, 4)] += 1
                 continue
+            elif collect_trace:
+                _tr_la_out = True
 
         if not is_syn and len(selected) < k:
             n_base_unserved += 1
@@ -671,6 +686,14 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
             _nc = fp_cab.get(n, -1)
             if _nc >= 0:
                 cab_active_count[_nc] = cab_active_count.get(_nc, 0) + 1
+
+        if collect_trace:
+            _tr_state_dig = hashlib.sha256(
+                str((len(available_set), len(cap_exceeded),
+                     len(cf_busy_active))).encode()
+            ).hexdigest()[:16]
+            _trace.append({"uid": _tr_uid, "sel_dig": _tr_sel_dig,
+                            "la_out": _tr_la_out, "state_dig": _tr_state_dig})
 
         if selected:
             F_arr    = np.array([FA_dict[n] for n in selected])
@@ -748,7 +771,66 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
         "realized_selector_choice_mult_p50" : jf(pctile(gf_exposed_pct, 50)),
         "realized_selector_choice_mult_p90" : jf(pctile(gf_exposed_pct, 90)),
         "invariant_violated"   : False,
+        "r1_trace"             : _trace if collect_trace else None,
     }
+
+
+def compare_r1_traces(pol_traces: dict) -> dict:
+    """
+    Compare per-event digests across all 4 policies at a single (r, lambda).
+    pol_traces: {policy_name: [{"uid", "sel_dig", "la_out", "state_dig"}, ...]}
+    Returns pass/fail counts and first divergence entries.
+    """
+    pols = list(pol_traces.keys())
+    by_uid: dict[str, dict] = {}
+    for pol, entries in pol_traces.items():
+        for e in entries:
+            by_uid.setdefault(e["uid"], {})[pol] = e
+
+    n_all = sum(1 for v in by_uid.values() if len(v) == len(pols))
+    n_sel = n_la_chk = n_la = n_st_chk = n_st = 0
+    first_sel = first_la = first_st = None
+
+    for uid, ents in by_uid.items():
+        if len(ents) < len(pols):
+            continue
+        sds = [ents[p]["sel_dig"] for p in pols]
+        if len(set(sds)) == 1:
+            n_sel += 1
+        elif first_sel is None:
+            first_sel = {"uid": uid, "sel_digs": {p: ents[p]["sel_dig"] for p in pols}}
+        las = [ents[p]["la_out"] for p in pols]
+        if any(v is not None for v in las):
+            n_la_chk += 1
+            if len(set(las)) == 1:
+                n_la += 1
+            elif first_la is None:
+                first_la = {"uid": uid, "la_outs": {p: ents[p]["la_out"] for p in pols}}
+        sts = [ents[p]["state_dig"] for p in pols if ents[p]["state_dig"] is not None]
+        if sts:
+            n_st_chk += 1
+            if len(set(sts)) == 1:
+                n_st += 1
+            elif first_st is None:
+                first_st = {"uid": uid,
+                            "state_digs": {p: ents[p]["state_dig"]
+                                           for p in pols if ents[p]["state_dig"] is not None}}
+    return {
+        "n_events_in_any_trace"    : len(by_uid),
+        "n_events_all_pols_present": n_all,
+        "n_sel_identical"          : n_sel,
+        "n_la_checked"             : n_la_chk,
+        "n_la_identical"           : n_la,
+        "n_state_checked"          : n_st_chk,
+        "n_state_identical"        : n_st,
+        "sel_pass"                 : n_sel == n_all,
+        "la_pass"                  : n_la == n_la_chk,
+        "state_pass"               : n_st == n_st_chk,
+        "first_sel_divergence"     : first_sel,
+        "first_la_divergence"      : first_la,
+        "first_state_divergence"   : first_st,
+    }
+
 
 # ── Crossing estimand (v3 capacity-order first-violation) ─────────────────────
 def check_infeasible(res: dict, b_ref_s: float, s_ref_s: float):
@@ -909,10 +991,14 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
         rl = r_label(r)
         print(f"\n  -- ratio={rl} --")
         ratio_results[rl] = {}
+        do_trace = bool(GATE_F_TRACE_R1 and r == 1.0)
+        _r1_pol_traces: dict[str, dict] = {}  # {pol: {lam_str: [trace_entries]}}
 
         for policy_name in GATE_F_POLICIES:
             pol_seed = pol_seeds[policy_name][s_idx]
             rows: list[dict] = []
+            if do_trace:
+                _r1_pol_traces[policy_name] = {}
 
             # Lambda sweep
             for lam in LAMBDA_SWEEP:
@@ -922,7 +1008,8 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
                 t_pol = time.time()
                 try:
                     res = capacity_replay_gate_f(syn_sub, policy_name, lam,
-                                                 pol_seed, job_perms, scen_seed, r)
+                                                 pol_seed, job_perms, scen_seed, r,
+                                                 collect_trace=do_trace)
                 except AssertionError as exc:
                     print(f"    lam={lam:.2f} {policy_name}: INVARIANT -- {exc}")
                     res = {"lambda_val": lam, "policy": policy_name,
@@ -930,6 +1017,11 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
                            "capacity_unlock_pct": n_syn / n_base * 100.0 if n_base > 0 else 0.0,
                            "B_primary_h": float("nan"), "S_primary_Cdoth": float("nan"),
                            "B_cab_ratio": float("nan"), "syn_node_hours": 0.0}
+                if do_trace:
+                    lam_key = str(round(lam, 10))
+                    _r1_pol_traces[policy_name][lam_key] = res.pop("r1_trace", None) or []
+                elif "r1_trace" in res:
+                    del res["r1_trace"]
                 res["lambda_val"] = lam
                 rows.append(res)
                 if not res.get("invariant_violated"):
@@ -981,13 +1073,36 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
 
             ratio_results[rl][policy_name] = {
                 "lambda_rows": [{k: jf(v) if isinstance(v, float) else v
-                                 for k, v in row.items()} for row in rows],
+                                 for k, v in row.items() if k != "r1_trace"} for row in rows],
                 "crossing": {k: jf(v) if isinstance(v, float) else v
                              for k, v in cx.items()},
             }
             print(f"    CROSSING {policy_name} r={rl}: "
                   f"status={cx['status']}  C_lower={cx['C_lower_pct']}%  "
                   f"C_upper={cx['C_upper_pct']}%")
+
+        # ── r=1 trace comparison (GATE_F_TRACE_R1=1 only) ────────────────
+        if do_trace and _r1_pol_traces:
+            _all_lam_keys = sorted(set(k for t in _r1_pol_traces.values() for k in t))
+            _lam_cmp: dict[str, dict] = {}
+            for _lk in _all_lam_keys:
+                _lam_pol_traces = {p: _r1_pol_traces[p].get(_lk, []) for p in GATE_F_POLICIES}
+                _lam_cmp[_lk] = compare_r1_traces(_lam_pol_traces)
+            _agg_sel   = all(v["sel_pass"]   for v in _lam_cmp.values())
+            _agg_la    = all(v["la_pass"]    for v in _lam_cmp.values())
+            _agg_state = all(v["state_pass"] for v in _lam_cmp.values())
+            _trace_cmp = {
+                "enabled"     : True,
+                "per_lambda"  : _lam_cmp,
+                "sel_pass"    : _agg_sel,
+                "la_pass"     : _agg_la,
+                "state_pass"  : _agg_state,
+                "overall_pass": _agg_sel and _agg_la and _agg_state,
+            }
+            ratio_results[rl]["r1_trace_comparison"] = _trace_cmp
+            _tc_str = "PASS" if _trace_cmp["overall_pass"] else "FAIL"
+            print(f"  r1_trace_comparison: {_tc_str}  "
+                  f"(sel={_agg_sel} la={_agg_la} state={_agg_state})")
 
     # ── r=1 inductive negative-control assertion (§4.6) ──────────────────
     r1_key = "1.0"
