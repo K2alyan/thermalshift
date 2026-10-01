@@ -1,11 +1,11 @@
 {
   "artifact_type": "gate_f_preflight_unrestricted_sc0",
-  "created_date": "2026-09-30",
-  "git_head_preflight_run": "9e1259d",
-  "git_commit_unrestricted_run": "df4022c",
-  "git_commit_r1_run": "89b3cfa",
+  "created_date": "2026-10-01",
+  "git_head_preflight_run": "c7a5cc9",
+  "git_commit_unrestricted_run": "c7a5cc9",
+  "git_commit_r1_run": "c7a5cc9",
   "source_files": {
-    "gf_unrestricted": "gate_f_dev_results.json",
+    "gf_unrestricted": "gate_f_sc0-0_unr.json",
     "gf_r1": "gate_f_sc0-0_1p0.json"
   },
   "unrestricted_sc0_audit": {

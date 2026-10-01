@@ -17,7 +17,7 @@ Implementation sequence (see GATE_F_DESIGN.md §14):
   Then commit SHA; only then run held-out sc5-29.
 """
 
-import sys, io, os, json, time, heapq, math, hashlib, statistics
+import sys, io, os, json, time, heapq, math, hashlib, statistics, subprocess
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", line_buffering=True)
 
 import numpy as np
@@ -101,6 +101,14 @@ def _rec_te_ms(r):
 def pctile(vals, p):
     if not vals: return None
     return float(np.percentile(vals, p))
+
+def _git_head() -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=str(REPO_ROOT), text=True).strip()
+    except Exception:
+        return "unknown"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # DATA LOADING — identical to r1_m4_fair_baselines.py / canonical scripts
@@ -547,6 +555,7 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
     # Gate F diagnostics (per eligible event — excludes drops at Stage 1)
     gf_full_counts: list[int]    = []  # |A_full,p|
     gf_exposed_counts: list[int] = []  # |C_p,r|
+    gf_k_counts: list[int]       = []  # k (job's node request) per Gate-F-exposed event
 
     def _empty_strat():
         return {q: {"attempted": 0, "admitted": 0,
@@ -603,6 +612,17 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
                     _strat[_q]["attempted"] += 1
                     _strat[_q][_drop_key]   += 1
                 q_drop[job_quartile.get(parent_jid, 4)] += 1
+                if collect_trace:
+                    _d_uid = f"syn:{scen_seed}:{abs(jid) - 1}"
+                    _d_st  = hashlib.sha256(repr((
+                        tuple(sorted(available_set)),
+                        tuple(sorted(cap_exceeded)),
+                        tuple(sorted(cf_busy_ms.items())),
+                        tuple(sorted(cf_util.items())),
+                        tuple(sorted(cab_active_count.items())),
+                    )).encode()).hexdigest()
+                    _trace.append({"uid": _d_uid, "stage1_outcome": _drop_key,
+                                   "sel_dig": None, "la_out": None, "state_dig": _d_st})
                 continue
             available = list(avail_capped_set)   # A_full,p for synthetic
         else:
@@ -633,6 +653,7 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
         n_exposed = len(C_p_r)
         gf_full_counts.append(n_full_eligible)
         gf_exposed_counts.append(n_exposed)
+        gf_k_counts.append(k)
 
         # ── Stage 2: canonical policy selector on C_p_r (§4.5) ──────────────
         if alg == "fp":
@@ -646,17 +667,26 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
 
         # Record selection digest for trace (only when collect_trace=True, i.e. r=1.0)
         if collect_trace:
-            _tr_uid     = event_uid
-            _tr_sel_dig = hashlib.sha256(",".join(sorted(selected)).encode()).hexdigest()
-            _tr_la_out  = None
+            _tr_uid        = event_uid
+            _tr_sel_dig    = hashlib.sha256(",".join(sorted(selected)).encode()).hexdigest()
+            _tr_la_out     = None
+            _tr_stage1_out = "selector"
 
         # ── Stage 3: look-ahead (synthetic only, unchanged from M4) ─────────
         if is_syn and selected:
             _la_safe = look_ahead_safe(selected, t_j_ms, t_e_ms, cf_busy_ms)
             if not _la_safe:
                 if collect_trace:
-                    _trace.append({"uid": _tr_uid, "sel_dig": _tr_sel_dig,
-                                   "la_out": False, "state_dig": None})
+                    _la_st = hashlib.sha256(repr((
+                        tuple(sorted(available_set)),
+                        tuple(sorted(cap_exceeded)),
+                        tuple(sorted(cf_busy_ms.items())),
+                        tuple(sorted(cf_util.items())),
+                        tuple(sorted(cab_active_count.items())),
+                    )).encode()).hexdigest()
+                    _trace.append({"uid": _tr_uid, "stage1_outcome": _tr_stage1_out,
+                                   "sel_dig": _tr_sel_dig,
+                                   "la_out": False, "state_dig": _la_st})
                 n_drop_la += 1
                 for _strat, _qmap in ((strat_ncoh, job_quartile_ncoh),
                                       (strat_nc,   job_quartile_nc),
@@ -698,7 +728,8 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
                 tuple(sorted(cab_active_count.items())),
             ))
             _tr_state_dig = hashlib.sha256(_tr_state_canonical.encode()).hexdigest()
-            _trace.append({"uid": _tr_uid, "sel_dig": _tr_sel_dig,
+            _trace.append({"uid": _tr_uid, "stage1_outcome": _tr_stage1_out,
+                            "sel_dig": _tr_sel_dig,
                             "la_out": _tr_la_out, "state_dig": _tr_state_dig})
 
         if selected:
@@ -743,11 +774,10 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
     cap_unlock  = (syn_node_hours / max(hist_total_nh, 1e-9)) * 100.0
 
     # Gate F diagnostic percentiles
-    _k_vals = [_ck[_i] for _i in range(len(combined))
-               if bool(_cissyn[_i]) or True]   # across all eligible events
-    gf_exposed_pct = (
-        [e / max(f, 1) for e, f in zip(gf_exposed_counts, gf_full_counts)]
-        if gf_full_counts else []
+    # realized_selector_choice_multiplier = |C_p,r| / k  (frozen definition)
+    gf_choice_mult = (
+        [e / max(kv, 1) for e, kv in zip(gf_exposed_counts, gf_k_counts)]
+        if gf_k_counts else []
     )
 
     return {
@@ -773,23 +803,28 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
         "exposed_selector_eligible_count_p10": jf(pctile(gf_exposed_counts, 10)),
         "exposed_selector_eligible_count_p50": jf(pctile(gf_exposed_counts, 50)),
         "exposed_selector_eligible_count_p90": jf(pctile(gf_exposed_counts, 90)),
-        "realized_selector_choice_mult_p10" : jf(pctile(gf_exposed_pct, 10)),
-        "realized_selector_choice_mult_p50" : jf(pctile(gf_exposed_pct, 50)),
-        "realized_selector_choice_mult_p90" : jf(pctile(gf_exposed_pct, 90)),
+        "realized_selector_choice_mult_p10" : jf(pctile(gf_choice_mult, 10)),
+        "realized_selector_choice_mult_p50" : jf(pctile(gf_choice_mult, 50)),
+        "realized_selector_choice_mult_p90" : jf(pctile(gf_choice_mult, 90)),
         "invariant_violated"   : False,
         "r1_trace"             : _trace if collect_trace else None,
+        "n_combined_events"    : len(combined) if collect_trace else None,
     }
 
 
-def compare_r1_traces(pol_traces: dict) -> dict:
+def compare_r1_traces(pol_traces: dict, n_combined_events: int | None = None) -> dict:
     """
     Compare per-event digests across all 4 policies at a single (r, lambda).
-    pol_traces: {policy_name: [{"uid", "sel_dig", "la_out", "state_dig"}, ...]}
+    pol_traces: {policy_name: [{"uid", "stage1_outcome", "sel_dig", "la_out", "state_dig"}, ...]}
+    n_combined_events: total scheduling events generated (len(combined)); used to assert
+                       that every event is traced (trace count must equal this).
 
     Hard assertions (any failure → overall_pass=False):
+    - event_uid_unique_pass: no duplicate uid within any policy trace
     - event_presence_pass: union(uid_sets) == intersection(uid_sets)
     - event_order_pass: all policies have the same ordered uid sequence
-    - event_uid_unique_pass: no duplicate uid within any policy trace
+    - count_reconcile_pass: trace length per policy == n_combined_events (if provided)
+    - stage1_outcome_pass: stage1_outcome identical across policies for every event
     - sel_pass / la_pass / state_pass: digest agreement on events present in all policies
     """
     pols = list(pol_traces.keys())
@@ -806,7 +841,7 @@ def compare_r1_traces(pol_traces: dict) -> dict:
     uid_union        = set.union(*uid_sets)        if uid_sets else set()
     uid_intersection = set.intersection(*uid_sets) if uid_sets else set()
     presence_pass = (uid_union == uid_intersection)
-    missing_uids  = sorted(uid_union - uid_intersection)[:5]  # first 5 for diagnosis
+    missing_uids  = sorted(uid_union - uid_intersection)[:5]
 
     # Order: all policies produce events in the same sequence
     ref_seq    = pol_uid_seqs[pols[0]] if pols else []
@@ -817,11 +852,24 @@ def compare_r1_traces(pol_traces: dict) -> dict:
             seq = pol_uid_seqs[p]
             for i, (a, b) in enumerate(zip(ref_seq, seq)):
                 if a != b:
-                    first_order_divergence = {
-                        "event_idx": i, pols[0]: a, p: b}
+                    first_order_divergence = {"event_idx": i, pols[0]: a, p: b}
                     break
             if first_order_divergence:
                 break
+
+    # Count reconciliation: all policies must trace every combined event
+    counts_agree_pass = len(set(pol_counts.values())) == 1
+    if n_combined_events is not None:
+        count_reconcile_pass = (counts_agree_pass and
+                                all(v == n_combined_events for v in pol_counts.values()))
+    else:
+        count_reconcile_pass = counts_agree_pass
+    first_count_mismatch = None
+    if not count_reconcile_pass:
+        first_count_mismatch = {
+            "n_combined_events_expected": n_combined_events,
+            "pol_counts": pol_counts,
+        }
 
     # Per-event digest comparison (only for events present in ALL policies)
     by_uid: dict[str, dict] = {}
@@ -830,8 +878,8 @@ def compare_r1_traces(pol_traces: dict) -> dict:
             by_uid.setdefault(e["uid"], {})[pol] = e
 
     n_all = sum(1 for v in by_uid.values() if len(v) == len(pols))
-    n_sel = n_la_chk = n_la = n_st_chk = n_st = 0
-    first_sel = first_la = first_st = first_missing = None
+    n_s1 = n_sel = n_la_chk = n_la = n_st_chk = n_st = 0
+    first_sel = first_la = first_st = first_missing = first_s1_div = None
 
     for uid, ents in by_uid.items():
         if len(ents) < len(pols):
@@ -843,12 +891,23 @@ def compare_r1_traces(pol_traces: dict) -> dict:
                 }
             continue
 
-        sds = [ents[p]["sel_dig"] for p in pols]
-        if len(set(sds)) == 1:
-            n_sel += 1
-        elif first_sel is None:
-            first_sel = {"uid": uid, "sel_digs": {p: ents[p]["sel_dig"] for p in pols}}
+        # stage1_outcome identity
+        s1s = [ents[p].get("stage1_outcome") for p in pols]
+        if len(set(s1s)) == 1:
+            n_s1 += 1
+        elif first_s1_div is None:
+            first_s1_div = {"uid": uid,
+                            "stage1_outcomes": {p: ents[p].get("stage1_outcome") for p in pols}}
 
+        # sel_dig identity (only meaningful when outcome == "selector")
+        if s1s[0] == "selector":
+            sds = [ents[p]["sel_dig"] for p in pols]
+            if len(set(sds)) == 1:
+                n_sel += 1
+            elif first_sel is None:
+                first_sel = {"uid": uid, "sel_digs": {p: ents[p]["sel_dig"] for p in pols}}
+
+        # la_out identity
         las = [ents[p]["la_out"] for p in pols]
         if any(v is not None for v in las):
             n_la_chk += 1
@@ -857,27 +916,34 @@ def compare_r1_traces(pol_traces: dict) -> dict:
             elif first_la is None:
                 first_la = {"uid": uid, "la_outs": {p: ents[p]["la_out"] for p in pols}}
 
-        sts = [ents[p]["state_dig"] for p in pols if ents[p]["state_dig"] is not None]
-        if sts:
-            n_st_chk += 1
-            if len(set(sts)) == 1:
-                n_st += 1
-            elif first_st is None:
-                first_st = {"uid": uid,
-                            "state_digs": {p: ents[p]["state_dig"]
-                                           for p in pols if ents[p]["state_dig"] is not None}}
+        # state_dig identity (always present after fix — drops have unchanged state)
+        sts = [ents[p].get("state_dig") for p in pols]
+        n_st_chk += 1
+        if all(s is not None for s in sts) and len(set(sts)) == 1:
+            n_st += 1
+        elif first_st is None:
+            first_st = {"uid": uid,
+                        "state_digs": {p: ents[p].get("state_dig") for p in pols}}
 
-    digest_sel_pass   = (n_sel == n_all)
-    digest_la_pass    = (n_la  == n_la_chk)
-    digest_state_pass = (n_st  == n_st_chk)
+    n_sel_events = sum(1 for v in by_uid.values()
+                       if len(v) == len(pols) and v[pols[0]].get("stage1_outcome") == "selector")
+    stage1_outcome_pass = (n_s1 == n_all)
+    digest_sel_pass     = (n_sel == n_sel_events)
+    digest_la_pass      = (n_la  == n_la_chk)
+    digest_state_pass   = (n_st  == n_st_chk)
 
     return {
         "pol_event_counts"           : pol_counts,
+        "n_combined_events_expected" : n_combined_events,
         "n_events_in_any_trace"      : len(by_uid),
         "n_events_all_pols_present"  : n_all,
+        "event_uid_unique_pass"      : uid_unique_pass,
         "event_presence_pass"        : presence_pass,
         "event_order_pass"           : order_pass,
-        "event_uid_unique_pass"      : uid_unique_pass,
+        "count_reconcile_pass"       : count_reconcile_pass,
+        "stage1_outcome_pass"        : stage1_outcome_pass,
+        "n_stage1_outcome_identical" : n_s1,
+        "n_sel_events"               : n_sel_events,
         "n_sel_identical"            : n_sel,
         "n_la_checked"               : n_la_chk,
         "n_la_identical"             : n_la,
@@ -886,12 +952,15 @@ def compare_r1_traces(pol_traces: dict) -> dict:
         "sel_pass"                   : digest_sel_pass,
         "la_pass"                    : digest_la_pass,
         "state_pass"                 : digest_state_pass,
-        "overall_pass"               : (presence_pass and order_pass and uid_unique_pass
+        "overall_pass"               : (uid_unique_pass and presence_pass and order_pass
+                                        and count_reconcile_pass and stage1_outcome_pass
                                         and digest_sel_pass and digest_la_pass
                                         and digest_state_pass),
+        "first_count_mismatch"       : first_count_mismatch,
         "first_missing_event"        : first_missing,
         "missing_uids_sample"        : missing_uids,
         "first_order_divergence"     : first_order_divergence,
+        "first_stage1_divergence"    : first_s1_div,
         "first_sel_divergence"       : first_sel,
         "first_la_divergence"        : first_la,
         "first_state_divergence"     : first_st,
@@ -1060,7 +1129,8 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
         print(f"\n  -- ratio={rl} --")
         ratio_results[rl] = {}
         do_trace = bool(GATE_F_TRACE_R1 and r == 1.0)
-        _r1_pol_traces: dict[str, dict] = {}  # {pol: {lam_str: [trace_entries]}}
+        _r1_pol_traces: dict[str, dict] = {}    # {pol: {lam_str: [trace_entries]}}
+        _r1_pol_n_comb: dict[str, dict] = {}    # {pol: {lam_str: n_combined_events}}
 
         for policy_name in GATE_F_POLICIES:
             pol_seed = pol_seeds[policy_name][s_idx]
@@ -1088,8 +1158,10 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
                 if do_trace:
                     lam_key = str(round(lam, 10))
                     _r1_pol_traces[policy_name][lam_key] = res.pop("r1_trace", None) or []
-                elif "r1_trace" in res:
-                    del res["r1_trace"]
+                    _r1_pol_n_comb.setdefault(policy_name, {})[lam_key] = res.pop("n_combined_events", None)
+                else:
+                    res.pop("r1_trace", None)
+                    res.pop("n_combined_events", None)
                 res["lambda_val"] = lam
                 rows.append(res)
                 if not res.get("invariant_violated"):
@@ -1126,8 +1198,10 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
                     if do_trace:
                         _lk = str(round(lam_ext, 10))
                         _r1_pol_traces[policy_name][_lk] = res.pop("r1_trace", None) or []
-                    elif "r1_trace" in res:
-                        del res["r1_trace"]
+                        _r1_pol_n_comb.setdefault(policy_name, {})[_lk] = res.pop("n_combined_events", None)
+                    else:
+                        res.pop("r1_trace", None)
+                        res.pop("n_combined_events", None)
                     res["lambda_val"] = lam_ext
                     rows.append(res)
                     cx = classify_crossing(rows, B_ref_s, S_ref_s, B_cab_hist)
@@ -1148,13 +1222,16 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
                         if do_trace:
                             _lk = str(round(_erow.get("lambda_val", 0.0), 10))
                             _r1_pol_traces[policy_name][_lk] = _erow.pop("r1_trace", None) or []
-                        elif "r1_trace" in _erow:
-                            del _erow["r1_trace"]
+                            _r1_pol_n_comb.setdefault(policy_name, {})[_lk] = _erow.pop("n_combined_events", None)
+                        else:
+                            _erow.pop("r1_trace", None)
+                            _erow.pop("n_combined_events", None)
                     rows.extend(extra)
 
             ratio_results[rl][policy_name] = {
                 "lambda_rows": [{k: jf(v) if isinstance(v, float) else v
-                                 for k, v in row.items() if k != "r1_trace"} for row in rows],
+                                 for k, v in row.items()
+                                 if k not in ("r1_trace", "n_combined_events")} for row in rows],
                 "crossing": {k: jf(v) if isinstance(v, float) else v
                              for k, v in cx.items()},
             }
@@ -1175,7 +1252,12 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
             _lam_cmp: dict[str, dict] = {}
             for _lk in _all_lam_keys:
                 _lam_pol_traces = {p: _r1_pol_traces[p].get(_lk, []) for p in GATE_F_POLICIES}
-                _lam_cmp[_lk] = compare_r1_traces(_lam_pol_traces)
+                _n_comb = next(
+                    (_r1_pol_n_comb.get(p, {}).get(_lk)
+                     for p in GATE_F_POLICIES
+                     if _r1_pol_n_comb.get(p, {}).get(_lk) is not None),
+                    None)
+                _lam_cmp[_lk] = compare_r1_traces(_lam_pol_traces, _n_comb)
             _coverage_pass = _saved_lam_keys == set(_all_lam_keys)
             _agg_overall   = all(v["overall_pass"] for v in _lam_cmp.values())
             _trace_cmp = {
@@ -1215,6 +1297,7 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
 
 # ── Save results ────────────────────────────────────────────────────────────
 result = {
+    "git_head"        : _git_head(),
     "script"          : "r1_gate_f_run.py",
     "n_dev"           : N_DEV,
     "n_first"         : N_FIRST,

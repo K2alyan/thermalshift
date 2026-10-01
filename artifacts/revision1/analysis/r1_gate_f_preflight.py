@@ -577,8 +577,11 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
             "cab_active"     : {},
         }
 
-    n_events_checked         = 0
+    n_events_checked         = 0   # ALL scheduling events (including Stage-1 drops)
+    n_sel_events_checked     = 0   # events that passed Stage 1 → selection verified
     n_sel_identical          = 0
+    n_stage1_drop_checked    = 0   # Stage-1 drops (synthetic only)
+    n_stage1_drop_agree      = 0   # drops where all policies agree on drop
     n_la_checked             = 0
     n_la_identical           = 0
     n_state_checked          = 0
@@ -587,6 +590,7 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
     first_sel_divergence     = None
     first_la_divergence      = None
     first_state_divergence   = None
+    first_drop_disagree      = None
 
     for _i in range(len(combined)):
         is_syn     = bool(_cissyn[_i])
@@ -615,6 +619,12 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
             bg_busy = bg_busy_at_ms(t_j_ms)
         else:
             bg_busy = bg_busy_per_job.get(parent_jid, frozenset())
+
+        # Pre-compute event_uid (needed for Stage-1 drops in count reconciliation)
+        if is_syn:
+            event_uid = f"syn:{scen_seed}:{abs(jid)-1}"
+        else:
+            event_uid = f"base:{jid}"
 
         # Stage 1: compute available per policy and verify identity
         available_per_pol: dict[str, list | None] = {}
@@ -649,9 +659,23 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
             first_state_divergence = {"event_idx": _i, "is_syn": is_syn,
                                       "state_vals": state_vals}
 
-        # Drop if any policy says no-available (all should agree)
-        if any(v is None for v in available_per_pol.values()):
-            # State updates for drop: none (no selection). Continue.
+        # Count every scheduling event (including Stage-1 drops)
+        n_events_checked += 1
+
+        # Stage-1 drop: all policies must agree (at r=1 they share identical state)
+        any_drop = any(v is None for v in available_per_pol.values())
+        all_drop = all(v is None for v in available_per_pol.values())
+        if any_drop:
+            n_stage1_drop_checked += 1
+            drop_agree = (any_drop == all_drop)
+            if drop_agree:
+                n_stage1_drop_agree += 1
+            elif first_drop_disagree is None:
+                first_drop_disagree = {
+                    "event_idx" : _i,
+                    "event_uid" : event_uid,
+                    "drop_mask" : {p: available_per_pol[p] is None for p in GATE_F_POLICIES},
+                }
             continue
 
         # Available sets should be identical (verify)
@@ -663,10 +687,7 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
             n_avail_identical += 1
 
         # Stage 1½ — Gate F at r=1.0
-        if is_syn:
-            event_uid = f"syn:{scen_seed}:{abs(jid)-1}"
-        else:
-            event_uid = f"base:{jid}"
+        # event_uid already computed above (before Stage-1 drop check)
 
         # Compute shortlist from first policy's available (identical across policies)
         # r=1.0: m = min(ceil(1.0 * k), |A_full|) = k (when |A_full| >= k, guaranteed above)
@@ -692,7 +713,7 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
         # Verify selection identity
         ref_sel = selections[GATE_F_POLICIES[0]]
         sel_identical = all(selections[p] == ref_sel for p in GATE_F_POLICIES[1:])
-        n_events_checked += 1
+        n_sel_events_checked += 1
         if sel_identical:
             n_sel_identical += 1
         elif first_sel_divergence is None:
@@ -741,22 +762,29 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
                 if nc >= 0:
                     s["cab_active"][nc] = s["cab_active"].get(nc, 0) + 1
 
+    count_reconcile = (n_events_checked == len(combined))
     return {
-        "lam"                    : lam,
-        "n_combined_events"      : len(combined),
-        "n_events_checked"       : n_events_checked,
+        "lam"                             : lam,
+        "n_combined_events"               : len(combined),
+        "n_events_checked"                : n_events_checked,
+        "count_reconcile_pass"            : count_reconcile,
+        "n_stage1_drop_checked"           : n_stage1_drop_checked,
+        "n_stage1_drop_agree"             : n_stage1_drop_agree,
+        "stage1_drop_agree_pass"          : n_stage1_drop_agree == n_stage1_drop_checked,
+        "n_sel_events_checked"            : n_sel_events_checked,
         "n_events_selected_sets_identical": n_sel_identical,
-        "n_avail_sets_identical" : n_avail_identical,
+        "n_avail_sets_identical"          : n_avail_identical,
         "n_lookahead_events_checked"      : n_la_checked,
         "n_lookahead_outcomes_identical"  : n_la_identical,
         "n_state_snapshots_checked"       : n_state_checked,
         "n_state_snapshots_identical"     : n_state_identical,
-        "sel_pass"               : n_sel_identical == n_events_checked,
-        "la_pass"                : n_la_identical  == n_la_checked,
-        "state_pass"             : n_state_identical == n_state_checked,
-        "first_sel_divergence"   : first_sel_divergence,
-        "first_la_divergence"    : first_la_divergence,
-        "first_state_divergence" : first_state_divergence,
+        "sel_pass"                        : n_sel_identical == n_sel_events_checked,
+        "la_pass"                         : n_la_identical  == n_la_checked,
+        "state_pass"                      : n_state_identical == n_state_checked,
+        "first_sel_divergence"            : first_sel_divergence,
+        "first_la_divergence"             : first_la_divergence,
+        "first_state_divergence"          : first_state_divergence,
+        "first_drop_disagree"             : first_drop_disagree,
     }
 
 
@@ -937,20 +965,22 @@ if __name__ == "__main__":
     print("\nGate F Preflight Audit")
     print("=" * 70)
     print(f"git HEAD: {head}")
-    print(f"date    : 2026-09-30")
+    print(f"date    : 2026-10-01")
 
     # ── Load reference JSONs ────────────────────────────────────────────────
     print("\nLoading reference files ...")
     refs = {}
     for fname in set(POLICY_REF_FILE.values()):
         refs[fname] = json.load(open(OUT_DIR / fname))
-    gf_unr   = json.load(open(OUT_DIR / "gate_f_dev_results.json"))
+    gf_unr   = json.load(open(OUT_DIR / "gate_f_sc0-0_unr.json"))
     gf_r1    = json.load(open(OUT_DIR / "gate_f_sc0-0_1p0.json"))
     gf_unr_sc0 = gf_unr["scenario_results"][0]
-    print(f"  GF unrestricted: gate_f_dev_results.json "
-          f"(produced under commit df4022c, pre-filename-fix)")
+    _unr_commit = gf_unr.get("git_head", "unknown")
+    _r1_commit  = gf_r1.get("git_head", "unknown")
+    print(f"  GF unrestricted: gate_f_sc0-0_unr.json "
+          f"(produced under commit {_unr_commit})")
     print(f"  GF r=1:          gate_f_sc0-0_1p0.json "
-          f"(produced under commit 89b3cfa)")
+          f"(produced under commit {_r1_commit})")
 
     # Derive lambda points from saved r=1 output (all points in the sweep)
     _r1_ref_rows = gf_r1["scenario_results"][0]["ratios"]["1.0"][GATE_F_POLICIES[0]]["lambda_rows"]
@@ -1002,12 +1032,12 @@ if __name__ == "__main__":
     # Save Part 1 artifact (no simulation needed)
     audit_unr = {
         "artifact_type"    : "gate_f_preflight_unrestricted_sc0",
-        "created_date"     : "2026-09-30",
+        "created_date"     : "2026-10-01",
         "git_head_preflight_run" : head,
-        "git_commit_unrestricted_run": "df4022c",
-        "git_commit_r1_run"          : gf_r1.get("git_head", "89b3cfa"),
+        "git_commit_unrestricted_run": _unr_commit,
+        "git_commit_r1_run"          : _r1_commit,
         "source_files"     : {
-            "gf_unrestricted" : "gate_f_dev_results.json",
+            "gf_unrestricted" : "gate_f_sc0-0_unr.json",
             "gf_r1"           : "gate_f_sc0-0_1p0.json",
         },
         "unrestricted_sc0_audit" : unr_audit,
@@ -1107,12 +1137,15 @@ if __name__ == "__main__":
     print(f"Lambda points: {R1_VERIFY_LAMBDAS}")
 
     verify_results = []
-    total_events = 0
-    total_sel_checked = 0
-    total_sel_identical = 0
-    total_la_checked = 0
-    total_la_identical = 0
-    total_state_checked = 0
+    total_combined_events = 0
+    total_events_checked  = 0
+    total_stage1_drops    = 0
+    total_stage1_agree    = 0
+    total_sel_checked     = 0
+    total_sel_identical   = 0
+    total_la_checked      = 0
+    total_la_identical    = 0
+    total_state_checked   = 0
     total_state_identical = 0
     all_pass = True
 
@@ -1131,8 +1164,18 @@ if __name__ == "__main__":
               f"la_identical={res['n_lookahead_outcomes_identical']}  "
               f"state_checked={res['n_state_snapshots_checked']}  "
               f"state_identical={res['n_state_snapshots_identical']}")
-        pass_str = ("PASS" if res["sel_pass"] and res["la_pass"] and res["state_pass"]
-                    else "FAIL")
+        lam_pass = (res["sel_pass"] and res["la_pass"] and res["state_pass"]
+                    and res["count_reconcile_pass"] and res["stage1_drop_agree_pass"])
+        pass_str = "PASS" if lam_pass else "FAIL"
+        print(f"    n_events_checked={res['n_events_checked']}  "
+              f"sel_identical={res['n_events_selected_sets_identical']}  "
+              f"la_checked={res['n_lookahead_events_checked']}  "
+              f"la_identical={res['n_lookahead_outcomes_identical']}  "
+              f"state_checked={res['n_state_snapshots_checked']}  "
+              f"state_identical={res['n_state_snapshots_identical']}")
+        print(f"    stage1_drops={res['n_stage1_drop_checked']}  "
+              f"drops_agree={res['n_stage1_drop_agree']}  "
+              f"count_reconcile={res['count_reconcile_pass']}")
         print(f"    sel_pass={res['sel_pass']}  la_pass={res['la_pass']}  "
               f"state_pass={res['state_pass']}  => {pass_str}")
         if res["first_sel_divergence"]:
@@ -1141,22 +1184,33 @@ if __name__ == "__main__":
             print(f"    FIRST LA DIVERGENCE: {res['first_la_divergence']}")
         if res["first_state_divergence"]:
             print(f"    FIRST STATE DIVERGENCE: {res['first_state_divergence']}")
+        if res["first_drop_disagree"]:
+            print(f"    FIRST DROP DISAGREE: {res['first_drop_disagree']}")
 
         verify_results.append(res)
-        total_events        += res["n_combined_events"]
-        total_sel_checked   += res["n_events_checked"]
-        total_sel_identical += res["n_events_selected_sets_identical"]
-        total_la_checked    += res["n_lookahead_events_checked"]
-        total_la_identical  += res["n_lookahead_outcomes_identical"]
-        total_state_checked += res["n_state_snapshots_checked"]
+        total_combined_events += res["n_combined_events"]
+        total_events_checked  += res["n_events_checked"]
+        total_stage1_drops    += res["n_stage1_drop_checked"]
+        total_stage1_agree    += res["n_stage1_drop_agree"]
+        total_sel_checked     += res["n_sel_events_checked"]
+        total_sel_identical   += res["n_events_selected_sets_identical"]
+        total_la_checked      += res["n_lookahead_events_checked"]
+        total_la_identical    += res["n_lookahead_outcomes_identical"]
+        total_state_checked   += res["n_state_snapshots_checked"]
         total_state_identical += res["n_state_snapshots_identical"]
-        if not (res["sel_pass"] and res["la_pass"] and res["state_pass"]):
+        if not lam_pass:
             all_pass = False
 
     # Aggregate
     aggregate = {
         "n_lambda_points_verified"                   : len(R1_VERIFY_LAMBDAS),
         "lambda_points"                              : R1_VERIFY_LAMBDAS,
+        "n_combined_events_total"                    : total_combined_events,
+        "n_events_checked_total"                     : total_events_checked,
+        "count_reconcile_pass"                       : (total_events_checked == total_combined_events),
+        "n_stage1_drops_total"                       : total_stage1_drops,
+        "n_stage1_drops_agree"                       : total_stage1_agree,
+        "stage1_drop_agree_pass"                     : total_stage1_agree == total_stage1_drops,
         "n_events_checked"                           : total_sel_checked,
         "n_events_selected_sets_identical"           : total_sel_identical,
         "n_lookahead_events_checked"                 : total_la_checked,
@@ -1180,6 +1234,12 @@ if __name__ == "__main__":
 
     print(f"\n{'='*70}")
     print(f"AGGREGATE r=1 sc0 event-level results:")
+    print(f"  n_combined_events_total:         {aggregate['n_combined_events_total']}")
+    print(f"  n_events_checked_total:          {aggregate['n_events_checked_total']}"
+          f"  (count_reconcile={aggregate['count_reconcile_pass']})")
+    print(f"  n_stage1_drops_total:            {aggregate['n_stage1_drops_total']}"
+          f"  agree={aggregate['n_stage1_drops_agree']}"
+          f"  pass={aggregate['stage1_drop_agree_pass']}")
     print(f"  n_events_checked:                {aggregate['n_events_checked']}")
     print(f"  n_events_selected_sets_identical: {aggregate['n_events_selected_sets_identical']}")
     print(f"  n_lookahead_events_checked:       {aggregate['n_lookahead_events_checked']}")
@@ -1193,6 +1253,8 @@ if __name__ == "__main__":
     print(f"  pairwise_verdicts_indisting.:     {aggregate['pairwise_verdicts_all_indistinguishable']}")
     print(f"  delta_interval_symmetry_pass:     {aggregate['delta_interval_symmetry_pass']}")
     overall = (aggregate["event_level_all_pass"]
+               and aggregate["count_reconcile_pass"]
+               and aggregate["stage1_drop_agree_pass"]
                and aggregate["lambda_rows_equivalent_within_fp_tolerance"]
                and aggregate["crossing_intervals_identical"]
                and aggregate["pairwise_verdicts_all_indistinguishable"]
@@ -1201,18 +1263,15 @@ if __name__ == "__main__":
     print(f"\n  GATE F PREFLIGHT OVERALL: {'PASS' if overall else 'FAIL'}")
     print(f"{'='*70}")
 
-    # Derive producing commit from the loaded r=1 JSON (if stored), else use HEAD
-    _r1_producing_commit = gf_r1.get("git_head", "89b3cfa")
-
     # Save combined artifact
     audit_r1 = {
         "artifact_type"                  : "gate_f_preflight_r1_sc0",
-        "created_date"                   : "2026-09-30",
+        "created_date"                   : "2026-10-01",
         "git_head_preflight_run"         : head,
-        "git_commit_unrestricted_run"    : "df4022c",
-        "git_commit_r1_run"              : _r1_producing_commit,
+        "git_commit_unrestricted_run"    : _unr_commit,
+        "git_commit_r1_run"              : _r1_commit,
         "source_files": {
-            "gf_unrestricted": "gate_f_dev_results.json",
+            "gf_unrestricted": "gate_f_sc0-0_unr.json",
             "gf_r1"          : "gate_f_sc0-0_1p0.json",
         },
         "unrestricted_sc0_overall_pass"  : unr_audit["overall_pass"],
