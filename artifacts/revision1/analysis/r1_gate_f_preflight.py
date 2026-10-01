@@ -85,12 +85,27 @@ def git_provenance() -> dict:
             ["git", "rev-parse", "HEAD"], cwd=str(REPO_ROOT), text=True).strip()
         short = subprocess.check_output(
             ["git", "rev-parse", "--short", "HEAD"], cwd=str(REPO_ROOT), text=True).strip()
-        dirty = bool(subprocess.check_output(
+        tracked_dirty = bool(subprocess.check_output(
             ["git", "status", "--porcelain", "--untracked-files=no"],
             cwd=str(REPO_ROOT), text=True).strip())
+        untracked_lines = [
+            x for x in subprocess.check_output(
+                ["git", "ls-files", "--others", "--exclude-standard"],
+                cwd=str(REPO_ROOT), text=True).strip().splitlines() if x
+        ]
+        untracked_count   = len(untracked_lines)
+        untracked_present = untracked_count > 0
     except Exception:
-        full = short = "unknown"; dirty = None
-    return {"git_commit_full": full, "git_commit_short": short, "git_dirty": dirty}
+        full = short = "unknown"
+        tracked_dirty = untracked_present = None
+        untracked_count = None
+    return {
+        "git_commit_full"      : full,
+        "git_commit_short"     : short,
+        "git_tracked_dirty"    : tracked_dirty,
+        "git_untracked_present": untracked_present,
+        "git_untracked_count"  : untracked_count,
+    }
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -629,8 +644,9 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
 
         # Pre-compute event_uid (needed for Stage-1 drops in count reconciliation)
         if is_syn:
-            _gen_ord = int(_cgen_ord[_i]) if _cgen_ord is not None else abs(jid) - 1
-            event_uid = f"syn:{scen_seed}:{_gen_ord}"
+            assert _cgen_ord is not None, "generation_ordinal array missing for synthetic event"
+            assert not np.isnan(float(_cgen_ord[_i])), f"generation_ordinal NaN at _i={_i} jid={jid}"
+            event_uid = f"syn:{scen_seed}:{int(_cgen_ord[_i])}"
         else:
             event_uid = f"base:{jid}"
 
@@ -972,27 +988,36 @@ if __name__ == "__main__":
     prov   = git_provenance()
     print("\nGate F Preflight Audit")
     print("=" * 70)
-    print(f"git HEAD: {prov['git_commit_short']}  dirty={prov['git_dirty']}")
+    print(f"git HEAD: {prov['git_commit_short']}  tracked_dirty={prov['git_tracked_dirty']}  untracked={prov['git_untracked_count']}")
     print(f"date    : 2026-10-01")
 
-    # ── Load reference JSONs ────────────────────────────────────────────────
+    # ── Load reference JSONs and freeze their SHA-256 ──────────────────────
     print("\nLoading reference files ...")
     refs = {}
+    ref_file_hashes: dict = {}
     for fname in set(POLICY_REF_FILE.values()):
-        refs[fname] = json.load(open(OUT_DIR / fname))
+        raw = (OUT_DIR / fname).read_bytes()
+        ref_file_hashes[fname] = {
+            "sha256"     : hashlib.sha256(raw).hexdigest(),
+            "size_bytes" : len(raw),
+            "role"       : "authoritative_m4_reference",
+        }
+        refs[fname] = json.loads(raw)
     gf_unr   = json.load(open(OUT_DIR / "gate_f_sc0-0_unr.json"))
     gf_r1    = json.load(open(OUT_DIR / "gate_f_sc0-0_1p0.json"))
     gf_unr_sc0  = gf_unr["scenario_results"][0]
-    _unr_commit = gf_unr.get("git_commit_short", gf_unr.get("git_head", "unknown"))
-    _unr_full   = gf_unr.get("git_commit_full",  "unknown")
-    _unr_dirty  = gf_unr.get("git_dirty",        None)
-    _r1_commit  = gf_r1.get("git_commit_short",  gf_r1.get("git_head",  "unknown"))
-    _r1_full    = gf_r1.get("git_commit_full",   "unknown")
-    _r1_dirty   = gf_r1.get("git_dirty",         None)
+    _unr_commit        = gf_unr.get("git_commit_short",      gf_unr.get("git_head", "unknown"))
+    _unr_full          = gf_unr.get("git_commit_full",       "unknown")
+    _unr_tracked_dirty = gf_unr.get("git_tracked_dirty",     gf_unr.get("git_dirty", None))
+    _unr_untracked     = gf_unr.get("git_untracked_count",   None)
+    _r1_commit         = gf_r1.get("git_commit_short",       gf_r1.get("git_head",  "unknown"))
+    _r1_full           = gf_r1.get("git_commit_full",        "unknown")
+    _r1_tracked_dirty  = gf_r1.get("git_tracked_dirty",      gf_r1.get("git_dirty", None))
+    _r1_untracked      = gf_r1.get("git_untracked_count",    None)
     print(f"  GF unrestricted: gate_f_sc0-0_unr.json "
-          f"(commit={_unr_commit}  dirty={_unr_dirty})")
+          f"(commit={_unr_commit}  tracked_dirty={_unr_tracked_dirty}  untracked={_unr_untracked})")
     print(f"  GF r=1:          gate_f_sc0-0_1p0.json "
-          f"(commit={_r1_commit}  dirty={_r1_dirty})")
+          f"(commit={_r1_commit}  tracked_dirty={_r1_tracked_dirty}  untracked={_r1_untracked})")
 
     # Derive lambda points from saved r=1 output (all points in the sweep)
     _r1_ref_rows = gf_r1["scenario_results"][0]["ratios"]["1.0"][GATE_F_POLICIES[0]]["lambda_rows"]
@@ -1045,19 +1070,23 @@ if __name__ == "__main__":
     audit_unr = {
         "artifact_type"    : "gate_f_preflight_unrestricted_sc0",
         "created_date"     : "2026-10-01",
-        "git_commit_short_preflight_run" : prov["git_commit_short"],
-        "git_commit_full_preflight_run"  : prov["git_commit_full"],
-        "git_dirty_preflight_run"        : prov["git_dirty"],
-        "git_commit_short_unrestricted_run": _unr_commit,
-        "git_commit_full_unrestricted_run" : _unr_full,
-        "git_dirty_unrestricted_run"       : _unr_dirty,
-        "git_commit_short_r1_run"          : _r1_commit,
-        "git_commit_full_r1_run"           : _r1_full,
-        "git_dirty_r1_run"                 : _r1_dirty,
+        "git_commit_short_preflight_run"      : prov["git_commit_short"],
+        "git_commit_full_preflight_run"       : prov["git_commit_full"],
+        "git_tracked_dirty_preflight_run"     : prov["git_tracked_dirty"],
+        "git_untracked_count_preflight_run"   : prov["git_untracked_count"],
+        "git_commit_short_unrestricted_run"   : _unr_commit,
+        "git_commit_full_unrestricted_run"    : _unr_full,
+        "git_tracked_dirty_unrestricted_run"  : _unr_tracked_dirty,
+        "git_untracked_count_unrestricted_run": _unr_untracked,
+        "git_commit_short_r1_run"             : _r1_commit,
+        "git_commit_full_r1_run"              : _r1_full,
+        "git_tracked_dirty_r1_run"            : _r1_tracked_dirty,
+        "git_untracked_count_r1_run"          : _r1_untracked,
         "source_files"     : {
             "gf_unrestricted" : "gate_f_sc0-0_unr.json",
             "gf_r1"           : "gate_f_sc0-0_1p0.json",
         },
+        "authoritative_reference_hashes": ref_file_hashes,
         "unrestricted_sc0_audit" : unr_audit,
         "r1_sc0_lambda_row_check": lr_check,
         "r1_sc0_pairwise_audit"  : pw_audit,
@@ -1285,19 +1314,23 @@ if __name__ == "__main__":
     audit_r1 = {
         "artifact_type"                      : "gate_f_preflight_r1_sc0",
         "created_date"                       : "2026-10-01",
-        "git_commit_short_preflight_run"     : prov["git_commit_short"],
+        "git_commit_short_preflight_run"      : prov["git_commit_short"],
         "git_commit_full_preflight_run"      : prov["git_commit_full"],
-        "git_dirty_preflight_run"            : prov["git_dirty"],
+        "git_tracked_dirty_preflight_run"    : prov["git_tracked_dirty"],
+        "git_untracked_count_preflight_run"  : prov["git_untracked_count"],
         "git_commit_short_unrestricted_run"  : _unr_commit,
         "git_commit_full_unrestricted_run"   : _unr_full,
-        "git_dirty_unrestricted_run"         : _unr_dirty,
+        "git_tracked_dirty_unrestricted_run" : _unr_tracked_dirty,
+        "git_untracked_count_unrestricted_run": _unr_untracked,
         "git_commit_short_r1_run"            : _r1_commit,
         "git_commit_full_r1_run"             : _r1_full,
-        "git_dirty_r1_run"                   : _r1_dirty,
+        "git_tracked_dirty_r1_run"           : _r1_tracked_dirty,
+        "git_untracked_count_r1_run"         : _r1_untracked,
         "source_files": {
             "gf_unrestricted": "gate_f_sc0-0_unr.json",
             "gf_r1"          : "gate_f_sc0-0_1p0.json",
         },
+        "authoritative_reference_hashes" : ref_file_hashes,
         "unrestricted_sc0_overall_pass"  : unr_audit["overall_pass"],
         "r1_sc0_event_level"             : aggregate,
         "elapsed_total_s"                : round(time.time() - t_main, 1),

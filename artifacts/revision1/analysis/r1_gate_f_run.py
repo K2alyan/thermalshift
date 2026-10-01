@@ -109,19 +109,34 @@ def _git_provenance() -> dict:
             ["git", "rev-parse", "HEAD"], cwd=str(REPO_ROOT), text=True).strip()
         short = subprocess.check_output(
             ["git", "rev-parse", "--short", "HEAD"], cwd=str(REPO_ROOT), text=True).strip()
-        dirty = bool(subprocess.check_output(
+        tracked_dirty = bool(subprocess.check_output(
             ["git", "status", "--porcelain", "--untracked-files=no"],
             cwd=str(REPO_ROOT), text=True).strip())
+        untracked_lines = [
+            x for x in subprocess.check_output(
+                ["git", "ls-files", "--others", "--exclude-standard"],
+                cwd=str(REPO_ROOT), text=True).strip().splitlines() if x
+        ]
+        untracked_count   = len(untracked_lines)
+        untracked_present = untracked_count > 0
     except Exception:
-        full = short = "unknown"; dirty = None
-    return {"git_commit_full": full, "git_commit_short": short, "git_dirty": dirty}
+        full = short = "unknown"
+        tracked_dirty = untracked_present = None
+        untracked_count = None
+    return {
+        "git_commit_full"      : full,
+        "git_commit_short"     : short,
+        "git_tracked_dirty"    : tracked_dirty,
+        "git_untracked_present": untracked_present,
+        "git_untracked_count"  : untracked_count,
+    }
 
 # ══════════════════════════════════════════════════════════════════════════════
 # DATA LOADING — identical to r1_m4_fair_baselines.py / canonical scripts
 # ══════════════════════════════════════════════════════════════════════════════
 # ── Provenance (captured before data loading so dirty-check fires early) ──────
 _PROV = _git_provenance()
-if GATE_F_REQUIRE_CLEAN_GIT and _PROV.get("git_dirty"):
+if GATE_F_REQUIRE_CLEAN_GIT and _PROV.get("git_tracked_dirty"):
     sys.exit(
         f"GATE_F_REQUIRE_CLEAN_GIT=1 but working tree is dirty "
         f"(HEAD={_PROV['git_commit_short']}). "
@@ -633,8 +648,9 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
                     _strat[_q][_drop_key]   += 1
                 q_drop[job_quartile.get(parent_jid, 4)] += 1
                 if collect_trace:
-                    _gen_ord = int(_cgen_ord[_i]) if _cgen_ord is not None else abs(jid) - 1
-                    _d_uid = f"syn:{scen_seed}:{_gen_ord}"
+                    assert _cgen_ord is not None, "generation_ordinal array missing for synthetic event"
+                    assert not np.isnan(float(_cgen_ord[_i])), f"generation_ordinal NaN at _i={_i} jid={jid}"
+                    _d_uid = f"syn:{scen_seed}:{int(_cgen_ord[_i])}"
                     _d_st  = hashlib.sha256(repr((
                         tuple(sorted(available_set)),
                         tuple(sorted(cap_exceeded)),
@@ -666,8 +682,9 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
             C_p_r = available
         else:
             if is_syn:
-                _gen_ord = int(_cgen_ord[_i]) if _cgen_ord is not None else abs(jid) - 1
-                event_uid = f"syn:{scen_seed}:{_gen_ord}"
+                assert _cgen_ord is not None, "generation_ordinal array missing for synthetic event"
+                assert not np.isnan(float(_cgen_ord[_i])), f"generation_ordinal NaN at _i={_i} jid={jid}"
+                event_uid = f"syn:{scen_seed}:{int(_cgen_ord[_i])}"
             else:
                 event_uid = f"base:{jid}"
             C_p_r = gate_f_shortlist(available, scen_seed, event_uid, r, k)
@@ -1319,9 +1336,11 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
 
 # ── Save results ────────────────────────────────────────────────────────────
 result = {
-    "git_commit_full" : _PROV["git_commit_full"],
-    "git_commit_short": _PROV["git_commit_short"],
-    "git_dirty"       : _PROV["git_dirty"],
+    "git_commit_full"       : _PROV["git_commit_full"],
+    "git_commit_short"      : _PROV["git_commit_short"],
+    "git_tracked_dirty"     : _PROV["git_tracked_dirty"],
+    "git_untracked_present" : _PROV["git_untracked_present"],
+    "git_untracked_count"   : _PROV["git_untracked_count"],
     "script"          : "r1_gate_f_run.py",
     "n_dev"           : N_DEV,
     "n_first"         : N_FIRST,
