@@ -7,6 +7,7 @@
 **Amended:** 2026-09-30 — drop-cause semantics frozen (E_full/E_r); terminology finalized; §8.2 priority description corrected; §11 r=1 annotation fixed; realized-choice diagnostics added.
 **Amended:** 2026-09-30 — Estimand/intervention corrected. Intervention now follows M4 feasibility. Gate F restricts how many currently feasible nodes the selector may inspect, not external candidate visibility. Design frozen.
 **Amended:** 2026-09-30 — Consistency cleanup only. §3 formula corrected to per-policy m_p,r; n_available removed. §4.2 nesting and cross-policy-identity bullets qualified. §4.4 nesting claim qualified (fixed E_full,p only). §8.2 CRN claim qualified. Tests 3–4 use full_eligible/E_full,p. §14 checklist: runtime nesting assertion removed.
+**Amended:** 2026-09-30 — Pre-implementation inspection. M4 call graph confirmed (r1_m4_fair_baselines.py): look_ahead_safe() is allocation-level, post-selection, synthetic-only. E_full,p renamed A_full,p (pre-selector eligible set, not post-look-ahead). full_feasible_count renamed full_selector_eligible_count. Gate F wrapper order corrected to preserve post-selection look-ahead unchanged.
 **Status:** Approved for implementation
 
 ---
@@ -70,19 +71,19 @@ No policy parameter is changed. The only manipulation is the number of currently
 r ∈ {1.0, 1.25, 1.5, 2.0, 4.0, 8.0, unrestricted}
 ```
 
-For policy p and a job requiring *k* cohort nodes, the Gate F shortlist is drawn from E_full,p (§4.1) and has size:
+For policy p and a job requiring *k* cohort nodes, the Gate F shortlist is drawn from A_full,p (§4.0, §4.1) and has size:
 
 ```
-m_p,r = min( ceil(r × k), |E_full,p| )
+m_p,r = min( ceil(r × k), |A_full,p| )
 ```
 
-`E_full,p` is the per-policy set of currently feasible candidates returned by the frozen M4 candidate-generation logic. The shortlist and its size are therefore policy-specific once replay states diverge.
+`A_full,p` is the per-policy pre-selector eligible set (M4 `avail_capped_set` — see §4.0). The shortlist and its size are therefore policy-specific once replay states diverge.
 
 **Frozen shortlist definitions:**
-- `C_p,r` = first `m_p,r` nodes from hash-ranked E_full,p (§4.2, §4.4)
-- `C_p,unrestricted` = E_full,p (no prefix restriction; full feasible set exposed)
+- `C_p,r` = first `m_p,r` nodes from hash-ranked A_full,p (§4.2, §4.4)
+- `C_p,unrestricted` = A_full,p (no prefix restriction; full pre-selector eligible set exposed)
 
-`unrestricted` exposes the full E_full,p to the selector. This reproduces the M4 unrestricted replay exactly and is the preflight gate (§6).
+`unrestricted` exposes the full A_full,p to the selector. Combined with the unchanged post-selection look-ahead check, this reproduces the M4 unrestricted replay exactly and is the preflight gate (§6).
 
 **Terminology (frozen):**
 
@@ -90,45 +91,89 @@ m_p,r = min( ceil(r × k), |E_full,p| )
 |------|--------|-----------|
 | *k* | — | Job cohort node count (nodes required) |
 | `nominal_choice_ratio` | r | The experimental treatment variable. Set by the design; identical across all policies. |
-| `full_feasible_count` | \|E_full,p\| | Per-policy: number of currently feasible candidate nodes produced by the frozen M4 candidate-generation logic. Policy-specific; can differ across policies at the same event once replay states diverge. |
-| `exposed_feasible_count` | \|C_p,r\| | Per-policy: shortlist size after Gate F restriction. = min(ceil(r × k), \|E_full,p\|). Always ≥ k when \|E_full,p\| ≥ k and r ≥ 1. |
+| `full_selector_eligible_count` | \|A_full,p\| | Per-policy: number of pre-selector eligible nodes (M4 avail_capped_set — nodes passing the node-level occupancy/cap filter, before policy selection and before look-ahead). Policy-specific; can differ across policies at the same event once replay states diverge. |
+| `exposed_feasible_count` | \|C_p,r\| | Per-policy: shortlist size after Gate F restriction. = min(ceil(r × k), \|A_full,p\|). Always ≥ k when \|A_full,p\| ≥ k and r ≥ 1. |
 | `realized_feasible_choice_multiplier` | \|C_p,r\| / k | Per-policy: the number of currently feasible choices actually exposed, as a multiple of the job size. This is what the estimand measures. |
 
-The primary x-axis is `nominal_choice_ratio` r (the manipulated variable). Because Gate F intervenes after M4 feasibility, `realized_feasible_choice_multiplier` now truly means what it says: the scheduler has |C_p,r| / k times as many currently feasible candidates as the job requires.
+The primary x-axis is `nominal_choice_ratio` r (the manipulated variable). Because Gate F intervenes after the M4 node-level eligibility filter (but before policy selection and before look-ahead), `realized_feasible_choice_multiplier` means: the selector inspects |C_p,r| / k times as many pre-selector-eligible candidates as the job requires before the allocation-level look-ahead guard runs.
 
 ---
 
 ## 4. Candidate-set construction
 
-### 4.1 Frozen M4 feasibility step (per policy)
+### 4.0 M4 placement call graph: pre-implementation inspection
 
-For each scheduling event and each policy, first obtain the complete set of currently feasible candidate nodes using the **exact frozen M4 full-policy candidate-generation logic**, including all job-type-specific occupancy rules, utilization-cap handling, look-ahead/QoS constraints, and base-job fallback semantics:
+**File:** `artifacts/revision1/analysis/r1_m4_fair_baselines.py`
+
+The M4 per-event loop (`capacity_replay_m4()`) has a strict two-stage structure:
+
+**Stage 1 — Node-level eligibility filter (pre-selector):**
+```python
+avail_capped_set = available_set.difference(bg_busy)   # line 928
+available = list(avail_capped_set)                      # line 949 (synthetic jobs)
+```
+`avail_capped_set` contains nodes not currently occupied by a conflicting background load and within the utilization cap. This is the pre-selector eligible set — `A_full,p` in Gate F notation. There is no single helper function; it is computed inline in the event loop.
+
+**Stage 2 — Policy selection (on A_full,p):**
+```python
+selected = select_fp(available, k)     # line 1003 — or select_loc / select_random / select_fp_spread
+```
+The policy selector receives `available` (= A_full,p) and returns exactly k nodes.
+
+**Stage 3 — Allocation-level admission check (post-selection, synthetic jobs only):**
+```python
+if is_syn and selected:                                                    # line 1013
+    if not look_ahead_safe(selected, t_j_ms, t_e_ms, cf_busy_ms):        # line 1014
+        n_drop_la += 1
+        continue
+```
+`look_ahead_safe()` (line 590) receives the **complete k-node selected set** (`s_nodes = frozenset(selected_nodes)`, line 595) and evaluates whether admitting all k nodes simultaneously leaves sufficient future capacity for upcoming base jobs. It is not a per-node filter; it is an atomic check on the k-node allocation. Base jobs in full-replacement mode do not call `look_ahead_safe` (the guard at line 1013 is `if is_syn and selected:`).
+
+**Gate F correct wrapper order:**
+```
+Stage 1:   A_full,p = avail_capped_set (node-level eligibility filter — §4.1)
+           if |A_full,p| < k: existing M4 drop semantics (n_drop_cap / n_drop_phys)
+Stage 1½:  BLAKE2b hash-rank A_full,p; take prefix C_p,r of size m_p,r  (Gate F — §4.2, §4.4)
+Stage 2:   selected = frozen_policy_selector(C_p_r, k, policy=p)         (policy — §4.5)
+Stage 3:   if is_syn: look_ahead_safe(selected, ...)  →  admit or n_drop_la
+           (unchanged M4 allocation-level semantics; §4.5)
+```
+
+**What A_full,p is NOT:** `A_full,p` contains nodes that pass the node-level occupancy/cap filter but have not yet been admitted through the look-ahead check. `look_ahead_safe` evaluates the entire k-node allocation after selection. A node may be in `A_full,p` and still contribute to a look-ahead failure when combined with specific other nodes. Gate F therefore restricts how many pre-selector-eligible nodes the selector may inspect, with look-ahead running unchanged on whatever k nodes the selector chooses.
+
+**Do not:** call `frozen_m4_candidate_set()` as if it were a single reusable function — it does not exist. Replicate the inline Stage 1 filter exactly. **Do not** move `look_ahead_safe` to the node-level filter or to the shortlist construction step.
+
+### 4.1 Pre-selector eligibility step (per policy)
+
+For each scheduling event and each policy, replicate the exact M4 Stage 1 node-level eligibility filter (§4.0) to build `A_full,p`:
+
+```python
+# Replicate M4 Stage 1 inline (r1_m4_fair_baselines.py lines 928, 949)
+avail_capped_set = available_set_p.difference(bg_busy)   # policy-specific state
+A_full_p = list(avail_capped_set)
+```
+
+Do not reimplement this from a new formula. Replicate the existing M4 inline filter exactly. The logic is frozen at M4 v3 and must not be altered for Gate F.
+
+`A_full,p` is **per-policy** and will diverge across policies once their replay states differ — because counterfactual base-job occupancy and synthetic occupancy are policy-specific. This is expected and must not be forced to be identical.
+
+**If |A_full,p| < k**: apply the existing M4 drop semantics (`n_drop_cap` or `n_drop_phys`) exactly. Gate F is not the cause.
+
+**If |A_full,p| ≥ k**: proceed to Gate F shortlist (§4.4).
+
+**Full per-event pipeline (Gate F wrapper):**
 
 ```
-E_full,p  =  frozen_m4_candidate_set(policy=p, event=e, state=state_p)
+Stage 1:   A_full,p = avail_capped_set  (§4.1 — node-level eligibility, per policy)
+           if |A_full,p| < k: existing M4 drop semantics
+Stage 1½:  BLAKE2b hash-rank A_full,p  (§4.2)
+           C_p,r = first min(ceil(r×k), |A_full,p|) nodes  (§4.4)
+Stage 2:   selected = frozen_policy_selector(C_p_r, k, policy=p)  (§4.5)
+Stage 3:   if is_syn: look_ahead_safe(selected, ...)               (§4.5, unchanged)
+           → admit or n_drop_la (existing M4 semantics)
 ```
 
-Do not reimplement M4 eligibility from a new formula. Call or reuse the existing M4 candidate-generation path directly. The logic is frozen at M4 v3 and must not be altered for Gate F.
-
-`E_full,p` is **per-policy** and will diverge across policies once their replay states differ — because counterfactual base-job occupancy and synthetic occupancy are policy-specific. This is expected and must not be forced to be identical.
-
-**If |E_full,p| < k**: the job is not feasible under the current policy state with any choice ratio. Apply the existing M4 failure/drop/invariant semantics exactly. Gate F is not the cause; this is an ordinary M4 outcome.
-
-**If |E_full,p| ≥ k**: proceed to Gate F shortlist (§4.4).
-
-**Construction pipeline for each scheduling event:**
-
-```
-Frozen M4 candidate generation  (§4.1 — per policy, full feasibility)
-    → E_full,p  (currently feasible nodes; policy-specific)
-    ↓ if |E_full,p| < k: existing M4 failure semantics
-    ↓ else:
-    BLAKE2b hash priority on E_full,p  (§4.2)
-    → C_p,r = first min(ceil(r×k), |E_full,p|) feasible nodes  (§4.4)
-    → Frozen policy selector  (§4.5)
-```
-
-This ordering ensures that Gate F restricts how many currently feasible nodes the selector may inspect, not external candidate visibility. At r ≥ 1 and |E_full,p| ≥ k, C_p,r always contains at least k feasible nodes, so Gate F never directly prevents a feasible job from being placed.
+At r ≥ 1 and |A_full,p| ≥ k, C_p,r always contains at least k pre-selector-eligible nodes, so Gate F Stage 1½ never prevents Stage 2 from receiving a full shortlist. Whether Stage 3 admits the resulting allocation depends on the look-ahead check, which is unchanged.
 
 ### 4.2 Node priority: frozen BLAKE2b keyed hash
 
@@ -178,8 +223,8 @@ The NUL byte `0x00` separates `event_uid` from `hostname`. This is safe as long 
 - Removing one node does not reshuffle the priorities of any other node.
 - Adding a candidate does not reshuffle existing nodes.
 - The same (scenario, event, node) always produces the same priority, regardless of execution order.
-- For a fixed E_full,p at a given event, longer-prefix shortlists are nested: `C_p,{1.0} ⊆ C_p,{1.25} ⊆ ... ⊆ E_full,p`. This prefix property holds within one replay at a fixed event state; it does not extend across independently evolved ratio replays where earlier placements may have changed E_full,p.
-- If two policies have identical E_full sets for an event (as they do at r=1 before any state divergence), the policy-neutral hash produces identical rankings and identical shortlists at the same r. Once policy states diverge, E_full,p may differ and shortlist identities may therefore differ across policies.
+- For a fixed A_full,p at a given event, longer-prefix shortlists are nested: `C_p,{1.0} ⊆ C_p,{1.25} ⊆ ... ⊆ A_full,p`. This prefix property holds within one replay at a fixed event state; it does not extend across independently evolved ratio replays where earlier placements may have changed A_full,p.
+- If two policies have identical A_full sets for an event (as they do at r=1 before any state divergence), the policy-neutral hash produces identical rankings and identical shortlists at the same r. Once policy states diverge, A_full,p may differ and shortlist identities may therefore differ across policies.
 - Reproduction requires only three pieces of metadata: scenario_seed, event_uid, hostname.
 
 ### 4.3 Event UID: frozen definition
@@ -205,13 +250,13 @@ Sorting the workload by start_time for scheduling purposes does not renumber the
 
 ### 4.4 Gate F shortlist construction (per policy, per job arrival)
 
-Called only when |E_full,p| ≥ k (§4.1). Applies to the per-policy feasible set.
+Called only when |A_full,p| ≥ k (§4.1). Applies to the per-policy pre-selector eligible set.
 
 ```python
 import math
 
-# full_eligible: E_full,p from frozen M4 candidate generation (§4.1)
-# Already filtered for all occupancy, caps, QoS — every node here is feasible.
+# full_eligible: A_full,p from M4 node-level eligibility filter (§4.0, §4.1)
+# Nodes pass occupancy/cap filter. Look-ahead runs after selection — not here.
 
 ordered_p = sorted(
     full_eligible,
@@ -219,26 +264,27 @@ ordered_p = sorted(
 )
 
 m_p_r = min(len(ordered_p), math.ceil(r * k))
-# Since len(ordered_p) = |E_full,p| >= k and r >= 1.0, m_p_r >= k always.
+# Since len(ordered_p) = |A_full,p| >= k and r >= 1.0, m_p_r >= k always.
 
-C_p_r = ordered_p[:m_p_r]  # Gate F shortlist: m_p_r currently-feasible nodes
+C_p_r = ordered_p[:m_p_r]  # Gate F shortlist: m_p_r pre-selector-eligible nodes
 
 selected = frozen_selector(C_p_r, k, policy=p)
+# look_ahead_safe(selected, ...) runs after this in Stage 3 (§4.5)
 ```
 
-**Prefix nesting (fixed E_full,p):** for a fixed E_full,p at a given event, shortlists at increasing r are nested prefixes of the same hash ordering:
+**Prefix nesting (fixed A_full,p):** for a fixed A_full,p at a given event, shortlists at increasing r are nested prefixes of the same hash ordering:
 
 ```
 C_p,{1.0} ⊆ C_p,{1.25} ⊆ C_p,{1.5} ⊆ C_p,{2.0} ⊆ C_p,{4.0} ⊆ C_p,{8.0} ⊆ C_p,{unr}
 ```
 
-This property holds mathematically for any fixed E_full,p. Across independently evolved ratio replays, earlier placements under different r values change occupancy state and therefore E_full,p at subsequent events; runtime shortlists from separate ratio replays are not required to be nested.
+This property holds mathematically for any fixed A_full,p. Across independently evolved ratio replays, earlier placements under different r values change occupancy state and therefore A_full,p at subsequent events; runtime shortlists from separate ratio replays are not required to be nested.
 
-**Candidate identities may differ across policies** at the same event once replay states diverge (because E_full,p is policy-specific). This is correct behavior. Fairness is provided by identical workload and residual draws, identical nominal r, and the same policy-blind hash function applied to each policy's own feasible set.
+**Candidate identities may differ across policies** at the same event once replay states diverge (because A_full,p is policy-specific). This is correct behavior. Fairness is provided by identical workload and residual draws, identical nominal r, and the same policy-blind hash function applied to each policy's own eligible set.
 
 ### 4.5 Frozen policy selector
 
-Every node in C_p,r is already feasible (produced by §4.1). There is no separate endogenous filtering step. The frozen policy selector receives C_p,r directly and chooses k nodes:
+Every node in C_p,r has passed the M4 node-level eligibility filter (§4.0, §4.1). The frozen policy selector receives C_p,r and chooses k nodes:
 
 | Policy | Selector rule |
 |--------|--------------|
@@ -249,29 +295,34 @@ Every node in C_p,r is already feasible (produced by §4.1). There is no separat
 
 Selector logic is identical to M4 v3 — frozen, no tuning.
 
-Since |C_p,r| ≥ k always holds when |E_full,p| ≥ k and r ≥ 1, the selector always has at least k candidates. Gate F does not introduce a new category of infeasible placements; it restricts which feasible candidates are visible to the selector, which changes placement quality and downstream thermal/power headroom.
+Since |C_p,r| ≥ k always holds when |A_full,p| ≥ k and r ≥ 1, the selector always has at least k candidates.
 
-**Shortlist construction happens fresh at every job arrival** from the current per-policy feasible set. Nodes are never permanently removed for the duration of a scenario.
+**Stage 3 — Post-selection look-ahead (unchanged from M4):** after the selector returns `selected`, run `look_ahead_safe(selected, t_j_ms, t_e_ms, cf_busy_ms)` exactly as in M4 (line 1014, synthetic jobs only). Admit on pass; increment `n_drop_la` and continue on failure. Do not move this check to shortlist construction or to the node-level eligibility filter.
+
+Gate F restricts which pre-selector-eligible candidates the selector may inspect, but it does not alter what happens to the selected allocation. The look-ahead outcome may vary across r values because different C_p,r shortlists lead to different selections and thus different look-ahead inputs; this is the intended sensitivity signal.
+
+**Shortlist construction happens fresh at every job arrival** from the current per-policy eligible set. Nodes are never permanently removed for the duration of a scenario.
 
 ### 4.6 r=1 negative control (strong)
 
-At r = 1.0 and |E_full,p| ≥ k for all policies: each policy's Gate F shortlist C_p,{1.0} contains exactly k feasible nodes. The selector has no choice discretion — it must place exactly those k nodes. Since E_full,p is produced by the M4 full-policy candidate-generation logic and all four policies start from identical state before any placements, the following holds **by induction**:
+At r = 1.0 and |A_full,p| ≥ k for all policies: each policy's Gate F shortlist C_p,{1.0} contains exactly k pre-selector-eligible nodes. The selector has no choice discretion — it must place exactly those k nodes. Since A_full,p is built from identical state and all four policies start from identical state before any placements, the following holds **by induction**:
 
-**Base case:** at the first job event, all four policies have identical replay state. Their E_full,p sets are therefore identical. All four receive the same k-node C_p,{1.0} and make the same k placements.
+**Base case:** at the first job event, all four policies have identical replay state. Their A_full,p sets are therefore identical. All four receive the same k-node C_p,{1.0} and make the same k placements.
 
-**Inductive step:** if all four policies have identical replay state before event t, they produce identical E_full,p at event t, receive the same k-node shortlist, make the same k placements, and arrive at identical state after event t.
+**Inductive step:** if all four policies have identical replay state before event t, they produce identical A_full,p at event t, receive the same k-node shortlist, make the same k placements, and `look_ahead_safe(selected, ...)` evaluates the same k-node allocation for all four — producing the same admit/drop outcome. All four arrive at identical state after event t.
 
-**Conclusion:** throughout an r = 1.0 replay, as long as each job is feasible (|E_full,p| ≥ k), all four policies select identical nodes at every event, their replay states evolve identically, and their raw lambda-row metrics are identical.
+**Conclusion:** throughout an r = 1.0 replay, as long as each job is pre-selector eligible (|A_full,p| ≥ k), all four policies select identical nodes at every event, their replay states evolve identically, and all post-selection outcomes (including look-ahead) are identical.
 
 **Assert on sc0–4 at r = 1.0:**
-- Identical selected node sets across all four policies at every feasible event.
+- Identical selected node sets across all four policies at every eligible event.
+- Identical look-ahead outcomes (admit / n_drop_la) across policies at every event.
 - Identical evolving synthetic occupancy and utilization state across policies.
 - Identical raw lambda-row metrics (capacity_unlock_pct, B/B_ref, S/S_ref, B_cab, drop counts).
 - Identical reconstructed crossings.
 
 If the inductive argument holds, this is a hard assertion, not an empirical check. A violation indicates an implementation bug (state divergence before the expected event, or policy-specific selection when |C_p,r| = k).
 
-**Unrestricted is the opposite endpoint:** C_p,{unr} = E_full,p — full feasible set exposed — which must reproduce M4 v3 exactly.
+**Unrestricted is the opposite endpoint:** C_p,{unr} = A_full,p — full pre-selector eligible set exposed to the selector — which, combined with the unchanged look-ahead check, must reproduce M4 v3 exactly.
 
 ---
 
@@ -289,9 +340,11 @@ Existing M4 drop categories (`n_drop_cap`, `n_drop_physical`, `n_drop_la`) are p
 
 **Gate F introduces no new drop categories.**
 
-Gate F intervenes after M4 feasibility (§4.1): every node in C_p,r is already feasible. Because |C_p,r| ≥ k whenever |E_full,p| ≥ k and r ≥ 1.0, the selector always receives at least k feasible candidates and Gate F cannot prevent a feasible placement.
+Gate F inserts at Stage 1½ (§4.0): between the M4 node-level eligibility filter and the policy selector. Every node in C_p,r has passed the node-level occupancy/cap filter. Because |C_p,r| ≥ k whenever |A_full,p| ≥ k and r ≥ 1.0, the selector always receives at least k pre-selector-eligible candidates and Gate F cannot prevent Stage 2 or Stage 3 from running.
 
-If |E_full,p| < k at any policy and event, that is an existing M4 failure condition, not a Gate F failure. Apply the existing M4 failure/drop/invariant semantics exactly and record the drop under the existing M4 category. Report `full_feasible_count` (|E_full,p|) as a per-event diagnostic field to confirm that shortfall is not Gate F-caused.
+If |A_full,p| < k at any policy and event, that is an existing M4 failure condition (`n_drop_cap` / `n_drop_phys`), not a Gate F failure. Apply the existing M4 drop semantics exactly and record under the existing M4 category. Report `full_selector_eligible_count` (|A_full,p|) as a per-event diagnostic field to confirm that shortfall is not Gate F-caused.
+
+`n_drop_la` continues to fire post-selection on the look-ahead check, exactly as in M4. Gate F does not alter this; it only changes which k-node allocation the selector produces.
 
 ---
 
@@ -337,15 +390,15 @@ Reuse the M4 lambda sweep: `[1.0, 1.06, 1.1, 1.15, 1.2, 1.3, 1.4, 1.5, 1.55, 1.6
 
 ### 8.2 Scenario structure
 
-For each scenario (sc), for each lambda, for each ratio r: run all four policies with the same nominal choice ratio r. Each (sc, lambda, r, policy) produces one row of metrics. Each policy operates on its own E_full,p (which may diverge across policies once occupancy states differ), but applies the same hash function and the same r to construct C_p,r from its own feasible set.
+For each scenario (sc), for each lambda, for each ratio r: run all four policies with the same nominal choice ratio r. Each (sc, lambda, r, policy) produces one row of metrics. Each policy operates on its own A_full,p (which may diverge across policies once occupancy states differ), but applies the same hash function and the same r to construct C_p,r from its own eligible set.
 
-The node priority for each (event, hostname) pair is fixed by `(scenario_seed, event_uid, hostname)` — it does not depend on lambda or choice ratio. Within a single replay run, the hash ordering at any event is stable across lambda values. However, because different r values lead to different placements at earlier events, E_full,p at a later event may differ across independently evolved ratio replays; runtime shortlists from separate ratio replays are not guaranteed to be nested. The priority function nonetheless provides common-random-number structure within each replay by keeping node ranks stable across lambda values.
+The node priority for each (event, hostname) pair is fixed by `(scenario_seed, event_uid, hostname)` — it does not depend on lambda or choice ratio. Within a single replay run, the hash ordering at any event is stable across lambda values. However, because different r values lead to different placements at earlier events, A_full,p at a later event may differ across independently evolved ratio replays; runtime shortlists from separate ratio replays are not guaranteed to be nested. The priority function nonetheless provides common-random-number structure within each replay by keeping node ranks stable across lambda values.
 
 ### 8.3 Output structure
 
 Per scenario, per ratio, per policy, per lambda:
 - All fields in M4 lambda_rows (capacity_unlock_pct, B_primary_ratio, etc.)
-- Additionally: `nominal_choice_ratio` (= r), `full_feasible_count` (= |E_full,p|, per-policy), `exposed_feasible_count` (= |C_p,r|, per-policy), `realized_feasible_choice_multiplier` (= |C_p,r|/k, per-policy)
+- Additionally: `nominal_choice_ratio` (= r), `full_selector_eligible_count` (= |A_full,p|, per-policy), `exposed_feasible_count` (= |C_p,r|, per-policy), `realized_feasible_choice_multiplier` (= |C_p,r|/k, per-policy)
 
 Per scenario, per ratio, per policy:
 - Reconstructed crossing (C_lower_pct, C_upper_pct, status, first_binding) via v3 capacity-order first-violation estimand.
@@ -373,7 +426,7 @@ Per ratio, per comparison pair:
 | `n_syn_admit` | Admitted synthetic jobs |
 | `n_drop_cap`, `n_drop_physical`, `n_drop_la` | Existing drop categories (unchanged from M4) |
 | `syn_node_hours` | Admitted synthetic node-hours |
-| `full_feasible_count_p10/p50/p90` | Per-policy distribution of |E_full,p| (feasible nodes before Gate F restriction) across jobs at this lambda |
+| `full_selector_eligible_count_p10/p50/p90` | Per-policy distribution of |A_full,p| (pre-selector eligible nodes before Gate F shortlist, not yet look-ahead-admitted) across jobs at this lambda |
 | `exposed_feasible_count_p10/p50/p90` | Per-policy distribution of |C_p,r| (feasible nodes exposed to selector) |
 | `realized_feasible_choice_multiplier_p10/p50/p90` | Per-policy distribution of |C_p,r|/k (true feasible-choice multiplier seen by the selector) |
 | `mean_F_syn` | Mean thermal fingerprint of admitted synthetic nodes |
@@ -468,7 +521,7 @@ The following six tests must exist in the test suite and pass before sc0–4 are
 
 **Test 3 — Single-node stability:** Given a fixed `full_eligible` set for event E, removing one node from `full_eligible` and recomputing leaves the relative hash-rank order of all remaining nodes unchanged.
 
-**Test 4 — Prefix nesting (fixed E_full):** Given one fixed `full_eligible` set with `|full_eligible| = 20` and `k = 4`, verify that shortlists computed at increasing r from the same `full_eligible` are nested prefixes of the same hash ordering:
+**Test 4 — Prefix nesting (fixed A_full):** Given one fixed `full_eligible` set with `|full_eligible| = 20` and `k = 4`, verify that shortlists computed at increasing r from the same `full_eligible` are nested prefixes of the same hash ordering:
 ```
 C_p_r(r=1.0)  ⊆  C_p_r(r=1.25)  ⊆  C_p_r(r=1.5)
               ⊆  C_p_r(r=2.0)   ⊆  C_p_r(r=4.0)
@@ -489,7 +542,7 @@ This catches duplicate base IDs, duplicate synthetic generation ordinals, and an
 ## 14. Implementation checklist (pre-run)
 
 - [ ] Unit tests 1–6 all pass (§13).
-- [ ] Fixed-E_full prefix-nesting unit test (Test 4) passes. Runtime ratio replays are allowed to have different E_full,p sets after their states diverge; runtime nesting across separately evolved ratio replays is not asserted.
+- [ ] Fixed-A_full prefix-nesting unit test (Test 4) passes. Runtime ratio replays are allowed to have different A_full,p sets after their states diverge; runtime nesting across separately evolved ratio replays is not asserted.
 - [ ] r=1 inductive negative-control assertion verified on sc0–4: all four policies select identical node sets at every feasible event, maintain identical evolving replay state, produce identical lambda-row metrics and reconstructed crossings. All five comparison curves are zero at r=1. Any deviation is treated as an implementation bug (§4.6).
 - [ ] At r=unrestricted, lambda rows for sc0–4 match M4 source files (metric-for-metric).
 - [ ] At r=unrestricted, reconstructed crossings for sc0–4 match M4 v3 scenario_rows.
