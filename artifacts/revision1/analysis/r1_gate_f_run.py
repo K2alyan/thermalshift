@@ -647,7 +647,7 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
         # Record selection digest for trace (only when collect_trace=True, i.e. r=1.0)
         if collect_trace:
             _tr_uid     = event_uid
-            _tr_sel_dig = hashlib.sha256(",".join(sorted(selected)).encode()).hexdigest()[:16]
+            _tr_sel_dig = hashlib.sha256(",".join(sorted(selected)).encode()).hexdigest()
             _tr_la_out  = None
 
         # ── Stage 3: look-ahead (synthetic only, unchanged from M4) ─────────
@@ -688,10 +688,16 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
                 cab_active_count[_nc] = cab_active_count.get(_nc, 0) + 1
 
         if collect_trace:
-            _tr_state_dig = hashlib.sha256(
-                str((len(available_set), len(cap_exceeded),
-                     len(cf_busy_active))).encode()
-            ).hexdigest()[:16]
+            # Full canonical placement-state: membership + utilization + cabinet counts.
+            # All mutable variables that affect future placement decisions at r=1.
+            _tr_state_canonical = repr((
+                tuple(sorted(available_set)),
+                tuple(sorted(cap_exceeded)),
+                tuple(sorted(cf_busy_ms.items())),
+                tuple(sorted(cf_util.items())),
+                tuple(sorted(cab_active_count.items())),
+            ))
+            _tr_state_dig = hashlib.sha256(_tr_state_canonical.encode()).hexdigest()
             _trace.append({"uid": _tr_uid, "sel_dig": _tr_sel_dig,
                             "la_out": _tr_la_out, "state_dig": _tr_state_dig})
 
@@ -779,9 +785,45 @@ def compare_r1_traces(pol_traces: dict) -> dict:
     """
     Compare per-event digests across all 4 policies at a single (r, lambda).
     pol_traces: {policy_name: [{"uid", "sel_dig", "la_out", "state_dig"}, ...]}
-    Returns pass/fail counts and first divergence entries.
+
+    Hard assertions (any failure → overall_pass=False):
+    - event_presence_pass: union(uid_sets) == intersection(uid_sets)
+    - event_order_pass: all policies have the same ordered uid sequence
+    - event_uid_unique_pass: no duplicate uid within any policy trace
+    - sel_pass / la_pass / state_pass: digest agreement on events present in all policies
     """
     pols = list(pol_traces.keys())
+
+    # Per-policy ordered uid sequences and counts
+    pol_uid_seqs = {p: [e["uid"] for e in pol_traces[p]] for p in pols}
+    pol_counts   = {p: len(pol_uid_seqs[p]) for p in pols}
+
+    # Uniqueness: no dup uids within any policy
+    uid_unique_pass = all(len(seq) == len(set(seq)) for seq in pol_uid_seqs.values())
+
+    # Presence: every uid seen by at least one policy must be seen by all policies
+    uid_sets = [set(seq) for seq in pol_uid_seqs.values()]
+    uid_union        = set.union(*uid_sets)        if uid_sets else set()
+    uid_intersection = set.intersection(*uid_sets) if uid_sets else set()
+    presence_pass = (uid_union == uid_intersection)
+    missing_uids  = sorted(uid_union - uid_intersection)[:5]  # first 5 for diagnosis
+
+    # Order: all policies produce events in the same sequence
+    ref_seq    = pol_uid_seqs[pols[0]] if pols else []
+    order_pass = all(pol_uid_seqs[p] == ref_seq for p in pols)
+    first_order_divergence = None
+    if not order_pass:
+        for p in pols[1:]:
+            seq = pol_uid_seqs[p]
+            for i, (a, b) in enumerate(zip(ref_seq, seq)):
+                if a != b:
+                    first_order_divergence = {
+                        "event_idx": i, pols[0]: a, p: b}
+                    break
+            if first_order_divergence:
+                break
+
+    # Per-event digest comparison (only for events present in ALL policies)
     by_uid: dict[str, dict] = {}
     for pol, entries in pol_traces.items():
         for e in entries:
@@ -789,16 +831,24 @@ def compare_r1_traces(pol_traces: dict) -> dict:
 
     n_all = sum(1 for v in by_uid.values() if len(v) == len(pols))
     n_sel = n_la_chk = n_la = n_st_chk = n_st = 0
-    first_sel = first_la = first_st = None
+    first_sel = first_la = first_st = first_missing = None
 
     for uid, ents in by_uid.items():
         if len(ents) < len(pols):
+            if first_missing is None:
+                first_missing = {
+                    "uid"         : uid,
+                    "present_in"  : sorted(ents.keys()),
+                    "missing_from": [p for p in pols if p not in ents],
+                }
             continue
+
         sds = [ents[p]["sel_dig"] for p in pols]
         if len(set(sds)) == 1:
             n_sel += 1
         elif first_sel is None:
             first_sel = {"uid": uid, "sel_digs": {p: ents[p]["sel_dig"] for p in pols}}
+
         las = [ents[p]["la_out"] for p in pols]
         if any(v is not None for v in las):
             n_la_chk += 1
@@ -806,6 +856,7 @@ def compare_r1_traces(pol_traces: dict) -> dict:
                 n_la += 1
             elif first_la is None:
                 first_la = {"uid": uid, "la_outs": {p: ents[p]["la_out"] for p in pols}}
+
         sts = [ents[p]["state_dig"] for p in pols if ents[p]["state_dig"] is not None]
         if sts:
             n_st_chk += 1
@@ -815,20 +866,35 @@ def compare_r1_traces(pol_traces: dict) -> dict:
                 first_st = {"uid": uid,
                             "state_digs": {p: ents[p]["state_dig"]
                                            for p in pols if ents[p]["state_dig"] is not None}}
+
+    digest_sel_pass   = (n_sel == n_all)
+    digest_la_pass    = (n_la  == n_la_chk)
+    digest_state_pass = (n_st  == n_st_chk)
+
     return {
-        "n_events_in_any_trace"    : len(by_uid),
-        "n_events_all_pols_present": n_all,
-        "n_sel_identical"          : n_sel,
-        "n_la_checked"             : n_la_chk,
-        "n_la_identical"           : n_la,
-        "n_state_checked"          : n_st_chk,
-        "n_state_identical"        : n_st,
-        "sel_pass"                 : n_sel == n_all,
-        "la_pass"                  : n_la == n_la_chk,
-        "state_pass"               : n_st == n_st_chk,
-        "first_sel_divergence"     : first_sel,
-        "first_la_divergence"      : first_la,
-        "first_state_divergence"   : first_st,
+        "pol_event_counts"           : pol_counts,
+        "n_events_in_any_trace"      : len(by_uid),
+        "n_events_all_pols_present"  : n_all,
+        "event_presence_pass"        : presence_pass,
+        "event_order_pass"           : order_pass,
+        "event_uid_unique_pass"      : uid_unique_pass,
+        "n_sel_identical"            : n_sel,
+        "n_la_checked"               : n_la_chk,
+        "n_la_identical"             : n_la,
+        "n_state_checked"            : n_st_chk,
+        "n_state_identical"          : n_st,
+        "sel_pass"                   : digest_sel_pass,
+        "la_pass"                    : digest_la_pass,
+        "state_pass"                 : digest_state_pass,
+        "overall_pass"               : (presence_pass and order_pass and uid_unique_pass
+                                        and digest_sel_pass and digest_la_pass
+                                        and digest_state_pass),
+        "first_missing_event"        : first_missing,
+        "missing_uids_sample"        : missing_uids,
+        "first_order_divergence"     : first_order_divergence,
+        "first_sel_divergence"       : first_sel,
+        "first_la_divergence"        : first_la,
+        "first_state_divergence"     : first_st,
     }
 
 
@@ -884,7 +950,8 @@ def classify_crossing(lambda_rows, b_ref_s, s_ref_s, b_cab_ref) -> dict:
             "first_binding_constraint": None, "right_censored": True}
 
 def refine_gate_f_bracket(cx, policy_name, policy_seed, job_perms, syn_pool,
-                           scen_seed, r, b_ref_s, s_ref_s, lambda_rows):
+                           scen_seed, r, b_ref_s, s_ref_s, lambda_rows,
+                           collect_trace: bool = False):
     if cx["status"] != "exact_bracket" or cx["C_upper_pct"] is None:
         return cx, []
     if (cx["C_upper_pct"] - cx["C_lower_pct"]) <= TARGET_PP:
@@ -920,7 +987,8 @@ def refine_gate_f_bracket(cx, policy_name, policy_seed, job_perms, syn_pool,
             lam_pt  = 1.0 + n_pt / n_base
             try:
                 res = capacity_replay_gate_f(syn_sub, policy_name, lam_pt,
-                                             policy_seed, job_perms, scen_seed, r)
+                                             policy_seed, job_perms, scen_seed, r,
+                                             collect_trace=collect_trace)
             except AssertionError:
                 res = {"lambda_val": lam_pt, "policy": policy_name,
                        "nominal_choice_ratio": r,
@@ -1047,13 +1115,19 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
                     syn_sub = syn_pool.iloc[:n_syn].copy()
                     try:
                         res = capacity_replay_gate_f(syn_sub, policy_name, lam_ext,
-                                                     pol_seed, job_perms, scen_seed, r)
+                                                     pol_seed, job_perms, scen_seed, r,
+                                                     collect_trace=do_trace)
                     except AssertionError as exc:
                         res = {"lambda_val": lam_ext, "policy": policy_name,
                                "nominal_choice_ratio": r, "invariant_violated": True,
                                "capacity_unlock_pct": n_syn / n_base * 100.0,
                                "B_primary_h": float("nan"), "S_primary_Cdoth": float("nan"),
                                "B_cab_ratio": float("nan"), "syn_node_hours": 0.0}
+                    if do_trace:
+                        _lk = str(round(lam_ext, 10))
+                        _r1_pol_traces[policy_name][_lk] = res.pop("r1_trace", None) or []
+                    elif "r1_trace" in res:
+                        del res["r1_trace"]
                     res["lambda_val"] = lam_ext
                     rows.append(res)
                     cx = classify_crossing(rows, B_ref_s, S_ref_s, B_cab_hist)
@@ -1068,7 +1142,14 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
                 if gap > TARGET_PP:
                     cx, extra = refine_gate_f_bracket(
                         cx, policy_name, pol_seed, job_perms, syn_pool,
-                        scen_seed, r, B_ref_s, S_ref_s, rows)
+                        scen_seed, r, B_ref_s, S_ref_s, rows,
+                        collect_trace=do_trace)
+                    for _erow in extra:
+                        if do_trace:
+                            _lk = str(round(_erow.get("lambda_val", 0.0), 10))
+                            _r1_pol_traces[policy_name][_lk] = _erow.pop("r1_trace", None) or []
+                        elif "r1_trace" in _erow:
+                            del _erow["r1_trace"]
                     rows.extend(extra)
 
             ratio_results[rl][policy_name] = {
@@ -1083,26 +1164,33 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
 
         # ── r=1 trace comparison (GATE_F_TRACE_R1=1 only) ────────────────
         if do_trace and _r1_pol_traces:
+            # Derive the saved lambda keys from the first policy's lambda_rows
+            _saved_lam_keys = set(
+                str(round(row["lambda_val"], 10))
+                for row in ratio_results[rl][GATE_F_POLICIES[0]]["lambda_rows"]
+                if row.get("lambda_val") is not None
+            )
+            # Compare per-lambda across all policies
             _all_lam_keys = sorted(set(k for t in _r1_pol_traces.values() for k in t))
             _lam_cmp: dict[str, dict] = {}
             for _lk in _all_lam_keys:
                 _lam_pol_traces = {p: _r1_pol_traces[p].get(_lk, []) for p in GATE_F_POLICIES}
                 _lam_cmp[_lk] = compare_r1_traces(_lam_pol_traces)
-            _agg_sel   = all(v["sel_pass"]   for v in _lam_cmp.values())
-            _agg_la    = all(v["la_pass"]    for v in _lam_cmp.values())
-            _agg_state = all(v["state_pass"] for v in _lam_cmp.values())
+            _coverage_pass = _saved_lam_keys == set(_all_lam_keys)
+            _agg_overall   = all(v["overall_pass"] for v in _lam_cmp.values())
             _trace_cmp = {
-                "enabled"     : True,
-                "per_lambda"  : _lam_cmp,
-                "sel_pass"    : _agg_sel,
-                "la_pass"     : _agg_la,
-                "state_pass"  : _agg_state,
-                "overall_pass": _agg_sel and _agg_la and _agg_state,
+                "enabled"              : True,
+                "per_lambda"           : _lam_cmp,
+                "lambda_coverage_pass" : _coverage_pass,
+                "saved_lambda_keys"    : sorted(_saved_lam_keys),
+                "traced_lambda_keys"   : sorted(_all_lam_keys),
+                "overall_pass"         : _coverage_pass and _agg_overall,
             }
             ratio_results[rl]["r1_trace_comparison"] = _trace_cmp
             _tc_str = "PASS" if _trace_cmp["overall_pass"] else "FAIL"
             print(f"  r1_trace_comparison: {_tc_str}  "
-                  f"(sel={_agg_sel} la={_agg_la} state={_agg_state})")
+                  f"(coverage={_coverage_pass}  "
+                  f"per_lambda_all_pass={_agg_overall})")
 
     # ── r=1 inductive negative-control assertion (§4.6) ──────────────────
     r1_key = "1.0"

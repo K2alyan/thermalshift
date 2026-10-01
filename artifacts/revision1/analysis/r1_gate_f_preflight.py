@@ -888,18 +888,22 @@ def r1_lambda_rows_identical(gf_r1_sc0: dict) -> dict:
                     continue
                 try:
                     a, b = float(v0), float(vp)
-                    diff  = abs(a - b)
-                    scale = max(abs(a), abs(b), 1.0)
-                    tol   = max(8 * np.spacing(scale), 1e-12)
-                    field_max_diff[f] = max(field_max_diff[f], diff)
-                    field_max_tol[f]  = max(field_max_tol[f], tol)
-                    if not fp_equivalent(a, b):
-                        field_fp_pass[f] = False
-                        float_mismatches.append({"pol": pol, "lam": lam, "field": f,
-                                                 "ref": v0, "got": vp,
-                                                 "diff": diff, "tol": tol})
-                except (TypeError, ValueError):
-                    pass
+                except (TypeError, ValueError) as _conv_err:
+                    field_fp_pass[f] = False
+                    float_mismatches.append({"pol": pol, "lam": lam, "field": f,
+                                             "ref": v0, "got": vp,
+                                             "reason": f"conversion_error: {_conv_err}"})
+                    continue
+                diff  = abs(a - b)
+                scale = max(abs(a), abs(b), 1.0)
+                tol   = max(8 * np.spacing(scale), 1e-12)
+                field_max_diff[f] = max(field_max_diff[f], diff)
+                field_max_tol[f]  = max(field_max_tol[f], tol)
+                if not fp_equivalent(a, b):
+                    field_fp_pass[f] = False
+                    float_mismatches.append({"pol": pol, "lam": lam, "field": f,
+                                             "ref": v0, "got": vp,
+                                             "diff": diff, "tol": tol})
 
     counts_identical      = len(count_mismatches) == 0
     floats_fp_equivalent  = all(field_fp_pass.values())
