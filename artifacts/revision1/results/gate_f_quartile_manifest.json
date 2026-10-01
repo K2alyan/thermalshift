@@ -1,0 +1,51 @@
+{
+  "freeze_head": "5003033f909d072661778769055d46c42a1acba3",
+  "frozen_by": "r1_gate_f_quartile_freeze.py",
+  "quartile_definition_variable": "k (n_cohort: cohort node count per base test job)",
+  "quartile_count": 4,
+  "boundary_convention": "np.digitize(k, [q25_cut, q50_cut, q75_cut], right=False) + 1, clipped to [1,4]. Q1: k < q25_cut; Q2: q25_cut <= k < q50_cut; Q3: q50_cut <= k < q75_cut; Q4: k >= q75_cut. Left-closed, right-open for Q1\u2013Q3; Q4 is left-closed only.",
+  "cuts": {
+    "q25": 5.0,
+    "q50": 10.0,
+    "q75": 27.0
+  },
+  "quartile_bins": {
+    "1": {
+      "n_jobs": 587,
+      "k_min": 1,
+      "k_max": 4
+    },
+    "2": {
+      "n_jobs": 660,
+      "k_min": 5,
+      "k_max": 9
+    },
+    "3": {
+      "n_jobs": 718,
+      "k_min": 10,
+      "k_max": 26
+    },
+    "4": {
+      "n_jobs": 672,
+      "k_min": 27,
+      "k_max": 230
+    }
+  },
+  "n_base_jobs_total": 2637,
+  "k_global_min": 1,
+  "k_global_max": 230,
+  "frozen_diagnostic_fields": [
+    "attempted",
+    "admitted",
+    "drop_cap",
+    "drop_physical",
+    "drop_la",
+    "admission_fraction",
+    "realized_selector_choice_multiplier"
+  ],
+  "instrumentation_only_confirmed": true,
+  "instrumentation_only_note": "q_admit, q_drop, and all strat_* dicts are written AFTER placement decisions are committed (Stages 1\u20133 complete). They are never read by candidate construction, policy selection, look_ahead_safe, utilization state, thermal/exposure accounting, cabinet accounting, or classify_crossing. Quartile stratification is descriptive diagnostics only. No quartile-specific C_lower/C_upper crossings are defined (GATE_F_DESIGN \u00a79).",
+  "frontier_parquet_sha256": "e7a8213889a3847d8335bd346129bd8f731b7f6dd0153ffda4563e16b25aa4a3",
+  "frontier_parquet_path": "C:\\Users\\kalya\\Downloads\\frontier-completed-job-info.parquet",
+  "phase1_test_set_path": "C:\\Users\\kalya\\thermalops\\artifacts\\phase1\\analysis\\phase3a_test_set.parquet"
+}
