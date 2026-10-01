@@ -445,26 +445,37 @@ for comp_name, pol_A, pol_B, m4_key in COMPARISONS:
     m4_sc_rows = {r["scenario_idx"]: r for r in m4_comp["scenario_rows"]}
 
     # ── Reference completeness guard ──────────────────────────────────────────
-    n_ref_expected = len(AUTHORITATIVE_SCENARIOS)
-    n_ref_observed = sum(1 for sc in AUTHORITATIVE_SCENARIOS if sc in m4_sc_rows)
-    ref_complete   = (n_ref_observed == n_ref_expected)
+    # The corrected M4 reference has 30 rows for fp/loc comparisons (sc0–sc29)
+    # and 25 rows for spread comparisons (sc5–sc29). The guard requires that all
+    # held-out scenarios sc5–sc29 are present exactly once. Extra development
+    # rows (sc0–sc4) in the reference are allowed and excluded from verification.
+    heldout_set       = set(HELDOUT_SCENARIOS)          # always sc5–sc29
+    scenario_ids      = [r["scenario_idx"] for r in m4_comp["scenario_rows"]]
+    n_total_rows      = len(scenario_ids)
+    # Held-out coverage (computed unconditionally for reporting)
+    heldout_ids_found = [sid for sid in scenario_ids if sid in heldout_set]
+    n_ref_observed    = len(heldout_ids_found)
+    ref_complete      = (n_ref_observed == N)           # N = 25
 
     if not DRY_RUN:
-        # Held-out: all 25 reference rows must be present and the set must be exact.
-        expected_set = set(AUTHORITATIVE_SCENARIOS)   # sc5–sc29
-        actual_set   = set(m4_sc_rows.keys())
-        missing_refs = sorted(expected_set - actual_set)
-        extra_refs   = sorted(actual_set   - expected_set)
+        # Duplicate check: no scenario_idx may appear more than once.
+        _seen: dict = {}
+        for sid in scenario_ids:
+            _seen[sid] = _seen.get(sid, 0) + 1
+        dups = sorted(sid for sid, cnt in _seen.items() if cnt > 1)
+        if dups:
+            fail(f"Duplicate scenario_idx in M4 reference for '{m4_key}': {dups}")
+        # Missing held-out check: every sc5–sc29 must appear.
+        missing_refs = sorted(heldout_set - set(scenario_ids))
         if missing_refs:
-            fail(f"M4 reference missing {len(missing_refs)} scenario(s) for "
-                 f"'{m4_key}': {missing_refs}. "
-                 f"Expected exactly {n_ref_expected} rows (sc5–sc29).")
-        if extra_refs:
-            fail(f"M4 reference has {len(extra_refs)} unexpected scenario(s) for "
-                 f"'{m4_key}': {extra_refs}. "
-                 f"Expected exactly sc5–sc29.")
-        assert ref_complete, (
-            f"Internal: completeness mismatch post-check for {m4_key}")
+            fail(f"M4 reference missing {len(missing_refs)} held-out scenario(s) "
+                 f"for '{m4_key}': {missing_refs}.  Required: sc5–sc29.")
+        # Build verified held-out subset.
+        heldout_rows = [r for r in m4_comp["scenario_rows"]
+                        if r["scenario_idx"] in heldout_set]
+        assert len(heldout_rows) == N
+        assert {r["scenario_idx"] for r in heldout_rows} == heldout_set
+        assert ref_complete, f"Internal: completeness mismatch for {m4_key}"
 
     max_diff_lo = 0.0
     max_diff_hi = 0.0
@@ -478,7 +489,8 @@ for comp_name, pol_A, pol_B, m4_key in COMPARISONS:
                 # the M4 corrected reference. Silently skip in dry-run only.
                 continue
             else:
-                # Unreachable after the completeness assertion above.
+                # Unreachable: completeness assertion guarantees all sc5–sc29
+                # are in m4_sc_rows and AUTHORITATIVE_SCENARIOS == HELDOUT_SCENARIOS.
                 fail(f"Internal: sc={sc_idx} missing from '{m4_key}' "
                      f"after completeness check passed")
 
@@ -505,22 +517,23 @@ for comp_name, pol_A, pol_B, m4_key in COMPARISONS:
     status = "PASS" if not cell_errors else "FAIL"
     if cell_errors:
         unr_verify_pass = False
-    ref_status = "COMPLETE" if ref_complete else "INCOMPLETE (dry-run gap)"
-    print(f"  {comp_name}: ref={n_ref_observed}/{n_ref_expected}  "
+    ref_label = "COMPLETE" if ref_complete else "INCOMPLETE (dry-run gap)"
+    print(f"  {comp_name}: heldout_ref={n_ref_observed}/{N}  total_ref={n_total_rows}  "
           f"max_diff_lo={max_diff_lo:.2e}pp  max_diff_hi={max_diff_hi:.2e}pp  "
-          f"=> {status}  [{ref_status}]")
+          f"=> {status}  [{ref_label}]")
     for ce in cell_errors[:5]:
         print(f"    ERROR: {ce}", file=sys.stderr)
 
     m4_verify_results[comp_name] = {
-        "m4_key"                  : m4_key,
-        "expected_reference_rows" : n_ref_expected,
-        "observed_reference_rows" : n_ref_observed,
-        "reference_completeness_pass": ref_complete,
-        "max_diff_lo_pp"          : max_diff_lo,
-        "max_diff_hi_pp"          : max_diff_hi,
-        "pass"                    : not cell_errors,
-        "errors"                  : cell_errors,
+        "m4_key"                       : m4_key,
+        "expected_reference_rows"      : N,
+        "observed_heldout_reference_rows": n_ref_observed,
+        "total_reference_rows"         : n_total_rows,
+        "reference_completeness_pass"  : ref_complete,
+        "max_diff_lo_pp"               : max_diff_lo,
+        "max_diff_hi_pp"               : max_diff_hi,
+        "pass"                         : not cell_errors,
+        "errors"                       : cell_errors,
     }
 
 if not unr_verify_pass:
