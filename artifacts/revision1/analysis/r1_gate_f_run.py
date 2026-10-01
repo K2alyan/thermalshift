@@ -71,8 +71,13 @@ GATE_F_ALG = {   # full policy name -> base algorithm name
 N_DEV         = int(os.environ.get("GATE_F_N_DEV", "5"))    # sc0-N_DEV-1
 N_FIRST       = int(os.environ.get("GATE_F_N_FIRST", "0"))  # start at scenario N_FIRST
 
-OUT_FILE  = OUT_DIR / "gate_f_dev_results.json"
-PREF_FILE = OUT_DIR / "gate_f_preflight.json"
+# Output filename encodes scenario range and ratio subset so partial runs never
+# overwrite each other (e.g. step-2 unrestricted-sc0 vs step-3 r1-sc0).
+_scen_tag  = f"sc{N_FIRST}-{N_FIRST + N_DEV - 1}"
+_ratio_tag = (_ENV_RATIOS.replace(",", "_").replace(".", "p").replace("unrestricted", "unr")
+              if _ENV_RATIOS else "all")
+OUT_FILE   = OUT_DIR / f"gate_f_{_scen_tag}_{_ratio_tag}.json"
+PREF_FILE  = OUT_DIR / "gate_f_preflight.json"
 
 # ── Utilities ──────────────────────────────────────────────────────────────────
 def jf(v):

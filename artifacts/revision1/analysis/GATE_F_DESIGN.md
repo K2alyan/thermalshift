@@ -9,6 +9,7 @@
 **Amended:** 2026-09-30 — Consistency cleanup only. §3 formula corrected to per-policy m_p,r; n_available removed. §4.2 nesting and cross-policy-identity bullets qualified. §4.4 nesting claim qualified (fixed E_full,p only). §8.2 CRN claim qualified. Tests 3–4 use full_eligible/E_full,p. §14 checklist: runtime nesting assertion removed.
 **Amended:** 2026-09-30 — Pre-implementation inspection. M4 call graph confirmed (r1_m4_fair_baselines.py): look_ahead_safe() is allocation-level, post-selection, synthetic-only. E_full,p renamed A_full,p (pre-selector eligible set, not post-look-ahead). full_feasible_count renamed full_selector_eligible_count. Gate F wrapper order corrected to preserve post-selection look-ahead unchanged.
 **Amended:** 2026-09-30 — Base-job Stage 1 path inspected and documented. bg_busy source differs by job type (fleet-wide for synthetic, per-job for base). Base jobs fall back to uncapped set when capped set < k (no drop); synthetic jobs drop. Marginal-mode base jobs bypass selector; Gate F does not apply. exposed_feasible_count -> exposed_selector_eligible_count; realized_feasible_choice_multiplier -> realized_selector_choice_multiplier.
+**Amended:** 2026-09-30 — Corrected r=1 pairwise-interval assertion. delta_lo = C_lower_A - C_upper_B; for identical policies with interval [L,U] this gives delta_lo = L - U ≤ 0, not zero. Removed incorrect "all five curves collapse to zero at r=1" claim from §4.6, §6, §11, §14. Correct assertion: all pairwise verdicts indistinguishable, delta_lo = -(delta_hi) within tolerance.
 **Status:** Approved for implementation
 
 ---
@@ -339,9 +340,13 @@ At r = 1.0 and |A_full,p| ≥ k for all policies: each policy's Gate F shortlist
 - Identical look-ahead outcomes (admit / n_drop_la) across policies at every event.
 - Identical evolving synthetic occupancy and utilization state across policies.
 - Identical raw lambda-row metrics (capacity_unlock_pct, B/B_ref, S/S_ref, B_cab, drop counts).
-- Identical reconstructed crossings.
+- Identical reconstructed crossing intervals [C_lower, C_upper] across all four policies.
+- All five pairwise verdicts == `indistinguishable`.
+- For each pair (A, B) with identical crossing interval [L, U]: `delta_lo = L − U` (≤ 0) and `delta_hi = U − L` (≥ 0) and `delta_lo = −delta_hi` within floating-point tolerance.
 
-If the inductive argument holds, this is a hard assertion, not an empirical check. A violation indicates an implementation bug (state divergence before the expected event, or policy-specific selection when |C_p,r| = k).
+**Do not assert delta_lo == 0.** The interval comparison formula `delta_lo = C_lower_A − C_upper_B` gives a negative value whenever the identical crossing bracket has non-zero width, regardless of how close L and U are. That is the correct conservative interval result; the negative value is not an error.
+
+If the inductive argument holds, this is a hard assertion, not an empirical check. A violation of state identity or a non-indistinguishable verdict indicates an implementation bug (state divergence before the expected event, or policy-specific selection when |C_p,r| = k).
 
 **Unrestricted is the opposite endpoint:** C_p,{unr} = A_full,p — full pre-selector eligible set exposed to the selector — which, combined with the unchanged look-ahead check, must reproduce M4 v3 exactly.
 
@@ -383,7 +388,7 @@ Before running any restricted ratios or looking at held-out results, the impleme
 | Reconstructed crossings | Capacity-order first-violation (v3 estimand) applied to new lambda_rows produces same C_lower and C_upper as `m4_canonical_comparisons_v3.json` scenario_rows |
 | C_lower ≤ C_upper | 0 violations across all reconstructed crossings |
 | Right-censored | 0 unexpected right-censored crossings |
-| r=1 inductive negative-control assertion | At r = 1.0 on sc0–4: all four policies must select identical node sets at every feasible event, maintain identical evolving replay state, and produce identical lambda-row metrics and reconstructed crossings throughout the replay. Any deviation is an implementation bug (see §4.6). |
+| r=1 inductive negative-control assertion | At r = 1.0 on sc0–4: all four policies must select identical node sets at every feasible event, maintain identical evolving replay state, produce identical lambda-row metrics and reconstructed crossing intervals [C_lower, C_upper]. All five pairwise verdicts must be `indistinguishable`. For identical intervals [L,U]: assert `delta_lo = L − U`, `delta_hi = U − L`, `delta_lo = −delta_hi` (within tolerance). Do not assert `delta_lo == 0`. Any non-indistinguishable verdict or state divergence is an implementation bug (see §4.6). |
 
 If any check fails, stop. Fix the implementation before looking at sc5–29 or running restricted ratios.
 
@@ -514,7 +519,9 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 **Annotations:**
 - Shaded 95% bootstrap CI band on each curve.
 - Horizontal dashed line at delta_lo = 0.
-- Vertical dashed line at r = 1.0 with annotation "hard negative-control assertion (§4.6): all policies identical". As established in §4.6, at r = 1.0 all four policies select identical nodes throughout the replay (by induction); all five comparison curves must collapse to zero at r = 1.0. Any non-zero deviation at r = 1.0 is a hard assertion failure indicating an implementation bug, not a scientific finding.
+- Vertical dashed line at r = 1.0 with annotation: "hard negative control (§4.6): policy trajectories and crossing intervals identical; all pairwise verdicts indistinguishable."
+  - Because `delta_lo = C_lower_A − C_upper_B` and the four policies are identical at r=1 with crossing interval [L,U], each curve's r=1 value is `L − U` (generally < 0), not zero. The curves do **not** collapse to zero — they sit below zero by the crossing-bracket width. This is the correct conservative interval outcome, not an error.
+  - The hard assertion is: identical state and crossing intervals across all four policies; all five pairwise verdicts indistinguishable. Any non-indistinguishable verdict at r=1.0 is an implementation bug.
 - Right endpoint reproduces M4 v3 held-out results.
 
 **Secondary figure (optional):** same axes but y = n_definitely_A / n (fraction of definite wins), for the same 5 pairs.
@@ -564,7 +571,7 @@ This catches duplicate base IDs, duplicate synthetic generation ordinals, and an
 
 - [ ] Unit tests 1–6 all pass (§13).
 - [ ] Fixed-A_full prefix-nesting unit test (Test 4) passes. Runtime ratio replays are allowed to have different A_full,p sets after their states diverge; runtime nesting across separately evolved ratio replays is not asserted.
-- [ ] r=1 inductive negative-control assertion verified on sc0–4: all four policies select identical node sets at every feasible event, maintain identical evolving replay state, produce identical lambda-row metrics and reconstructed crossings. All five comparison curves are zero at r=1. Any deviation is treated as an implementation bug (§4.6).
+- [ ] r=1 inductive negative-control assertion verified on sc0–4: all four policies select identical node sets at every feasible event, maintain identical evolving replay state, produce identical lambda-row metrics and reconstructed crossing intervals [C_lower, C_upper]. All five pairwise verdicts are `indistinguishable`. For identical intervals [L,U]: `delta_lo = L − U` (≤ 0), `delta_hi = U − L` (≥ 0), `delta_lo = −delta_hi` within tolerance. (Do not assert delta_lo == 0.) Any non-indistinguishable verdict is treated as an implementation bug (§4.6).
 - [ ] At r=unrestricted, lambda rows for sc0–4 match M4 source files (metric-for-metric).
 - [ ] At r=unrestricted, reconstructed crossings for sc0–4 match M4 v3 scenario_rows.
 - [ ] 0 C_lower > C_upper post-reconstruction.
