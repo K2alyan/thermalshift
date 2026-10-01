@@ -68,7 +68,8 @@ GATE_F_ALG = {   # full policy name -> base algorithm name
     "full_loc"       : "loc",
     "full_fp_spread" : "fp_spread",
 }
-GATE_F_TRACE_R1 = int(os.environ.get("GATE_F_TRACE_R1", "0"))
+GATE_F_TRACE_R1          = int(os.environ.get("GATE_F_TRACE_R1", "0"))
+GATE_F_REQUIRE_CLEAN_GIT = int(os.environ.get("GATE_F_REQUIRE_CLEAN_GIT", "0"))
 N_DEV         = int(os.environ.get("GATE_F_N_DEV", "5"))    # sc0-N_DEV-1
 N_FIRST       = int(os.environ.get("GATE_F_N_FIRST", "0"))  # start at scenario N_FIRST
 
@@ -102,17 +103,30 @@ def pctile(vals, p):
     if not vals: return None
     return float(np.percentile(vals, p))
 
-def _git_head() -> str:
+def _git_provenance() -> dict:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=str(REPO_ROOT), text=True).strip()
+        full  = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=str(REPO_ROOT), text=True).strip()
+        short = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"], cwd=str(REPO_ROOT), text=True).strip()
+        dirty = bool(subprocess.check_output(
+            ["git", "status", "--porcelain"], cwd=str(REPO_ROOT), text=True).strip())
     except Exception:
-        return "unknown"
+        full = short = "unknown"; dirty = None
+    return {"git_commit_full": full, "git_commit_short": short, "git_dirty": dirty}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # DATA LOADING — identical to r1_m4_fair_baselines.py / canonical scripts
 # ══════════════════════════════════════════════════════════════════════════════
+# ── Provenance (captured before data loading so dirty-check fires early) ──────
+_PROV = _git_provenance()
+if GATE_F_REQUIRE_CLEAN_GIT and _PROV.get("git_dirty"):
+    sys.exit(
+        f"GATE_F_REQUIRE_CLEAN_GIT=1 but working tree is dirty "
+        f"(HEAD={_PROV['git_commit_short']}). "
+        f"Commit or stash all changes before running held-out scenarios."
+    )
+
 print("\nGate F: Dynamic Feasible-Choice Sensitivity")
 print("=" * 70)
 t_script = time.time()
@@ -391,9 +405,12 @@ def sample_synthetic_pool(n_extra: int, seed: int) -> pd.DataFrame:
     syn["end_time"]       = syn["start_time"] + pd.to_timedelta(syn["run_time"].values, unit="s")
     syn["is_synthetic"]   = True
     syn["parent_job_idx"] = syn["job_idx"].values.copy()
-    syn["job_idx"]        = -(np.arange(len(syn), dtype=np.int64) + 1)
-    syn["alpha_j"]        = syn["parent_job_idx"].map(alpha_map)
+    syn["job_idx"]           = -(np.arange(len(syn), dtype=np.int64) + 1)
+    syn["alpha_j"]           = syn["parent_job_idx"].map(alpha_map)
+    syn["generation_ordinal"] = np.arange(len(syn), dtype=np.int64)
     syn = syn.sample(frac=1, random_state=int(rng_s.integers(0, 2**31))).reset_index(drop=True)
+    assert (syn["generation_ordinal"].values == -(syn["job_idx"].values + 1)).all(), \
+        "generation_ordinal invariant violated: jid must equal -(gen_ord + 1)"
     return syn
 
 def generate_job_perms(syn_pool: pd.DataFrame, scen_rng: np.random.Generator) -> dict:
@@ -528,6 +545,8 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
     _cppn    = np.where(combined["mean_power"].isna().values, 0.0,
                         combined["mean_power"].values.astype(float)) / _cnc
     _chist_nodes = combined["hist_nodes"].values
+    _cgen_ord = (combined["generation_ordinal"].values
+                 if "generation_ordinal" in combined.columns else None)
 
     cf_busy_ms: dict[str, int]  = {}
     cf_busy_active: set[str]    = set()
@@ -613,7 +632,8 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
                     _strat[_q][_drop_key]   += 1
                 q_drop[job_quartile.get(parent_jid, 4)] += 1
                 if collect_trace:
-                    _d_uid = f"syn:{scen_seed}:{abs(jid) - 1}"
+                    _gen_ord = int(_cgen_ord[_i]) if _cgen_ord is not None else abs(jid) - 1
+                    _d_uid = f"syn:{scen_seed}:{_gen_ord}"
                     _d_st  = hashlib.sha256(repr((
                         tuple(sorted(available_set)),
                         tuple(sorted(cap_exceeded)),
@@ -645,7 +665,8 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
             C_p_r = available
         else:
             if is_syn:
-                event_uid = f"syn:{scen_seed}:{abs(jid) - 1}"
+                _gen_ord = int(_cgen_ord[_i]) if _cgen_ord is not None else abs(jid) - 1
+                event_uid = f"syn:{scen_seed}:{_gen_ord}"
             else:
                 event_uid = f"base:{jid}"
             C_p_r = gate_f_shortlist(available, scen_seed, event_uid, r, k)
@@ -1297,7 +1318,9 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
 
 # ── Save results ────────────────────────────────────────────────────────────
 result = {
-    "git_head"        : _git_head(),
+    "git_commit_full" : _PROV["git_commit_full"],
+    "git_commit_short": _PROV["git_commit_short"],
+    "git_dirty"       : _PROV["git_dirty"],
     "script"          : "r1_gate_f_run.py",
     "n_dev"           : N_DEV,
     "n_first"         : N_FIRST,

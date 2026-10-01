@@ -79,13 +79,17 @@ POLICY_IDS = ["full_random", "full_fp", "full_loc", "full_compact",
               "marginal_random", "marginal_fp", "full_fp_spread"]
 
 
-def git_head() -> str:
+def git_provenance() -> dict:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=str(REPO_ROOT), text=True).strip()
+        full  = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=str(REPO_ROOT), text=True).strip()
+        short = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"], cwd=str(REPO_ROOT), text=True).strip()
+        dirty = bool(subprocess.check_output(
+            ["git", "status", "--porcelain"], cwd=str(REPO_ROOT), text=True).strip())
     except Exception:
-        return "unknown"
+        full = short = "unknown"; dirty = None
+    return {"git_commit_full": full, "git_commit_short": short, "git_dirty": dirty}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -555,13 +559,15 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
         combined["parent_job_idx"] = combined["job_idx"].values.copy()
     combined = combined.sort_values("start_time").reset_index(drop=True)
 
-    _cst_ms = _col_to_dt64ms(combined["start_time"]).astype(np.int64)
-    _cet_ms = _col_to_dt64ms(combined["end_time"]).astype(np.int64)
-    _crt_h  = combined["run_time"].fillna(0.0).values.astype(float) / 3600.0
-    _ck     = combined["n_cohort"].fillna(0).values.astype(int)
-    _cjid   = combined["job_idx"].values.astype(int)
-    _cpid   = combined["parent_job_idx"].values.astype(int)
-    _cissyn = combined["is_synthetic"].values.astype(bool)
+    _cst_ms  = _col_to_dt64ms(combined["start_time"]).astype(np.int64)
+    _cet_ms  = _col_to_dt64ms(combined["end_time"]).astype(np.int64)
+    _crt_h   = combined["run_time"].fillna(0.0).values.astype(float) / 3600.0
+    _ck      = combined["n_cohort"].fillna(0).values.astype(int)
+    _cjid    = combined["job_idx"].values.astype(int)
+    _cpid    = combined["parent_job_idx"].values.astype(int)
+    _cissyn  = combined["is_synthetic"].values.astype(bool)
+    _cgen_ord = (combined["generation_ordinal"].values
+                 if "generation_ordinal" in combined.columns else None)
 
     # Per-policy state
     PS = {}
@@ -622,7 +628,8 @@ def verify_r1_single_lambda(lam: float, syn_subset, scen_seed: int,
 
         # Pre-compute event_uid (needed for Stage-1 drops in count reconciliation)
         if is_syn:
-            event_uid = f"syn:{scen_seed}:{abs(jid)-1}"
+            _gen_ord = int(_cgen_ord[_i]) if _cgen_ord is not None else abs(jid) - 1
+            event_uid = f"syn:{scen_seed}:{_gen_ord}"
         else:
             event_uid = f"base:{jid}"
 
@@ -961,10 +968,10 @@ def r1_lambda_rows_identical(gf_r1_sc0: dict) -> dict:
 # ══════════════════════════════════════════════════════════════════════════════
 if __name__ == "__main__":
     t_main = time.time()
-    head   = git_head()
+    prov   = git_provenance()
     print("\nGate F Preflight Audit")
     print("=" * 70)
-    print(f"git HEAD: {head}")
+    print(f"git HEAD: {prov['git_commit_short']}  dirty={prov['git_dirty']}")
     print(f"date    : 2026-10-01")
 
     # ── Load reference JSONs ────────────────────────────────────────────────
@@ -974,13 +981,17 @@ if __name__ == "__main__":
         refs[fname] = json.load(open(OUT_DIR / fname))
     gf_unr   = json.load(open(OUT_DIR / "gate_f_sc0-0_unr.json"))
     gf_r1    = json.load(open(OUT_DIR / "gate_f_sc0-0_1p0.json"))
-    gf_unr_sc0 = gf_unr["scenario_results"][0]
-    _unr_commit = gf_unr.get("git_head", "unknown")
-    _r1_commit  = gf_r1.get("git_head", "unknown")
+    gf_unr_sc0  = gf_unr["scenario_results"][0]
+    _unr_commit = gf_unr.get("git_commit_short", gf_unr.get("git_head", "unknown"))
+    _unr_full   = gf_unr.get("git_commit_full",  "unknown")
+    _unr_dirty  = gf_unr.get("git_dirty",        None)
+    _r1_commit  = gf_r1.get("git_commit_short",  gf_r1.get("git_head",  "unknown"))
+    _r1_full    = gf_r1.get("git_commit_full",   "unknown")
+    _r1_dirty   = gf_r1.get("git_dirty",         None)
     print(f"  GF unrestricted: gate_f_sc0-0_unr.json "
-          f"(produced under commit {_unr_commit})")
+          f"(commit={_unr_commit}  dirty={_unr_dirty})")
     print(f"  GF r=1:          gate_f_sc0-0_1p0.json "
-          f"(produced under commit {_r1_commit})")
+          f"(commit={_r1_commit}  dirty={_r1_dirty})")
 
     # Derive lambda points from saved r=1 output (all points in the sweep)
     _r1_ref_rows = gf_r1["scenario_results"][0]["ratios"]["1.0"][GATE_F_POLICIES[0]]["lambda_rows"]
@@ -1033,9 +1044,15 @@ if __name__ == "__main__":
     audit_unr = {
         "artifact_type"    : "gate_f_preflight_unrestricted_sc0",
         "created_date"     : "2026-10-01",
-        "git_head_preflight_run" : head,
-        "git_commit_unrestricted_run": _unr_commit,
-        "git_commit_r1_run"          : _r1_commit,
+        "git_commit_short_preflight_run" : prov["git_commit_short"],
+        "git_commit_full_preflight_run"  : prov["git_commit_full"],
+        "git_dirty_preflight_run"        : prov["git_dirty"],
+        "git_commit_short_unrestricted_run": _unr_commit,
+        "git_commit_full_unrestricted_run" : _unr_full,
+        "git_dirty_unrestricted_run"       : _unr_dirty,
+        "git_commit_short_r1_run"          : _r1_commit,
+        "git_commit_full_r1_run"           : _r1_full,
+        "git_dirty_r1_run"                 : _r1_dirty,
         "source_files"     : {
             "gf_unrestricted" : "gate_f_sc0-0_unr.json",
             "gf_r1"           : "gate_f_sc0-0_1p0.json",
@@ -1265,11 +1282,17 @@ if __name__ == "__main__":
 
     # Save combined artifact
     audit_r1 = {
-        "artifact_type"                  : "gate_f_preflight_r1_sc0",
-        "created_date"                   : "2026-10-01",
-        "git_head_preflight_run"         : head,
-        "git_commit_unrestricted_run"    : _unr_commit,
-        "git_commit_r1_run"              : _r1_commit,
+        "artifact_type"                      : "gate_f_preflight_r1_sc0",
+        "created_date"                       : "2026-10-01",
+        "git_commit_short_preflight_run"     : prov["git_commit_short"],
+        "git_commit_full_preflight_run"      : prov["git_commit_full"],
+        "git_dirty_preflight_run"            : prov["git_dirty"],
+        "git_commit_short_unrestricted_run"  : _unr_commit,
+        "git_commit_full_unrestricted_run"   : _unr_full,
+        "git_dirty_unrestricted_run"         : _unr_dirty,
+        "git_commit_short_r1_run"            : _r1_commit,
+        "git_commit_full_r1_run"             : _r1_full,
+        "git_dirty_r1_run"                   : _r1_dirty,
         "source_files": {
             "gf_unrestricted": "gate_f_sc0-0_unr.json",
             "gf_r1"          : "gate_f_sc0-0_1p0.json",
