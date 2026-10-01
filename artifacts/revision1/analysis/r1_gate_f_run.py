@@ -845,6 +845,8 @@ def capacity_replay_gate_f(syn_subset, policy_name: str, lambda_val: float,
         "realized_selector_choice_mult_p10" : jf(pctile(gf_choice_mult, 10)),
         "realized_selector_choice_mult_p50" : jf(pctile(gf_choice_mult, 50)),
         "realized_selector_choice_mult_p90" : jf(pctile(gf_choice_mult, 90)),
+        "q_admit"              : dict(q_admit),
+        "q_drop"               : dict(q_drop),
         "invariant_violated"   : False,
         "r1_trace"             : _trace if collect_trace else None,
         "n_combined_events"    : len(combined) if collect_trace else None,
@@ -1022,6 +1024,7 @@ def check_infeasible(res: dict, b_ref_s: float, s_ref_s: float):
     return bool(violations), (violations[0] if violations else None)
 
 def classify_crossing(lambda_rows, b_ref_s, s_ref_s, b_cab_ref) -> dict:
+    # Annotate infeasibility on every row
     for r in lambda_rows:
         if r.get("invariant_violated"):
             r["infeasible"] = True; r["first_binding"] = "invariant_violated"; continue
@@ -1037,8 +1040,10 @@ def classify_crossing(lambda_rows, b_ref_s, s_ref_s, b_cab_ref) -> dict:
         if b_cab   > 1.0:                                 violations.append("B_cab_ratio")
         r["infeasible"] = bool(violations)
         r["first_binding"] = violations[0] if violations else None
+    # v3 frozen rule: sort by capacity_unlock_pct, find first infeasible in capacity order
+    sorted_rows = sorted(lambda_rows, key=lambda x: float(x.get("capacity_unlock_pct", 0)))
     last_feasible = None
-    for r in lambda_rows:
+    for r in sorted_rows:
         if not r["infeasible"]:
             last_feasible = r
         else:
@@ -1118,6 +1123,14 @@ def refine_gate_f_bracket(cx, policy_name, policy_seed, job_perms, syn_pool,
         else:
             if last_safe_pt is not None: n_safe, c_safe = last_safe_pt
             else: break
+    # Apply v3 capacity-ordered rule to ALL evaluated rows (initial lambda_rows + refine
+    # extra_rows) to guarantee C_lower <= C_upper even under simulation non-monotonicity.
+    all_rows = list(lambda_rows) + list(extra_rows)
+    cx_v3 = classify_crossing(all_rows, b_ref_s, s_ref_s, None)
+    if cx_v3["status"] == "exact_bracket":
+        c_safe   = cx_v3["C_lower_pct"]
+        c_unsafe = cx_v3["C_upper_pct"]
+        binding  = cx_v3["first_binding_constraint"] or binding
     print(f"      [refine] {policy_name} r={r}: [{c_safe:.2f},{c_unsafe:.2f}]%"
           f"  gap={c_unsafe-c_safe:.2f}pp  {len(extra_rows)} evals")
     return {"status": "exact_bracket", "C_lower_pct": c_safe, "C_upper_pct": c_unsafe,
