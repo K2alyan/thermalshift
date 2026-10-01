@@ -2,6 +2,7 @@
 
 **Date:** 2026-09-30
 **Amended:** 2026-09-30 — hash construction and event_uid frozen; unit tests specified
+**Amended:** 2026-09-30 — §4.6 no-choice control corrected; generation_ordinal frozen; terminology clarified
 **Status:** Approved for implementation
 
 ---
@@ -75,12 +76,18 @@ where `n_available` = policy-neutral cohort nodes not blocked by background load
 
 `unrestricted` sets m = n_available (no shortlist cap). This reproduces the M4 unrestricted replay exactly and is the preflight gate (§6).
 
-**Notation:**
-- *k* = job cohort node count (nodes required by the job)
-- *m* = shortlist size = min(ceil(r × k), n_available)
-- *actual choice ratio* = m / k (may be < r when n_available < ceil(r × k))
+**Terminology (frozen):**
 
-Report actual choice ratio (m/k) median alongside nominal r. A 2× nominal shortlist is only 2× actual if enough cohort nodes are available.
+| Term | Definition |
+|------|-----------|
+| *k* | Job cohort node count (nodes required) |
+| *m* | External shortlist size = min(ceil(r × k), n_available) |
+| `external_choice_multiplier` | Controlled quantity: m / k. This is what the experiment manipulates. |
+| `post_filter_eligible_multiplier` | Observed per-policy quantity: n_policy_eligible / k after endogenous filtering. Policy-specific; can differ across policies for the same event. |
+
+Do not describe `external_choice_multiplier` as the "realized feasible-choice ratio." After endogenous filtering, each policy has its own eligible set; two policies at the same nominal r can have different `post_filter_eligible_multiplier` values because their replay states have diverged. Report both quantities; do not conflate them.
+
+The primary x-axis uses `external_choice_multiplier` (controlled). Report `post_filter_eligible_multiplier` (per-policy, per-lambda, median across jobs) alongside it.
 
 ---
 
@@ -161,9 +168,11 @@ The NUL byte `0x00` separates `event_uid` from `hostname`. This is safe as long 
 | Job type | event_uid |
 |----------|-----------|
 | Base job | `base:<job_idx>` |
-| Synthetic job | `syn:<scenario_seed>:<synthetic_ordinal>` |
+| Synthetic job | `syn:<scenario_seed>:<generation_ordinal>` |
 
-where `synthetic_ordinal` is the zero-based index of the synthetic job in the deterministic sorted order of the complete synthetic workload for that scenario (sorted by start_time, then by stable synthetic identity). This ordering must be computed and locked before any policy replay begins.
+`generation_ordinal` is the zero-based index assigned to each synthetic event **at the moment the scenario's synthetic workload is generated**, in generation order, before any sorting by start_time or any policy replay. It is an immutable column on the synthetic workload table. Once assigned it does not change regardless of how the workload is later sorted, filtered, or replayed.
+
+Sorting the workload by start_time for scheduling purposes does not renumber the `generation_ordinal`. The uid is derived from the generation sequence, not from the scheduling sequence.
 
 ### 4.4 Shortlist construction (per job arrival)
 
@@ -199,7 +208,17 @@ Each policy receives the **same external shortlist** for ratio r at each job arr
 
 ### 4.6 No-choice negative control
 
-When m = k (r = 1.0, or when n_available ≤ k), every eligible node is the same for every policy (the shortlist has exactly k nodes, and all have the same endogenous eligibility by definition of the neutral pool). All four policies must select the same k nodes. Verify this assertion holds in the dev scenarios.
+When `n_available >= k` and r = 1.0, all four policies receive the same external shortlist of exactly *k* nodes.
+
+However, the external shortlist being identical does not imply that all four policies produce identical final selections. After earlier placements, each policy accumulates its own endogenous state (utilization caps, synthetic occupancy). A node that is endogenously eligible under Random may not be eligible under FP-spread at the same event, and vice versa. Divergence in final selections caused by policy-specific endogenous state is a valid experimental outcome and must be **recorded**, not treated as an implementation failure.
+
+**What is asserted:**
+
+1. All four policies receive the same *k*-node external shortlist (always required at r=1.0 with n_available ≥ k).
+2. For each policy individually: if all *k* shortlisted nodes are endogenously eligible under that policy, the policy must select exactly those *k* nodes (no policy-specific randomness can cause it to skip an eligible node when no other choice exists).
+3. Corollary: if all *k* nodes are eligible under all four policies simultaneously, all four selections must be identical. This is the "pure no-choice" case and should be tested explicitly.
+
+**What is not asserted:** that all four policies always select the same nodes at r=1.0. They may differ whenever their endogenous states have diverged.
 
 ---
 
@@ -230,7 +249,8 @@ Before running any restricted ratios or looking at held-out results, the impleme
 | Reconstructed crossings | Capacity-order first-violation (v3 estimand) applied to new lambda_rows produces same C_lower and C_upper as `m4_canonical_comparisons_v3.json` scenario_rows |
 | C_lower ≤ C_upper | 0 violations across all reconstructed crossings |
 | Right-censored | 0 unexpected right-censored crossings |
-| No-choice control | At r = 1.0, all four policies select identical node sets whenever shortlist has exactly k policy-neutral nodes |
+| No-choice control (shortlist identity) | At r = 1.0 with n_available ≥ k, all four policies receive the identical k-node external shortlist |
+| No-choice control (conditional selection) | At r = 1.0, any policy for which all k shortlisted nodes are endogenously eligible selects exactly those k nodes; when all four policies are in this state simultaneously their selections are identical |
 | Choice-constrained drops | 0 at r = unrestricted for all policies |
 
 If any check fails, stop. Fix the implementation before looking at sc5–29 or running restricted ratios.
@@ -265,7 +285,7 @@ For each scenario (sc), for each lambda, for each ratio r: run all four policies
 
 Per scenario, per ratio, per policy, per lambda:
 - All fields in M4 lambda_rows (capacity_unlock_pct, B_primary_ratio, etc.)
-- Additionally: `m_shortlist`, `m_eligible`, `actual_choice_ratio`, `n_drop_choice_constrained`
+- Additionally: `m_shortlist`, `external_choice_multiplier` (= m/k), `m_eligible`, `post_filter_eligible_multiplier` (= m_eligible/k), `n_drop_choice_constrained`
 
 Per scenario, per ratio, per policy:
 - Reconstructed crossing (C_lower_pct, C_upper_pct, status, first_binding) via v3 capacity-order first-violation estimand.
@@ -294,8 +314,9 @@ Per ratio, per comparison pair:
 | `n_drop_cap`, `n_drop_physical`, `n_drop_la` | Existing drop categories |
 | `n_drop_choice_constrained` | New: shortlist too small |
 | `syn_node_hours` | Admitted synthetic node-hours |
-| `m_shortlist_median` | Median shortlist size across jobs at this lambda |
-| `actual_choice_ratio_median` | Median m/k across jobs |
+| `m_shortlist_median` | Median shortlist size m across jobs at this lambda |
+| `external_choice_multiplier_median` | Median m/k (controlled); constant at nominal r unless n_available < ceil(r×k) |
+| `post_filter_eligible_multiplier_median` | Median n_policy_eligible/k (per-policy, observed after endogenous filtering) |
 | `mean_F_syn` | Mean thermal fingerprint of admitted synthetic nodes |
 | `loc_score_median` | Median location score of selected nodes |
 | `cab_span_median`, `cab_span_p90` | Cabinet span |
@@ -346,7 +367,7 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 
 ## 11. Primary figure specification
 
-**x-axis:** actual median feasible choice ratio (m/k), or equivalently nominal r, with r=1.0 at left and r=unrestricted at right.
+**x-axis:** `external_choice_multiplier` (controlled m/k), with r=1.0 at left and r=unrestricted at right. This is the manipulated quantity. Do not label it "realized feasible-choice ratio"; that conflates the controlled external shortlist with the policy-specific post-filter eligible set.
 
 **y-axis:** median conservative scheduling advantage, delta_lo (pp).
 
@@ -398,7 +419,11 @@ by set containment of the node lists at each ratio.
 
 **Test 5 — Cross-policy shortlist identity:** At a fixed (sc, lambda, ratio, event), all four policies receive byte-for-byte identical `candidate_shortlist` lists before endogenous filtering.
 
-**Test 6 — Synthetic uid uniqueness:** Generate a scenario's complete synthetic workload. Verify that no two synthetic events share the same `event_uid` (`syn:<scenario_seed>:<synthetic_ordinal>`), and that base and synthetic events never collide (`base:*` vs `syn:*` are disjoint namespaces by prefix).
+**Test 6 — Global event_uid uniqueness:** Generate a scenario's complete workload (base + synthetic). Assert:
+```python
+assert len(set(all_event_uids)) == len(all_event_uids)
+```
+This catches duplicate base IDs, duplicate synthetic generation ordinals, and any base/synthetic collision in a single check. The `base:` / `syn:` prefix namespaces make inter-type collisions impossible by construction, but the assertion is required regardless.
 
 ---
 
@@ -406,7 +431,8 @@ by set containment of the node lists at each ratio.
 
 - [ ] Unit tests 1–6 all pass (§13).
 - [ ] Nesting property verified in sc0 dev run at lambda=1.06: `C_{1.0} ⊆ ... ⊆ C_unrestricted`.
-- [ ] No-choice control assertion verified in sc0: at r=1.0, all four policies select same nodes.
+- [ ] No-choice shortlist identity verified in sc0: at r=1.0 with n_available ≥ k, all four policies receive identical k-node external shortlists.
+- [ ] Conditional selection-identity assertion passes in sc0: any policy for which all k shortlisted nodes are endogenously eligible selects exactly those k nodes; when this holds for all four policies simultaneously their selections are identical.
 - [ ] At r=unrestricted, lambda rows for sc0–4 match M4 source files (metric-for-metric).
 - [ ] At r=unrestricted, reconstructed crossings for sc0–4 match M4 v3 scenario_rows.
 - [ ] 0 choice-constrained drops at r=unrestricted.
