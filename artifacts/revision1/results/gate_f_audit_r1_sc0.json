@@ -1,0 +1,176 @@
+{
+  "artifact_type": "gate_f_preflight_r1_sc0",
+  "created_date": "2026-09-30",
+  "git_head_preflight_run": "89b3cfa",
+  "git_commit_unrestricted_run": "df4022c",
+  "git_commit_r1_run": "89b3cfa",
+  "source_files": {
+    "gf_unrestricted": "gate_f_dev_results.json",
+    "gf_r1": "gate_f_sc0-0_1p0.json"
+  },
+  "unrestricted_sc0_overall_pass": true,
+  "r1_sc0_event_level": {
+    "n_lambda_points_verified": 3,
+    "lambda_points": [
+      1.0,
+      1.06,
+      1.3
+    ],
+    "n_events_checked": 8666,
+    "n_events_selected_sets_identical": 8666,
+    "n_lookahead_events_checked": 755,
+    "n_lookahead_outcomes_identical": 755,
+    "n_state_snapshots_checked": 8860,
+    "n_state_snapshots_identical": 8860,
+    "raw_lambda_rows_identical": true,
+    "count_fields_identical": true,
+    "float_max_abs_diff_by_field": {
+      "capacity_unlock_pct": 0.0,
+      "B_primary_h": 0.0,
+      "S_primary_Cdoth": 9.094947017729282e-13,
+      "B_cab_ratio": 0.0,
+      "syn_node_hours": 0.0,
+      "B_primary_ratio": 0.0,
+      "S_primary_ratio": 2.220446049250313e-16
+    },
+    "float_diff_note": "S_primary_Cdoth \u00b11 ULP differences are expected: all policies select the same k-node SET at r=1 but in different orderings, so numpy's sequential sum produces different float rounding. Not a scientific deviation. Count fields (n_syn_admit, drops) are exactly identical.",
+    "crossing_intervals_identical": true,
+    "pairwise_verdicts_all_indistinguishable": true,
+    "delta_interval_symmetry_pass": true,
+    "event_level_all_pass": true,
+    "per_lambda_results": [
+      {
+        "lam": 1.0,
+        "n_combined_events": 2637,
+        "n_events_checked": 2637,
+        "n_events_selected_sets_identical": 2637,
+        "n_avail_sets_identical": 2637,
+        "n_lookahead_events_checked": 0,
+        "n_lookahead_outcomes_identical": 0,
+        "n_state_snapshots_checked": 2637,
+        "n_state_snapshots_identical": 2637,
+        "sel_pass": true,
+        "la_pass": true,
+        "state_pass": true,
+        "first_sel_divergence": null,
+        "first_la_divergence": null,
+        "first_state_divergence": null
+      },
+      {
+        "lam": 1.06,
+        "n_combined_events": 2795,
+        "n_events_checked": 2762,
+        "n_events_selected_sets_identical": 2762,
+        "n_avail_sets_identical": 2762,
+        "n_lookahead_events_checked": 125,
+        "n_lookahead_outcomes_identical": 125,
+        "n_state_snapshots_checked": 2795,
+        "n_state_snapshots_identical": 2795,
+        "sel_pass": true,
+        "la_pass": true,
+        "state_pass": true,
+        "first_sel_divergence": null,
+        "first_la_divergence": null,
+        "first_state_divergence": null
+      },
+      {
+        "lam": 1.3,
+        "n_combined_events": 3428,
+        "n_events_checked": 3267,
+        "n_events_selected_sets_identical": 3267,
+        "n_avail_sets_identical": 3267,
+        "n_lookahead_events_checked": 630,
+        "n_lookahead_outcomes_identical": 630,
+        "n_state_snapshots_checked": 3428,
+        "n_state_snapshots_identical": 3428,
+        "sel_pass": true,
+        "la_pass": true,
+        "state_pass": true,
+        "first_sel_divergence": null,
+        "first_la_divergence": null,
+        "first_state_divergence": null
+      }
+    ],
+    "pairwise_verdicts": {
+      "full_random_vs_full_fp": {
+        "verdict": "indistinguishable",
+        "delta_lo": -0.19391898924646023,
+        "delta_hi": 0.19391898924646023,
+        "delta_symmetry": true,
+        "C_lower_A": 0.2878712661140799,
+        "C_upper_A": 0.48179025536054015,
+        "C_lower_B": 0.2878712661140799,
+        "C_upper_B": 0.48179025536054015
+      },
+      "full_random_vs_full_loc": {
+        "verdict": "indistinguishable",
+        "delta_lo": -0.19391898924646023,
+        "delta_hi": 0.19391898924646023,
+        "delta_symmetry": true,
+        "C_lower_A": 0.2878712661140799,
+        "C_upper_A": 0.48179025536054015,
+        "C_lower_B": 0.2878712661140799,
+        "C_upper_B": 0.48179025536054015
+      },
+      "full_random_vs_full_fp_spread": {
+        "verdict": "indistinguishable",
+        "delta_lo": -0.19391898924646023,
+        "delta_hi": 0.19391898924646023,
+        "delta_symmetry": true,
+        "C_lower_A": 0.2878712661140799,
+        "C_upper_A": 0.48179025536054015,
+        "C_lower_B": 0.2878712661140799,
+        "C_upper_B": 0.48179025536054015
+      },
+      "full_fp_vs_full_loc": {
+        "verdict": "indistinguishable",
+        "delta_lo": -0.19391898924646023,
+        "delta_hi": 0.19391898924646023,
+        "delta_symmetry": true,
+        "C_lower_A": 0.2878712661140799,
+        "C_upper_A": 0.48179025536054015,
+        "C_lower_B": 0.2878712661140799,
+        "C_upper_B": 0.48179025536054015
+      },
+      "full_fp_vs_full_fp_spread": {
+        "verdict": "indistinguishable",
+        "delta_lo": -0.19391898924646023,
+        "delta_hi": 0.19391898924646023,
+        "delta_symmetry": true,
+        "C_lower_A": 0.2878712661140799,
+        "C_upper_A": 0.48179025536054015,
+        "C_lower_B": 0.2878712661140799,
+        "C_upper_B": 0.48179025536054015
+      },
+      "full_loc_vs_full_fp_spread": {
+        "verdict": "indistinguishable",
+        "delta_lo": -0.19391898924646023,
+        "delta_hi": 0.19391898924646023,
+        "delta_symmetry": true,
+        "C_lower_A": 0.2878712661140799,
+        "C_upper_A": 0.48179025536054015,
+        "C_lower_B": 0.2878712661140799,
+        "C_upper_B": 0.48179025536054015
+      }
+    },
+    "crossing_intervals": {
+      "full_random": {
+        "C_lower_pct": 0.2878712661140799,
+        "C_upper_pct": 0.48179025536054015
+      },
+      "full_fp": {
+        "C_lower_pct": 0.2878712661140799,
+        "C_upper_pct": 0.48179025536054015
+      },
+      "full_loc": {
+        "C_lower_pct": 0.2878712661140799,
+        "C_upper_pct": 0.48179025536054015
+      },
+      "full_fp_spread": {
+        "C_lower_pct": 0.2878712661140799,
+        "C_upper_pct": 0.48179025536054015
+      }
+    }
+  },
+  "elapsed_total_s": 26.8
+}
