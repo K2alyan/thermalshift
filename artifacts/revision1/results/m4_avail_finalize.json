@@ -1,0 +1,165 @@
+{
+  "source": "m4_avail_transition.json",
+  "note": "Post-processing corrections to m4_avail_transition.json. Simulation output is frozen. This file corrects delta medians for 4 inverted crossing brackets using midpoint point estimates. Verdicts are unaffected.",
+  "interval_audit": {
+    "n_inverted_brackets": 4,
+    "n_delta_violations": 3,
+    "inverted_brackets": [
+      {
+        "scenario_idx": 4,
+        "policy": "full_loc",
+        "C_lower_pct": 8.215656951017591,
+        "C_upper_pct": 8.192101556030037,
+        "gap_pp": -0.023555394987553768
+      },
+      {
+        "scenario_idx": 7,
+        "policy": "full_loc",
+        "C_lower_pct": 5.880904481966845,
+        "C_upper_pct": 5.835375011530306,
+        "gap_pp": -0.045529470436539654
+      },
+      {
+        "scenario_idx": 8,
+        "policy": "full_fp_spread",
+        "C_lower_pct": 10.315393724327828,
+        "C_upper_pct": 9.446562486786767,
+        "gap_pp": -0.8688312375410607
+      },
+      {
+        "scenario_idx": 8,
+        "policy": "full_loc",
+        "C_lower_pct": 8.398553523507143,
+        "C_upper_pct": 8.320061003731173,
+        "gap_pp": -0.07849251977597049
+      }
+    ],
+    "delta_violations": [
+      {
+        "scenario_idx": 8,
+        "pair_key": "spread_vs_rand",
+        "delta_lo": 10.079512034360935,
+        "delta_hi": 9.446562486786767,
+        "violation_pp": 0.6329495475741673
+      },
+      {
+        "scenario_idx": 8,
+        "pair_key": "spread_vs_fp",
+        "delta_lo": 3.2115036814312266,
+        "delta_hi": 2.534047663104195,
+        "violation_pp": 0.6774560183270317
+      },
+      {
+        "scenario_idx": 8,
+        "pair_key": "spread_vs_loc",
+        "delta_lo": 1.9953327205966556,
+        "delta_hi": 1.0480089632796243,
+        "violation_pp": 0.9473237573170312
+      }
+    ]
+  },
+  "corrected_f100_all10": {
+    "fp_vs_rand": {
+      "n": 10,
+      "n_def_a_better": 9,
+      "n_indistinguishable": 0,
+      "n_def_b_better": 1,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 3.820612,
+      "delta_hi_median": 4.524085,
+      "n_bracket_corrections": 0
+    },
+    "loc_vs_rand": {
+      "n": 10,
+      "n_def_a_better": 8,
+      "n_indistinguishable": 2,
+      "n_def_b_better": 0,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 4.384853,
+      "delta_hi_median": 5.34929,
+      "n_bracket_corrections": 3
+    },
+    "spread_vs_rand": {
+      "n": 10,
+      "n_def_a_better": 9,
+      "n_indistinguishable": 1,
+      "n_def_b_better": 0,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 7.061429,
+      "delta_hi_median": 7.550286,
+      "n_bracket_corrections": 1
+    },
+    "spread_vs_fp": {
+      "n": 10,
+      "n_def_a_better": 8,
+      "n_indistinguishable": 1,
+      "n_def_b_better": 1,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 2.465673,
+      "delta_hi_median": 2.954547,
+      "n_bracket_corrections": 1
+    },
+    "spread_vs_loc": {
+      "n": 10,
+      "n_def_a_better": 7,
+      "n_indistinguishable": 2,
+      "n_def_b_better": 1,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 1.592607,
+      "delta_hi_median": 1.971656,
+      "n_bracket_corrections": 3
+    }
+  },
+  "corrected_f100_held5": {
+    "fp_vs_rand": {
+      "n": 5,
+      "n_def_a_better": 4,
+      "n_indistinguishable": 0,
+      "n_def_b_better": 1,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 2.539293,
+      "delta_hi_median": 4.031608,
+      "n_bracket_corrections": 0
+    },
+    "loc_vs_rand": {
+      "n": 5,
+      "n_def_a_better": 4,
+      "n_indistinguishable": 1,
+      "n_def_b_better": 0,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 3.126019,
+      "delta_hi_median": 5.271778,
+      "n_bracket_corrections": 2
+    },
+    "spread_vs_rand": {
+      "n": 5,
+      "n_def_a_better": 5,
+      "n_indistinguishable": 0,
+      "n_def_b_better": 0,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 4.216229,
+      "delta_hi_median": 5.682314,
+      "n_bracket_corrections": 1
+    },
+    "spread_vs_fp": {
+      "n": 5,
+      "n_def_a_better": 4,
+      "n_indistinguishable": 1,
+      "n_def_b_better": 0,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 2.777088,
+      "delta_hi_median": 2.968463,
+      "n_bracket_corrections": 1
+    },
+    "spread_vs_loc": {
+      "n": 5,
+      "n_def_a_better": 3,
+      "n_indistinguishable": 1,
+      "n_def_b_better": 1,
+      "n_indeterminate_censored": 0,
+      "delta_lo_median": 1.521671,
+      "delta_hi_median": 1.630704,
+      "n_bracket_corrections": 2
+    }
+  }
+}
