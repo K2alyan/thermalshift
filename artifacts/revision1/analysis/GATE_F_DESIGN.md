@@ -8,6 +8,7 @@
 **Amended:** 2026-09-30 — Estimand/intervention corrected. Intervention now follows M4 feasibility. Gate F restricts how many currently feasible nodes the selector may inspect, not external candidate visibility. Design frozen.
 **Amended:** 2026-09-30 — Consistency cleanup only. §3 formula corrected to per-policy m_p,r; n_available removed. §4.2 nesting and cross-policy-identity bullets qualified. §4.4 nesting claim qualified (fixed E_full,p only). §8.2 CRN claim qualified. Tests 3–4 use full_eligible/E_full,p. §14 checklist: runtime nesting assertion removed.
 **Amended:** 2026-09-30 — Pre-implementation inspection. M4 call graph confirmed (r1_m4_fair_baselines.py): look_ahead_safe() is allocation-level, post-selection, synthetic-only. E_full,p renamed A_full,p (pre-selector eligible set, not post-look-ahead). full_feasible_count renamed full_selector_eligible_count. Gate F wrapper order corrected to preserve post-selection look-ahead unchanged.
+**Amended:** 2026-09-30 — Base-job Stage 1 path inspected and documented. bg_busy source differs by job type (fleet-wide for synthetic, per-job for base). Base jobs fall back to uncapped set when capped set < k (no drop); synthetic jobs drop. Marginal-mode base jobs bypass selector; Gate F does not apply. exposed_feasible_count -> exposed_selector_eligible_count; realized_feasible_choice_multiplier -> realized_selector_choice_multiplier.
 **Status:** Approved for implementation
 
 ---
@@ -92,10 +93,10 @@ m_p,r = min( ceil(r × k), |A_full,p| )
 | *k* | — | Job cohort node count (nodes required) |
 | `nominal_choice_ratio` | r | The experimental treatment variable. Set by the design; identical across all policies. |
 | `full_selector_eligible_count` | \|A_full,p\| | Per-policy: number of pre-selector eligible nodes (M4 avail_capped_set — nodes passing the node-level occupancy/cap filter, before policy selection and before look-ahead). Policy-specific; can differ across policies at the same event once replay states diverge. |
-| `exposed_feasible_count` | \|C_p,r\| | Per-policy: shortlist size after Gate F restriction. = min(ceil(r × k), \|A_full,p\|). Always ≥ k when \|A_full,p\| ≥ k and r ≥ 1. |
-| `realized_feasible_choice_multiplier` | \|C_p,r\| / k | Per-policy: the number of currently feasible choices actually exposed, as a multiple of the job size. This is what the estimand measures. |
+| `exposed_selector_eligible_count` | \|C_p,r\| | Per-policy: shortlist size after Gate F restriction. = min(ceil(r × k), \|A_full,p\|). Always ≥ k when \|A_full,p\| ≥ k and r ≥ 1. These are pre-selector-eligible candidates; allocation-level look-ahead runs after selection. |
+| `realized_selector_choice_multiplier` | \|C_p,r\| / k | Per-policy: the number of pre-selector-eligible candidates exposed to the selector, as a multiple of the job size. This is what the estimand measures. |
 
-The primary x-axis is `nominal_choice_ratio` r (the manipulated variable). Because Gate F intervenes after the M4 node-level eligibility filter (but before policy selection and before look-ahead), `realized_feasible_choice_multiplier` means: the selector inspects |C_p,r| / k times as many pre-selector-eligible candidates as the job requires before the allocation-level look-ahead guard runs.
+The primary x-axis is `nominal_choice_ratio` r (the manipulated variable). Because Gate F intervenes after the M4 node-level eligibility filter but before policy selection and before look-ahead, `realized_selector_choice_multiplier` records how many pre-selector-eligible candidates the selector inspected per required node, with look-ahead running unchanged on the resulting allocation.
 
 ---
 
@@ -107,12 +108,36 @@ The primary x-axis is `nominal_choice_ratio` r (the manipulated variable). Becau
 
 The M4 per-event loop (`capacity_replay_m4()`) has a strict two-stage structure:
 
-**Stage 1 — Node-level eligibility filter (pre-selector):**
+**Stage 1 — Node-level eligibility filter (pre-selector, job-type-specific):**
+
+The `bg_busy` source and the behavior when `n_avail_capped < k` differ by job type.
+
+*Synthetic jobs (is_syn=True):*
 ```python
-avail_capped_set = available_set.difference(bg_busy)   # line 928
-available = list(avail_capped_set)                      # line 949 (synthetic jobs)
+bg_busy          = bg_busy_at_ms(t_j_ms)                          # line 923 — fleet-wide bg conflicts
+avail_capped_set = available_set.difference(bg_busy)               # line 928
+if n_avail_capped < k:                                             # line 932
+    # check avail_unc_set; drop n_drop_cap or n_drop_phys; continue
+available = list(avail_capped_set)                                 # line 949 — A_full,p for synthetic
 ```
-`avail_capped_set` contains nodes not currently occupied by a conflicting background load and within the utilization cap. This is the pre-selector eligible set — `A_full,p` in Gate F notation. There is no single helper function; it is computed inline in the event loop.
+Synthetic jobs drop (`n_drop_cap` or `n_drop_phys`) if the capped set is insufficient; there is no fallback.
+
+*Base jobs, full-replacement mode (is_syn=False, not marginal):*
+```python
+bg_busy          = bg_busy_per_job.get(parent_jid, frozenset())   # line 925 — per-job bg conflicts
+avail_capped_set = available_set.difference(bg_busy)               # line 928 (shared)
+if n_avail_capped >= k:
+    available = list(avail_capped_set)                             # line 992 — capped set
+else:
+    avail_unc_set = eligible_set.difference(cf_busy_active, bg_busy)
+    available = list(avail_unc_set)                                # line 995 — uncapped fallback, no drop
+```
+Base jobs fall back to the uncapped eligible set when the capped set is insufficient; there is no drop and no `n_drop_cap` increment.
+
+*Base jobs, marginal mode (is_syn=False, marginal=True):*
+Uses historical node assignment directly; skips the policy selector entirely (`continue` at line 988). Gate F does not apply to marginal-mode base jobs.
+
+**A_full,p is therefore job-type-specific.** The Gate F wrapper must read the `available` list from the frozen M4 branch actually used for that job type — do not force all events through the synthetic branch.
 
 **Stage 2 — Policy selection (on A_full,p):**
 ```python
@@ -127,53 +152,49 @@ if is_syn and selected:                                                    # lin
         n_drop_la += 1
         continue
 ```
-`look_ahead_safe()` (line 590) receives the **complete k-node selected set** (`s_nodes = frozenset(selected_nodes)`, line 595) and evaluates whether admitting all k nodes simultaneously leaves sufficient future capacity for upcoming base jobs. It is not a per-node filter; it is an atomic check on the k-node allocation. Base jobs in full-replacement mode do not call `look_ahead_safe` (the guard at line 1013 is `if is_syn and selected:`).
+`look_ahead_safe()` (line 590) receives the **complete k-node selected set** (`s_nodes = frozenset(selected_nodes)`, line 595) and evaluates whether admitting all k nodes simultaneously leaves sufficient future capacity for upcoming base jobs. It is not a per-node filter; it is an atomic check on the k-node allocation. Base jobs do not call `look_ahead_safe` regardless of mode.
 
 **Gate F correct wrapper order:**
 ```
-Stage 1:   A_full,p = avail_capped_set (node-level eligibility filter — §4.1)
-           if |A_full,p| < k: existing M4 drop semantics (n_drop_cap / n_drop_phys)
+Stage 1:   A_full,p = job-type-specific M4 candidate list (§4.1)
+           synthetic: drop if capped set < k (n_drop_cap / n_drop_phys)
+           base (full-replacement): uncapped fallback if capped set < k; no drop
+           base (marginal): historical assignment; Gate F does not apply
 Stage 1½:  BLAKE2b hash-rank A_full,p; take prefix C_p,r of size m_p,r  (Gate F — §4.2, §4.4)
 Stage 2:   selected = frozen_policy_selector(C_p_r, k, policy=p)         (policy — §4.5)
 Stage 3:   if is_syn: look_ahead_safe(selected, ...)  →  admit or n_drop_la
-           (unchanged M4 allocation-level semantics; §4.5)
+           base jobs: no look_ahead_safe; commit directly
 ```
 
-**What A_full,p is NOT:** `A_full,p` contains nodes that pass the node-level occupancy/cap filter but have not yet been admitted through the look-ahead check. `look_ahead_safe` evaluates the entire k-node allocation after selection. A node may be in `A_full,p` and still contribute to a look-ahead failure when combined with specific other nodes. Gate F therefore restricts how many pre-selector-eligible nodes the selector may inspect, with look-ahead running unchanged on whatever k nodes the selector chooses.
+**What A_full,p is NOT:** nodes in `A_full,p` have passed only the node-level occupancy/cap filter. `look_ahead_safe` evaluates the entire k-node allocation after selection. A node may be in A_full,p and still contribute to a look-ahead failure when combined with specific other nodes. Gate F restricts how many pre-selector-eligible nodes the selector may inspect; look-ahead runs unchanged on whatever k nodes the selector chooses.
 
-**Do not:** call `frozen_m4_candidate_set()` as if it were a single reusable function — it does not exist. Replicate the inline Stage 1 filter exactly. **Do not** move `look_ahead_safe` to the node-level filter or to the shortlist construction step.
+**Do not:** call `frozen_m4_candidate_set()` as if it were a single reusable function — it does not exist. Replicate the inline Stage 1 filter exactly, preserving the job-type-specific branch. **Do not** move `look_ahead_safe` upstream.
 
 ### 4.1 Pre-selector eligibility step (per policy)
 
-For each scheduling event and each policy, replicate the exact M4 Stage 1 node-level eligibility filter (§4.0) to build `A_full,p`:
+For each scheduling event and each policy, replicate the exact job-type-specific M4 Stage 1 filter (§4.0) to build `A_full,p`. The construction is not a single helper call; it is the M4 inline candidate-list branch for that job type:
 
-```python
-# Replicate M4 Stage 1 inline (r1_m4_fair_baselines.py lines 928, 949)
-avail_capped_set = available_set_p.difference(bg_busy)   # policy-specific state
-A_full_p = list(avail_capped_set)
-```
+- **Synthetic job:** `A_full,p = avail_capped_set` (capped, fleet-wide bg_busy). If n_avail_capped < k: existing drop (`n_drop_cap` / `n_drop_phys`); Gate F does not apply.
+- **Base job, full-replacement mode:** `A_full,p = avail_capped_set` if n_avail_capped ≥ k; else `A_full,p = avail_unc_set` (uncapped fallback, no drop).
+- **Base job, marginal mode:** historical assignment; Gate F does not apply.
 
-Do not reimplement this from a new formula. Replicate the existing M4 inline filter exactly. The logic is frozen at M4 v3 and must not be altered for Gate F.
+Do not reimplement from a new formula. Replicate the frozen M4 v3 inline branch exactly.
 
-`A_full,p` is **per-policy** and will diverge across policies once their replay states differ — because counterfactual base-job occupancy and synthetic occupancy are policy-specific. This is expected and must not be forced to be identical.
-
-**If |A_full,p| < k**: apply the existing M4 drop semantics (`n_drop_cap` or `n_drop_phys`) exactly. Gate F is not the cause.
-
-**If |A_full,p| ≥ k**: proceed to Gate F shortlist (§4.4).
+`A_full,p` is **per-policy** and will diverge across policies once their replay states differ. This is expected.
 
 **Full per-event pipeline (Gate F wrapper):**
 
 ```
-Stage 1:   A_full,p = avail_capped_set  (§4.1 — node-level eligibility, per policy)
-           if |A_full,p| < k: existing M4 drop semantics
+Stage 1:   A_full,p = job-type-specific M4 candidate list (see §4.0 for branches)
 Stage 1½:  BLAKE2b hash-rank A_full,p  (§4.2)
            C_p,r = first min(ceil(r×k), |A_full,p|) nodes  (§4.4)
+           (only reached if |A_full,p| >= k, else existing M4 drop / marginal skip)
 Stage 2:   selected = frozen_policy_selector(C_p_r, k, policy=p)  (§4.5)
 Stage 3:   if is_syn: look_ahead_safe(selected, ...)               (§4.5, unchanged)
-           → admit or n_drop_la (existing M4 semantics)
+           base jobs: commit directly, no look_ahead_safe
 ```
 
-At r ≥ 1 and |A_full,p| ≥ k, C_p,r always contains at least k pre-selector-eligible nodes, so Gate F Stage 1½ never prevents Stage 2 from receiving a full shortlist. Whether Stage 3 admits the resulting allocation depends on the look-ahead check, which is unchanged.
+At r ≥ 1 and |A_full,p| ≥ k, C_p,r always contains at least k pre-selector-eligible nodes, so Gate F Stage 1½ never prevents Stage 2 from receiving a full shortlist.
 
 ### 4.2 Node priority: frozen BLAKE2b keyed hash
 
@@ -398,7 +419,7 @@ The node priority for each (event, hostname) pair is fixed by `(scenario_seed, e
 
 Per scenario, per ratio, per policy, per lambda:
 - All fields in M4 lambda_rows (capacity_unlock_pct, B_primary_ratio, etc.)
-- Additionally: `nominal_choice_ratio` (= r), `full_selector_eligible_count` (= |A_full,p|, per-policy), `exposed_feasible_count` (= |C_p,r|, per-policy), `realized_feasible_choice_multiplier` (= |C_p,r|/k, per-policy)
+- Additionally: `nominal_choice_ratio` (= r), `full_selector_eligible_count` (= |A_full,p|, per-policy), `exposed_selector_eligible_count` (= |C_p,r|, per-policy), `realized_selector_choice_multiplier` (= |C_p,r|/k, per-policy)
 
 Per scenario, per ratio, per policy:
 - Reconstructed crossing (C_lower_pct, C_upper_pct, status, first_binding) via v3 capacity-order first-violation estimand.
@@ -427,8 +448,8 @@ Per ratio, per comparison pair:
 | `n_drop_cap`, `n_drop_physical`, `n_drop_la` | Existing drop categories (unchanged from M4) |
 | `syn_node_hours` | Admitted synthetic node-hours |
 | `full_selector_eligible_count_p10/p50/p90` | Per-policy distribution of |A_full,p| (pre-selector eligible nodes before Gate F shortlist, not yet look-ahead-admitted) across jobs at this lambda |
-| `exposed_feasible_count_p10/p50/p90` | Per-policy distribution of |C_p,r| (feasible nodes exposed to selector) |
-| `realized_feasible_choice_multiplier_p10/p50/p90` | Per-policy distribution of |C_p,r|/k (true feasible-choice multiplier seen by the selector) |
+| `exposed_selector_eligible_count_p10/p50/p90` | Per-policy distribution of |C_p,r| (pre-selector-eligible nodes in the Gate F shortlist; look-ahead runs after selection) |
+| `realized_selector_choice_multiplier_p10/p50/p90` | Per-policy distribution of |C_p,r|/k (pre-selector-eligible candidates per required node, as seen by the selector) |
 | `mean_F_syn` | Mean thermal fingerprint of admitted synthetic nodes |
 | `loc_score_median` | Median location score of selected nodes |
 | `cab_span_median`, `cab_span_p90` | Cabinet span |
@@ -479,7 +500,7 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 
 ## 11. Primary figure specification
 
-**x-axis:** `nominal_choice_ratio` r (the manipulated variable), with r=1.0 at left and r=unrestricted at right. Label ticks with nominal r values. Do not label the axis as "realized feasible-choice ratio" or use `realized_feasible_choice_multiplier` as the primary axis; those are per-policy diagnostic observations, not the experimental treatment.
+**x-axis:** `nominal_choice_ratio` r (the manipulated variable), with r=1.0 at left and r=unrestricted at right. Label ticks with nominal r values. Do not label the axis as "realized feasible-choice ratio" or use `realized_selector_choice_multiplier` as the primary axis; those are per-policy diagnostic observations, not the experimental treatment.
 
 **y-axis:** median conservative scheduling advantage, delta_lo (pp).
 
