@@ -6,6 +6,7 @@
 **Amended:** 2026-09-30 — §4.1 external pool corrected (exogenous blockers only); §5 base-job placement corrected; §6 preflight strengthened
 **Amended:** 2026-09-30 — drop-cause semantics frozen (E_full/E_r); terminology finalized; §8.2 priority description corrected; §11 r=1 annotation fixed; realized-choice diagnostics added.
 **Amended:** 2026-09-30 — Estimand/intervention corrected. Intervention now follows M4 feasibility. Gate F restricts how many currently feasible nodes the selector may inspect, not external candidate visibility. Design frozen.
+**Amended:** 2026-09-30 — Consistency cleanup only. §3 formula corrected to per-policy m_p,r; n_available removed. §4.2 nesting and cross-policy-identity bullets qualified. §4.4 nesting claim qualified (fixed E_full,p only). §8.2 CRN claim qualified. Tests 3–4 use full_eligible/E_full,p. §14 checklist: runtime nesting assertion removed.
 **Status:** Approved for implementation
 
 ---
@@ -69,15 +70,19 @@ No policy parameter is changed. The only manipulation is the number of currently
 r ∈ {1.0, 1.25, 1.5, 2.0, 4.0, 8.0, unrestricted}
 ```
 
-For a job requiring *k* cohort nodes, the external shortlist exposes at most:
+For policy p and a job requiring *k* cohort nodes, the Gate F shortlist is drawn from E_full,p (§4.1) and has size:
 
 ```
-m = min( ceil(r × k), n_available )
+m_p,r = min( ceil(r × k), |E_full,p| )
 ```
 
-where `n_available` = policy-neutral cohort nodes not blocked by background load at that instant.
+`E_full,p` is the per-policy set of currently feasible candidates returned by the frozen M4 candidate-generation logic. The shortlist and its size are therefore policy-specific once replay states diverge.
 
-`unrestricted` sets m = n_available (no shortlist cap). This reproduces the M4 unrestricted replay exactly and is the preflight gate (§6).
+**Frozen shortlist definitions:**
+- `C_p,r` = first `m_p,r` nodes from hash-ranked E_full,p (§4.2, §4.4)
+- `C_p,unrestricted` = E_full,p (no prefix restriction; full feasible set exposed)
+
+`unrestricted` exposes the full E_full,p to the selector. This reproduces the M4 unrestricted replay exactly and is the preflight gate (§6).
 
 **Terminology (frozen):**
 
@@ -173,8 +178,8 @@ The NUL byte `0x00` separates `event_uid` from `hostname`. This is safe as long 
 - Removing one node does not reshuffle the priorities of any other node.
 - Adding a candidate does not reshuffle existing nodes.
 - The same (scenario, event, node) always produces the same priority, regardless of execution order.
-- Nested shortlists (`C_{1.0} ⊆ C_{1.25} ⊆ ...`) follow automatically from taking longer prefixes.
-- All four policies receive byte-for-byte identical external shortlists.
+- For a fixed E_full,p at a given event, longer-prefix shortlists are nested: `C_p,{1.0} ⊆ C_p,{1.25} ⊆ ... ⊆ E_full,p`. This prefix property holds within one replay at a fixed event state; it does not extend across independently evolved ratio replays where earlier placements may have changed E_full,p.
+- If two policies have identical E_full sets for an event (as they do at r=1 before any state divergence), the policy-neutral hash produces identical rankings and identical shortlists at the same r. Once policy states diverge, E_full,p may differ and shortlist identities may therefore differ across policies.
 - Reproduction requires only three pieces of metadata: scenario_seed, event_uid, hostname.
 
 ### 4.3 Event UID: frozen definition
@@ -221,11 +226,13 @@ C_p_r = ordered_p[:m_p_r]  # Gate F shortlist: m_p_r currently-feasible nodes
 selected = frozen_selector(C_p_r, k, policy=p)
 ```
 
-**Nesting within a policy:** because priorities are fixed by (scenario_seed, event_uid, hostname) and E_full,p is the same for all ratios at the same event under the same policy state, shortlists are nested within a policy across ratios:
+**Prefix nesting (fixed E_full,p):** for a fixed E_full,p at a given event, shortlists at increasing r are nested prefixes of the same hash ordering:
 
 ```
 C_p,{1.0} ⊆ C_p,{1.25} ⊆ C_p,{1.5} ⊆ C_p,{2.0} ⊆ C_p,{4.0} ⊆ C_p,{8.0} ⊆ C_p,{unr}
 ```
+
+This property holds mathematically for any fixed E_full,p. Across independently evolved ratio replays, earlier placements under different r values change occupancy state and therefore E_full,p at subsequent events; runtime shortlists from separate ratio replays are not required to be nested.
 
 **Candidate identities may differ across policies** at the same event once replay states diverge (because E_full,p is policy-specific). This is correct behavior. Fairness is provided by identical workload and residual draws, identical nominal r, and the same policy-blind hash function applied to each policy's own feasible set.
 
@@ -332,7 +339,7 @@ Reuse the M4 lambda sweep: `[1.0, 1.06, 1.1, 1.15, 1.2, 1.3, 1.4, 1.5, 1.55, 1.6
 
 For each scenario (sc), for each lambda, for each ratio r: run all four policies with the same nominal choice ratio r. Each (sc, lambda, r, policy) produces one row of metrics. Each policy operates on its own E_full,p (which may diverge across policies once occupancy states differ), but applies the same hash function and the same r to construct C_p,r from its own feasible set.
 
-The node priority ranking at each scheduling event is fixed by `(scenario_seed, event_uid, hostname)` — it does not depend on lambda or choice ratio. The same event therefore has the same node ordering at every ratio level in which it appears and at every lambda where that event is replayed. Choice ratios simply take longer prefixes of this common ordering. This provides strong common-random-number structure across all ratios.
+The node priority for each (event, hostname) pair is fixed by `(scenario_seed, event_uid, hostname)` — it does not depend on lambda or choice ratio. Within a single replay run, the hash ordering at any event is stable across lambda values. However, because different r values lead to different placements at earlier events, E_full,p at a later event may differ across independently evolved ratio replays; runtime shortlists from separate ratio replays are not guaranteed to be nested. The priority function nonetheless provides common-random-number structure within each replay by keeping node ranks stable across lambda values.
 
 ### 8.3 Output structure
 
@@ -459,15 +466,15 @@ The following six tests must exist in the test suite and pass before sc0–4 are
 
 **Test 2 — Input-order independence:** Given a set of hostnames passed in two different Python iteration orders (e.g., sorted ascending vs. sorted descending), `sorted(hostnames, key=lambda h: choice_priority(seed, uid, h))` produces the same ranked list both times.
 
-**Test 3 — Single-node stability:** Given a shortlist `ordered` for event E, removing one node from `available_nodes` and recomputing leaves the relative order of all remaining nodes unchanged.
+**Test 3 — Single-node stability:** Given a fixed `full_eligible` set for event E, removing one node from `full_eligible` and recomputing leaves the relative hash-rank order of all remaining nodes unchanged.
 
-**Test 4 — Nesting:** For a fixed event with `n_available = 20` and `k = 4`, verify:
+**Test 4 — Prefix nesting (fixed E_full):** Given one fixed `full_eligible` set with `|full_eligible| = 20` and `k = 4`, verify that shortlists computed at increasing r from the same `full_eligible` are nested prefixes of the same hash ordering:
 ```
-shortlist(r=1.0)  ⊆  shortlist(r=1.25)  ⊆  shortlist(r=1.5)
-                  ⊆  shortlist(r=2.0)   ⊆  shortlist(r=4.0)
-                  ⊆  shortlist(r=8.0)   ⊆  shortlist(r=unrestricted)
+C_p_r(r=1.0)  ⊆  C_p_r(r=1.25)  ⊆  C_p_r(r=1.5)
+              ⊆  C_p_r(r=2.0)   ⊆  C_p_r(r=4.0)
+              ⊆  C_p_r(r=8.0)   ⊆  C_p_r(r=unrestricted)
 ```
-by set containment of the node lists at each ratio.
+by set containment. The same `full_eligible` must be passed at every ratio call. This verifies the mathematical prefix property, not that independently evolved ratio replays remain nested.
 
 **Test 5 — Hash policy-neutrality:** The hash priority function takes no policy parameter. Given an identical `full_eligible` set and identical `(scenario_seed, event_uid)`, all four policies produce the same `ordered_p` ranking and the same `C_p_r`. Verify by passing the same `full_eligible` set to the shortlist construction for all four policies at a synthetic event and asserting `C_p_r` is byte-for-byte identical across policies.
 
@@ -482,7 +489,7 @@ This catches duplicate base IDs, duplicate synthetic generation ordinals, and an
 ## 14. Implementation checklist (pre-run)
 
 - [ ] Unit tests 1–6 all pass (§13).
-- [ ] Nesting property verified in sc0 dev run at lambda=1.06: `C_{1.0} ⊆ ... ⊆ C_unrestricted`.
+- [ ] Fixed-E_full prefix-nesting unit test (Test 4) passes. Runtime ratio replays are allowed to have different E_full,p sets after their states diverge; runtime nesting across separately evolved ratio replays is not asserted.
 - [ ] r=1 inductive negative-control assertion verified on sc0–4: all four policies select identical node sets at every feasible event, maintain identical evolving replay state, produce identical lambda-row metrics and reconstructed crossings. All five comparison curves are zero at r=1. Any deviation is treated as an implementation bug (§4.6).
 - [ ] At r=unrestricted, lambda rows for sc0–4 match M4 source files (metric-for-metric).
 - [ ] At r=unrestricted, reconstructed crossings for sc0–4 match M4 v3 scenario_rows.
