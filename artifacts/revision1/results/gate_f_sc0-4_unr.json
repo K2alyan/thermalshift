@@ -10936,11 +10936,7 @@
               "C_lower_pct": 4.921239954893811,
               "C_upper_pct": 8.192101556030037,
               "first_binding_constraint": "B_cab_ratio",
-              "right_censored": false,
-              "_crossing_corrected": true,
-              "_stored_C_lower_pre_correction": 8.215656951017591,
-              "_stored_C_upper_pre_correction": 8.192101556030037,
-              "_correction_method": "v3_capacity_ordered_from_stored_lambda_rows"
+              "right_censored": false
             }
           },
           "full_fp_spread": {
@@ -11649,7 +11645,7 @@
             "crossing": {
               "status": "exact_bracket",
               "C_lower_pct": 10.96136944440545,
-              "C_upper_pct": 13.578881701453636,
+              "C_upper_pct": 13.459084073320998,
               "first_binding_constraint": "B_cab_ratio",
               "right_censored": false
             }
@@ -11660,17 +11656,6 @@
     }
   ],
   "elapsed_total_s": 1987.9,
-  "crossing_corrections": [
-    {
-      "sc": 4,
-      "ratio": "unrestricted",
-      "policy": "full_loc",
-      "stored_C_lower": 8.215656951017591,
-      "corrected_C_lower": 4.921239954893811,
-      "stored_C_upper": 8.192101556030037,
-      "corrected_C_upper": 8.192101556030037,
-      "note": "Pre-fix lambda-order inversion. v3 capacity-ordered rule gives [4.921%, 8.192%]. B_cab_ratio=1.000057 at lam=1.1031 (cap=8.192%) is first infeasible in capacity order."
-    }
-  ],
-  "crossing_correction_note": "sc4/unrestricted/full_loc: pre-fix inversion corrected by v3 reconstruction."
+  "crossing_regen_note": "Crossings regenerated deterministically by r1_gate_f_crossing_regen.py. v3 capacity-ordered classify_crossing applied to stored lambda_rows using stored B_ref_s and S_ref_s. Prior hand-patch metadata removed.",
+  "crossing_regen_head": "86a95ecea62f8fc6612418ef8ea444d32724b4d9"
 }

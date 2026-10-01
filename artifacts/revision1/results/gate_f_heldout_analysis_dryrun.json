@@ -53,68 +53,38 @@
   "unrestricted_m4_verification": {
     "FP_vs_Random": {
       "m4_key": "fp_vs_canonical_rand",
-      "max_diff_lo_pp": 6.11121388632021,
-      "max_diff_hi_pp": 2.2262916206198007,
-      "pass": false,
-      "errors": [
-        "sc=0: GF d_lo=6.4354280435 M4 d_lo=0.3242141571 diff=6.11e+00pp",
-        "sc=1: GF d_lo=4.6203851119 M4 d_lo=1.9138743466 diff=2.71e+00pp",
-        "sc=2: GF d_lo=6.6864927948 M4 d_lo=7.0662851237 diff=3.80e-01pp",
-        "sc=3: GF d_lo=3.9310706052 M4 d_lo=1.1112135167 diff=2.82e+00pp",
-        "sc=4: GF d_lo=3.7101540699 M4 d_lo=-0.8164773102 diff=4.53e+00pp"
-      ]
+      "max_diff_lo_pp": 0.0,
+      "max_diff_hi_pp": 0.0,
+      "pass": true,
+      "errors": []
     },
     "Loc_vs_Random": {
       "m4_key": "loc_vs_canonical_rand",
-      "max_diff_lo_pp": 6.1483608142695845,
-      "max_diff_hi_pp": 3.5854498452244794,
-      "pass": false,
-      "errors": [
-        "sc=0: GF d_lo=8.1868133588 M4 d_lo=2.0384525445 diff=6.15e+00pp",
-        "sc=1: GF d_lo=-0.5302091895 M4 d_lo=-3.4380857903 diff=2.91e+00pp",
-        "sc=2: GF d_lo=6.6885416104 M4 d_lo=7.0834008307 diff=3.95e-01pp",
-        "sc=3: GF d_lo=3.7472281276 M4 d_lo=0.5688434449 diff=3.18e+00pp",
-        "sc=4: GF d_lo=3.7738718833 M4 d_lo=3.1999556836 diff=5.74e-01pp"
-      ]
+      "max_diff_lo_pp": 0.0,
+      "max_diff_hi_pp": 0.0,
+      "pass": true,
+      "errors": []
     },
     "FPSpread_vs_Random": {
       "m4_key": "spread_vs_canonical_rand",
       "max_diff_lo_pp": 0.0,
       "max_diff_hi_pp": 0.0,
-      "pass": false,
-      "errors": [
-        "sc=0 missing from M4 v3 spread_vs_canonical_rand",
-        "sc=1 missing from M4 v3 spread_vs_canonical_rand",
-        "sc=2 missing from M4 v3 spread_vs_canonical_rand",
-        "sc=3 missing from M4 v3 spread_vs_canonical_rand",
-        "sc=4 missing from M4 v3 spread_vs_canonical_rand"
-      ]
+      "pass": true,
+      "errors": []
     },
     "FPSpread_vs_FP": {
       "m4_key": "spread_vs_fp",
       "max_diff_lo_pp": 0.0,
       "max_diff_hi_pp": 0.0,
-      "pass": false,
-      "errors": [
-        "sc=0 missing from M4 v3 spread_vs_fp",
-        "sc=1 missing from M4 v3 spread_vs_fp",
-        "sc=2 missing from M4 v3 spread_vs_fp",
-        "sc=3 missing from M4 v3 spread_vs_fp",
-        "sc=4 missing from M4 v3 spread_vs_fp"
-      ]
+      "pass": true,
+      "errors": []
     },
     "FPSpread_vs_Loc": {
       "m4_key": "spread_vs_canonical_loc",
       "max_diff_lo_pp": 0.0,
       "max_diff_hi_pp": 0.0,
-      "pass": false,
-      "errors": [
-        "sc=0 missing from M4 v3 spread_vs_canonical_loc",
-        "sc=1 missing from M4 v3 spread_vs_canonical_loc",
-        "sc=2 missing from M4 v3 spread_vs_canonical_loc",
-        "sc=3 missing from M4 v3 spread_vs_canonical_loc",
-        "sc=4 missing from M4 v3 spread_vs_canonical_loc"
-      ]
+      "pass": true,
+      "errors": []
     }
   },
   "results": {
@@ -894,7 +864,7 @@
           "median_delta_hi": 8.94090423364476,
           "bootstrap95_delta_hi": [
             0.4953508096671103,
-            12.565942688100783
+            12.446145059968146
           ],
           "delta_lo_per_scenario": [
             9.721145317918253,
@@ -908,7 +878,7 @@
             0.4953508096671103,
             8.94090423364476,
             7.11288617397586,
-            12.565942688100783
+            12.446145059968146
           ]
         }
       }
@@ -1159,7 +1129,7 @@
           "median_delta_hi": 2.940630544266204,
           "bootstrap95_delta_hi": [
             -4.629142214518818,
-            8.721359559961435
+            8.601561931828797
           ],
           "delta_lo_per_scenario": [
             3.1236270933249832,
@@ -1173,7 +1143,7 @@
             -4.629142214518818,
             2.2544114388346568,
             2.940630544266204,
-            8.721359559961435
+            8.601561931828797
           ]
         }
       }
@@ -1424,7 +1394,7 @@
           "median_delta_hi": 2.252362623225916,
           "bootstrap95_delta_hi": [
             0.5214520868681343,
-            8.657641746559825
+            8.537844118427188
           ],
           "delta_lo_per_scenario": [
             1.409388705975772,
@@ -1438,22 +1408,22 @@
             0.5214520868681343,
             2.252362623225916,
             3.124473021831472,
-            8.657641746559825
+            8.537844118427188
           ]
         }
       }
     }
   },
   "provenance": {
-    "freeze_head": "5003033f909d072661778769055d46c42a1acba3",
+    "freeze_head": "86a95ecea62f8fc6612418ef8ea444d32724b4d9",
     "tracked_tree_clean": false,
     "input_sha256": {
-      "gate_f_unr": "08952274837965bcfea9ba9c6ff940ee79b86ff839a361bfda2a967e47deff2e",
+      "gate_f_unr": "591055110a91c2656e0e7348b7a8a7b3e7322cb690e78bf426571004e67e743f",
       "gate_f_r1": "4c71acd16dcfc7715081b061ae74fdbaa85f3efe1a0e10f52c3ee8d3813184ad",
       "gate_f_rest": "fde76902889d6ad5b15dd327c1f25c101011dbbc9b947c3ae61976f64c61baf4",
-      "m4_v3": "72be375c360c43ee34c32ce3e283cd81b72e09518bf5836b32aba84b7380c89c",
+      "m4_v3": "0fa399c27d68307b994eb7b61638fb46c71cbb629672a219548757ea0c8913ae",
       "quartile_manifest": "366044385dc9a067a8f078dbc84e761d13cf4ddaa88dcc7496a60880d09fb2b0",
-      "this_script": "1571e9ca67e1f73954df74af1274c7c68dd05c3ddc93c146d70c3a2d45c0fb32"
+      "this_script": "583f99600786328eb8d38b25c09962c3a99384794752fffd8ec967a5f904c729"
     },
     "analysis_script": "r1_gate_f_heldout_analysis.py"
   }

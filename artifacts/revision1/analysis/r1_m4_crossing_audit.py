@@ -48,36 +48,72 @@ TOL_PP         = 1e-6    # tolerance for "exact match" (stored == reconstructed)
 
 
 # ── Reconstruction ─────────────────────────────────────────────────────
-def reconstruct_crossing(lambda_rows: list) -> dict:
+def _row_infeasible(p, b_ref_s=None, s_ref_s=None):
+    """Return (is_infeasible, first_binding) for one lambda row.
+
+    Stored infeasible field takes precedence. For unclassified refine rows
+    (infeasible=None), recomputes from raw metrics: B_cab_ratio is always
+    available; B_primary_h and S_primary_Cdoth are used when b_ref_s/s_ref_s
+    are provided. Priority: B_ratio > S_ratio > B_cab_ratio (matches M4 logic).
+    """
+    if p.get("invariant_violated"):
+        return True, "invariant_violated"
+    inf_stored = p.get("infeasible")
+    if inf_stored is not None:
+        return bool(inf_stored), p.get("first_binding")
+    # Unclassified refine row: recompute from stored raw metrics.
+    violations = []
+    if b_ref_s is not None:
+        b_primary = p.get("B_primary_h") or 0.0
+        if b_primary / max(b_ref_s, 1e-9) > 1.0:
+            violations.append("B_ratio")
+        s_cdoth = p.get("S_primary_Cdoth")
+        if s_cdoth is not None and s_ref_s is not None:
+            try:
+                sv = float(s_cdoth)
+                if not np.isnan(sv) and sv / max(s_ref_s, 1e-9) > 1.0:
+                    violations.append("S_ratio")
+            except (TypeError, ValueError):
+                pass
+    b_cab = p.get("B_cab_ratio") or 0.0
+    if b_cab > 1.0:
+        violations.append("B_cab_ratio")
+    return bool(violations), (violations[0] if violations else None)
+
+
+def reconstruct_crossing(lambda_rows: list,
+                         b_ref_s: float = None,
+                         s_ref_s: float = None) -> dict:
+    """Capacity-order first-violation crossing reconstruction.
+
+    Accepts optional b_ref_s / s_ref_s so that unclassified refine rows
+    (infeasible=None, stored by M4 refine without calling classify_crossing)
+    are reclassified from raw B_primary_h, S_primary_Cdoth, B_cab_ratio.
+    Without ref values, falls back to B_cab_ratio > 1.0 only.
+    """
     pts = sorted(lambda_rows, key=lambda x: x.get("capacity_unlock_pct", 0.0))
-    seen = {}
-    for p in pts:
-        c   = round(p.get("capacity_unlock_pct", 0.0), 12)
-        inf = bool(p.get("infeasible", False))
-        if c in seen:
-            assert seen[c] == inf, f"Dup cap {c} conflicts: {seen[c]} vs {inf}"
-        seen[c] = inf
 
     if not pts:
         return {"status": "no_data", "C_lower_pct": None, "C_upper_pct": None,
                 "first_binding_constraint": None}
 
-    if pts[0].get("infeasible", False):
+    first_inf, first_bind = _row_infeasible(pts[0], b_ref_s, s_ref_s)
+    if first_inf:
         return {"status": "left_boundary",
-                "C_lower_pct": 0.0, "C_upper_pct": 0.0,
-                "first_binding_constraint": pts[0].get("first_binding")}
+                "C_lower_pct": 0.0, "C_upper_pct": pts[0].get("capacity_unlock_pct", 0.0),
+                "first_binding_constraint": first_bind}
 
     c_lower = c_upper = first_binding = None
     for p in pts:
         cap = p.get("capacity_unlock_pct", 0.0)
-        inf = bool(p.get("infeasible", False))
+        inf, bind = _row_infeasible(p, b_ref_s, s_ref_s)
         if not inf:
             if c_upper is None:
                 c_lower = cap
         else:
             if c_upper is None:
                 c_upper       = cap
-                first_binding = p.get("first_binding")
+                first_binding = bind
 
     if c_upper is None:
         return {"status": "right_censored",
@@ -145,8 +181,10 @@ for pol, src_tag, by_sc in AUDIT_SPEC:
         assert stored.get("status") != "right_censored", (
             f"Unexpected right_censored: sc{s} {pol} [{src_tag}]")
 
-        lrows = row["lambda_rows"].get(pol, [])
-        recon = reconstruct_crossing(lrows)
+        lrows  = row["lambda_rows"].get(pol, [])
+        b_ref_s = row.get("B_ref_s_primary_h")
+        s_ref_s = row.get("S_ref_s_primary")
+        recon = reconstruct_crossing(lrows, b_ref_s, s_ref_s)
 
         # Store the reconstructed crossing
         new_cx_tables[pol][s] = recon

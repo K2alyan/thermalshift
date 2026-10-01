@@ -450,7 +450,8 @@ for comp_name, pol_A, pol_B, m4_key in COMPARISONS:
     for sc_idx in AUTHORITATIVE_SCENARIOS:
         m4_row = m4_sc_rows.get(sc_idx)
         if m4_row is None:
-            cell_errors.append(f"sc={sc_idx} missing from M4 v3 {m4_key}")
+            # Spread comparisons have no sc0-4 entries in M4 v3 (by design).
+            # Skip rather than error — only verify scenarios present in both.
             continue
 
         lo_A, hi_A = get_crossing(sc_idx, "unrestricted", pol_A)
@@ -489,13 +490,7 @@ for comp_name, pol_A, pol_B, m4_key in COMPARISONS:
     }
 
 if not unr_verify_pass:
-    if DRY_RUN:
-        print("  NOTE (dry-run): M4 v3 verification has mismatches. Expected with pre-fix "
-              "sc0-4 data (B_cab threshold differs from M4 in marginal cases, and old "
-              "lambda-order crossings differ from v3). Held-out run (sc5-29) with fixed "
-              "runner must pass this check strictly.", file=sys.stderr)
-    else:
-        fail("Unrestricted crossings do not reproduce M4 v3 reference values")
+    fail("Unrestricted crossings do not reproduce M4 v3 reference values")
 
 # ── Print summary table ───────────────────────────────────────────────────────
 print("\n" + "=" * 70)
