@@ -3,6 +3,7 @@
 **Date:** 2026-09-30
 **Amended:** 2026-09-30 — hash construction and event_uid frozen; unit tests specified
 **Amended:** 2026-09-30 — §4.6 no-choice control corrected; generation_ordinal frozen; terminology clarified
+**Amended:** 2026-09-30 — §4.1 external pool corrected (exogenous blockers only); §5 base-job placement corrected; §6 preflight strengthened
 **Status:** Approved for implementation
 
 ---
@@ -93,13 +94,23 @@ The primary x-axis uses `external_choice_multiplier` (controlled). Report `post_
 
 ## 4. Candidate-set construction
 
-### 4.1 Base eligibility (policy-neutral)
+### 4.1 Exogenous candidate universe (policy-neutral)
 
-At each job arrival, identify cohort nodes that are:
-- Not currently occupied by a base or synthetic job (hard constraint).
-- Not blocked by fixed/non-cohort background load at that instant.
+At each scheduling event, begin from all cohort nodes **not blocked by fixed/non-cohort background occupancy** at that instant. This is the exogenous candidate universe and is identical across all four policies.
 
-This is the **policy-neutral available pool** for that event. It does not depend on thermal fingerprint, location, power, residual, future workload, or any policy state.
+**Do not remove nodes because of counterfactual base-job occupancy, synthetic-job occupancy, utilization caps, look-ahead constraints, or any other replay state at this stage.** In Gate F, as in M4 full-policy replay, base-job cohort-node placements are counterfactually replayed under each policy. That means current base-job occupancy is policy-specific endogenous state, not an exogenous constraint. Synthetic occupancy is likewise policy-specific. Both belong in the per-policy endogenous filter (§4.5), not here.
+
+**Construction pipeline for each scheduling event:**
+
+```
+Exogenous candidate universe  (§4.1 — fixed/non-cohort blockers only)
+    → BLAKE2b hash ranking     (§4.2)
+    → Ratio-specific external shortlist  (§4.4 — same for all policies)
+    → Per-policy endogenous filter       (§4.5 — cf_busy / utilization / lookahead)
+    → Frozen policy selector             (§4.5)
+```
+
+This ordering is required for the external shortlist to be genuinely common across all policies. If current base/synthetic occupancy were removed in §4.1, the "common" shortlist would vary by policy and Gate F would not be a valid sensitivity experiment.
 
 ### 4.2 Node priority: frozen BLAKE2b keyed hash
 
@@ -179,9 +190,9 @@ Sorting the workload by start_time for scheduling purposes does not renumber the
 ```python
 import math
 
-# available_nodes: policy-neutral pool for this event (§4.1)
+# exogenous_universe: cohort nodes not blocked by fixed/non-cohort background (§4.1)
 ordered = sorted(
-    available_nodes,
+    exogenous_universe,
     key=lambda h: choice_priority(scenario_seed, event_uid, h),
 )
 
@@ -200,7 +211,7 @@ The nesting is exact (not approximate): `ordered` is computed once per event fro
 
 Each policy receives the **same external shortlist** for ratio r at each job arrival. It then:
 
-1. Intersects the shortlist with its own **endogenous eligibility** — utilization cap, current synthetic occupancy, any policy-specific state — to form its **eligible set**.
+1. Intersects the shortlist with its own **endogenous eligibility** — counterfactual base-job occupancy, current synthetic occupancy, utilization cap, look-ahead/QoS constraints, any other policy-specific state — to form its **eligible set**. Because base-job placements are counterfactually replayed under each policy, base-job occupancy is policy-specific and belongs here.
 2. Applies its frozen selector (random / lowest-FP / lowest-location-score / FP-spread rule) to the eligible set.
 3. If the eligible set has fewer than *k* nodes: the job is recorded as a **choice-constrained drop** and not admitted.
 
@@ -224,8 +235,11 @@ However, the external shortlist being identical does not imply that all four pol
 
 ## 5. QoS and feasibility invariants
 
-### Preserved invariant (identical to M4)
-**No base job is delayed or under-served.** Base jobs use their historical node assignments. The look-ahead/QoS rules from M4 are preserved exactly.
+### Preserved invariant (identical to M4 full-policy replay)
+
+Historical base jobs retain their original start times, durations, and requested cohort-node counts, but their **cohort-node placements are counterfactually replayed under each policy**, exactly as in M4. No base job may be delayed or under-served. The existing M4 look-ahead/QoS invariant is preserved exactly.
+
+This is the M4 **full-policy** replay model. It is not the marginal-policy model in which base jobs keep their historical node assignments. If implemented as marginal-policy, the unrestricted preflight cannot reproduce M4 v3.
 
 ### New drop category
 Record separately:
@@ -245,7 +259,9 @@ Before running any restricted ratios or looking at held-out results, the impleme
 |-------|-------------|
 | Workload seeds | Identical to v5 / canonical sources |
 | Residual draws | Identical (same PRNG sequence) |
-| Raw lambda rows | Metric-for-metric identical to M4 source files for all policies |
+| Base-job placement behavior | Counterfactual base-job node selections under each policy match M4 frozen source (metric-for-metric per policy) |
+| Synthetic placement behavior | Synthetic node selections match M4 frozen source (metric-for-metric per policy) |
+| Raw lambda rows | All per-lambda metrics (capacity_unlock_pct, B_primary_ratio, B_cab_ratio, S_primary_ratio, syn_node_hours, infeasible, first_binding, drop counts) identical to M4 source files for all policies |
 | Reconstructed crossings | Capacity-order first-violation (v3 estimand) applied to new lambda_rows produces same C_lower and C_upper as `m4_canonical_comparisons_v3.json` scenario_rows |
 | C_lower ≤ C_upper | 0 violations across all reconstructed crossings |
 | Right-censored | 0 unexpected right-censored crossings |
