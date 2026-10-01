@@ -1,5 +1,7 @@
 {
-  "git_head": "c7a5cc9",
+  "git_commit_full": "de473334d4819814fbe1ddd56e0268d193e19651",
+  "git_commit_short": "de47333",
+  "git_dirty": false,
   "script": "r1_gate_f_run.py",
   "n_dev": 1,
   "n_first": 0,
@@ -2352,8 +2354,8 @@
           }
         }
       },
-      "elapsed_s": 371.4
+      "elapsed_s": 495.7
     }
   ],
-  "elapsed_total_s": 386.5
+  "elapsed_total_s": 515.5
 }

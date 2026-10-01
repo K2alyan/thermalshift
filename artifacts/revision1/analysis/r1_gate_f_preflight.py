@@ -1146,9 +1146,12 @@ if __name__ == "__main__":
         syn["end_time"]       = syn["start_time"] + pd.to_timedelta(syn["run_time"].values, unit="s")
         syn["is_synthetic"]   = True
         syn["parent_job_idx"] = syn["job_idx"].values.copy()
-        syn["job_idx"]        = -(np.arange(len(syn), dtype=np.int64) + 1)
-        syn["alpha_j"]        = syn["parent_job_idx"].map(sim["alpha_map"])
+        syn["job_idx"]           = -(np.arange(len(syn), dtype=np.int64) + 1)
+        syn["alpha_j"]           = syn["parent_job_idx"].map(sim["alpha_map"])
+        syn["generation_ordinal"] = np.arange(len(syn), dtype=np.int64)
         syn = syn.sample(frac=1, random_state=int(rng_s.integers(0, 2**31))).reset_index(drop=True)
+        assert (syn["generation_ordinal"].values == -(syn["job_idx"].values + 1)).all(), \
+            "generation_ordinal invariant violated: jid must equal -(gen_ord + 1)"
         return syn
 
     def generate_job_perms(syn_pool, scen_rng):
