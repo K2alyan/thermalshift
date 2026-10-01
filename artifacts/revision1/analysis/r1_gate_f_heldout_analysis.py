@@ -189,12 +189,12 @@ print("=" * 70)
 FILE_UNR  = OUT_DIR / f"gate_f_{SCEN_TAG}_unr.json"
 FILE_R1   = OUT_DIR / f"gate_f_{SCEN_TAG}_1p0.json"
 FILE_REST = OUT_DIR / f"gate_f_{SCEN_TAG}_1p25_1p5_2p0_4p0_8p0.json"
-FILE_M4   = OUT_DIR / "m4_canonical_comparisons_v3.json"
+FILE_M4   = OUT_DIR / "m4_canonical_comparisons_v3_corrected.json"
 FILE_QMAN = OUT_DIR / "gate_f_quartile_manifest.json"
 
 print("\n[0] Input files ...")
 for label, fp in [("unrestricted", FILE_UNR), ("r=1", FILE_R1),
-                  ("restricted", FILE_REST), ("M4 v3", FILE_M4),
+                  ("restricted", FILE_REST), ("M4 v3 corrected", FILE_M4),
                   ("quartile manifest", FILE_QMAN)]:
     status = "found" if fp.exists() else "MISSING"
     print(f"    {label}: {fp.name}  [{status}]")
@@ -443,6 +443,29 @@ for comp_name, pol_A, pol_B, m4_key in COMPARISONS:
         fail(f"M4 v3 comparison '{m4_key}' not found in {FILE_M4.name}")
 
     m4_sc_rows = {r["scenario_idx"]: r for r in m4_comp["scenario_rows"]}
+
+    # ── Reference completeness guard ──────────────────────────────────────────
+    n_ref_expected = len(AUTHORITATIVE_SCENARIOS)
+    n_ref_observed = sum(1 for sc in AUTHORITATIVE_SCENARIOS if sc in m4_sc_rows)
+    ref_complete   = (n_ref_observed == n_ref_expected)
+
+    if not DRY_RUN:
+        # Held-out: all 25 reference rows must be present and the set must be exact.
+        expected_set = set(AUTHORITATIVE_SCENARIOS)   # sc5–sc29
+        actual_set   = set(m4_sc_rows.keys())
+        missing_refs = sorted(expected_set - actual_set)
+        extra_refs   = sorted(actual_set   - expected_set)
+        if missing_refs:
+            fail(f"M4 reference missing {len(missing_refs)} scenario(s) for "
+                 f"'{m4_key}': {missing_refs}. "
+                 f"Expected exactly {n_ref_expected} rows (sc5–sc29).")
+        if extra_refs:
+            fail(f"M4 reference has {len(extra_refs)} unexpected scenario(s) for "
+                 f"'{m4_key}': {extra_refs}. "
+                 f"Expected exactly sc5–sc29.")
+        assert ref_complete, (
+            f"Internal: completeness mismatch post-check for {m4_key}")
+
     max_diff_lo = 0.0
     max_diff_hi = 0.0
     cell_errors = []
@@ -450,9 +473,14 @@ for comp_name, pol_A, pol_B, m4_key in COMPARISONS:
     for sc_idx in AUTHORITATIVE_SCENARIOS:
         m4_row = m4_sc_rows.get(sc_idx)
         if m4_row is None:
-            # Spread comparisons have no sc0-4 entries in M4 v3 (by design).
-            # Skip rather than error — only verify scenarios present in both.
-            continue
+            if DRY_RUN:
+                # Known design gap: spread comparisons have no sc0–4 entries in
+                # the M4 corrected reference. Silently skip in dry-run only.
+                continue
+            else:
+                # Unreachable after the completeness assertion above.
+                fail(f"Internal: sc={sc_idx} missing from '{m4_key}' "
+                     f"after completeness check passed")
 
         lo_A, hi_A = get_crossing(sc_idx, "unrestricted", pol_A)
         lo_B, hi_B = get_crossing(sc_idx, "unrestricted", pol_B)
@@ -477,16 +505,22 @@ for comp_name, pol_A, pol_B, m4_key in COMPARISONS:
     status = "PASS" if not cell_errors else "FAIL"
     if cell_errors:
         unr_verify_pass = False
-    print(f"  {comp_name}: max_diff_lo={max_diff_lo:.2e}pp  max_diff_hi={max_diff_hi:.2e}pp  => {status}")
+    ref_status = "COMPLETE" if ref_complete else "INCOMPLETE (dry-run gap)"
+    print(f"  {comp_name}: ref={n_ref_observed}/{n_ref_expected}  "
+          f"max_diff_lo={max_diff_lo:.2e}pp  max_diff_hi={max_diff_hi:.2e}pp  "
+          f"=> {status}  [{ref_status}]")
     for ce in cell_errors[:5]:
         print(f"    ERROR: {ce}", file=sys.stderr)
 
     m4_verify_results[comp_name] = {
-        "m4_key"       : m4_key,
-        "max_diff_lo_pp": max_diff_lo,
-        "max_diff_hi_pp": max_diff_hi,
-        "pass"         : not cell_errors,
-        "errors"       : cell_errors,
+        "m4_key"                  : m4_key,
+        "expected_reference_rows" : n_ref_expected,
+        "observed_reference_rows" : n_ref_observed,
+        "reference_completeness_pass": ref_complete,
+        "max_diff_lo_pp"          : max_diff_lo,
+        "max_diff_hi_pp"          : max_diff_hi,
+        "pass"                    : not cell_errors,
+        "errors"                  : cell_errors,
     }
 
 if not unr_verify_pass:

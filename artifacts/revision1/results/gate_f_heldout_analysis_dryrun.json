@@ -53,6 +53,9 @@
   "unrestricted_m4_verification": {
     "FP_vs_Random": {
       "m4_key": "fp_vs_canonical_rand",
+      "expected_reference_rows": 5,
+      "observed_reference_rows": 5,
+      "reference_completeness_pass": true,
       "max_diff_lo_pp": 0.0,
       "max_diff_hi_pp": 0.0,
       "pass": true,
@@ -60,6 +63,9 @@
     },
     "Loc_vs_Random": {
       "m4_key": "loc_vs_canonical_rand",
+      "expected_reference_rows": 5,
+      "observed_reference_rows": 5,
+      "reference_completeness_pass": true,
       "max_diff_lo_pp": 0.0,
       "max_diff_hi_pp": 0.0,
       "pass": true,
@@ -67,6 +73,9 @@
     },
     "FPSpread_vs_Random": {
       "m4_key": "spread_vs_canonical_rand",
+      "expected_reference_rows": 5,
+      "observed_reference_rows": 0,
+      "reference_completeness_pass": false,
       "max_diff_lo_pp": 0.0,
       "max_diff_hi_pp": 0.0,
       "pass": true,
@@ -74,6 +83,9 @@
     },
     "FPSpread_vs_FP": {
       "m4_key": "spread_vs_fp",
+      "expected_reference_rows": 5,
+      "observed_reference_rows": 0,
+      "reference_completeness_pass": false,
       "max_diff_lo_pp": 0.0,
       "max_diff_hi_pp": 0.0,
       "pass": true,
@@ -81,6 +93,9 @@
     },
     "FPSpread_vs_Loc": {
       "m4_key": "spread_vs_canonical_loc",
+      "expected_reference_rows": 5,
+      "observed_reference_rows": 0,
+      "reference_completeness_pass": false,
       "max_diff_lo_pp": 0.0,
       "max_diff_hi_pp": 0.0,
       "pass": true,
@@ -1415,7 +1430,7 @@
     }
   },
   "provenance": {
-    "freeze_head": "86a95ecea62f8fc6612418ef8ea444d32724b4d9",
+    "freeze_head": "8c81781c13830e0ae24a479d500c8b21cb0b67e2",
     "tracked_tree_clean": false,
     "input_sha256": {
       "gate_f_unr": "591055110a91c2656e0e7348b7a8a7b3e7322cb690e78bf426571004e67e743f",
@@ -1423,7 +1438,7 @@
       "gate_f_rest": "fde76902889d6ad5b15dd327c1f25c101011dbbc9b947c3ae61976f64c61baf4",
       "m4_v3": "0fa399c27d68307b994eb7b61638fb46c71cbb629672a219548757ea0c8913ae",
       "quartile_manifest": "366044385dc9a067a8f078dbc84e761d13cf4ddaa88dcc7496a60880d09fb2b0",
-      "this_script": "583f99600786328eb8d38b25c09962c3a99384794752fffd8ec967a5f904c729"
+      "this_script": "c07b3835ddb59bd6bdfd5e25bada17f6efd03d2e8954ed710f5c978e0319b1e1"
     },
     "analysis_script": "r1_gate_f_heldout_analysis.py"
   }
