@@ -4,7 +4,8 @@
 **Amended:** 2026-09-30 — hash construction and event_uid frozen; unit tests specified
 **Amended:** 2026-09-30 — §4.6 no-choice control corrected; generation_ordinal frozen; terminology clarified
 **Amended:** 2026-09-30 — §4.1 external pool corrected (exogenous blockers only); §5 base-job placement corrected; §6 preflight strengthened
-**Amended:** 2026-09-30 — drop-cause semantics frozen (E_full/E_r); terminology finalized; §8.2 priority description corrected; §11 r=1 annotation fixed; realized-choice diagnostics added. Design frozen.
+**Amended:** 2026-09-30 — drop-cause semantics frozen (E_full/E_r); terminology finalized; §8.2 priority description corrected; §11 r=1 annotation fixed; realized-choice diagnostics added.
+**Amended:** 2026-09-30 — Estimand/intervention corrected. Intervention now follows M4 feasibility. Gate F restricts how many currently feasible nodes the selector may inspect, not external candidate visibility. Design frozen.
 **Status:** Approved for implementation
 
 ---
@@ -15,7 +16,7 @@
 
 > For a job requiring *k* cohort nodes, how many currently feasible candidate nodes must the scheduler be able to see before thermal information provides useful placement value?
 
-This is a **dynamic feasible-choice-set sensitivity** experiment. It is not an occupancy simulation and must not be described as one. The manipulated variable is the size of the **exogenous** shortlist from which every policy draws at each job arrival.
+This is a **dynamic feasible-choice-set sensitivity** experiment. It is not an occupancy simulation and must not be described as one. The manipulated variable is the number of currently feasible candidate nodes the selector may inspect at each job arrival.
 
 **M4 established:**
 - FP beats Random (24/30 definite wins, dlo_med +1.89 pp).
@@ -58,7 +59,7 @@ All policy logic and source artifacts are frozen at M4 v3. Nothing changes.
 | `full_loc` | canonical | lowest position-mean FA (chassis/slot/board/node_pos) within eligible shortlist |
 | `full_fp_spread` | v5 | FP-spread rule within eligible shortlist |
 
-No policy parameter is changed. The only manipulation is the external shortlist size.
+No policy parameter is changed. The only manipulation is the number of currently feasible candidates exposed to the selector (the feasible-choice shortlist size).
 
 ---
 
@@ -83,34 +84,46 @@ where `n_available` = policy-neutral cohort nodes not blocked by background load
 | Term | Symbol | Definition |
 |------|--------|-----------|
 | *k* | — | Job cohort node count (nodes required) |
-| *m* | — | External shortlist size = min(ceil(r × k), n_available) |
 | `nominal_choice_ratio` | r | The experimental treatment variable. Set by the design; identical across all policies. |
-| `realized_external_multiplier` | m / k | Observed after exogenous availability. Equals r when n_available ≥ ceil(r × k); lower otherwise. Shared across policies at the same event. |
-| `post_filter_eligible_multiplier` | \|E_r\| / k | Per-policy, per-event. Observed after endogenous filtering. Can differ across policies for the same event because replay states diverge. |
+| `full_feasible_count` | \|E_full,p\| | Per-policy: number of currently feasible candidate nodes produced by the frozen M4 candidate-generation logic. Policy-specific; can differ across policies at the same event once replay states diverge. |
+| `exposed_feasible_count` | \|C_p,r\| | Per-policy: shortlist size after Gate F restriction. = min(ceil(r × k), \|E_full,p\|). Always ≥ k when \|E_full,p\| ≥ k and r ≥ 1. |
+| `realized_feasible_choice_multiplier` | \|C_p,r\| / k | Per-policy: the number of currently feasible choices actually exposed, as a multiple of the job size. This is what the estimand measures. |
 
-The primary x-axis is `nominal_choice_ratio` r (the manipulated variable). Report `realized_external_multiplier` and `post_filter_eligible_multiplier` as diagnostic observations alongside it. Do not label `realized_external_multiplier` as the "realized feasible-choice ratio" — that term would conflate the controlled external shortlist with the policy-specific post-filter eligible set.
+The primary x-axis is `nominal_choice_ratio` r (the manipulated variable). Because Gate F intervenes after M4 feasibility, `realized_feasible_choice_multiplier` now truly means what it says: the scheduler has |C_p,r| / k times as many currently feasible candidates as the job requires.
 
 ---
 
 ## 4. Candidate-set construction
 
-### 4.1 Exogenous candidate universe (policy-neutral)
+### 4.1 Frozen M4 feasibility step (per policy)
 
-At each scheduling event, begin from all cohort nodes **not blocked by fixed/non-cohort background occupancy** at that instant. This is the exogenous candidate universe and is identical across all four policies.
+For each scheduling event and each policy, first obtain the complete set of currently feasible candidate nodes using the **exact frozen M4 full-policy candidate-generation logic**, including all job-type-specific occupancy rules, utilization-cap handling, look-ahead/QoS constraints, and base-job fallback semantics:
 
-**Do not remove nodes because of counterfactual base-job occupancy, synthetic-job occupancy, utilization caps, look-ahead constraints, or any other replay state at this stage.** In Gate F, as in M4 full-policy replay, base-job cohort-node placements are counterfactually replayed under each policy. That means current base-job occupancy is policy-specific endogenous state, not an exogenous constraint. Synthetic occupancy is likewise policy-specific. Both belong in the per-policy endogenous filter (§4.5), not here.
+```
+E_full,p  =  frozen_m4_candidate_set(policy=p, event=e, state=state_p)
+```
+
+Do not reimplement M4 eligibility from a new formula. Call or reuse the existing M4 candidate-generation path directly. The logic is frozen at M4 v3 and must not be altered for Gate F.
+
+`E_full,p` is **per-policy** and will diverge across policies once their replay states differ — because counterfactual base-job occupancy and synthetic occupancy are policy-specific. This is expected and must not be forced to be identical.
+
+**If |E_full,p| < k**: the job is not feasible under the current policy state with any choice ratio. Apply the existing M4 failure/drop/invariant semantics exactly. Gate F is not the cause; this is an ordinary M4 outcome.
+
+**If |E_full,p| ≥ k**: proceed to Gate F shortlist (§4.4).
 
 **Construction pipeline for each scheduling event:**
 
 ```
-Exogenous candidate universe  (§4.1 — fixed/non-cohort blockers only)
-    → BLAKE2b hash ranking     (§4.2)
-    → Ratio-specific external shortlist  (§4.4 — same for all policies)
-    → Per-policy endogenous filter       (§4.5 — cf_busy / utilization / lookahead)
-    → Frozen policy selector             (§4.5)
+Frozen M4 candidate generation  (§4.1 — per policy, full feasibility)
+    → E_full,p  (currently feasible nodes; policy-specific)
+    ↓ if |E_full,p| < k: existing M4 failure semantics
+    ↓ else:
+    BLAKE2b hash priority on E_full,p  (§4.2)
+    → C_p,r = first min(ceil(r×k), |E_full,p|) feasible nodes  (§4.4)
+    → Frozen policy selector  (§4.5)
 ```
 
-This ordering is required for the external shortlist to be genuinely common across all policies. If current base/synthetic occupancy were removed in §4.1, the "common" shortlist would vary by policy and Gate F would not be a valid sensitivity experiment.
+This ordering ensures that Gate F restricts how many currently feasible nodes the selector may inspect, not external candidate visibility. At r ≥ 1 and |E_full,p| ≥ k, C_p,r always contains at least k feasible nodes, so Gate F never directly prevents a feasible job from being placed.
 
 ### 4.2 Node priority: frozen BLAKE2b keyed hash
 
@@ -185,90 +198,73 @@ The NUL byte `0x00` separates `event_uid` from `hostname`. This is safe as long 
 
 Sorting the workload by start_time for scheduling purposes does not renumber the `generation_ordinal`. The uid is derived from the generation sequence, not from the scheduling sequence.
 
-### 4.4 Shortlist construction (per job arrival)
+### 4.4 Gate F shortlist construction (per policy, per job arrival)
+
+Called only when |E_full,p| ≥ k (§4.1). Applies to the per-policy feasible set.
 
 ```python
 import math
 
-# exogenous_universe: cohort nodes not blocked by fixed/non-cohort background (§4.1)
-ordered = sorted(
-    exogenous_universe,
+# full_eligible: E_full,p from frozen M4 candidate generation (§4.1)
+# Already filtered for all occupancy, caps, QoS — every node here is feasible.
+
+ordered_p = sorted(
+    full_eligible,
     key=lambda h: choice_priority(scenario_seed, event_uid, h),
 )
 
-m = min(len(ordered), math.ceil(choice_ratio * k))
-candidate_shortlist = ordered[:m]
+m_p_r = min(len(ordered_p), math.ceil(r * k))
+# Since len(ordered_p) = |E_full,p| >= k and r >= 1.0, m_p_r >= k always.
+
+C_p_r = ordered_p[:m_p_r]  # Gate F shortlist: m_p_r currently-feasible nodes
+
+selected = frozen_selector(C_p_r, k, policy=p)
 ```
 
-By construction, shortlists are nested across ratios for the same event:
-```
-C_{1.0} ⊆ C_{1.25} ⊆ C_{1.5} ⊆ C_{2.0} ⊆ C_{4.0} ⊆ C_{8.0} ⊆ C_{unrestricted}
-```
-
-The nesting is exact (not approximate): `ordered` is computed once per event from fixed priorities, and `C_r` is simply `ordered[:m_r]`.
-
-### 4.5 Per-policy endogenous filtering and selection
-
-Each policy receives the **same external shortlist** for ratio r at each job arrival. It then applies endogenous filtering and selection according to job type.
-
-**Define two sets for every policy/event:**
+**Nesting within a policy:** because priorities are fixed by (scenario_seed, event_uid, hostname) and E_full,p is the same for all ratios at the same event under the same policy state, shortlists are nested within a policy across ratios:
 
 ```
-E_full  = endogenous-eligible nodes from the complete exogenous universe
-           (all cohort nodes not blocked by background; no shortlist applied)
-E_r     = E_full ∩ external_shortlist(r)
+C_p,{1.0} ⊆ C_p,{1.25} ⊆ C_p,{1.5} ⊆ C_p,{2.0} ⊆ C_p,{4.0} ⊆ C_p,{8.0} ⊆ C_p,{unr}
 ```
 
-**Synthetic job logic:**
+**Candidate identities may differ across policies** at the same event once replay states diverge (because E_full,p is policy-specific). This is correct behavior. Fairness is provided by identical workload and residual draws, identical nominal r, and the same policy-blind hash function applied to each policy's own feasible set.
 
-```
-if |E_full| < k:
-    # Insufficient eligible nodes even with unrestricted choice — not caused
-    # by Gate F's shortlist. Use existing M4 drop classification:
-    #   n_drop_cap / n_drop_physical / n_drop_la as appropriate.
-    # Do NOT increment n_drop_choice_constrained.
+### 4.5 Frozen policy selector
 
-elif |E_r| < k:
-    # Shortlist caused the failure. The same policy state had enough eligible
-    # nodes under unrestricted external choice, but Gate F hid too many.
-    n_drop_choice_constrained += 1
-    # Synthetic job is not admitted.
+Every node in C_p,r is already feasible (produced by §4.1). There is no separate endogenous filtering step. The frozen policy selector receives C_p,r directly and chooses k nodes:
 
-else:
-    # Apply frozen selector to E_r.
-```
+| Policy | Selector rule |
+|--------|--------------|
+| `full_random` | uniform random draw of k from C_p,r |
+| `full_fp` | lowest FA_2024 first; take top k |
+| `full_loc` | lowest position-mean FA (chassis/slot/board/node_pos); take top k |
+| `full_fp_spread` | FP-spread rule; take k |
 
-**Base job logic:**
+Selector logic is identical to M4 v3 — frozen, no tuning.
 
-```
-if |E_r| < k:
-    # The shortlist is too restrictive for the base job.
-    # Do NOT drop or under-serve the base job — the QoS invariant is hard.
-    # Mark this replay point infeasible / invariant_violated.
-    # This is recorded as a base-shortlist invariant failure, not a
-    # choice-constrained drop.
+Since |C_p,r| ≥ k always holds when |E_full,p| ≥ k and r ≥ 1, the selector always has at least k candidates. Gate F does not introduce a new category of infeasible placements; it restricts which feasible candidates are visible to the selector, which changes placement quality and downstream thermal/power headroom.
 
-else:
-    # Place all k nodes under the frozen M4 full-policy rules.
-```
+**Shortlist construction happens fresh at every job arrival** from the current per-policy feasible set. Nodes are never permanently removed for the duration of a scenario.
 
-This preserves the causal interpretation: `n_drop_choice_constrained` means the placement could have succeeded under the same policy state with unrestricted external choice, but Gate F's shortlist prevented it. It does not fire when the placement would have failed anyway.
+### 4.6 r=1 negative control (strong)
 
-**Critical:** shortlist construction happens fresh at every job arrival from the current exogenous universe. Nodes are never permanently removed for an entire scenario.
+At r = 1.0 and |E_full,p| ≥ k for all policies: each policy's Gate F shortlist C_p,{1.0} contains exactly k feasible nodes. The selector has no choice discretion — it must place exactly those k nodes. Since E_full,p is produced by the M4 full-policy candidate-generation logic and all four policies start from identical state before any placements, the following holds **by induction**:
 
-### 4.6 No-choice negative control
+**Base case:** at the first job event, all four policies have identical replay state. Their E_full,p sets are therefore identical. All four receive the same k-node C_p,{1.0} and make the same k placements.
 
-When `n_available >= k` and r = 1.0, all four policies receive the same external shortlist of exactly *k* nodes.
+**Inductive step:** if all four policies have identical replay state before event t, they produce identical E_full,p at event t, receive the same k-node shortlist, make the same k placements, and arrive at identical state after event t.
 
-However, the external shortlist being identical does not imply that all four policies produce identical final selections. After earlier placements, each policy accumulates its own endogenous state (utilization caps, synthetic occupancy). A node that is endogenously eligible under Random may not be eligible under FP-spread at the same event, and vice versa. Divergence in final selections caused by policy-specific endogenous state is a valid experimental outcome and must be **recorded**, not treated as an implementation failure.
+**Conclusion:** throughout an r = 1.0 replay, as long as each job is feasible (|E_full,p| ≥ k), all four policies select identical nodes at every event, their replay states evolve identically, and their raw lambda-row metrics are identical.
 
-**What is asserted:**
+**Assert on sc0–4 at r = 1.0:**
+- Identical selected node sets across all four policies at every feasible event.
+- Identical evolving synthetic occupancy and utilization state across policies.
+- Identical raw lambda-row metrics (capacity_unlock_pct, B/B_ref, S/S_ref, B_cab, drop counts).
+- Identical reconstructed crossings.
 
-1. All four policies receive the same *k*-node external shortlist (always required at r=1.0 with n_available ≥ k).
-2. For each policy individually: if all *k* shortlisted nodes are endogenously eligible under that policy, the policy must select exactly those *k* nodes (no policy-specific randomness can cause it to skip an eligible node when no other choice exists).
-3. Corollary: if all *k* nodes are eligible under all four policies simultaneously, all four selections must be identical. This is the "pure no-choice" case and should be tested explicitly.
+If the inductive argument holds, this is a hard assertion, not an empirical check. A violation indicates an implementation bug (state divergence before the expected event, or policy-specific selection when |C_p,r| = k).
 
-**What is not asserted:** that all four policies always select the same nodes at r=1.0. They may differ whenever their endogenous states have diverged.
+**Unrestricted is the opposite endpoint:** C_p,{unr} = E_full,p — full feasible set exposed — which must reproduce M4 v3 exactly.
 
 ---
 
@@ -284,14 +280,11 @@ This is the M4 **full-policy** replay model. It is not the marginal-policy model
 
 Existing M4 drop categories (`n_drop_cap`, `n_drop_physical`, `n_drop_la`) are preserved and retain their M4 semantics.
 
-**New Gate F categories:**
+**Gate F introduces no new drop categories.**
 
-| Field | Fires when | Scope |
-|-------|-----------|-------|
-| `n_drop_choice_constrained` | Synthetic job: \|E_full\| ≥ k but \|E_r\| < k (shortlist is the cause) | Synthetic only |
-| `n_base_shortlist_invariant_failure` | Base job: \|E_r\| < k (base job cannot be placed; replay point is infeasible) | Base only |
+Gate F intervenes after M4 feasibility (§4.1): every node in C_p,r is already feasible. Because |C_p,r| ≥ k whenever |E_full,p| ≥ k and r ≥ 1.0, the selector always receives at least k feasible candidates and Gate F cannot prevent a feasible placement.
 
-`n_drop_choice_constrained` must be zero at r = unrestricted (preflight check). `n_base_shortlist_invariant_failure` must also be zero at r = unrestricted; any non-zero value at any ratio is a signal that the choice ratio is too restrictive relative to the base workload's placement requirements and must be reported prominently.
+If |E_full,p| < k at any policy and event, that is an existing M4 failure condition, not a Gate F failure. Apply the existing M4 failure/drop/invariant semantics exactly and record the drop under the existing M4 category. Report `full_feasible_count` (|E_full,p|) as a per-event diagnostic field to confirm that shortfall is not Gate F-caused.
 
 ---
 
@@ -309,9 +302,7 @@ Before running any restricted ratios or looking at held-out results, the impleme
 | Reconstructed crossings | Capacity-order first-violation (v3 estimand) applied to new lambda_rows produces same C_lower and C_upper as `m4_canonical_comparisons_v3.json` scenario_rows |
 | C_lower ≤ C_upper | 0 violations across all reconstructed crossings |
 | Right-censored | 0 unexpected right-censored crossings |
-| No-choice control (shortlist identity) | At r = 1.0 with n_available ≥ k, all four policies receive the identical k-node external shortlist |
-| No-choice control (conditional selection) | At r = 1.0, any policy for which all k shortlisted nodes are endogenously eligible selects exactly those k nodes; when all four policies are in this state simultaneously their selections are identical |
-| Choice-constrained drops | 0 at r = unrestricted for all policies |
+| r=1 inductive negative-control assertion | At r = 1.0 on sc0–4: all four policies must select identical node sets at every feasible event, maintain identical evolving replay state, and produce identical lambda-row metrics and reconstructed crossings throughout the replay. Any deviation is an implementation bug (see §4.6). |
 
 If any check fails, stop. Fix the implementation before looking at sc5–29 or running restricted ratios.
 
@@ -339,7 +330,7 @@ Reuse the M4 lambda sweep: `[1.0, 1.06, 1.1, 1.15, 1.2, 1.3, 1.4, 1.5, 1.55, 1.6
 
 ### 8.2 Scenario structure
 
-For each scenario (sc), for each lambda, for each ratio r: run all four policies on the **same external shortlist**. Each (sc, lambda, r, policy) produces one row of metrics.
+For each scenario (sc), for each lambda, for each ratio r: run all four policies with the same nominal choice ratio r. Each (sc, lambda, r, policy) produces one row of metrics. Each policy operates on its own E_full,p (which may diverge across policies once occupancy states differ), but applies the same hash function and the same r to construct C_p,r from its own feasible set.
 
 The node priority ranking at each scheduling event is fixed by `(scenario_seed, event_uid, hostname)` — it does not depend on lambda or choice ratio. The same event therefore has the same node ordering at every ratio level in which it appears and at every lambda where that event is replayed. Choice ratios simply take longer prefixes of this common ordering. This provides strong common-random-number structure across all ratios.
 
@@ -347,7 +338,7 @@ The node priority ranking at each scheduling event is fixed by `(scenario_seed, 
 
 Per scenario, per ratio, per policy, per lambda:
 - All fields in M4 lambda_rows (capacity_unlock_pct, B_primary_ratio, etc.)
-- Additionally: `m_shortlist`, `nominal_choice_ratio` (= r), `realized_external_multiplier` (= m/k), `m_eligible` (= |E_r|), `post_filter_eligible_multiplier` (= |E_r|/k), `n_drop_choice_constrained`, `n_base_shortlist_invariant_failure`
+- Additionally: `nominal_choice_ratio` (= r), `full_feasible_count` (= |E_full,p|, per-policy), `exposed_feasible_count` (= |C_p,r|, per-policy), `realized_feasible_choice_multiplier` (= |C_p,r|/k, per-policy)
 
 Per scenario, per ratio, per policy:
 - Reconstructed crossing (C_lower_pct, C_upper_pct, status, first_binding) via v3 capacity-order first-violation estimand.
@@ -373,16 +364,11 @@ Per ratio, per comparison pair:
 | `B_cab_ratio` | Cabinet power ratio |
 | `infeasible`, `first_binding` | Feasibility and binding constraint |
 | `n_syn_admit` | Admitted synthetic jobs |
-| `n_drop_cap`, `n_drop_physical`, `n_drop_la` | Existing drop categories |
-| `n_drop_choice_constrained` | New: synthetic job dropped due to shortlist (|E_full|≥k but |E_r|<k) |
-| `n_base_shortlist_invariant_failure` | New: base job could not be placed due to shortlist |
+| `n_drop_cap`, `n_drop_physical`, `n_drop_la` | Existing drop categories (unchanged from M4) |
 | `syn_node_hours` | Admitted synthetic node-hours |
-| `m_shortlist_p10/p50/p90` | Distribution of shortlist size m across jobs at this lambda |
-| `realized_external_multiplier_p10/p50/p90` | Distribution of m/k (shared across policies for same event) |
-| `post_filter_eligible_multiplier_p10/p50/p90` | Per-policy distribution of |E_r|/k after endogenous filtering |
-| `frac_post_filter_below_1` | Fraction of job events where post_filter_eligible_multiplier < 1.0 (eligible set smaller than job size) |
-| `frac_choice_constrained_drops` | n_drop_choice_constrained / n_syn_scheduled (synthetic jobs attempted at this lambda) |
-| `frac_base_shortlist_failures` | n_base_shortlist_invariant_failure / n_base_scheduled |
+| `full_feasible_count_p10/p50/p90` | Per-policy distribution of |E_full,p| (feasible nodes before Gate F restriction) across jobs at this lambda |
+| `exposed_feasible_count_p10/p50/p90` | Per-policy distribution of |C_p,r| (feasible nodes exposed to selector) |
+| `realized_feasible_choice_multiplier_p10/p50/p90` | Per-policy distribution of |C_p,r|/k (true feasible-choice multiplier seen by the selector) |
 | `mean_F_syn` | Mean thermal fingerprint of admitted synthetic nodes |
 | `loc_score_median` | Median location score of selected nodes |
 | `cab_span_median`, `cab_span_p90` | Cabinet span |
@@ -433,7 +419,7 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 
 ## 11. Primary figure specification
 
-**x-axis:** `nominal_choice_ratio` r (the manipulated variable), with r=1.0 at left and r=unrestricted at right. Label ticks with nominal r values. Do not label the axis as "realized feasible-choice ratio" or use `realized_external_multiplier` as the primary axis; those are diagnostic observations, not experimental treatments.
+**x-axis:** `nominal_choice_ratio` r (the manipulated variable), with r=1.0 at left and r=unrestricted at right. Label ticks with nominal r values. Do not label the axis as "realized feasible-choice ratio" or use `realized_feasible_choice_multiplier` as the primary axis; those are per-policy diagnostic observations, not the experimental treatment.
 
 **y-axis:** median conservative scheduling advantage, delta_lo (pp).
 
@@ -447,7 +433,7 @@ At r = unrestricted these must reproduce the M4 v3 held-out results (sc5–29 su
 **Annotations:**
 - Shaded 95% bootstrap CI band on each curve.
 - Horizontal dashed line at delta_lo = 0.
-- Vertical dashed line at r = 1.0 as a negative-control marker. Do not impose convergence as an acceptance criterion: as established in §4.6, policy states can diverge even at r = 1.0. Audit the r = 1.0 behavior empirically and report whether comparisons collapse as expected; treat unexpected divergence as a diagnostic finding, not a test failure.
+- Vertical dashed line at r = 1.0 with annotation "hard negative-control assertion (§4.6): all policies identical". As established in §4.6, at r = 1.0 all four policies select identical nodes throughout the replay (by induction); all five comparison curves must collapse to zero at r = 1.0. Any non-zero deviation at r = 1.0 is a hard assertion failure indicating an implementation bug, not a scientific finding.
 - Right endpoint reproduces M4 v3 held-out results.
 
 **Secondary figure (optional):** same axes but y = n_definitely_A / n (fraction of definite wins), for the same 5 pairs.
@@ -483,7 +469,7 @@ shortlist(r=1.0)  ⊆  shortlist(r=1.25)  ⊆  shortlist(r=1.5)
 ```
 by set containment of the node lists at each ratio.
 
-**Test 5 — Cross-policy shortlist identity:** At a fixed (sc, lambda, ratio, event), all four policies receive byte-for-byte identical `candidate_shortlist` lists before endogenous filtering.
+**Test 5 — Hash policy-neutrality:** The hash priority function takes no policy parameter. Given an identical `full_eligible` set and identical `(scenario_seed, event_uid)`, all four policies produce the same `ordered_p` ranking and the same `C_p_r`. Verify by passing the same `full_eligible` set to the shortlist construction for all four policies at a synthetic event and asserting `C_p_r` is byte-for-byte identical across policies.
 
 **Test 6 — Global event_uid uniqueness:** Generate a scenario's complete workload (base + synthetic). Assert:
 ```python
@@ -497,11 +483,9 @@ This catches duplicate base IDs, duplicate synthetic generation ordinals, and an
 
 - [ ] Unit tests 1–6 all pass (§13).
 - [ ] Nesting property verified in sc0 dev run at lambda=1.06: `C_{1.0} ⊆ ... ⊆ C_unrestricted`.
-- [ ] No-choice shortlist identity verified in sc0: at r=1.0 with n_available ≥ k, all four policies receive identical k-node external shortlists.
-- [ ] Conditional selection-identity assertion passes in sc0: any policy for which all k shortlisted nodes are endogenously eligible selects exactly those k nodes; when this holds for all four policies simultaneously their selections are identical.
+- [ ] r=1 inductive negative-control assertion verified on sc0–4: all four policies select identical node sets at every feasible event, maintain identical evolving replay state, produce identical lambda-row metrics and reconstructed crossings. All five comparison curves are zero at r=1. Any deviation is treated as an implementation bug (§4.6).
 - [ ] At r=unrestricted, lambda rows for sc0–4 match M4 source files (metric-for-metric).
 - [ ] At r=unrestricted, reconstructed crossings for sc0–4 match M4 v3 scenario_rows.
-- [ ] 0 choice-constrained drops at r=unrestricted.
 - [ ] 0 C_lower > C_upper post-reconstruction.
 - [ ] 0 unexpected right-censored crossings.
 - [ ] Job-size quartile boundaries computed and frozen before held-out run.
