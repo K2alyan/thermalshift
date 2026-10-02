@@ -1161,7 +1161,29 @@ r_label = lambda r: "unrestricted" if r is None else str(r)
 
 scenario_results = []
 
+# ── Checkpoint: resume from partial run if power/process failure ──────────
+CKPT_FILE      = OUT_FILE.with_name(OUT_FILE.stem + "_checkpoint.json")
+_ckpt_ratios   = [r_label(r) for r in GATE_F_RATIOS]
+completed_idxs: set[int] = set()
+if CKPT_FILE.exists():
+    try:
+        _ck = json.loads(CKPT_FILE.read_text())
+        if (_ck.get("n_first") == N_FIRST and _ck.get("n_dev") == N_DEV
+                and _ck.get("gate_f_ratios") == _ckpt_ratios
+                and _ck.get("git_commit_full") == _PROV["git_commit_full"]):
+            scenario_results = _ck["scenario_results"]
+            completed_idxs   = {int(r["scenario_idx"]) for r in scenario_results}
+            print(f"\n[checkpoint] Resuming: {sorted(completed_idxs)} already done "
+                  f"({len(completed_idxs)}/{N_DEV})")
+        else:
+            print(f"\n[checkpoint] Stale or config mismatch; starting fresh")
+    except Exception as _ck_err:
+        print(f"\n[checkpoint] Load error ({_ck_err}); starting fresh")
+
 for s_idx in range(N_FIRST, N_FIRST + N_DEV):
+    if s_idx in completed_idxs:
+        print(f"    [skip] Scenario {s_idx} (in checkpoint)")
+        continue
     t_scen = time.time()
     scen_seed = scen_seeds[s_idx]
     print(f"\n{'='*70}")
@@ -1346,6 +1368,16 @@ for s_idx in range(N_FIRST, N_FIRST + N_DEV):
         "elapsed_s"    : round(time.time() - t_scen, 1),
     })
     print(f"\nScenario {s_idx} done in {time.time()-t_scen:.0f}s")
+    _ck_tmp = CKPT_FILE.with_suffix(".tmp")
+    _ck_tmp.write_text(json.dumps({
+        "n_first"         : N_FIRST,
+        "n_dev"           : N_DEV,
+        "gate_f_ratios"   : _ckpt_ratios,
+        "git_commit_full" : _PROV["git_commit_full"],
+        "scenario_results": scenario_results,
+    }, indent=2))
+    _ck_tmp.replace(CKPT_FILE)
+    print(f"    [checkpoint] {len(scenario_results)}/{N_DEV} saved → {CKPT_FILE.name}")
 
 # ── Save results ────────────────────────────────────────────────────────────
 result = {
@@ -1366,6 +1398,7 @@ result = {
 }
 OUT_FILE.write_text(json.dumps(result, indent=2))
 print(f"\nSaved: {OUT_FILE}")
+CKPT_FILE.unlink(missing_ok=True)
 print(f"Total elapsed: {time.time()-t_script:.0f}s")
 print("\nNEXT: Run preflight verification before restricted ratios.")
 print("  python artifacts/revision1/analysis/r1_gate_f_preflight.py")
