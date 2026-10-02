@@ -203,7 +203,12 @@ def run_equivalence_check(stream_output: bool = True) -> bool:
             text=True,
         )
         if proc.returncode != 0:
-            print(f"  FAIL: subprocess returned exit code {proc.returncode}")
+            print(f"  FAIL: subprocess exited {proc.returncode}.")
+            if not os.environ.get("THERMALSHIFT_DATA_DIR"):
+                print(f"  THERMALSHIFT_DATA_DIR is not set — set it and rerun.")
+            else:
+                print(f"  Check that THERMALSHIFT_DATA_DIR points to the "
+                      f"directory containing frontier-completed-job-info.parquet")
             return False
         if not is_valid_scenario_file(solo_path, EQUIV_SC):
             print(f"  FAIL: {solo_path.name} missing or invalid after exit 0")
@@ -300,8 +305,9 @@ def main():
     ok = run_equivalence_check(stream_output=not equiv_only)
     if not ok:
         fail("Equivalence check failed — do not proceed with held-out run.\n"
-             "  This means the recovery commit altered simulation results.\n"
-             "  Investigate before running any held-out scenarios.")
+             "  If the subprocess exited non-zero, check THERMALSHIFT_DATA_DIR.\n"
+             "  If crossings mismatched, the recovery commit altered simulation "
+             "results and must be investigated.")
 
     if equiv_only:
         print("\nEquivalence check passed. (--equiv-only: not launching held-out run)")
