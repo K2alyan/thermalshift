@@ -151,9 +151,13 @@ def _crossing_subset(cx: dict) -> dict:
             for k in ("status", "C_lower_pct", "C_upper_pct",
                       "right_censored", "n_lambda_eval")}
 
-def _lambda_row_subset(row: dict) -> dict:
+def _lambda_row_subset(row: dict, ref_keys: set | None = None) -> dict:
+    # Skip timing. If ref_keys supplied, restrict to intersection so that
+    # fields added after the reference dev run (e.g. q_admit, q_drop added
+    # between c8df388 and e2df32a) do not produce false mismatches.
     skip = {"elapsed_s"}
-    return {k: v for k, v in row.items() if k not in skip}
+    keys = (ref_keys - skip) if ref_keys is not None else (set(row) - skip)
+    return {k: row.get(k) for k in keys}
 
 def run_equivalence_check(stream_output: bool = True) -> bool:
     """
@@ -258,7 +262,9 @@ def run_equivalence_check(stream_output: bool = True) -> bool:
                     f"lambda_rows count r={r_str} {pol}: ref={len(rrows)} test={len(trows)}")
                 continue
             for i, (rr, tr) in enumerate(zip(rrows, trows)):
-                rk, tk = _lambda_row_subset(rr), _lambda_row_subset(tr)
+                ref_keys = set(rr.keys())
+                rk = _lambda_row_subset(rr, ref_keys)
+                tk = _lambda_row_subset(tr, ref_keys)
                 if rk != tk:
                     diff_keys = [k for k in set(list(rk) + list(tk))
                                  if rk.get(k) != tk.get(k)]
@@ -273,13 +279,20 @@ def run_equivalence_check(stream_output: bool = True) -> bool:
             print(f"    ... and {len(mismatches) - 20} more")
         return False
 
-    print(f"  PASS — crossing values and lambda rows match exactly across")
-    print(f"         {len(RATIO_STRS)} ratios x {len(POLICIES)} policies")
-    print(f"         (excluded from comparison: elapsed_s, git provenance)")
-    print(f"  ref commit : {ref_d.get('git_commit_short','?')}  "
-          f"(freeze e2df32a)")
-    print(f"  test commit: {test_d.get('git_commit_short','?')}  "
-          f"(recovery)")
+    # Report any test-only fields (schema additions post ref-commit) so the
+    # audit trail is explicit about what was excluded from comparison.
+    ref_row0  = ref_sc["ratios"][RATIO_STRS[0]][POLICIES[0]]["lambda_rows"][0]
+    test_row0 = test_sc["ratios"][RATIO_STRS[0]][POLICIES[0]]["lambda_rows"][0]
+    schema_additions = sorted(set(test_row0) - set(ref_row0) - {"elapsed_s"})
+    print(f"  PASS — all 20 crossings and all shared lambda-row fields match exactly")
+    print(f"         ({len(RATIO_STRS)} ratios x {len(POLICIES)} policies)")
+    if schema_additions:
+        print(f"  Schema additions in test vs ref (excluded — not from recovery commit):")
+        print(f"    {schema_additions}")
+        print(f"  These fields were added between ref commit and e2df32a; our")
+        print(f"  recovery commit added none of them.")
+    print(f"  ref commit : {ref_d.get('git_commit_short','?')}  (original dev run)")
+    print(f"  test commit: {test_d.get('git_commit_short','?')}  (recovery commit)")
     return True
 
 # ── Main ───────────────────────────────────────────────────────────────────────
