@@ -1,0 +1,3404 @@
+{
+  "method": "availability_transition_expanding_subset",
+  "avail_fractions": [
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    1.0
+  ],
+  "avail_scenarios": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "avail_seed": 20260929,
+  "scenario_seed": 42,
+  "policies": [
+    "full_fp",
+    "full_fp_spread",
+    "full_random",
+    "full_loc"
+  ],
+  "n_fp_total": 2000,
+  "target_pp": 0.5,
+  "beta_f_frozen": 1.12484352,
+  "t_thr_primary_C": 63.625,
+  "note": "Static candidate-pool sensitivity: the subset is fixed for the entire scenario and is NOT drawn from real production occupancy patterns \u2014 this is a stress test of placement freedom, not a simulation of time-varying node availability. Expanding-subset design: perm_s = RNG(AVAIL_SEED+s_idx).permutation(N_FP); pool_f_s = fp_list[perm_s[:round(f*N_FP)]]; A60 is always a prefix of A70, etc. f=1.00 passes the explicit full cohort set. Interval-aware: delta_lo = C_lower_A - C_upper_B (pessimistic); right-censored treated as [C_lower, +inf); verdicts: def_a_better / indistinguishable / def_b_better / indeterminate_censored.",
+  "fraction_summaries": [
+    {
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "n_scenarios": 10,
+      "C_lower_medians": {
+        "full_fp": 0.0,
+        "full_fp_spread": 0.0,
+        "full_random": 0.0,
+        "full_loc": 0.0
+      },
+      "pair_summaries": {
+        "fp_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_fp": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "loc_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_loc": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        }
+      },
+      "binding_breakdown": {
+        "full_fp": {
+          "invariant_violated": 10
+        },
+        "full_fp_spread": {
+          "invariant_violated": 10
+        },
+        "full_random": {
+          "invariant_violated": 10
+        },
+        "full_loc": {
+          "invariant_violated": 10
+        }
+      }
+    },
+    {
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "n_scenarios": 10,
+      "C_lower_medians": {
+        "full_fp": 0.0,
+        "full_fp_spread": 0.0,
+        "full_random": 0.0,
+        "full_loc": 0.0
+      },
+      "pair_summaries": {
+        "fp_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_fp": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "loc_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_loc": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        }
+      },
+      "binding_breakdown": {
+        "full_fp": {
+          "invariant_violated": 10
+        },
+        "full_fp_spread": {
+          "invariant_violated": 10
+        },
+        "full_random": {
+          "invariant_violated": 10
+        },
+        "full_loc": {
+          "invariant_violated": 10
+        }
+      }
+    },
+    {
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "n_scenarios": 10,
+      "C_lower_medians": {
+        "full_fp": 0.0,
+        "full_fp_spread": 0.0,
+        "full_random": 0.0,
+        "full_loc": 0.0
+      },
+      "pair_summaries": {
+        "fp_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_fp": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "loc_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_loc": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        }
+      },
+      "binding_breakdown": {
+        "full_fp": {
+          "invariant_violated": 10
+        },
+        "full_fp_spread": {
+          "invariant_violated": 10
+        },
+        "full_random": {
+          "invariant_violated": 10
+        },
+        "full_loc": {
+          "invariant_violated": 10
+        }
+      }
+    },
+    {
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "n_scenarios": 10,
+      "C_lower_medians": {
+        "full_fp": 0.0,
+        "full_fp_spread": 0.0,
+        "full_random": 0.0,
+        "full_loc": 0.0
+      },
+      "pair_summaries": {
+        "fp_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_fp": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "loc_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        },
+        "spread_vs_loc": {
+          "n": 10,
+          "n_def_a_better": 0,
+          "n_indistinguishable": 10,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 0.0,
+          "delta_hi_median": 0.0
+        }
+      },
+      "binding_breakdown": {
+        "full_fp": {
+          "invariant_violated": 10
+        },
+        "full_fp_spread": {
+          "invariant_violated": 10
+        },
+        "full_random": {
+          "invariant_violated": 10
+        },
+        "full_loc": {
+          "invariant_violated": 10
+        }
+      }
+    },
+    {
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "n_scenarios": 10,
+      "C_lower_medians": {
+        "full_fp": 4.962876147628487,
+        "full_fp_spread": 8.567002777683516,
+        "full_random": 0.5463191462814883,
+        "full_loc": 5.382646079083175
+      },
+      "pair_summaries": {
+        "fp_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 9,
+          "n_indistinguishable": 0,
+          "n_def_b_better": 1,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 3.8206123375472725,
+          "delta_hi_median": 4.524085145833725
+        },
+        "spread_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 9,
+          "n_indistinguishable": 1,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 7.06142921948091,
+          "delta_hi_median": 7.5502856004954735
+        },
+        "spread_vs_fp": {
+          "n": 10,
+          "n_def_a_better": 8,
+          "n_indistinguishable": 1,
+          "n_def_b_better": 1,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 2.6389426218944667,
+          "delta_hi_median": 2.7956639908465926
+        },
+        "loc_vs_rand": {
+          "n": 10,
+          "n_def_a_better": 8,
+          "n_indistinguishable": 2,
+          "n_def_b_better": 0,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 4.396235003501413,
+          "delta_hi_median": 5.337907444431005
+        },
+        "spread_vs_loc": {
+          "n": 10,
+          "n_def_a_better": 7,
+          "n_indistinguishable": 2,
+          "n_def_b_better": 1,
+          "n_indeterminate_censored": 0,
+          "delta_lo_median": 1.829437973372995,
+          "delta_hi_median": 1.9716560512143908
+        }
+      },
+      "binding_breakdown": {
+        "full_fp": {
+          "B_cab_ratio": 10
+        },
+        "full_fp_spread": {
+          "B_cab_ratio": 8,
+          "B_ratio": 2
+        },
+        "full_random": {
+          "B_ratio": 6,
+          "S_ratio": 4
+        },
+        "full_loc": {
+          "B_cab_ratio": 7,
+          "B_ratio": 2,
+          "S_ratio": 1
+        }
+      }
+    }
+  ],
+  "scenario_rows": [
+    {
+      "scenario_idx": 0,
+      "scen_seed": 191664964,
+      "wl_seed": 967354525,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2509.8544444444456,
+      "S_ref_s": 5869.647313293325,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 0,
+      "scen_seed": 191664964,
+      "wl_seed": 967354525,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2509.8544444444456,
+      "S_ref_s": 5869.647313293325,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 0,
+      "scen_seed": 191664964,
+      "wl_seed": 967354525,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2509.8544444444456,
+      "S_ref_s": 5869.647313293325,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 0,
+      "scen_seed": 191664964,
+      "wl_seed": 967354525,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2509.8544444444456,
+      "S_ref_s": 5869.647313293325,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 0,
+      "scen_seed": 191664964,
+      "wl_seed": 967354525,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2509.8544444444456,
+      "S_ref_s": 5869.647313293325,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 6.662166453742975,
+          "C_upper_pct": 6.824256634868449,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 9.947883728193432,
+          "C_upper_pct": 10.104501248244427,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.2267384102751778,
+          "status": "exact_bracket",
+          "first_binding_constraint": "S_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 8.413551769041561,
+          "C_upper_pct": 8.53849502221766,
+          "status": "exact_bracket",
+          "first_binding_constraint": "S_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 6.435428043467797,
+        "delta_hi": 6.824256634868449,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 9.721145317918253,
+        "delta_hi": 10.104501248244427,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 3.1236270933249832,
+        "delta_hi": 3.442334794501452,
+        "verdict": "def_a_better"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 8.186813358766383,
+        "delta_hi": 8.53849502221766,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 1.409388705975772,
+        "delta_hi": 1.6909494792028656,
+        "verdict": "def_a_better"
+      }
+    },
+    {
+      "scenario_idx": 1,
+      "scen_seed": 1662057958,
+      "wl_seed": 487991439,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2490.2524999999996,
+      "S_ref_s": 5847.492473401093,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 1,
+      "scen_seed": 1662057958,
+      "wl_seed": 487991439,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2490.2524999999996,
+      "S_ref_s": 5847.492473401093,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 1,
+      "scen_seed": 1662057958,
+      "wl_seed": 487991439,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2490.2524999999996,
+      "S_ref_s": 5847.492473401093,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 1,
+      "scen_seed": 1662057958,
+      "wl_seed": 487991439,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2490.2524999999996,
+      "S_ref_s": 5847.492473401093,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 1,
+      "scen_seed": 1662057958,
+      "wl_seed": 487991439,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2490.2524999999996,
+      "S_ref_s": 5847.492473401093,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 5.63076979434246,
+          "C_upper_pct": 5.817342265901845,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.4975196675649525,
+          "C_upper_pct": 1.0016275798236425,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 0.5062767701565322,
+          "C_upper_pct": 1.010384682415222,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.4801754929555082,
+          "C_upper_pct": 0.9842834052141982,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 4.620385111927238,
+        "delta_hi": 5.311065495745313,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": -0.5128650148502696,
+        "delta_hi": 0.4953508096671103,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": -5.319822598336893,
+        "delta_hi": -4.629142214518818,
+        "verdict": "def_b_better"
+      },
+      "loc_vs_rand": {
+        "delta_lo": -0.5302091894597138,
+        "delta_hi": 0.47800663505766605,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": -0.48676373764924574,
+        "delta_hi": 0.5214520868681343,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 2,
+      "scen_seed": 1405681632,
+      "wl_seed": 197860369,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2500.5313888888904,
+      "S_ref_s": 5886.5506603649455,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 2,
+      "scen_seed": 1405681632,
+      "wl_seed": 197860369,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2500.5313888888904,
+      "S_ref_s": 5886.5506603649455,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 2,
+      "scen_seed": 1405681632,
+      "wl_seed": 197860369,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2500.5313888888904,
+      "S_ref_s": 5886.5506603649455,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 2,
+      "scen_seed": 1405681632,
+      "wl_seed": 197860369,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2500.5313888888904,
+      "S_ref_s": 5886.5506603649455,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 2,
+      "scen_seed": 1405681632,
+      "wl_seed": 197860369,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2500.5313888888904,
+      "S_ref_s": 5886.5506603649455,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 6.686492794810103,
+          "C_upper_pct": 7.06628512369173,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 8.746944056868024,
+          "C_upper_pct": 8.94090423364476,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "B_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 6.688541610418844,
+          "C_upper_pct": 7.0834008307186895,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 6.686492794810103,
+        "delta_hi": 7.06628512369173,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 8.746944056868024,
+        "delta_hi": 8.94090423364476,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 1.6806589331762938,
+        "delta_hi": 2.2544114388346568,
+        "verdict": "def_a_better"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 6.688541610418844,
+        "delta_hi": 7.0834008307186895,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 1.6635432261493346,
+        "delta_hi": 2.252362623225916,
+        "verdict": "def_a_better"
+      }
+    },
+    {
+      "scenario_idx": 3,
+      "scen_seed": 942484272,
+      "wl_seed": 1190961761,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2477.2058333333343,
+      "S_ref_s": 5893.749297335744,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 3,
+      "scen_seed": 942484272,
+      "wl_seed": 1190961761,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2477.2058333333343,
+      "S_ref_s": 5893.749297335744,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 3,
+      "scen_seed": 942484272,
+      "wl_seed": 1190961761,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2477.2058333333343,
+      "S_ref_s": 5893.749297335744,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 3,
+      "scen_seed": 942484272,
+      "wl_seed": 1190961761,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2477.2058333333343,
+      "S_ref_s": 5893.749297335744,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 3,
+      "scen_seed": 942484272,
+      "wl_seed": 1190961761,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2477.2058333333343,
+      "S_ref_s": 5893.749297335744,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 5.068230153764773,
+          "C_upper_pct": 5.537336761980486,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 7.691594912444436,
+          "C_upper_pct": 8.008860698030977,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 0.8959745240551175,
+          "C_upper_pct": 1.137159548583119,
+          "status": "exact_bracket",
+          "first_binding_constraint": "S_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 4.8843876761995055,
+          "C_upper_pct": 4.933077321501965,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 3.931070605181654,
+        "delta_hi": 4.641362237925368,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 6.554435363861317,
+        "delta_hi": 7.11288617397586,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 2.15425815046395,
+        "delta_hi": 2.940630544266204,
+        "verdict": "def_a_better"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 3.7472281276163866,
+        "delta_hi": 4.037102797446848,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 2.7585175909424704,
+        "delta_hi": 3.124473021831472,
+        "verdict": "def_a_better"
+      }
+    },
+    {
+      "scenario_idx": 4,
+      "scen_seed": 929893138,
+      "wl_seed": 1906728919,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2513.466111111112,
+      "S_ref_s": 5882.759939775797,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 4,
+      "scen_seed": 929893138,
+      "wl_seed": 1906728919,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2513.466111111112,
+      "S_ref_s": 5882.759939775797,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 4,
+      "scen_seed": 929893138,
+      "wl_seed": 1906728919,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2513.466111111112,
+      "S_ref_s": 5882.759939775797,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 4,
+      "scen_seed": 929893138,
+      "wl_seed": 1906728919,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2513.466111111112,
+      "S_ref_s": 5882.759939775797,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 4,
+      "scen_seed": 929893138,
+      "wl_seed": 1906728919,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2513.466111111112,
+      "S_ref_s": 5882.759939775797,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 4.8575221414922,
+          "C_upper_pct": 4.961901552093642,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 10.96136944440545,
+          "C_upper_pct": 13.578881701453636,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 1.0129390133528529,
+          "C_upper_pct": 1.1473680715793089,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 8.215656951017591,
+          "C_upper_pct": 8.192101556030037,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 3.7101540699128908,
+        "delta_hi": 3.948962538740789,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 9.81400137282614,
+        "delta_hi": 12.565942688100783,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 5.9994678923118085,
+        "delta_hi": 8.721359559961435,
+        "verdict": "def_a_better"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 7.068288879438282,
+        "delta_hi": 7.179162542677185,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 2.7692678883754134,
+        "delta_hi": 5.363224750436045,
+        "verdict": "def_a_better"
+      }
+    },
+    {
+      "scenario_idx": 5,
+      "scen_seed": 1843824993,
+      "wl_seed": 137046513,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2481.8747222222223,
+      "S_ref_s": 5849.462032812391,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 5,
+      "scen_seed": 1843824993,
+      "wl_seed": 137046513,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2481.8747222222223,
+      "S_ref_s": 5849.462032812391,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 5,
+      "scen_seed": 1843824993,
+      "wl_seed": 137046513,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2481.8747222222223,
+      "S_ref_s": 5849.462032812391,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 5,
+      "scen_seed": 1843824993,
+      "wl_seed": 137046513,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2481.8747222222223,
+      "S_ref_s": 5849.462032812391,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 5,
+      "scen_seed": 1843824993,
+      "wl_seed": 137046513,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2481.8747222222223,
+      "S_ref_s": 5849.462032812391,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 3.716829618089611,
+          "C_upper_pct": 3.7295196017775543,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 4.226728778729637,
+          "C_upper_pct": 4.265575660385988,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 0.7020548307483107,
+          "C_upper_pct": 1.1775367054029051,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 4.303555491725445,
+          "C_upper_pct": 4.7782639560892495,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 2.5392929126867063,
+        "delta_hi": 3.0274647710292437,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 3.049192073326732,
+        "delta_hi": 3.5635208296376772,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.49720917695208255,
+        "delta_hi": 0.5487460422963766,
+        "verdict": "def_a_better"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 3.1260187863225397,
+        "delta_hi": 4.076209125340939,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_loc": {
+        "delta_lo": -0.5515351773596127,
+        "delta_hi": -0.037979831339456815,
+        "verdict": "def_b_better"
+      }
+    },
+    {
+      "scenario_idx": 6,
+      "scen_seed": 184566854,
+      "wl_seed": 1843166519,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2523.707222222223,
+      "S_ref_s": 5878.662349432891,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 6,
+      "scen_seed": 184566854,
+      "wl_seed": 1843166519,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2523.707222222223,
+      "S_ref_s": 5878.662349432891,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 6,
+      "scen_seed": 184566854,
+      "wl_seed": 1843166519,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2523.707222222223,
+      "S_ref_s": 5878.662349432891,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 6,
+      "scen_seed": 184566854,
+      "wl_seed": 1843166519,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2523.707222222223,
+      "S_ref_s": 5878.662349432891,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 6,
+      "scen_seed": 184566854,
+      "wl_seed": 1843166519,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2523.707222222223,
+      "S_ref_s": 5878.662349432891,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 3.3460034977225184,
+          "C_upper_pct": 3.446086732088729,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 8.729919877686125,
+          "C_upper_pct": 9.811657907962335,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 4.129343503611774,
+          "C_upper_pct": 4.51369039887585,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 4.372486167933624,
+          "C_upper_pct": 5.4059017203781465,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": -1.1676869011533317,
+        "delta_hi": -0.6832567715230451,
+        "verdict": "def_b_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 4.216229478810275,
+        "delta_hi": 5.682314404350561,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 5.283833145597397,
+        "delta_hi": 6.465654410239816,
+        "verdict": "def_a_better"
+      },
+      "loc_vs_rand": {
+        "delta_lo": -0.14120423094222634,
+        "delta_hi": 1.2765582167663725,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 3.324018157307979,
+        "delta_hi": 5.439171740028711,
+        "verdict": "def_a_better"
+      }
+    },
+    {
+      "scenario_idx": 7,
+      "scen_seed": 1497586439,
+      "wl_seed": 1777324408,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2489.0958333333338,
+      "S_ref_s": 5821.263372208536,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 7,
+      "scen_seed": 1497586439,
+      "wl_seed": 1777324408,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2489.0958333333338,
+      "S_ref_s": 5821.263372208536,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 7,
+      "scen_seed": 1497586439,
+      "wl_seed": 1777324408,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2489.0958333333338,
+      "S_ref_s": 5821.263372208536,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 7,
+      "scen_seed": 1497586439,
+      "wl_seed": 1777324408,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2489.0958333333338,
+      "S_ref_s": 5821.263372208536,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 7,
+      "scen_seed": 1497586439,
+      "wl_seed": 1777324408,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2489.0958333333338,
+      "S_ref_s": 5821.263372208536,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 4.4106008268294605,
+          "C_upper_pct": 4.617969832908067,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 8.404085677680907,
+          "C_upper_pct": 8.574046549421531,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 0.5863615224064442,
+          "C_upper_pct": 0.8356626025804046,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 5.880904481966845,
+          "C_upper_pct": 5.835375011530306,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 3.574938224249056,
+        "delta_hi": 4.031608310501623,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 7.568423075100503,
+        "delta_hi": 7.987685027015087,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 3.78611584477284,
+        "delta_hi": 4.163445722592071,
+        "verdict": "def_a_better"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 5.045241879386441,
+        "delta_hi": 5.249013489123861,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 2.5687106661506016,
+        "delta_hi": 2.693142067454686,
+        "verdict": "def_a_better"
+      }
+    },
+    {
+      "scenario_idx": 8,
+      "scen_seed": 432652533,
+      "wl_seed": 594336918,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2478.0866666666675,
+      "S_ref_s": 5856.070156219276,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 8,
+      "scen_seed": 432652533,
+      "wl_seed": 594336918,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2478.0866666666675,
+      "S_ref_s": 5856.070156219276,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 8,
+      "scen_seed": 432652533,
+      "wl_seed": 594336918,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2478.0866666666675,
+      "S_ref_s": 5856.070156219276,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 8,
+      "scen_seed": 432652533,
+      "wl_seed": 594336918,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2478.0866666666675,
+      "S_ref_s": 5856.070156219276,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 8,
+      "scen_seed": 432652533,
+      "wl_seed": 594336918,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2478.0866666666675,
+      "S_ref_s": 5856.070156219276,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 6.912514823682573,
+          "C_upper_pct": 7.103890042896602,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 10.315393724327828,
+          "C_upper_pct": 9.446562486786767,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.23588168996689254,
+          "status": "exact_bracket",
+          "first_binding_constraint": "S_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 8.398553523507143,
+          "C_upper_pct": 8.320061003731173,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 6.67663313371568,
+        "delta_hi": 7.103890042896602,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 10.079512034360935,
+        "delta_hi": 9.446562486786767,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 3.2115036814312266,
+        "delta_hi": 2.534047663104195,
+        "verdict": "def_a_better"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 8.16267183354025,
+        "delta_hi": 8.320061003731173,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 1.9953327205966556,
+        "delta_hi": 1.0480089632796243,
+        "verdict": "def_a_better"
+      }
+    },
+    {
+      "scenario_idx": 9,
+      "scen_seed": 202244314,
+      "wl_seed": 1356488968,
+      "avail_frac": 0.6,
+      "n_avail": 1200,
+      "B_ref_s": 2497.1402777777794,
+      "S_ref_s": 5858.94864508344,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 9,
+      "scen_seed": 202244314,
+      "wl_seed": 1356488968,
+      "avail_frac": 0.7,
+      "n_avail": 1400,
+      "B_ref_s": 2497.1402777777794,
+      "S_ref_s": 5858.94864508344,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 9,
+      "scen_seed": 202244314,
+      "wl_seed": 1356488968,
+      "avail_frac": 0.8,
+      "n_avail": 1600,
+      "B_ref_s": 2497.1402777777794,
+      "S_ref_s": 5858.94864508344,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 9,
+      "scen_seed": 202244314,
+      "wl_seed": 1356488968,
+      "avail_frac": 0.9,
+      "n_avail": 1800,
+      "B_ref_s": 2497.1402777777794,
+      "S_ref_s": 5858.94864508344,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        },
+        "full_loc": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "invariant_violated"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_fp": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      },
+      "spread_vs_loc": {
+        "delta_lo": 0.0,
+        "delta_hi": 0.0,
+        "verdict": "indistinguishable"
+      }
+    },
+    {
+      "scenario_idx": 9,
+      "scen_seed": 202244314,
+      "wl_seed": 1356488968,
+      "avail_frac": 1.0,
+      "n_avail": 2000,
+      "B_ref_s": 2497.1402777777794,
+      "S_ref_s": 5858.94864508344,
+      "crossings": {
+        "full_fp": {
+          "C_lower_pct": 1.7561106163151003,
+          "C_upper_pct": 4.406808053742081,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_fp_spread": {
+          "C_lower_pct": 1.7561106163151003,
+          "C_upper_pct": 4.406808053742081,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        },
+        "full_random": {
+          "C_lower_pct": 0.0,
+          "C_upper_pct": 0.0,
+          "status": "left_boundary",
+          "first_binding_constraint": "S_ratio"
+        },
+        "full_loc": {
+          "C_lower_pct": 2.776103962311171,
+          "C_upper_pct": 5.4268013997381495,
+          "status": "exact_bracket",
+          "first_binding_constraint": "B_cab_ratio"
+        }
+      },
+      "fp_vs_rand": {
+        "delta_lo": 1.7561106163151003,
+        "delta_hi": 4.406808053742081,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_rand": {
+        "delta_lo": 1.7561106163151003,
+        "delta_hi": 4.406808053742081,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_fp": {
+        "delta_lo": -2.6506974374269805,
+        "delta_hi": 2.6506974374269805,
+        "verdict": "indistinguishable"
+      },
+      "loc_vs_rand": {
+        "delta_lo": 2.776103962311171,
+        "delta_hi": 5.4268013997381495,
+        "verdict": "def_a_better"
+      },
+      "spread_vs_loc": {
+        "delta_lo": -3.670690783423049,
+        "delta_hi": 1.6307040914309097,
+        "verdict": "indistinguishable"
+      }
+    }
+  ],
+  "elapsed_s": 9000.7
+}

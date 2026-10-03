@@ -1,0 +1,72 @@
+{
+  "source": "C:\\Users\\kalya\\thermalops\\artifacts\\revision1\\results\\m4_fair_baselines.json",
+  "script_sha256": "6c7ba76263cf141a8f8e0744fab1380bb6a9f5e03634557ba864140d99ddef89",
+  "git_sha": "e400ff00793d7445fada9f6c6a5f4a5d115f3912",
+  "checks": {
+    "P01_30_unique_scenario_idxs": {
+      "pass": true,
+      "detail": "found 30 unique, range=[0,29]"
+    },
+    "P02_one_record_per_scenario": {
+      "pass": true,
+      "detail": "total records=30"
+    },
+    "P03_scenario_seeds_match_regen": {
+      "pass": true,
+      "detail": "all 30 scen_seeds match SCENARIO_SEED=42"
+    },
+    "P04_workload_seeds_match_regen": {
+      "pass": true,
+      "detail": "all 30 wl_seeds match SCENARIO_SEED=42"
+    },
+    "P05_all_policies_in_crossings": {
+      "pass": true,
+      "detail": "missing=none"
+    },
+    "P06_all_policies_in_lambda_rows": {
+      "pass": true,
+      "detail": "missing=none"
+    },
+    "P07_design_hash_matches_v5": {
+      "pass": true,
+      "detail": "checkpoint hash='fd520723fe2181e1' expected='fd520723fe2181e1'"
+    },
+    "P08_git_sha_is_correctness_fix_commit": {
+      "pass": true,
+      "detail": "git_sha='e400ff00793d' (expected prefix 'e400ff0')"
+    },
+    "P09_threshold_63625": {
+      "pass": true,
+      "detail": "T_THR_PRIMARY_C=63.625"
+    },
+    "P10_beta_f_frozen": {
+      "pass": true,
+      "detail": "BETA_F_FROZEN=1.12484352"
+    },
+    "P11_threshold_audit_corroborates": {
+      "pass": true,
+      "detail": "full_pop p95=63.625, expected=63.625"
+    },
+    "P12_full_fp_no_left_boundary": {
+      "pass": true,
+      "detail": "left_boundary scenarios: []"
+    },
+    "P13_fp_spread_all_exact_bracket": {
+      "pass": true,
+      "detail": "non-exact: []"
+    },
+    "P14_first5_seeds_match_runtime_log": {
+      "pass": true,
+      "detail": "scen_seed and wl_seed for sc0-4 match values printed in m4_v5_main.log"
+    },
+    "P15_script_sha256_recorded": {
+      "pass": true,
+      "detail": "SHA256(r1_m4_fair_baselines.py)=6c7ba76263cf141a..."
+    }
+  },
+  "n_pass": 15,
+  "n_fail": 0,
+  "failed_checks": [],
+  "overall_pass": true,
+  "note": "SHA256 of r1_m4_fair_baselines.py recorded for code identity. Future design hashes should include this value alongside the parameter JSON to make code changes invalidate checkpoints."
+}

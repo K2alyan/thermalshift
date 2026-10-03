@@ -1,0 +1,18 @@
+{
+  "experiment": "m4_static_candidate_pool_sensitivity",
+  "simulation_git_sha": "310636541a86b4836e71cae5c8adcb7aaed56c76",
+  "simulation_script_sha256": "dce1a905a72bc96042f9cba52dfc04b517cf93875f3410b8ad86ac0e4249ffe1",
+  "authorization_file": "m4_avail_regression.json",
+  "authorization_file_sha256": "44bffb25e9f1d8738063366cb8bbd046b1c2587cd350f3167b857654970b3b2b",
+  "authorization_status": "PASS",
+  "authorization_n_checks": 240,
+  "authorized_for_full_run": true,
+  "ref_hashes": {
+    "m4_fair_baselines.json": "cfb4912b9a73bf8b4aaa4a20f16b25490b8110c4fc3b6aba2e2d300a0ec6badc",
+    "m4_random_canonical.json": "eff8cdfaa30191c3024fb86b276fe4f0672cf00bb0a8037e4f1820343dd1cb9a",
+    "m4_canonical_policies.json": "f10a106dd58fb3e41fc3f2ce5201dfb03a90e5c5f866efe83df6b16aa303152f"
+  },
+  "full_result_file": "m4_avail_transition.json",
+  "full_result_sha256": "679e120a9f9cb0aaf907a55220662713db0d1158d4c702cedfc65b8e6f366bbc",
+  "completion_timestamp_utc": "2026-10-01T00:16:28.376864+00:00"
+}

@@ -1,0 +1,35 @@
+{
+  "full_fp": {
+    "n_nodes": 2000,
+    "n_unique_FA": 2000,
+    "n_duplicated_nodes": 0,
+    "n_duplicated_groups": 0,
+    "max_multiplicity": 1,
+    "hash_immune": true
+  },
+  "full_loc": {
+    "n_unique_scores": 67,
+    "n_duplicated_nodes": 1933,
+    "n_duplicated_groups": 57,
+    "max_multiplicity": 73,
+    "hash_immune": false
+  },
+  "full_fp_spread": {
+    "n_cabinets": 77,
+    "n_cabs_with_fa_ties": 0,
+    "total_dup_nodes_within_cab": 0,
+    "max_multiplicity_within_cab": 0,
+    "cabinet_selection_hash_immune": true,
+    "within_cabinet_sort_hash_immune": true,
+    "cab_tie_details": []
+  },
+  "full_random": {
+    "always_vulnerable": true,
+    "fix": "sorted(available) before rng.choice",
+    "canonical_rerun": "m4_random_canonical.json"
+  },
+  "full_compact": {
+    "vulnerable": true,
+    "note": "Not in primary paper headline comparisons; fix applied in canonical scripts nonetheless."
+  }
+}
