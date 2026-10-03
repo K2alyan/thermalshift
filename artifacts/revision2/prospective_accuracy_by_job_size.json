@@ -1,0 +1,60 @@
+{
+  "audit_script": "artifacts/revision2/run_a2_a1b.py",
+  "audit_date": "2026-10-02",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Phase A2 (amendment 6b45030)",
+  "predictor": "F_2024",
+  "outcome": "T_dev",
+  "overall": {
+    "n_jobs": 2637,
+    "n_obs": 64545,
+    "pearson_r": 0.4547,
+    "spearman_r": 0.6489,
+    "r2": 0.2067,
+    "ols_slope": 0.9726,
+    "ols_intercept": 0.0248
+  },
+  "by_size_bin": [
+    {
+      "size_bin": "1-32",
+      "n_jobs": 1079,
+      "n_obs": 7703,
+      "pearson_r": 0.5581,
+      "spearman_r": 0.6907,
+      "r2": 0.3115,
+      "ols_slope": 0.7602,
+      "ols_intercept": 0.034
+    },
+    {
+      "size_bin": "33-128",
+      "n_jobs": 1147,
+      "n_obs": 28154,
+      "pearson_r": 0.5994,
+      "spearman_r": 0.7073,
+      "r2": 0.3593,
+      "ols_slope": 0.9925,
+      "ols_intercept": 0.0248
+    },
+    {
+      "size_bin": "129-512",
+      "n_jobs": 411,
+      "n_obs": 28688,
+      "pearson_r": 0.3781,
+      "spearman_r": 0.5861,
+      "r2": 0.143,
+      "ols_slope": 1.0085,
+      "ols_intercept": 0.0209
+    },
+    {
+      "size_bin": "513-2048",
+      "n_jobs": 0,
+      "n_obs": 0,
+      "note": "insufficient data"
+    },
+    {
+      "size_bin": "2049+",
+      "n_jobs": 0,
+      "n_obs": 0,
+      "note": "insufficient data"
+    }
+  ]
+}
