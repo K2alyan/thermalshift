@@ -25,6 +25,7 @@ data/
 *_log.txt
 phase3b_mc_checkpoint.json
 globus_batch.txt
+*.zip
 
 # Local environment config
 .env.*
