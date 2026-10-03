@@ -22,7 +22,7 @@ from typing import Optional
 PLACEBO_GLOBAL_PERM_SEED    = 218767960
 PLACEBO_WITHINCAB_PERM_SEED = 365514213
 
-PRIMARY_BETA_CHALLENGE = 1.08293258   # from loo_beta_results.json §B1
+PRIMARY_BETA_CHALLENGE = 1.08293343   # from loo_beta_results.json §B1
 
 # ── Frozen M4/Gate F constants (unchanged) ────────────────────────────────
 BETA_F_FROZEN    = 1.12484352
