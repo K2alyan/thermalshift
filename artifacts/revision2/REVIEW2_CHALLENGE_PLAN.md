@@ -39,6 +39,48 @@ and preserves the integrity of the preregistration.
 
 ---
 
+## Amendment 2 — Post-A1 Methodological Corrections (2026-10-02)
+
+**Amendment commit:** (set at commit time)
+**Status:** A1 audit complete (e7b70be, PASS — proceed_with_documentation).
+No Phase B beta has been computed.  No new selector has been run on sc30–54.
+sc30–54 seeds are frozen and unchanged.  Gate F evidence files are unchanged.
+
+**Changes from Amendment 1 (9d4a530):**
+
+1. **Cross-fitted beta estimator (§B1, §B3):** The previously described procedure
+   — many per-job jackknife regressions averaged — does NOT cleanly address the
+   reviewer's self-inclusion concern.  Replaced with observation-level LOO: for
+   each (node i, job j) observation, compute F_CF[i,j] = FA for node i estimated
+   excluding job j from the training data, then fit ONE beta_CF on the complete
+   cross-fitted dataset.  The jackknife collection of betas is retained as a
+   sensitivity diagnostic only.
+
+2. **Primary comparison list (§D4):** Added `full_fp vs fp_withincab_placebo`
+   as an explicit preregistered comparison (the decisive node-level test).
+   Changed `fp_withincab_placebo vs Random` and `fp_global_placebo vs Random`
+   to direct pairings against `full_fp`.  Reordered to reflect scientific
+   priority.  All 8 comparisons are now direct pairings — no comparison is
+   inferred by subtraction.
+
+3. **RandomSpread fairness requirements (§C1):** Added explicit pseudocode and
+   requirement that `random_spread` uses the same cabinet-spreading mechanism
+   as `full_fp_spread` but substitutes FA ranking with the existing deterministic
+   event-node priority used by `full_random`.  No new thermal-derived score
+   and no new independent RNG stream.
+
+4. **A1 terminology (§A1):** Replaced "commissioned/came online" with "first
+   observed in the Frontier job-placement records."  Removed stale 2022–2023
+   study-period text; replaced with correct dataset dates (2024–2026).
+
+5. **Post-A1 late-cabinet cohort diagnostic (§A1b):** Added an explicitly
+   exploratory descriptive audit of the 78 late-cabinet cohort nodes
+   (cabinets 2600/2601/2602) vs the other 1,922 cohort nodes.  This is a
+   prospective validation check for FA fingerprint quality, not a new hypothesis.
+   No challenge policy or population may be modified based on this diagnostic.
+
+---
+
 ## Governing Rule
 
 No policy definition, metric definition, threshold, seed, comparison selection, or
@@ -240,20 +282,22 @@ must not proceed until resolved.
 
 ### A1. Cabinet Configuration Timeline Audit (POTENTIAL BLOCKER)
 
-**Question:** Were 74 or 77 cabinets active during the study period
-(2022-09-01 to 2023-03-31)?  Do the 74 cabinets used in the capacity model
-correspond to the cabinets that were actually online during each job?
+**[Amended 2026-10-02 — terminology and date range corrected per Amendment 2]**
+
+**Question:** Were 74 or 77 cabinets present in the Frontier job-placement
+records during the test-set replay period (dataset spans 2024-01-17 to
+~2026-01-01)?  Does the cabinet-power reconstruction assign any simulated
+workload to a cabinet not yet present in the job-placement records at that time?
 
 **Task:**
 - Cross-reference `fleet_topology.json` cabinet list against the job start/end
-  timestamps in the parquet to determine which cabinet set was active for >90%
-  of job-hours.
+  timestamps in the parquet to determine when each cabinet first appears in
+  job-placement records.
 - Produce `artifacts/revision2/cabinet_timeline_audit.json` with:
   - n_cabs_fleet_topology: int
   - n_cabs_in_job_data: int
-  - temporal_match: bool
-  - discrepancy_description: str or null
-  - recommendation: "proceed" | "stop_and_report" | "flag_in_paper"
+  - first_observed_date_per_cabinet: {cabinet: date}
+  - recommendation: "proceed_with_documentation" | "stop_structural_error"
 - Produce `artifacts/revision2/cabinet_timeline_audit.md` with narrative.
 
 **Outcome rule (structural correctness criterion):**
@@ -261,23 +305,71 @@ correspond to the cabinets that were actually online during each job?
 This audit is a blocker if and only if the reconstruction is found to be
 structurally incorrect in a way that affects historical capacity estimates:
 
-- **STOP** if any historical job or node is mapped to a cabinet that was not
-  physically available (commissioned or online) at the job's start timestamp.
-- **STOP** if cabinets or nodes are treated as active before they appear in the
-  machine configuration in a way that inflates or deflates reconstructed power
-  or the reference thermal exposure for those jobs.
+- **STOP** if any simulation replay step assigns workload to a cabinet whose
+  nodes do not appear in the job-placement records as of that job's start time.
+- **STOP** if cabinets or nodes are modeled as contributing power or thermal
+  exposure before they first appear in placement records, in a way that
+  materially affects reference budgets.
 - **STOP** if the cabinet-power reference uses a topology snapshot that does not
   correspond to the period covered by the workload data in any material way.
 
-The mere existence of additional cabinets in a later configuration (e.g., 77 in
-2025 vs 74 in 2024) is not itself a failure.  If the later cabinets simply do not
-appear in 2024 job placement records and contribute zero historical power or
-exposure, document that explicitly and proceed.
+The mere fact that some cabinets first appear in job-placement records later
+than others is not itself a failure.  If the Gate F replay only processes jobs
+that occurred after all cabinets were first observed, document that explicitly
+and proceed.  "First observed in job-placement records" is the operative
+criterion; no claim about physical commissioning dates is required or implied
+unless supported by an independent authoritative Frontier configuration source.
 
-The audit JSON must record for each discrepant cabinet: first appearance date in
-job data, first appearance date in fleet_topology, and whether any historical
-job uses nodes from that cabinet.  The recommendation field must be one of:
-"proceed" | "proceed_with_documentation" | "stop_structural_error".
+The audit JSON must record for each late-first-observed cabinet: date of first
+job record, whether any test-set job precedes that date, and whether any
+simulation replay step would assign nodes from that cabinet to a pre-observation
+job.  The recommendation field must be one of:
+"proceed_with_documentation" | "stop_structural_error".
+
+**Status:** COMPLETE — commit e7b70be.
+Result: proceed_with_documentation.
+All 2,637 test-set jobs ran on or after 2024-11-22, after all 77 cabinets
+were first observed in job-placement records.  No structural error found.
+See `artifacts/revision2/cabinet_timeline_audit.json` and `.md`.
+
+### A1b. Post-A1 Late-Cabinet Cohort Diagnostic (EXPLORATORY, NOT A PRIMARY HYPOTHESIS)
+
+**[Added by Amendment 2 — explicitly exploratory; no challenge policy or population
+may be modified based on this diagnostic]**
+
+**Background:** A1 found that cabinets 2600, 2601, 2602 first appear in
+job-placement records 183–309 days into the study period.  Their 78 cohort nodes
+(3.9% of 2,000 fp-analysis nodes) have:
+- Fewer fingerprint training jobs (mean 6–24 vs 39 for all other cabinets)
+- Strongly negative FA_2024 means (−1.24 to −2.22 vs fleet mean +0.03)
+- The FP selector preferentially picks these nodes
+
+The scientific question is whether these negative fingerprints reproduce
+prospectively — i.e., are these cabinets genuinely cooler in the 2025 test
+period, or are their extreme negative FA values a consequence of sparse training
+data?
+
+**Task:** Produce a purely descriptive comparison:
+
+Late-observed cohort nodes (n=78, cabinets 2600/2601/2602) vs other cohort
+nodes (n=1,922, all other cabinets):
+- Node count, training jobs/node (mean, min, max)
+- FA_2024 distribution: mean, SD, min, max, histogram deciles
+- Prospective 2025 test set: Pearson r, Spearman r, frozen-prediction R²,
+  MAE, RMSE, sign agreement (fraction where FA_2024 < 0 and ΔT < 0)
+- Future median relative-temperature distribution (ΔT = T_actual − α_j)
+
+Produce `artifacts/revision2/late_cab_cohort_diagnostic.json`.
+
+**Interpretation rule (frozen):**
+- If late-cab nodes are genuinely cooler prospectively (FA_2024 < 0 predicts
+  ΔT < 0 at similar rate to other nodes): the thermal fingerprint is valid
+  despite fewer training jobs; no concern.
+- If late-cab nodes have poor prospective prediction quality (low r², sign
+  agreement much worse than other nodes): flag in manuscript as a potential
+  FA precision concern for those 78 nodes; do NOT remove them from the
+  challenge or modify policy logic.
+- Either outcome is reported without omission.
 
 ### A2. Prospective Accuracy by Job Size
 
@@ -332,54 +424,100 @@ Produce `artifacts/revision2/gate_f_manuscript_tables.json`.
 **Question (R3):** How sensitive are Gate F results to leave-one-job-out
 perturbations of BETA_F?
 
-### B1. LOO Estimator
+### B1. Cross-Fitted Beta Estimator (PRIMARY ESTIMATOR)
 
-For each job j in the M4 training set, compute F_i^(-j) (FA excluding job j)
-and re-fit the linear model T_peak ~ location_effect + BETA * F_i^(-j).
+**[Amended by Amendment 2 — replaces jackknife-average description from
+Amendment 1 §B1]**
+
+The primary estimator addresses the reviewer's self-inclusion concern by
+computing observation-level leave-one-job-out cross-fitted fingerprints
+and fitting a SINGLE regression on the complete cross-fitted dataset.
+
+**Procedure:**
+
+For every eligible 2024 node-job observation (i, j):
+
+```
+F_CF[i,j] = FA for node i computed from the frozen 2024 training set
+             with job j entirely excluded from both numerator and denominator
+             of node i's fingerprint estimate.
+```
+
+Then fit ONE model over the complete set of eligible cross-fitted observations:
+
+```
+T_ij = alpha_j + beta_CF * F_CF[i,j] + epsilon_ij
+```
+
+or the algebraically equivalent within-job demeaned form used by the existing
+pipeline.  This yields a single `beta_CF`.
+
+**Requirements (all must be preserved from the original M4 fit):**
+- Same eligibility rules, GCD aggregation, job weighting, and node filtering.
+- Job j may contribute to the outcome `T_ij` but may NOT contribute to its
+  own predictor `F_CF[i,j]`.
+- No 2025 data enter `F_CF` or `beta_CF` estimation.
+- Nodes for which no training observation remains after excluding job j are
+  excluded from that (i, j) observation; count and report these exclusions.
+- If any eligibility rule is mathematically impossible under LOO (e.g., GCD
+  threshold leaves zero observations for some i after excluding j), document
+  exactly which rule and how many observations are affected before proceeding.
+
+**Uncertainty quantification:**
+Job-cluster bootstrap: resample jobs (not observations) with replacement;
+recompute F_CF and beta_CF for each bootstrap replicate.  Report 95% CI.
+
+**If the cross-fitted estimator cannot be defined** under the frozen rules
+(e.g., model is unidentifiable after observation exclusions), STOP and document
+before substituting.  A quarter-wise cross-fit (§B2) may then be proposed only
+under a new pre-results amendment — it may not be silently substituted.
+
+Report: beta_CF, bootstrap 95% CI, n_observations, n_excluded_observations,
+n_excluded_nodes.
+
+### B2. Sensitivity Diagnostics (NOT the primary estimator)
+
+These are reported as sensitivity checks alongside the primary beta_CF.
+
+**B2a. Jackknife collection (sensitivity):**
+For each job j, re-fit the model excluding job j from both fingerprints and
+outcome observations (job-level exclusion, NOT observation-level cross-fit).
 Record BETA_F^(-j) for each excluded job.
+Report: distribution of BETA_F^(-j) — mean, std, min, max, P5, P95.
 
-Report: mean, std, min, max, percentile distribution of BETA_F^(-j) over all j.
+**B2b. Quarter-wise cross-fit (sensitivity):**
+Partition the 2024 dataset by calendar quarter (Q1-2024, Q2-2024, Q3-2024,
+Q4-2024 or as available).  For each quarter q, train fingerprints on jobs NOT
+in quarter q and estimate beta_q.
+Report: beta_q for each quarter, range across quarters.
 
-### B2. Quarter-Wise Cross-Fit
-
-Partition jobs into four calendar quarters (Q4-2022, Q1-2023, Q2-2023, Q3-2023
-or as available).  For each quarter q, train on jobs NOT in quarter q and report
-BETA_F^(-q).
-
-Report: BETA_F^(-q) for each quarter, and the range across quarters.
+These diagnostics describe the stability of the slope estimate; they do not
+replace beta_CF as the primary challenge beta.
 
 ### B3. Primary Beta Choice (Frozen Before Challenge Run)
 
-**[Amended 2026-10-02 — supersedes original preregistration d28f29d §B3]**
-
-The primary beta for the sc30–54 challenge experiment is determined as follows:
-
-**If the LOO estimator executes successfully** under the frozen eligibility and
-weighting rules (same job set, same model structure as M4):
+**[Amended by Amendment 2 — supersedes Amendments 1 and d28f29d §B3]**
 
 ```
-PRIMARY_BETA_CHALLENGE = mean(BETA_F^(-j))   [LOO cross-fitted estimate]
+PRIMARY_BETA_CHALLENGE = beta_CF   [single observation-level LOO cross-fit]
 ```
 
-This becomes the operating beta for all sc30–54 scenario runs.  The LOO value
-is used regardless of its magnitude or direction relative to BETA_F_FROZEN.
-We do not choose between the two based on which gives a stronger scheduling
-result.  The result — whether it strengthens, attenuates, or reverses the
-advantage — is reported verbatim.
+`beta_CF` is computed from ONE regression fit on the complete cross-fitted
+observation set (§B1).  It is NOT the mean of per-job jackknife regression
+coefficients.
 
-**If the LOO estimator cannot be defined** under the frozen rules (e.g., leaving
-out a job makes the model unidentifiable, or the eligible job set has fewer than
-10 observations after exclusion), STOP and document why before substituting
-another estimator.  A quarter-wise cross-fit (Phase B2) may then be proposed
-under a new pre-results amendment; it may not be silently substituted.
+This value is written to `artifacts/revision2/loo_beta_results.json` before
+any sc30–54 run begins and must not be changed thereafter.
 
-**Sensitivity runs (using sc30–54 scenarios):**
-- `BETA_F_FROZEN = 1.12484352` — original model estimate (§E2)
-- `BETA_F_PROSPECTIVE = 0.96` — prospective slope from M1 (§E2)
-- `BETA_F_LOO_P5, BETA_F_LOO_P95` — 5th and 95th percentile of LOO distribution
+The LOO value is used regardless of its magnitude or direction relative to
+BETA_F_FROZEN.  We do not choose between them based on which gives a stronger
+scheduling result.
 
-The PRIMARY_BETA_CHALLENGE value is written to `artifacts/revision2/loo_beta_results.json`
-before any sc30–54 run begins and must not be changed thereafter.
+**Sensitivity values (all used in §E2 runs):**
+- `BETA_F_FROZEN = 1.12484352` — original model estimate
+- `BETA_F_PROSPECTIVE = 0.96` — prospective slope from M1
+- `BETA_F_JACKKNIFE_MEAN` — mean of per-job jackknife betas (from §B2a)
+- `BETA_F_CF_P5, BETA_F_CF_P95` — 5th and 95th percentile of bootstrap CI
 
 ---
 
@@ -390,13 +528,66 @@ unit-tested, and code-frozen before sc30–54 executes.
 
 ### C1. `random_spread`
 
-**Rule:** Round-robin cabinet selection (same spread mechanism as `full_fp_spread`),
-but within each cabinet choose nodes uniformly at random rather than by ascending FA.
+**[Fairness requirements added by Amendment 2]**
+
+**Rule:** Identical cabinet-spreading mechanism as `full_fp_spread` (round-robin
+by least-loaded cabinet), but within each cabinet select nodes using the SAME
+deterministic event-node random priority used by `full_random` — not by FA rank.
 
 **Purpose:** Isolates the cabinet-spread effect from the fingerprint-sorting effect.
-- `random_spread` vs `full_random`: spread effect alone (no fingerprint)
-- `full_fp_spread` vs `random_spread`: fingerprint effect under spread
-- `full_fp_spread` vs `full_fp`: spread effect with fingerprint
+
+**Scientific value of key pairings:**
+- `full_fp_spread` vs `random_spread`: fingerprint-ranking contribution after
+  controlling for spreading — the cleanest test of whether FA ordering matters
+  once cabinets are spread
+- `random_spread` vs `full_random`: spreading contribution alone, no thermal info
+
+**Fairness requirements (all mandatory):**
+1. The cabinet-spreading loop (round-robin by `cab_active_count`) must be
+   IDENTICAL to `full_fp_spread` — same cabinet selection order, same tie-breaking.
+2. Within each selected cabinet, node selection must use the SAME `choice_priority`
+   hash (BLAKE2b keyed by `scenario_seed` + `event_uid` + `hostname`) that
+   `full_random` already uses for its node ordering.  No new random stream.
+3. `random_spread` must NEVER read `FA_dict`, `LOC_FA_dict`, or any
+   thermally-derived score.  Assert this in the unit tests.
+4. The implementation is deterministic given the same scenario_seed and event_uid.
+
+**Pseudocode:**
+
+```python
+def select_random_spread(available, k, cab_active_count, scenario_seed, event_uid):
+    k = min(k, len(available))
+    if k == 0: return []
+    if k == len(available): return sorted(available)
+
+    # Same cabinet-spread round-robin as full_fp_spread
+    cab_nodes = defaultdict(list)
+    for n in sorted(available):       # sort for determinism before round-robin
+        cab_nodes[fp_cab[n]].append(n)
+
+    # Within-cabinet order: by choice_priority (same hash as full_random)
+    for c in cab_nodes:
+        cab_nodes[c].sort(key=lambda n: choice_priority(scenario_seed, event_uid, n))
+
+    temp = dict(cab_active_count)
+    selected = []
+    for _ in range(k):
+        if not cab_nodes: break
+        best_c = min(cab_nodes, key=lambda c: (temp.get(c, 0), c))
+        best_n = cab_nodes[best_c].pop(0)
+        if not cab_nodes[best_c]: del cab_nodes[best_c]
+        selected.append(best_n)
+        temp[best_c] = temp.get(best_c, 0) + 1
+    return selected
+```
+
+**Unit test assertion (required before freeze commit):**
+- `select_random_spread` and `select_fp_spread_canonical` must produce the
+  SAME cabinet sequence (same cab selected at each round-robin step) when
+  given the same `available` and `cab_active_count`.
+- They must produce DIFFERENT node selections within any cabinet that contains
+  >1 node (unless FA ordering and choice_priority ordering coincide by chance).
+- `select_random_spread` must not import or call FA_dict.
 
 Implementation note: `random_spread` uses `pol_seed` from the existing pol_seeds
 array at the POLICY_IDS index for `"full_random_spread"`.
@@ -469,15 +660,36 @@ Same as Gate F: [1.0, 1.25, 1.5, 2.0, 4.0, 8.0, unrestricted]
 
 ### D4. Preregistered Primary Comparisons (Challenge Run)
 
-1. **FP vs Random** (replication of Gate F primary; primary success criterion)
-2. **FP_global_placebo vs Random** (R1 confounding check; expected: indistinguishable)
-3. **FP_withincab_placebo vs Random** (R1 partial-confounding check)
-4. **RandomSpread vs Random** (R2 spread-only effect)
-5. **FPSpread vs RandomSpread** (R2 fingerprint effect under spread)
-6. **FPSpread vs FP** (R2 spread benefit, replication)
-7. **PositionTemplate vs Random** (replication of Gate F Loc comparison)
+**[Amended by Amendment 2 — corrected comparison list; all are direct pairings;
+no comparison is inferred by subtraction from separate baselines]**
 
-All comparisons use the delta formula frozen below (§10).
+| # | Policy A | Policy B | Primary question |
+|---|----------|----------|-----------------|
+| 1 | `full_fp` | `full_random` | Gate F replication — primary success criterion |
+| 2 | `full_fp` | `fp_withincab_placebo` | **Node-level ranking contribution** — decisive R1 test |
+| 3 | `full_fp` | `fp_global_placebo` | Global confound check |
+| 4 | `full_fp_spread` | `random_spread` | **Fingerprint contribution conditional on spreading** |
+| 5 | `random_spread` | `full_random` | Spreading contribution alone (no thermal) |
+| 6 | `full_fp` | `position_template` | Gate F Loc replication |
+| 7 | `full_fp_spread` | `full_fp` | Spread benefit with fingerprint (Gate F replication) |
+| 8 | `full_fp_spread` | `position_template` | FPSpread vs topology-only |
+
+Comparisons 2 and 4 are the two decisive new comparisons for this challenge:
+- **#2 (FP vs WithinCab-Placebo):** If FP > WithinCab-Placebo, individual node
+  thermal ranking contributes beyond cabinet-level structure.  If indistinguishable,
+  cabinet identity explains most of the scheduling gain.
+- **#4 (FPSpread vs RandomSpread):** If FPSpread > RandomSpread, FA ranking adds
+  value even after controlling for cabinet spread.  This is the cleanest isolation
+  of the fingerprint signal.
+
+All comparisons:
+- Use the frozen delta formula (§H1)
+- Report both delta_lo and delta_hi with paired bootstrap 95% CIs
+- Report n_definitely_A, n_indistinguishable, n_definitely_B
+- Are reported at all 7 ratios
+
+No comparison is inferred by subtracting two separate baseline comparisons.
+Each row is a direct paired A vs B test.
 
 ### D5. Ratios Reported
 
@@ -499,16 +711,19 @@ envelopes.
 
 Report C_lower at each scale factor; confirm that sign of the result is stable.
 
-### E2. LOO Beta Sensitivity
+### E2. Beta Sensitivity Runs
+
+**[Amended by Amendment 2 — updated to reflect beta_CF as primary]**
 
 Run the primary comparison (FP vs Random) at r=1.25 with BETA_F set to each of:
-- PRIMARY_BETA_CHALLENGE = mean(BETA_F^(-j)) from Phase B  **(primary run)**
-- BETA_F_FROZEN = 1.12484352  (original model estimate — sensitivity)
-- BETA_F_PROSPECTIVE = 0.96   (prospective slope from M1 — sensitivity)
-- BETA_F_LOO_P5 and BETA_F_LOO_P95 from Phase B LOO distribution
+- `PRIMARY_BETA_CHALLENGE = beta_CF` from Phase B1  **(primary run)**
+- `BETA_F_FROZEN = 1.12484352` — original model estimate (sensitivity)
+- `BETA_F_PROSPECTIVE = 0.96` — prospective slope from M1 (sensitivity)
+- `BETA_F_JACKKNIFE_MEAN` — mean of per-job jackknife betas from Phase B2a
+- `BETA_F_CF_P5, BETA_F_CF_P95` — 5th and 95th percentile of bootstrap CI
 
-Report C_lower at each beta value.  Report whether the sign and significance of
-the primary comparison (FP vs Random) is stable across all five beta values.
+Report C_lower and the FP vs Random comparison verdict at each beta value.
+Report whether sign and significance are stable across all six beta values.
 
 ---
 
@@ -521,9 +736,10 @@ The preflight script exits non-zero if any condition fails.
 1. **Phase A complete:** All A1–A4 output files present and valid.
    A1 recommendation must be "proceed" or "proceed_with_documentation".
    Any "stop_structural_error" recommendation halts the challenge run.
-2. **Phase B complete:** LOO results present; PRIMARY_BETA_CHALLENGE written
-   to `loo_beta_results.json` and frozen before this preflight runs.
-   If LOO estimator could not be defined: halt and document per §B3.
+2. **Phase B complete:** Observation-level cross-fit beta_CF computed and written
+   to `loo_beta_results.json` as PRIMARY_BETA_CHALLENGE before this preflight runs.
+   If cross-fitted estimator could not be defined: halt and document per §B3.
+   Jackknife and quarter-wise sensitivities also present in `loo_beta_results.json`.
 3. **Phase C complete:** All four new selectors implemented and unit tests pass.
 4. **Seed table verified:** scen_seeds and wl_seeds for sc30–54 reproduced exactly
    from rng(2042) in a dry-run (no simulation).
@@ -692,22 +908,31 @@ pre-specified; they are not predictions.
 | Definitely A better | Fingerprint ranking adds value conditional on spreading (both mechanisms contribute independently). |
 | Indistinguishable | After controlling for spread, fingerprint ranking provides no additional gain at this restriction level. |
 
-### H7. LOO Beta Reporting
+### H7. Cross-Fitted Beta Reporting
 
-**[Amended 2026-10-02 — PRIMARY_BETA_CHALLENGE is the LOO estimate, not BETA_F_FROZEN]**
+**[Amended by Amendment 2 — reflects observation-level beta_CF, not jackknife mean]**
 
-The LOO cross-fitted beta (PRIMARY_BETA_CHALLENGE) is the operating beta for
-all sc30–54 runs.  Report the following in the manuscript:
+`beta_CF` (single observation-level LOO cross-fitted estimate from §B1) is the
+operating beta for all sc30–54 runs.  Report the following in the manuscript:
 
-- PRIMARY_BETA_CHALLENGE (LOO mean) with its distribution (min, max, std)
-- BETA_F_FROZEN = 1.12484352 as the "original estimate" sensitivity
-- BETA_F_PROSPECTIVE = 0.96 as the "prospective slope" sensitivity
-- Outcome of E2 sensitivity runs at each beta value
+- `beta_CF` with bootstrap 95% CI
+- `BETA_F_FROZEN = 1.12484352` as the "original model estimate"
+- `BETA_F_PROSPECTIVE = 0.96` as the "prospective slope from M1"
+- `BETA_F_JACKKNIFE_MEAN` from §B2a as a jackknife sensitivity diagnostic
+- Outcome of §E2 sensitivity runs at each beta value
 
-If PRIMARY_BETA_CHALLENGE ≈ BETA_F_FROZEN (within ±2%), note in the manuscript
-that the LOO correction made negligible difference.  If it differs by >10%, note
-this explicitly as evidence of self-inclusion bias in the original estimate and
-interpret which direction the correction moves the result.
+**Interpretation (pre-specified):**
+
+| beta_CF vs BETA_F_FROZEN | Manuscript statement |
+|--------------------------|----------------------|
+| Within ±2% | LOO cross-fit correction made negligible difference to beta |
+| ±2%–10% | Modest self-inclusion correction; direction noted |
+| >10% difference | Substantial self-inclusion bias in original estimate; direction noted explicitly |
+
+In all cases: primary challenge results (C_lower, CIs, comparison verdicts) are
+reported using `beta_CF`.  Sensitivity results under BETA_F_FROZEN are reported
+alongside.  Sign reversal under any sensitivity beta value must be flagged as a
+key limitation if it occurs.
 
 ### H8. Cabinet-Reference Sensitivity Interpretation
 
