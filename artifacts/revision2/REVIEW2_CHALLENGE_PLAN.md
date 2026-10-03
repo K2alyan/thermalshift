@@ -4,7 +4,38 @@
 
 **Date preregistered:** 2026-10-02
 **Branch:** revision1/major-revision-analyses
-**Preregistration commit:** (set at commit time)
+**Preregistration commit:** d28f29d
+
+---
+
+## Amendment 1 — Pre-Analysis Governance Correction (2026-10-02)
+
+**Amendment commit:** (set at commit time)
+**Status:** No Phase A or Phase B scientific outputs have been generated.
+No sc30–54 simulation has been run.  This amendment is therefore pre-results
+and preserves the integrity of the preregistration.
+
+**Changes from original preregistration (d28f29d):**
+
+1. **Primary beta rule (§B3):** LOO cross-fitted beta becomes the primary beta
+   for sc30–54.  BETA_F_FROZEN=1.12484352 demoted to sensitivity.  Rationale:
+   the reviewer challenge (R3) specifically concerns self-inclusion bias in the
+   original estimate; using the LOO estimator as primary makes the experiment
+   genuinely responsive to R3 rather than treating it as a secondary note.
+
+2. **Cabinet audit blocker (§A1):** Removed arbitrary ">5% job-hours" tolerance.
+   Replaced with a structural correctness criterion: the audit is a blocker only
+   if the reconstruction assigns historical workload to cabinets/nodes that were
+   not actually available at that timestamp, or otherwise uses an invalid topology
+   assumption to construct historical power or reference exposure.
+
+3. **Seed collision audit (§F):** Added a dedicated preflight condition requiring
+   that all sc30–54 seeds and placebo seeds are internally unique and have zero
+   collision with sc0–29 seeds.  Written to preflight JSON.
+
+4. **Placebo wording (§H6):** Replaced "Expected outcome" with "Pre-specified
+   interpretation branches."  No placebo result is an acceptance criterion; all
+   outcomes are scientifically interpretable.
 
 ---
 
@@ -225,10 +256,28 @@ correspond to the cabinets that were actually online during each job?
   - recommendation: "proceed" | "stop_and_report" | "flag_in_paper"
 - Produce `artifacts/revision2/cabinet_timeline_audit.md` with narrative.
 
-**Outcome rule:**
-- If `temporal_match = false` and the discrepancy affects ≥5% of job-hours:
-  STOP.  Do not proceed with challenge simulation.  Report as scientific blocker.
-- If discrepancy is ≤5% or affects only inactive cabinets: flag in paper, proceed.
+**Outcome rule (structural correctness criterion):**
+
+This audit is a blocker if and only if the reconstruction is found to be
+structurally incorrect in a way that affects historical capacity estimates:
+
+- **STOP** if any historical job or node is mapped to a cabinet that was not
+  physically available (commissioned or online) at the job's start timestamp.
+- **STOP** if cabinets or nodes are treated as active before they appear in the
+  machine configuration in a way that inflates or deflates reconstructed power
+  or the reference thermal exposure for those jobs.
+- **STOP** if the cabinet-power reference uses a topology snapshot that does not
+  correspond to the period covered by the workload data in any material way.
+
+The mere existence of additional cabinets in a later configuration (e.g., 77 in
+2025 vs 74 in 2024) is not itself a failure.  If the later cabinets simply do not
+appear in 2024 job placement records and contribute zero historical power or
+exposure, document that explicitly and proceed.
+
+The audit JSON must record for each discrepant cabinet: first appearance date in
+job data, first appearance date in fleet_topology, and whether any historical
+job uses nodes from that cabinet.  The recommendation field must be one of:
+"proceed" | "proceed_with_documentation" | "stop_structural_error".
 
 ### A2. Prospective Accuracy by Job Size
 
@@ -301,20 +350,36 @@ Report: BETA_F^(-q) for each quarter, and the range across quarters.
 
 ### B3. Primary Beta Choice (Frozen Before Challenge Run)
 
-After reviewing LOO and quarter-wise results, record here the primary beta choice
-for the challenge analysis:
+**[Amended 2026-10-02 — supersedes original preregistration d28f29d §B3]**
+
+The primary beta for the sc30–54 challenge experiment is determined as follows:
+
+**If the LOO estimator executes successfully** under the frozen eligibility and
+weighting rules (same job set, same model structure as M4):
 
 ```
-PRIMARY_BETA_CHOICE = BETA_F_FROZEN = 1.12484352   [LOCKED — do not change after commit]
+PRIMARY_BETA_CHALLENGE = mean(BETA_F^(-j))   [LOO cross-fitted estimate]
 ```
 
-If LOO perturbations exceed ±5% from BETA_F_FROZEN (i.e., any BETA_F^(-j)
-falls outside [1.068, 1.181]), flag this as a sensitivity note in the paper.
-Do NOT change the primary beta: BETA_F_FROZEN is locked by the Gate F
-preregistration (commit 86a95ec) and the H3 equivalence check (commit e2df32a).
+This becomes the operating beta for all sc30–54 scenario runs.  The LOO value
+is used regardless of its magnitude or direction relative to BETA_F_FROZEN.
+We do not choose between the two based on which gives a stronger scheduling
+result.  The result — whether it strengthens, attenuates, or reverses the
+advantage — is reported verbatim.
 
-LOO results are reported as a sensitivity robustness check, not as a reason to
-re-estimate.
+**If the LOO estimator cannot be defined** under the frozen rules (e.g., leaving
+out a job makes the model unidentifiable, or the eligible job set has fewer than
+10 observations after exclusion), STOP and document why before substituting
+another estimator.  A quarter-wise cross-fit (Phase B2) may then be proposed
+under a new pre-results amendment; it may not be silently substituted.
+
+**Sensitivity runs (using sc30–54 scenarios):**
+- `BETA_F_FROZEN = 1.12484352` — original model estimate (§E2)
+- `BETA_F_PROSPECTIVE = 0.96` — prospective slope from M1 (§E2)
+- `BETA_F_LOO_P5, BETA_F_LOO_P95` — 5th and 95th percentile of LOO distribution
+
+The PRIMARY_BETA_CHALLENGE value is written to `artifacts/revision2/loo_beta_results.json`
+before any sc30–54 run begins and must not be changed thereafter.
 
 ---
 
@@ -436,12 +501,14 @@ Report C_lower at each scale factor; confirm that sign of the result is stable.
 
 ### E2. LOO Beta Sensitivity
 
-Run the primary comparison (FP vs Random) at r=1.25 with BETA_F replaced by:
-- BETA_F_FROZEN (primary)
-- mean(BETA_F^(-j)) from Phase B
-- percentile-5 and percentile-95 of the LOO distribution
+Run the primary comparison (FP vs Random) at r=1.25 with BETA_F set to each of:
+- PRIMARY_BETA_CHALLENGE = mean(BETA_F^(-j)) from Phase B  **(primary run)**
+- BETA_F_FROZEN = 1.12484352  (original model estimate — sensitivity)
+- BETA_F_PROSPECTIVE = 0.96   (prospective slope from M1 — sensitivity)
+- BETA_F_LOO_P5 and BETA_F_LOO_P95 from Phase B LOO distribution
 
-Report C_lower at each beta; confirm that sign of the result is stable.
+Report C_lower at each beta value.  Report whether the sign and significance of
+the primary comparison (FP vs Random) is stable across all five beta values.
 
 ---
 
@@ -452,20 +519,31 @@ Results are recorded in `artifacts/revision2/challenge_preflight.json`.
 The preflight script exits non-zero if any condition fails.
 
 1. **Phase A complete:** All A1–A4 output files present and valid.
-   A1 `temporal_match` must be true OR discrepancy documented as ≤5%.
-2. **Phase B complete:** LOO results present; PRIMARY_BETA_CHOICE locked to
-   BETA_F_FROZEN.
+   A1 recommendation must be "proceed" or "proceed_with_documentation".
+   Any "stop_structural_error" recommendation halts the challenge run.
+2. **Phase B complete:** LOO results present; PRIMARY_BETA_CHALLENGE written
+   to `loo_beta_results.json` and frozen before this preflight runs.
+   If LOO estimator could not be defined: halt and document per §B3.
 3. **Phase C complete:** All four new selectors implemented and unit tests pass.
 4. **Seed table verified:** scen_seeds and wl_seeds for sc30–54 reproduced exactly
    from rng(2042) in a dry-run (no simulation).
-5. **Placebo seeds verified:** placebo_global_perm_seed and
-   placebo_withincab_perm_seed reproduced exactly from rng(2042).
+5. **Seed collision audit (complete):**
+   - All 25 sc30–54 scen_seeds are distinct from each other.
+   - All 25 sc30–54 wl_seeds are distinct from each other.
+   - No sc30–54 scen_seed collides with any sc0–29 scen_seed or wl_seed.
+   - No sc30–54 wl_seed collides with any sc0–29 scen_seed or wl_seed.
+   - placebo_global_perm_seed (218767960) is distinct from all 50 scenario/workload
+     seeds above and from placebo_withincab_perm_seed.
+   - placebo_withincab_perm_seed (365514213) is distinct from all 50 scenario/workload
+     seeds and from placebo_global_perm_seed.
+   Full seed lists and collision check results written to preflight JSON.
 6. **No untracked or dirty files:** `git_tracked_dirty = False`,
    `git_untracked_count = 0` at the challenge freeze commit.
 7. **Frozen constants match:** BETA_F_FROZEN, T_THR_PRIMARY, T_THR_SECONDARY,
    DELTA_CAP reproduced from r1_gate_f_run.py without modification.
-8. **REVIEW2_CHALLENGE_PLAN.md committed:** This file present in git history,
-   commit SHA recorded in preflight JSON.
+   PRIMARY_BETA_CHALLENGE written and non-null in `loo_beta_results.json`.
+8. **REVIEW2_CHALLENGE_PLAN.md committed:** Both d28f29d (original preregistration)
+   and the amendment commit present in git history; SHAs recorded in preflight JSON.
 9. **Gate F evidence intact:** `gate_f_heldout_analysis.json` SHA matches frozen
    value from e16ec3c.
 10. **Policy unit tests pass:** All policies produce deterministic outputs given
@@ -479,15 +557,29 @@ The preflight script exits non-zero if any condition fails.
 Preflight JSON schema:
 ```json
 {
-  "plan_commit": "<sha>",
+  "plan_commits": {
+    "original_preregistration": "d28f29d",
+    "amendment": "<sha>"
+  },
   "preflight_run_at": "<ISO timestamp>",
   "challenge_freeze_commit": "<sha>",
+  "primary_beta_challenge": "<float from loo_beta_results.json>",
+  "seed_collision_audit": {
+    "sc3054_scen_seeds": [25 ints],
+    "sc3054_wl_seeds": [25 ints],
+    "sc0029_scen_seeds": [30 ints],
+    "sc0029_wl_seeds": [30 ints],
+    "placebo_global_perm_seed": 218767960,
+    "placebo_withincab_perm_seed": 365514213,
+    "collisions_found": [],
+    "all_unique": bool
+  },
   "conditions": {
     "1_phase_a_complete":    {"pass": bool, "notes": str},
-    "2_phase_b_complete":    {"pass": bool, "notes": str},
+    "2_phase_b_complete":    {"pass": bool, "notes": str, "primary_beta": float},
     "3_phase_c_complete":    {"pass": bool, "notes": str},
     "4_seeds_verified":      {"pass": bool, "notes": str},
-    "5_placebo_seeds":       {"pass": bool, "notes": str},
+    "5_seed_collision_audit":{"pass": bool, "notes": str},
     "6_clean_git":           {"pass": bool, "notes": str},
     "7_frozen_constants":    {"pass": bool, "notes": str},
     "8_plan_committed":      {"pass": bool, "notes": str},
@@ -564,22 +656,58 @@ If violated, the simulation has a bug and results are invalid.
 
 ### H6. Placebo Control Interpretation
 
-**fp_global_placebo vs Random:**
-- Expected: indistinguishable (no advantage; global permutation destroys signal)
-- If definitely_A_better for ≥10/25 scenarios at r=1.25: ANOMALY — report as
-  evidence of confounding; do not claim thermal fingerprint effect in manuscript.
+**[Amended 2026-10-02 — replaces "Expected outcome" language from d28f29d]**
 
-**fp_withincab_placebo vs Random:**
-- Expected: attenuated relative to full FP (some advantage possible if
-  between-cabinet variation drives part of the effect)
-- Report the magnitude relative to full FP without prejudging direction.
+No placebo result is an acceptance criterion.  Every outcome below is
+scientifically interpretable and must be reported verbatim.  The branches are
+pre-specified; they are not predictions.
 
-### H7. LOO Stability
+**fp_global_placebo vs Random (at r=1.25):**
 
-If any BETA_F^(-j) from Phase B exceeds ±5% from BETA_F_FROZEN, include a
-sensitivity note in the manuscript: "Results are qualitatively robust to
-leave-one-job-out beta perturbation (range [min, max])."
-Do NOT change the primary beta.
+| Outcome | Pre-specified interpretation |
+|---------|------------------------------|
+| Indistinguishable | Global permutation destroyed the thermal signal; FP advantage attributable to hostname→FA mapping, not to node numbering or topology artefacts. |
+| Definitely A better (≥10/25) | Arbitrary persistent ranking or state effects are a serious alternative explanation for the FP advantage; report as evidence of confounding; qualify all fingerprint claims accordingly in manuscript. |
+| Definitely B better | Global placebo systematically underperforms random; indicates permuted FA values displace nodes that would otherwise be selected by random; report without omission. |
+
+**fp_withincab_placebo vs Full FP (magnitude, at r=1.25):**
+
+| Outcome | Pre-specified interpretation |
+|---------|------------------------------|
+| Full FP >> withincab placebo | Node-level fingerprint ranking within each cabinet contributes materially beyond cabinet-level thermal structure alone. |
+| Full FP ≈ withincab placebo | Scheduling value is largely recoverable from cabinet-level topology/structure; node-specific ranking adds little after cabinet identity is preserved. |
+| Withincab placebo > Full FP | Unlikely; would indicate within-cabinet permutation selects nodes that happen to be thermal anomalies in the permuted order — report without interpretation beyond what the data support. |
+
+**RandomSpread vs Random (at r=1.25):**
+
+| Outcome | Pre-specified interpretation |
+|---------|------------------------------|
+| Definitely A better | Cabinet spreading has independent capacity value even without fingerprint information. |
+| Indistinguishable | Spreading alone does not drive the observed advantage; the fingerprint component is more important. |
+
+**FPSpread vs RandomSpread (at r=1.25):**
+
+| Outcome | Pre-specified interpretation |
+|---------|------------------------------|
+| Definitely A better | Fingerprint ranking adds value conditional on spreading (both mechanisms contribute independently). |
+| Indistinguishable | After controlling for spread, fingerprint ranking provides no additional gain at this restriction level. |
+
+### H7. LOO Beta Reporting
+
+**[Amended 2026-10-02 — PRIMARY_BETA_CHALLENGE is the LOO estimate, not BETA_F_FROZEN]**
+
+The LOO cross-fitted beta (PRIMARY_BETA_CHALLENGE) is the operating beta for
+all sc30–54 runs.  Report the following in the manuscript:
+
+- PRIMARY_BETA_CHALLENGE (LOO mean) with its distribution (min, max, std)
+- BETA_F_FROZEN = 1.12484352 as the "original estimate" sensitivity
+- BETA_F_PROSPECTIVE = 0.96 as the "prospective slope" sensitivity
+- Outcome of E2 sensitivity runs at each beta value
+
+If PRIMARY_BETA_CHALLENGE ≈ BETA_F_FROZEN (within ±2%), note in the manuscript
+that the LOO correction made negligible difference.  If it differs by >10%, note
+this explicitly as evidence of self-inclusion bias in the original estimate and
+interpret which direction the correction moves the result.
 
 ### H8. Cabinet-Reference Sensitivity Interpretation
 
@@ -606,11 +734,14 @@ The preregistered primary result for each analysis is its own 25-scenario CI.
 
 After Phase G begins, it is forbidden to:
 - Change any selector definition
-- Change BETA_F_FROZEN, T_THR_PRIMARY, T_THR_SECONDARY, or DELTA_CAP
+- Change PRIMARY_BETA_CHALLENGE, T_THR_PRIMARY, T_THR_SECONDARY, or DELTA_CAP
+- Change BETA_F_FROZEN or BETA_F_PROSPECTIVE sensitivity values
 - Change the delta formula or bootstrap parameters
 - Add or remove comparisons from the preregistered list
-- Change the primary success criterion threshold
+- Change the primary success criterion threshold (§H4)
 - Re-label any right-censored scenario as non-censored
+- Substitute a different beta estimator (e.g., quarter-wise) for the LOO mean
+  without a new pre-results amendment
 
 ---
 
