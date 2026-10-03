@@ -86,9 +86,36 @@ LABELS = ["1-32", "33-128", "129-512", "513-2048", "2049+"]
 
 test_clean["size_bin"] = pd.cut(test_clean["node_count"], bins=BINS, labels=LABELS, right=True)
 
+def stratum_metrics(x, y):
+    """Return frozen-predictor R2, OLS R2, MAE, RMSE, sign agreement."""
+    pr, _  = stats.pearsonr(x, y)
+    sr, _  = stats.spearmanr(x, y)
+    slope, intercept, *_ = stats.linregress(x, y)
+    y_hat_ols  = slope * x + intercept
+    # R2_frozen: uses FA_2024 directly as predictor (no refit)
+    sst        = float(np.sum((y - y.mean()) ** 2))
+    sse_frozen = float(np.sum((y - x) ** 2))   # x is FA_2024 / F_2024
+    r2_frozen  = 1.0 - sse_frozen / sst if sst > 0 else float("nan")
+    # R2_ols: calibrated OLS (allows slope + intercept refit) = pearson_r^2
+    r2_ols     = float(pr ** 2)
+    mae        = float(np.mean(np.abs(y - x)))
+    rmse       = float(np.sqrt(np.mean((y - x) ** 2)))
+    sign_ag    = float(np.mean(np.sign(x) == np.sign(y)))
+    return {
+        "pearson_r":            round(float(pr),        4),
+        "spearman_r":           round(float(sr),        4),
+        "R2_frozen":            round(r2_frozen,        4),
+        "R2_ols":               round(r2_ols,           4),
+        "mae":                  round(mae,              4),
+        "rmse":                 round(rmse,             4),
+        "sign_agreement":       round(sign_ag,          4),
+        "ols_slope":            round(float(slope),     4),
+        "ols_intercept":        round(float(intercept), 4),
+    }
+
 strata_results = []
 for label in LABELS:
-    sub = test_clean[test_clean["size_bin"] == label]
+    sub   = test_clean[test_clean["size_bin"] == label]
     n_obs  = len(sub)
     n_jobs = sub["job_idx_int"].nunique()
     if n_obs < 10:
@@ -100,49 +127,40 @@ for label in LABELS:
 
     x = sub[pred_col].values
     y = sub[outcome_col].values
-
-    pr, _     = stats.pearsonr(x, y)
-    sr, _     = stats.spearmanr(x, y)
-    r2        = pr ** 2
-    slope, intercept, *_ = stats.linregress(x, y)
-
-    strata_results.append({
-        "size_bin":  label,
-        "n_jobs":    int(n_jobs),
-        "n_obs":     int(n_obs),
-        "pearson_r": round(float(pr),   4),
-        "spearman_r":round(float(sr),   4),
-        "r2":        round(float(r2),   4),
-        "ols_slope": round(float(slope), 4),
-        "ols_intercept": round(float(intercept), 4),
-    })
+    m = stratum_metrics(x, y)
+    strata_results.append({"size_bin": label, "n_jobs": int(n_jobs), "n_obs": int(n_obs), **m})
     print(f"  {label:12s}  n_jobs={n_jobs:5d}  n_obs={n_obs:7d}  "
-          f"r={pr:.3f}  rho={sr:.3f}  R2={r2:.3f}")
+          f"r={m['pearson_r']:.3f}  R2_froz={m['R2_frozen']:.4f}  "
+          f"R2_ols={m['R2_ols']:.4f}  mae={m['mae']:.3f}")
 
 # Overall
 x_all = test_clean[pred_col].values
 y_all = test_clean[outcome_col].values
-pr_all, _  = stats.pearsonr(x_all, y_all)
-sr_all, _  = stats.spearmanr(x_all, y_all)
-r2_all     = pr_all ** 2
-slope_all, intercept_all, *_ = stats.linregress(x_all, y_all)
+m_all = stratum_metrics(x_all, y_all)
+slope_all, intercept_all = m_all["ols_slope"], m_all["ols_intercept"]
+pr_all = m_all["pearson_r"]
+sr_all = m_all["spearman_r"]
 
 overall = {
     "n_jobs":    int(test_clean["job_idx_int"].nunique()),
     "n_obs":     int(len(test_clean)),
-    "pearson_r": round(float(pr_all),   4),
-    "spearman_r":round(float(sr_all),   4),
-    "r2":        round(float(r2_all),   4),
-    "ols_slope": round(float(slope_all), 4),
-    "ols_intercept": round(float(intercept_all), 4),
+    **m_all,
 }
 print(f"\n  Overall      n_jobs={overall['n_jobs']:5d}  n_obs={overall['n_obs']:7d}  "
-      f"r={pr_all:.3f}  rho={sr_all:.3f}  R2={r2_all:.3f}")
+      f"r={pr_all:.3f}  R2_froz={m_all['R2_frozen']:.4f}  "
+      f"R2_ols={m_all['R2_ols']:.4f}  mae={m_all['mae']:.3f}")
+print(f"  Note: R2_frozen = 1-SSE(y,F_2024)/SST(y) (no refit); "
+      f"R2_ols = pearsonr^2 (allows slope+intercept refit).")
 
 a2_result = {
     "audit_script": "artifacts/revision2/run_a2_a1b.py",
-    "audit_date":   "2026-10-02",
-    "plan_ref":     "REVIEW2_CHALLENGE_PLAN.md Phase A2 (amendment 6b45030)",
+    "audit_date":   "2026-10-03",
+    "plan_ref":     "REVIEW2_CHALLENGE_PLAN.md Phase A2 (Amendment 3)",
+    "note_r2":      (
+        "R2_frozen = 1 - SSE(y, F_2024)/SST(y): frozen-predictor R2, no refit. "
+        "R2_ols = pearson_r^2: calibrated OLS R2, allows slope+intercept refit. "
+        "These differ; both are reported per Amendment 3."
+    ),
     "predictor":    pred_col,
     "outcome":      outcome_col,
     "overall":      overall,
@@ -290,7 +308,7 @@ if late_prosp.get("pearson_r") is not None and early_prosp.get("pearson_r") is n
 
 a1b_result = {
     "audit_script":  "artifacts/revision2/run_a2_a1b.py",
-    "audit_date":    "2026-10-02",
+    "audit_date":    "2026-10-03",
     "plan_ref":      "REVIEW2_CHALLENGE_PLAN.md Phase A1b (amendment 6b45030)",
     "late_cabs":     sorted(late_cabs),
     "n_fp_nodes_total": int(len(fp_df2[fp_df2["cabinet"] != -1])),

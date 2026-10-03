@@ -6,8 +6,10 @@ Challenge scenarios sc30-54, 7 policies, PRIMARY_BETA_CHALLENGE.
 Plan ref: REVIEW2_CHALLENGE_PLAN.md Phase D (amendment 6b45030).
 
 Key differences from r1_gate_f_run.py:
-  - PRIMARY_BETA_CHALLENGE = 1.08293258 (LOO cross-fitted) replaces BETA_F_FROZEN
-    in residual model and T_hats (plan §B3, §H7)
+  - PRIMARY_BETA_CHALLENGE (per-job median LOO beta, Amendment 3) replaces
+    BETA_F_FROZEN in residual model and T_hats (plan §B3, §H7).
+    Value is imported from r2_selectors.py; update that file after running
+    run_b1_loo_beta_v2.py.
   - Seeds from rng(CHALLENGE_SEED=2042), independent of rng(42) (plan §3, §4)
   - 7 active policies: full_random, full_fp, position_template, full_fp_spread,
     random_spread, fp_global_placebo, fp_withincab_placebo (plan §D2)
@@ -64,7 +66,7 @@ TARGET_PP        = 0.50
 N_REFINE_GRID    = 3
 
 # PRIMARY beta for this run (LOO cross-fitted; plan §B3)
-BETA_CHALLENGE   = PRIMARY_BETA_CHALLENGE   # 1.08293258
+BETA_CHALLENGE   = PRIMARY_BETA_CHALLENGE   # imported from r2_selectors.py
 
 # ── Challenge scenario parameters ─────────────────────────────────────────────
 CHALLENGE_SEED      = 2042

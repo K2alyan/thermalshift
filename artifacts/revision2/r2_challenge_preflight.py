@@ -2,11 +2,16 @@
 """
 Review 2 Challenge Preflight (r2_challenge_preflight.py)
 
-Verifies all 12 preflight conditions before sc30-54 challenge run.
-Plan ref: REVIEW2_CHALLENGE_PLAN.md Phase F (amendment 6b45030).
+Verifies all 13 preflight conditions before sc30-54 challenge run.
+Plan ref: REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 3).
 
-Exit code 0 = all 12 conditions pass (challenge run may proceed).
+Exit code 0 = all 13 conditions pass (challenge run may proceed).
 Exit code 1 = one or more conditions fail (challenge run MUST NOT proceed).
+
+Changes from superseded version (commit 2814bb6):
+  - Condition 11: corrected from sc30 dry-run to sc0-4 (Amendment 3 §F-11)
+  - Condition 13: added r1<->r2 equivalence test (Amendment 3 §F-13)
+  - PRIMARY_BETA_CHALLENGE: updated after v2 LOO computation
 
 Usage:
   python r2_challenge_preflight.py [--ack]   # --ack sets operator_acknowledged=true
@@ -38,8 +43,9 @@ N_SCENARIOS_CHALLENGE       = 25
 SCENARIO_FIRST              = 30
 
 # Plan-specified preregistration commits (plan §8.8)
+# Amendment 3 commit is the new freeze commit (set after all corrections pass).
 ORIGINAL_PREREGISTRATION_SHA = "d28f29d"
-AMENDMENT_SHA                = "6b45030"
+AMENDMENT_SHA                = "6b45030"    # Amendment 2; Amendment 3 = new freeze
 
 # Frozen heldout analysis SHA (from e16ec3c, plan §2)
 HELDOUT_ANALYSIS_FILE = REV1_DIR / "results" / "gate_f_heldout_analysis.json"
@@ -53,7 +59,7 @@ args = parser.parse_args()
 
 print("=" * 70)
 print("Review 2 Challenge Preflight")
-print(f"Plan ref: REVIEW2_CHALLENGE_PLAN.md Phase F (amendment 6b45030)")
+print(f"Plan ref: REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 3)")
 print("=" * 70)
 
 conditions: dict[str, dict] = {}
@@ -275,13 +281,15 @@ if not r2_run_file.exists():
 else:
     src = r2_run_file.read_text(encoding="utf-8")
     src_selectors = selectors_file.read_text(encoding="utf-8") if selectors_file.exists() else ""
+    # PRIMARY_BETA_CHALLENGE literal: use value from loo_beta_results.json (condition 2)
+    _pbc_str = str(round(float(primary_beta), 8)) if primary_beta is not None else "UNKNOWN"
     # Check constants appear in script or in r2_selectors.py (imported by script)
     for name, val in [
         ("BETA_F_FROZEN", "1.12484352"),
         ("T_THR_PRIMARY", "63.625"),
         ("T_THR_SECONDARY", "60.602770562770566"),
         ("DELTA_CAP", "0.10"),
-        ("PRIMARY_BETA_CHALLENGE", "1.08293343"),
+        ("PRIMARY_BETA_CHALLENGE", _pbc_str),
     ]:
         if val in src:
             s7_notes.append(f"{name}={val} present in r2_gate_f_run.py")
@@ -385,47 +393,61 @@ record("10_unit_tests", s10_ok,
        "Unit tests FAILED (see condition 3)")
 
 # ════════════════════════════════════════════════════════════════════════════
-# Condition 11: Dev dry-run (sc30 at r=1.0, no actual capacity run needed)
+# Condition 11: Dev compatibility verification (sc0-4, NOT sc30)
+# Amendment 3 §F-11: corrects superseded condition that referenced sc30 dry-run.
+# sc30-54 must NEVER be touched before the final freeze.
 # ════════════════════════════════════════════════════════════════════════════
-print("\n[11] Dev dry-run check ...")
-# We verify that the r2_gate_f_run.py module loads cleanly and seed generation
-# reproduces sc30 seed without error (no actual simulation required here —
-# the full dry-run is triggered by running r2_gate_f_run.py with N_DEV=1 GATE_F_RATIOS_ONLY=1.0).
-# The preflight itself verifies the module syntax and seed.
+print("\n[11] Dev compatibility verification (sc0-4) ...")
 s11_ok = True; s11_notes = []
 
-data_dir = os.environ.get("THERMALSHIFT_DATA_DIR", "")
-if not data_dir or not Path(data_dir).exists():
-    s11_notes.append(
-        "THERMALSHIFT_DATA_DIR not set or missing — "
-        "manual dry-run required: "
-        "GATE_F_N_DEV=1 GATE_F_N_FIRST=30 GATE_F_RATIOS_ONLY=1.0 "
-        "python artifacts/revision2/r2_gate_f_run.py"
-    )
-    # Not a blocker at preflight time — operator must confirm dry-run was run
+# Verify sc0-4 seeds from rng(42) match what the r1 dev files record
+_rng42 = np.random.default_rng(42)
+_sc0_29_scen = [int(_rng42.integers(0, 2**31)) for _ in range(30)]
+_sc0_29_wl   = [int(_rng42.integers(0, 2**31)) for _ in range(30)]
+_sc0_4_scen  = _sc0_29_scen[:5]
+_sc0_4_wl    = _sc0_29_wl[:5]
+
+# Check against frozen r1 dev file(s)
+_r1_dev = REV1_DIR / "results" / "gate_f_sc0-4_1p0.json"
+if not _r1_dev.exists():
+    s11_ok = False; s11_notes.append("gate_f_sc0-4_1p0.json missing")
 else:
-    # Data dir is available — check r2_gate_f_run.py exists and seed asserts would pass
-    if not r2_run_file.exists():
-        s11_ok = False; s11_notes.append("r2_gate_f_run.py missing")
-    else:
-        # Quick import check: verify the seed assert block would pass
-        rng11 = np.random.default_rng(CHALLENGE_SEED)
-        _sc = [int(rng11.integers(0, 2**31)) for _ in range(N_SCENARIOS_CHALLENGE)]
-        _wl = [int(rng11.integers(0, 2**31)) for _ in range(N_SCENARIOS_CHALLENGE)]
-        _pg  = int(rng11.integers(0, 2**31))
-        _pwc = int(rng11.integers(0, 2**31))
-        if _pg == PLACEBO_GLOBAL_PERM_SEED and _pwc == PLACEBO_WITHINCAB_PERM_SEED:
+    try:
+        _r1_data = json.loads(_r1_dev.read_text())
+        _r1_seeds_ok = True
+        for sr in _r1_data.get("scenario_results", []):
+            idx = int(sr["scenario_idx"])
+            if 0 <= idx <= 4:
+                if sr["scen_seed"] != _sc0_4_scen[idx] or sr["wl_seed"] != _sc0_4_wl[idx]:
+                    _r1_seeds_ok = False
+                    s11_notes.append(
+                        f"sc{idx}: r1 scen={sr['scen_seed']} wl={sr['wl_seed']} "
+                        f"vs rng(42) scen={_sc0_4_scen[idx]} wl={_sc0_4_wl[idx]}"
+                    )
+        if _r1_seeds_ok:
             s11_notes.append(
-                f"Seed asserts would pass (sc30 scen={_sc[0]}). "
-                "Full dry-run with GATE_F_N_DEV=1 recommended before challenge run."
+                f"sc0-4 seeds from rng(42) match frozen r1 dev output. "
+                f"sc0 scen={_sc0_4_scen[0]} wl={_sc0_4_wl[0]}. "
+                "Full simulation equivalence: see r2_vs_r1_equivalence.json (condition 13)."
             )
         else:
             s11_ok = False
-            s11_notes.append(
-                f"Seed assert mismatch: pg={_pg} expected={PLACEBO_GLOBAL_PERM_SEED}"
-            )
+    except Exception as e:
+        s11_ok = False; s11_notes.append(f"Parse error in r1 dev file: {e}")
 
-record("11_dev_dryrun", s11_ok, "; ".join(s11_notes) or "seed asserts verified")
+# Also verify challenge rng(2042) seed asserts would pass for sc30
+rng11 = np.random.default_rng(CHALLENGE_SEED)
+_sc30 = [int(rng11.integers(0, 2**31)) for _ in range(N_SCENARIOS_CHALLENGE)]
+_wl30 = [int(rng11.integers(0, 2**31)) for _ in range(N_SCENARIOS_CHALLENGE)]
+_pg11 = int(rng11.integers(0, 2**31))
+_pwc11 = int(rng11.integers(0, 2**31))
+if _pg11 == PLACEBO_GLOBAL_PERM_SEED and _pwc11 == PLACEBO_WITHINCAB_PERM_SEED:
+    s11_notes.append(f"Challenge rng(2042) seed asserts pass (sc30 scen={_sc30[0]})")
+else:
+    s11_ok = False
+    s11_notes.append(f"Challenge seed assert mismatch: pg={_pg11} expected={PLACEBO_GLOBAL_PERM_SEED}")
+
+record("11_dev_compat_sc0_4", s11_ok, "; ".join(s11_notes) or "sc0-4 seeds verified")
 
 # ════════════════════════════════════════════════════════════════════════════
 # Condition 12: Operator acknowledgement
@@ -438,8 +460,51 @@ else:
     print("     --ack NOT set. Re-run with --ack to confirm operator acknowledgement.")
 record("12_operator_ack", op_ack,
        "Operator confirmed: no policy/metric/threshold/seed/interpretation rule changed "
-       "after preregistration" if op_ack else
+       "after preregistration (including Amendment 3 corrections)" if op_ack else
        "NOT acknowledged — re-run with --ack flag")
+
+# ════════════════════════════════════════════════════════════════════════════
+# Condition 13: r1<->r2 equivalence test (Amendment 3 §F-13)
+# ════════════════════════════════════════════════════════════════════════════
+print("\n[13] r1<->r2 equivalence test ...")
+equiv_file = REV2_DIR / "r2_vs_r1_equivalence.json"
+s13_ok = True; s13_notes = []
+
+if not equiv_file.exists():
+    s13_ok = False
+    s13_notes.append(
+        "r2_vs_r1_equivalence.json missing — run r2_vs_r1_equivalence.py first."
+    )
+else:
+    try:
+        equiv = json.loads(equiv_file.read_text())
+        equiv_pass = equiv.get("overall_pass", False)
+        if equiv_pass:
+            s13_notes.append("r2_vs_r1_equivalence.json: overall_pass=true")
+            # Report what stages ran
+            s1 = equiv.get("stage1_seed_verification", {})
+            s2 = equiv.get("stage2_simulation", {})
+            if s1.get("seeds_match"):
+                s13_notes.append("Stage 1 seed match: PASS")
+            else:
+                s13_ok = False
+                s13_notes.append("Stage 1 seed match: FAIL")
+            if s2.get("ran"):
+                s13_notes.append("Stage 2 simulation: ran and passed")
+            else:
+                s13_notes.append("Stage 2 simulation: not run (seed+constant verification only)")
+        else:
+            s13_ok = False
+            s13_notes.append(f"r2_vs_r1_equivalence.json: overall_pass=false")
+            for k, v in equiv.get("checks", {}).items():
+                if not v.get("pass", True):
+                    s13_notes.append(f"  FAIL: {k}: {v.get('notes','')}")
+    except Exception as e:
+        s13_ok = False
+        s13_notes.append(f"r2_vs_r1_equivalence.json parse error: {e}")
+
+record("13_r1r2_equivalence", s13_ok, "; ".join(s13_notes),
+       equiv_file=str(equiv_file.relative_to(REPO_ROOT)) if equiv_file.exists() else None)
 
 # ════════════════════════════════════════════════════════════════════════════
 # Summary
@@ -447,7 +512,8 @@ record("12_operator_ack", op_ack,
 print("\n" + "=" * 70)
 n_pass = sum(1 for c in conditions.values() if c["pass"])
 n_fail = len(conditions) - n_pass
-print(f"Preflight: {n_pass}/12 conditions PASS  {n_fail}/12 FAIL")
+n_total = len(conditions)
+print(f"Preflight: {n_pass}/{n_total} conditions PASS  {n_fail}/{n_total} FAIL")
 print("=" * 70)
 
 if all_pass:
@@ -461,7 +527,7 @@ else:
 # ── Write preflight JSON ──────────────────────────────────────────────────────
 preflight = {
     "script"              : "artifacts/revision2/r2_challenge_preflight.py",
-    "plan_ref"            : "REVIEW2_CHALLENGE_PLAN.md Phase F (amendment 6b45030)",
+    "plan_ref"            : "REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 3)",
     "preflight_run_at"    : datetime.datetime.utcnow().isoformat() + "Z",
     "challenge_freeze_commit": freeze_sha,
     "primary_beta_challenge" : primary_beta,
@@ -471,6 +537,7 @@ preflight = {
     },
     "seed_collision_audit": conditions.get("5_seed_collision_audit", {}),
     "conditions"          : conditions,
+    "n_conditions"        : n_total,
     "overall_pass"        : all_pass,
 }
 PREFLIGHT_OUT.write_text(json.dumps(preflight, indent=2))

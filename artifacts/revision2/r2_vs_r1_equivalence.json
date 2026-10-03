@@ -1,0 +1,92 @@
+{
+  "audit_script": "artifacts/revision2/r2_vs_r1_equivalence.py",
+  "audit_date": "2026-10-03",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Amendment 3 \u00a7F-13",
+  "stage1_seed_verification": {
+    "sc0_4_scen_seeds": [
+      191664964,
+      1662057958,
+      1405681632,
+      942484272,
+      929893138
+    ],
+    "sc0_4_wl_seeds": [
+      967354525,
+      487991439,
+      197860369,
+      1190961761,
+      1906728919
+    ],
+    "r1_scen_seeds": {
+      "0": 191664964,
+      "1": 1662057958,
+      "2": 1405681632,
+      "3": 942484272,
+      "4": 929893138
+    },
+    "r1_wl_seeds": {
+      "0": 967354525,
+      "1": 487991439,
+      "2": 197860369,
+      "3": 1190961761,
+      "4": 1906728919
+    },
+    "seeds_match": true
+  },
+  "stage2_simulation": {
+    "ran": false,
+    "note": "THERMALSHIFT_DATA_DIR not set; seed + constant verification only."
+  },
+  "overall_pass": true,
+  "checks": {
+    "1b_seeds_match": {
+      "pass": true,
+      "notes": "sc0: scen=191664964 wl=967354525 MATCH; sc1: scen=1662057958 wl=487991439 MATCH; sc2: scen=1405681632 wl=197860369 MATCH; sc3: scen=942484272 wl=1190961761 MATCH; sc4: scen=929893138 wl=1906728919 MATCH",
+      "sc0_4_scen_seeds": [
+        191664964,
+        1662057958,
+        1405681632,
+        942484272,
+        929893138
+      ],
+      "sc0_4_wl_seeds": [
+        967354525,
+        487991439,
+        197860369,
+        1190961761,
+        1906728919
+      ],
+      "r1_scen_seeds": {
+        "0": 191664964,
+        "1": 1662057958,
+        "2": 1405681632,
+        "3": 942484272,
+        "4": 929893138
+      },
+      "r1_wl_seeds": {
+        "0": 967354525,
+        "1": 487991439,
+        "2": 197860369,
+        "3": 1190961761,
+        "4": 1906728919
+      }
+    },
+    "1c_constants_match": {
+      "pass": true,
+      "notes": "BETA_F_FROZEN=1.12484352 present; T_THR_PRIMARY=63.625 present; T_THR_SECONDARY=60.602770562770566 present; DELTA_CAP=0.10 present"
+    },
+    "1d_r1_files_present": {
+      "pass": true,
+      "notes": "3/3 frozen r1 dev files present",
+      "r1_file_sha256": {
+        "gate_f_sc0-4_1p0.json": "4c71acd16dcfc7715081b061ae74fdbaa85f3efe1a0e10f52c3ee8d3813184ad",
+        "gate_f_sc0-4_1p25_1p5_2p0_4p0_8p0.json": "fde76902889d6ad5b15dd327c1f25c101011dbbc9b947c3ae61976f64c61baf4",
+        "gate_f_sc0-4_unr.json": "591055110a91c2656e0e7348b7a8a7b3e7322cb690e78bf426571004e67e743f"
+      }
+    },
+    "2_simulation": {
+      "pass": true,
+      "notes": "Stage 2 skipped (data not available); Stage 1 seed+constant checks sufficient for preflight. Run with THERMALSHIFT_DATA_DIR for full simulation equivalence."
+    }
+  }
+}

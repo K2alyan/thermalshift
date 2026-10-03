@@ -1,9 +1,9 @@
 {
   "script": "artifacts/revision2/r2_challenge_preflight.py",
-  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Phase F (amendment 6b45030)",
-  "preflight_run_at": "2026-10-03T05:28:55.294324Z",
-  "challenge_freeze_commit": "d4fcc95124f01d17cea44ad97ce4f1ad3a0136f7",
-  "primary_beta_challenge": 1.08293343,
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 3)",
+  "preflight_run_at": "2026-10-03T15:40:16.820284Z",
+  "challenge_freeze_commit": "2814bb6e9e7d56401fdd13241c38d27827a11519",
+  "primary_beta_challenge": 1.11416358,
   "plan_commits": {
     "original_preregistration": "d28f29d",
     "amendment": "6b45030"
@@ -142,8 +142,8 @@
     },
     "2_phase_b_complete": {
       "pass": true,
-      "notes": "PRIMARY_BETA_CHALLENGE=1.08293343",
-      "primary_beta": 1.08293343
+      "notes": "PRIMARY_BETA_CHALLENGE=1.11416358",
+      "primary_beta": 1.11416358
     },
     "3_phase_c_complete": {
       "pass": true,
@@ -282,18 +282,22 @@
       "all_unique": true
     },
     "6_clean_git": {
-      "pass": true,
-      "notes": "dirty=False untracked=0 commit=d4fcc95",
-      "commit_full": "d4fcc95124f01d17cea44ad97ce4f1ad3a0136f7",
-      "commit_short": "d4fcc95",
-      "tracked_dirty": false,
-      "untracked_count": 0,
-      "untracked_files": []
+      "pass": false,
+      "notes": "dirty=True untracked=3 commit=2814bb6",
+      "commit_full": "2814bb6e9e7d56401fdd13241c38d27827a11519",
+      "commit_short": "2814bb6",
+      "tracked_dirty": true,
+      "untracked_count": 3,
+      "untracked_files": [
+        "artifacts/revision2/r2_vs_r1_equivalence.json",
+        "artifacts/revision2/r2_vs_r1_equivalence.py",
+        "artifacts/revision2/run_b1_loo_beta_v2.py"
+      ]
     },
     "7_frozen_constants": {
       "pass": true,
-      "notes": "BETA_F_FROZEN=1.12484352 present in r2_gate_f_run.py; T_THR_PRIMARY=63.625 present in r2_gate_f_run.py; T_THR_SECONDARY=60.602770562770566 present in r2_gate_f_run.py; DELTA_CAP=0.10 present in r2_gate_f_run.py; PRIMARY_BETA_CHALLENGE=1.08293343 defined in r2_selectors.py (imported); r2_selectors.PRIMARY_BETA_CHALLENGE=1.08293343 matches JSON",
-      "primary_beta_challenge": 1.08293343
+      "notes": "BETA_F_FROZEN=1.12484352 present in r2_gate_f_run.py; T_THR_PRIMARY=63.625 present in r2_gate_f_run.py; T_THR_SECONDARY=60.602770562770566 present in r2_gate_f_run.py; DELTA_CAP=0.10 present in r2_gate_f_run.py; PRIMARY_BETA_CHALLENGE=1.11416358 defined in r2_selectors.py (imported); r2_selectors.PRIMARY_BETA_CHALLENGE=1.11416358 matches JSON",
+      "primary_beta_challenge": 1.11416358
     },
     "8_plan_committed": {
       "pass": true,
@@ -310,14 +314,20 @@
       "pass": true,
       "notes": "Unit tests re-verified via condition 3"
     },
-    "11_dev_dryrun": {
+    "11_dev_compat_sc0_4": {
       "pass": true,
-      "notes": "THERMALSHIFT_DATA_DIR not set or missing \u2014 manual dry-run required: GATE_F_N_DEV=1 GATE_F_N_FIRST=30 GATE_F_RATIOS_ONLY=1.0 python artifacts/revision2/r2_gate_f_run.py"
+      "notes": "sc0-4 seeds from rng(42) match frozen r1 dev output. sc0 scen=191664964 wl=967354525. Full simulation equivalence: see r2_vs_r1_equivalence.json (condition 13).; Challenge rng(2042) seed asserts pass (sc30 scen=1520047186)"
     },
     "12_operator_ack": {
       "pass": true,
-      "notes": "Operator confirmed: no policy/metric/threshold/seed/interpretation rule changed after preregistration"
+      "notes": "Operator confirmed: no policy/metric/threshold/seed/interpretation rule changed after preregistration (including Amendment 3 corrections)"
+    },
+    "13_r1r2_equivalence": {
+      "pass": true,
+      "notes": "r2_vs_r1_equivalence.json: overall_pass=true; Stage 1 seed match: PASS; Stage 2 simulation: not run (seed+constant verification only)",
+      "equiv_file": "artifacts\\revision2\\r2_vs_r1_equivalence.json"
     }
   },
-  "overall_pass": true
+  "n_conditions": 13,
+  "overall_pass": false
 }

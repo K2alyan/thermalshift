@@ -81,6 +81,103 @@ sc30–54 seeds are frozen and unchanged.  Gate F evidence files are unchanged.
 
 ---
 
+## Amendment 3 — LOO Estimand Correction and Preflight Fixes (2026-10-02)
+
+**Amendment commit:** (pending new freeze)
+**Supersedes:** run_b1_loo_beta.py (preserved as audit record at commit 2814bb6)
+**Status:** No sc30–54 simulation has been run.  All corrections are pre-results.
+
+**Background:**  After the superseded clean freeze at 2814bb6, two critical errors
+were identified in the Phase B LOO estimator.  This amendment corrects both, adds
+a new equivalence-test preflight condition, and clarifies one terminology point.
+
+### B3-1. Wrong estimand (critical)
+
+`run_b1_loo_beta.py` computed a POOLED fixed-effects slope:
+```
+beta_CF = sum_j(c_xy[j]) / sum_j(c_xx[j])
+```
+where `c_xy[j]` and `c_xx[j]` are job-level cross-product aggregates.  This is a
+different estimand from BETA_F_FROZEN, which is `median(beta_j)` over 462 per-job
+OLS slopes.  A pooled FE slope and a median-of-slopes are not algebraically equivalent
+and differ in their sensitivity to outlier jobs.
+
+**Correction:**  PRIMARY_BETA_CHALLENGE must use the same aggregation as BETA_F_FROZEN:
+```
+PRIMARY_BETA_CHALLENGE = median_j(beta_j_CF)
+```
+where `beta_j_CF` is the per-job OLS slope fitted on the LOO-corrected predictors
+`F_CF[i,j]` for the nodes present in job j.  This preserves the estimand used in
+the original M4 analysis while correcting for self-inclusion.  The pooled FE slope
+(1.08293343, from run_b1_loo_beta.py) is demoted to a secondary diagnostic and
+reported in `loo_beta_results.json` under key `B1_secondary_FE_beta`.
+
+### B3-2. Wrong r_ij in LOO shortcut (critical)
+
+The LOO leave-one-out formula removes job j's contribution from FA_2024[i]:
+```
+F_i^(-j) = (n_i * FA_2024[i] - r_ij) / (n_i - 1)
+```
+`run_b1_loo_beta.py` used `r_ij = T_dev[i,j]` — the T_p95 within-job deviation.
+This is INCORRECT.  FA_2024[i] is constructed as the mean over all training jobs of
+`r_ij = node_scalar_mean[i,j] - job_mean(node_scalar_mean)`, where `node_scalar_mean`
+is the FLAT MEAN of ALL non-NaN GCD temperature values (all timestamps × all sensor
+columns) for that node in that job.  T_p95 is used only as the OUTCOME in the beta
+regression — it is a different quantity from the fingerprint contribution.
+
+**Correction:**  `run_b1_loo_beta_v2.py` reconstructs the exact r_ij:
+```python
+vals = tmp[node_gcols].values.astype(float)   # (n_timestamps, n_gcds)
+flat = vals.flatten()
+valid = flat[np.isfinite(flat)]
+node_scalar_mean_ij = float(valid.mean())      # flat mean — matches phase3a_validation.py
+r_ij = node_scalar_mean_ij - job_mean_nsm      # within-job centred contribution
+```
+Hard assertion (must pass before any LOO computation proceeds): reproduce the
+original per-job betas from m3_train_betas.parquet using FA_2024[i] + T_p95 as
+predictor + outcome.  If median(beta_j_repro) deviates from BETA_F_FROZEN by more
+than 0.001, the script exits non-zero.
+
+### F-11. Preflight condition 11 correction (dry-run target)
+
+Condition 11 in the superseded preflight referred to "sc30 dry-run" and
+"GATE_F_N_FIRST=30" — but sc30–54 must never be touched before the final freeze.
+Corrected: condition 11 now verifies a sc0–4 compatibility dry-run (or, when the
+data directory is not available, seed/constant verification only).
+
+### F-13. New preflight condition: r1↔r2 equivalence test (hard condition)
+
+A new hard preflight condition (13) is added: `r2_vs_r1_equivalence.json` must exist
+and record `overall_pass: true`.  This is produced by `r2_vs_r1_equivalence.py`,
+which:
+1. Generates sc0–4 seeds from rng(42) and verifies they match the frozen r1 dev output.
+2. Verifies all frozen constants (BETA_F_FROZEN, T_THR_PRIMARY etc.) appear in r2 code.
+3. If THERMALSHIFT_DATA_DIR is available, runs the full sc0–4 simulation in
+   compatibility mode (BETA_F_FROZEN, original 4 policies) and hard-compares
+   capacity_unlock_pct, B_primary_ratio, S_primary_ratio, B_cab_ratio per scenario per
+   policy per ratio against the frozen r1 dev output files.  Tolerances: absolute
+   ≤ 0.01 (percentage points for capacity_unlock_pct, ratios for ratio fields).
+
+### C4. position_template semantics clarification (non-normative)
+
+`position_template` is an alias for `full_loc` from Gate F.  The `LOC_FA_dict` it
+uses is constructed as `mean(FA_2024)` over all fp nodes that share the same physical
+position (chassis/slot/board/node_pos).  This is THERMALLY INFORMED — it reflects the
+average historical thermal fingerprint at that physical position, not a purely
+topological index.  This clarification changes no policy behaviour; it documents the
+mechanism so reviewers understand what the position_template comparison tests.
+
+### R² Reporting Correction (A2)
+
+The superseded `run_a2_a1b.py` reported `r2 = pearson_r**2` only, which conflates
+the frozen-prediction R² (how well FA_2024 predicts T_dev without refitting) with the
+calibrated OLS R² (how well a refit OLS slope predicts T_dev).  These are distinct:
+- R2_frozen = 1 - SSE(T_dev, F_2024) / SST(T_dev)  [no refit; tests the frozen predictor]
+- R2_ols    = pearson_r**2  [allows an OLS slope and intercept]
+The corrected script reports both, plus MAE, RMSE, and sign agreement per stratum.
+
+---
+
 ## Governing Rule
 
 No policy definition, metric definition, threshold, seed, comparison selection, or
