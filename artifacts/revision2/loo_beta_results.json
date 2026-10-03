@@ -1,0 +1,66 @@
+{
+  "audit_script": "artifacts/revision2/run_b1_loo_beta.py",
+  "audit_date": "2026-10-02",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md \u00a7B1-B3 (amendment 6b45030)",
+  "training_data": {
+    "source": "m3_train_betas.parquet (462 qualifying jobs, same as BETA_F_FROZEN)",
+    "n_jobs_loaded": 462,
+    "n_jobs_failed": 0,
+    "n_eligible_observations": 17780,
+    "n_excluded_n1_obs": 0,
+    "n_unique_nodes": 1996,
+    "n_unique_jobs": 462,
+    "mean_abs_FA_minus_FCF": 0.018406
+  },
+  "B1_primary": {
+    "beta_CF": 1.08293343,
+    "bootstrap_CI_95_lo": 1.04345875,
+    "bootstrap_CI_95_hi": 1.12295298,
+    "bootstrap_n": 5000,
+    "bootstrap_seed": 9999,
+    "beta_CF_se": 0.02027914
+  },
+  "B3_primary_beta": {
+    "PRIMARY_BETA_CHALLENGE": 1.08293343,
+    "BETA_F_FROZEN": 1.12484352,
+    "pct_difference_from_frozen": -3.7259,
+    "interpretation": "\u00b12-10% difference (-3.7%): Modest self-inclusion correction; direction noted",
+    "BETA_F_CF_P5": 1.04345875,
+    "BETA_F_CF_P95": 1.12295298
+  },
+  "B2a_jackknife": {
+    "n_jobs": 462,
+    "BETA_F_JACKKNIFE_MEAN": 1.08293397,
+    "std": 0.00095511,
+    "min": 1.07798777,
+    "max": 1.08747467,
+    "P5": 1.08148556,
+    "P95": 1.08455262
+  },
+  "B2b_quarter_wise": {
+    "Q1_2024": {
+      "n_train_obs": 13801,
+      "n_held_obs": 3969,
+      "n_fa_nodes": 1990,
+      "beta_q": 0.924077
+    },
+    "Q2_2024": {
+      "n_train_obs": 13299,
+      "n_held_obs": 4466,
+      "n_fa_nodes": 1989,
+      "beta_q": 0.895176
+    },
+    "Q3_2024": {
+      "n_train_obs": 12844,
+      "n_held_obs": 4918,
+      "n_fa_nodes": 1985,
+      "beta_q": 0.793928
+    },
+    "Q4_2024": {
+      "n_train_obs": 13396,
+      "n_held_obs": 4299,
+      "n_fa_nodes": 1959,
+      "beta_q": 0.72259
+    }
+  }
+}
