@@ -1,8 +1,8 @@
 {
   "script": "artifacts/revision2/r2_challenge_preflight.py",
   "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Phase F (amendment 6b45030)",
-  "preflight_run_at": "2026-10-03T05:28:09.143637Z",
-  "challenge_freeze_commit": "4a7f71da4b02fdf07a34af77812b4bd19b859cd7",
+  "preflight_run_at": "2026-10-03T05:28:55.294324Z",
+  "challenge_freeze_commit": "d4fcc95124f01d17cea44ad97ce4f1ad3a0136f7",
   "primary_beta_challenge": 1.08293343,
   "plan_commits": {
     "original_preregistration": "d28f29d",
@@ -282,15 +282,13 @@
       "all_unique": true
     },
     "6_clean_git": {
-      "pass": false,
-      "notes": "dirty=True untracked=1 commit=4a7f71d",
-      "commit_full": "4a7f71da4b02fdf07a34af77812b4bd19b859cd7",
-      "commit_short": "4a7f71d",
-      "tracked_dirty": true,
-      "untracked_count": 1,
-      "untracked_files": [
-        "artifacts/revision2/challenge_preflight.json"
-      ]
+      "pass": true,
+      "notes": "dirty=False untracked=0 commit=d4fcc95",
+      "commit_full": "d4fcc95124f01d17cea44ad97ce4f1ad3a0136f7",
+      "commit_short": "d4fcc95",
+      "tracked_dirty": false,
+      "untracked_count": 0,
+      "untracked_files": []
     },
     "7_frozen_constants": {
       "pass": true,
@@ -321,5 +319,5 @@
       "notes": "Operator confirmed: no policy/metric/threshold/seed/interpretation rule changed after preregistration"
     }
   },
-  "overall_pass": false
+  "overall_pass": true
 }
