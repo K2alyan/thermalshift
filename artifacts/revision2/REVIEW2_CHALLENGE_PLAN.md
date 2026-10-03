@@ -10,7 +10,7 @@
 
 ## Amendment 1 — Pre-Analysis Governance Correction (2026-10-02)
 
-**Amendment commit:** (set at commit time)
+**Amendment commit:** 9d4a530
 **Status:** No Phase A or Phase B scientific outputs have been generated.
 No sc30–54 simulation has been run.  This amendment is therefore pre-results
 and preserves the integrity of the preregistration.
