@@ -1,8 +1,8 @@
 {
   "script": "artifacts/revision2/r2_challenge_preflight.py",
   "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 3)",
-  "preflight_run_at": "2026-10-03T15:40:16.820284Z",
-  "challenge_freeze_commit": "2814bb6e9e7d56401fdd13241c38d27827a11519",
+  "preflight_run_at": "2026-10-03T15:40:53.279100Z",
+  "challenge_freeze_commit": "9c5f2869b2b710e1e669d69ac9c3ea16b3c62baf",
   "primary_beta_challenge": 1.11416358,
   "plan_commits": {
     "original_preregistration": "d28f29d",
@@ -282,17 +282,13 @@
       "all_unique": true
     },
     "6_clean_git": {
-      "pass": false,
-      "notes": "dirty=True untracked=3 commit=2814bb6",
-      "commit_full": "2814bb6e9e7d56401fdd13241c38d27827a11519",
-      "commit_short": "2814bb6",
-      "tracked_dirty": true,
-      "untracked_count": 3,
-      "untracked_files": [
-        "artifacts/revision2/r2_vs_r1_equivalence.json",
-        "artifacts/revision2/r2_vs_r1_equivalence.py",
-        "artifacts/revision2/run_b1_loo_beta_v2.py"
-      ]
+      "pass": true,
+      "notes": "dirty=False untracked=0 commit=9c5f286",
+      "commit_full": "9c5f2869b2b710e1e669d69ac9c3ea16b3c62baf",
+      "commit_short": "9c5f286",
+      "tracked_dirty": false,
+      "untracked_count": 0,
+      "untracked_files": []
     },
     "7_frozen_constants": {
       "pass": true,
@@ -329,5 +325,5 @@
     }
   },
   "n_conditions": 13,
-  "overall_pass": false
+  "overall_pass": true
 }
