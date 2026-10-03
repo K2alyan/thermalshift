@@ -176,9 +176,12 @@ The result did not come from a single model. It is the product of eleven sequent
 10. **Second failure mode** — Tier-cap-20's aggressive cool-node routing concentrates
     power in low-F cabinets. Cabinet power becomes the binding constraint — an electrical
     bottleneck that thermal-only optimization creates.
-11. **Robustness** — 30 paired Monte Carlo scenarios (common random numbers, varied
-    workload draws and residual permutations) show FP-cap-10 outperforms random in all 30,
-    with stable median advantage across a wide range of workload mixes.
+11. **Robustness** — 30 paired Monte Carlo development scenarios (common random numbers,
+    varied workload draws and residual permutations) show FP-cap-10 outperforms random in
+    all 30 under the pre-correction model. A subsequent held-out evaluation (Gate F, 25
+    scenarios, corrected cabinet model) confirms the direction and consistency at every
+    tested availability level (r = 1.25–8.0), with the authoritative magnitude now
+    +3.6 to +5.6 pp under the corrected model and conservative C_lower metric.
 
 ---
 
@@ -259,7 +262,7 @@ historically but is superseded for scientific conclusions by Gate F's held-out e
 
 **What this is not:**
 
-- A prediction that Frontier (or any system) has 15.5% spare capacity waiting to be
+- A claim that Frontier (or any system) has a fixed percentage of spare capacity waiting to be
   reclaimed system-wide.
 - A dollar-savings projection. Infrastructure costs, cooling, and capital amortization
   are not modeled.
