@@ -41,7 +41,7 @@ and preserves the integrity of the preregistration.
 
 ## Amendment 2 — Post-A1 Methodological Corrections (2026-10-02)
 
-**Amendment commit:** (set at commit time)
+**Amendment commit:** 6b45030
 **Status:** A1 audit complete (e7b70be, PASS — proceed_with_documentation).
 No Phase B beta has been computed.  No new selector has been run on sc30–54.
 sc30–54 seeds are frozen and unchanged.  Gate F evidence files are unchanged.
