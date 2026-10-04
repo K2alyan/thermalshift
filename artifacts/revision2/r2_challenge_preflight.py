@@ -2,16 +2,17 @@
 """
 Review 2 Challenge Preflight (r2_challenge_preflight.py)
 
-Verifies all 13 preflight conditions before sc30-54 challenge run.
-Plan ref: REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 3).
+Verifies all 16 preflight conditions before sc30-54 challenge run.
+Plan ref: REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 5).
 
-Exit code 0 = all 13 conditions pass (challenge run may proceed).
+Exit code 0 = all 16 conditions pass (challenge run may proceed).
 Exit code 1 = one or more conditions fail (challenge run MUST NOT proceed).
 
-Changes from superseded version (commit 2814bb6):
-  - Condition 11: corrected from sc30 dry-run to sc0-4 (Amendment 3 §F-11)
-  - Condition 13: added r1<->r2 equivalence test (Amendment 3 §F-13)
-  - PRIMARY_BETA_CHALLENGE: updated after v2 LOO computation
+Changes from Amendment 4:
+  - Condition 13: now also requires seed_index_tests_pass=true (Amendment 5 §seed-index fix)
+  - Condition 14: requires n_scenario_workers_total=5, null_mismatches=0, schema_skipped reported
+  - Condition 16 (NEW): challenge_seed_index_audit.json audit_pass=true (Amendment 5)
+  - plan_ref updated to Amendment 5
 
 Usage:
   python r2_challenge_preflight.py [--ack]   # --ack sets operator_acknowledged=true
@@ -59,7 +60,7 @@ args = parser.parse_args()
 
 print("=" * 70)
 print("Review 2 Challenge Preflight")
-print(f"Plan ref: REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 3)")
+print(f"Plan ref: REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 5)")
 print("=" * 70)
 
 conditions: dict[str, dict] = {}
@@ -464,47 +465,183 @@ record("12_operator_ack", op_ack,
        "NOT acknowledged — re-run with --ack flag")
 
 # ════════════════════════════════════════════════════════════════════════════
-# Condition 13: r1<->r2 equivalence test (Amendment 3 §F-13)
+# Condition 13: r1<->r2 equivalence Stage 1 — seeds, constants, seed-index unit tests
+# Amendment 5: also requires seed_index_tests_pass=true (parallel-worker correctness)
 # ════════════════════════════════════════════════════════════════════════════
-print("\n[13] r1<->r2 equivalence test ...")
+print("\n[13] r1<->r2 equivalence — Stage 1: seeds, constants, seed-index tests ...")
 equiv_file = REV2_DIR / "r2_vs_r1_equivalence.json"
 s13_ok = True; s13_notes = []
+_equiv_data = None
 
 if not equiv_file.exists():
     s13_ok = False
-    s13_notes.append(
-        "r2_vs_r1_equivalence.json missing — run r2_vs_r1_equivalence.py first."
-    )
+    s13_notes.append("r2_vs_r1_equivalence.json missing — run r2_vs_r1_equivalence.py first")
 else:
     try:
-        equiv = json.loads(equiv_file.read_text())
-        equiv_pass = equiv.get("overall_pass", False)
-        if equiv_pass:
-            s13_notes.append("r2_vs_r1_equivalence.json: overall_pass=true")
-            # Report what stages ran
-            s1 = equiv.get("stage1_seed_verification", {})
-            s2 = equiv.get("stage2_simulation", {})
-            if s1.get("seeds_match"):
-                s13_notes.append("Stage 1 seed match: PASS")
-            else:
+        _equiv_data = json.loads(equiv_file.read_text())
+        s1 = _equiv_data.get("stage1_seed_verification", {})
+        if s1.get("pass", False):
+            sidx_ok = s1.get("seed_index_tests_pass", False)
+            if not sidx_ok:
                 s13_ok = False
-                s13_notes.append("Stage 1 seed match: FAIL")
-            if s2.get("ran"):
-                s13_notes.append("Stage 2 simulation: ran and passed")
+                s13_notes.append("seed_index_tests_pass=false — Amendment 5 parallel-worker fix not verified")
             else:
-                s13_notes.append("Stage 2 simulation: not run (seed+constant verification only)")
+                s13_notes.append(
+                    f"Stage 1 PASS: seeds match, constants verified, seed-index tests PASS; "
+                    f"sc0 scen_seed={s1.get('sc0_scen_seed')} wl_seed={s1.get('sc0_wl_seed')}"
+                )
         else:
             s13_ok = False
-            s13_notes.append(f"r2_vs_r1_equivalence.json: overall_pass=false")
-            for k, v in equiv.get("checks", {}).items():
-                if not v.get("pass", True):
-                    s13_notes.append(f"  FAIL: {k}: {v.get('notes','')}")
+            for n in s1.get("notes", [])[:6]:
+                s13_notes.append(f"  {n}")
     except Exception as e:
         s13_ok = False
-        s13_notes.append(f"r2_vs_r1_equivalence.json parse error: {e}")
+        s13_notes.append(f"Parse error: {e}")
 
-record("13_r1r2_equivalence", s13_ok, "; ".join(s13_notes),
+record("13_r1r2_equiv_stage1", s13_ok, "; ".join(s13_notes),
        equiv_file=str(equiv_file.relative_to(REPO_ROOT)) if equiv_file.exists() else None)
+
+# ════════════════════════════════════════════════════════════════════════════
+# Condition 14: r1<->r2 FULL SIMULATION equivalence (Stage 2)
+# Amendment 5: 5-worker run (max_concurrent=2), mismatch_count=0, null_mismatches=0
+# ════════════════════════════════════════════════════════════════════════════
+print("\n[14] r1<->r2 full simulation equivalence (Stage 2, parallel) ...")
+s14_ok = True; s14_notes = []
+s2 = {}
+
+if _equiv_data is None:
+    s14_ok = False
+    s14_notes.append("r2_vs_r1_equivalence.json not loaded (see condition 13)")
+else:
+    s2 = _equiv_data.get("stage2_simulation", {})
+    s2_ran  = s2.get("ran", False)
+    s2_pass = s2.get("pass", False)
+    if not s2_ran:
+        s14_ok = False
+        s14_notes.append("stage2_simulation.ran=false — parallel simulation was NOT run")
+        s14_notes.append(f"  Reason: {s2.get('error', 'unknown')}")
+    elif not s2_pass:
+        s14_ok = False
+        n_mm = s2.get("mismatch_count", "?")
+        s14_notes.append(f"stage2_simulation.pass=false — {n_mm} mismatches found")
+        for mm in s2.get("mismatch_examples", [])[:5]:
+            s14_notes.append(f"  mismatch: {mm}")
+    else:
+        n_rows      = s2.get("n_rows_checked", "?")
+        n_total     = s2.get("total_fields_compared", "?")
+        n_skip      = s2.get("schema_skipped", "?")
+        n_null_mm   = s2.get("null_mismatches", 0)
+        max_ff      = s2.get("max_abs_float_diff", 0.0)
+        n_workers   = s2.get("n_scenario_workers_total", s2.get("parallel_workers", "?"))
+        max_conc    = s2.get("max_concurrent_workers", "?")
+        if n_null_mm != 0:
+            s14_ok = False
+            s14_notes.append(f"null_mismatches={n_null_mm} — null asymmetries found (must be 0)")
+        else:
+            s14_notes.append(
+                f"Stage 2 PASS: workers={n_workers} max_concurrent={max_conc} "
+                f"rows={n_rows} fields={n_total} "
+                f"schema_skipped={n_skip} null_mm={n_null_mm} "
+                f"mismatches=0 max_float_diff={max_ff:.2e}"
+            )
+
+    if s2_ran and s2_pass:
+        overall_equiv = _equiv_data.get("overall_pass", False)
+        if not overall_equiv:
+            s14_ok = False
+            s14_notes.append("overall_pass=false in equivalence JSON despite stage2 passing")
+
+record("14_r1r2_equiv_stage2", s14_ok, "; ".join(s14_notes),
+       stage2_ran=s2.get("ran") if _equiv_data else None,
+       stage2_pass=s2.get("pass") if _equiv_data else None,
+       mismatch_count=s2.get("mismatch_count") if _equiv_data else None,
+       null_mismatches=s2.get("null_mismatches") if _equiv_data else None,
+       schema_skipped=s2.get("schema_skipped") if _equiv_data else None)
+
+# ════════════════════════════════════════════════════════════════════════════
+# Condition 15: r2 challenge analysis regression PASS
+# Amendment 4 §G3: r2_analysis_regression.json overall_pass=true
+# ════════════════════════════════════════════════════════════════════════════
+print("\n[15] Analysis regression test ...")
+reg_file = REV2_DIR / "r2_analysis_regression.json"
+s15_ok = True; s15_notes = []
+
+if not reg_file.exists():
+    s15_ok = False
+    s15_notes.append("r2_analysis_regression.json missing — run r2_analysis_regression.py first")
+else:
+    try:
+        reg = json.loads(reg_file.read_text())
+        if reg.get("overall_pass", False):
+            n_checks = reg.get("total_checks", "?")
+            n_fail   = reg.get("failed_checks", 0)
+            s15_notes.append(
+                f"Regression PASS: {n_checks} checks, {n_fail} failures"
+            )
+            n_comps = len(reg.get("comparisons", {}))
+            s15_notes.append(f"  {n_comps} overlapping comparisons verified against gate_f_heldout_analysis.json")
+        else:
+            s15_ok = False
+            s15_notes.append(f"Regression FAIL: overall_pass=false")
+            for comp_name, comp_data in reg.get("comparisons", {}).items():
+                if not comp_data.get("pass", True):
+                    s15_notes.append(f"  FAIL: {comp_name}: {comp_data.get('notes', [])[:2]}")
+    except Exception as e:
+        s15_ok = False
+        s15_notes.append(f"Parse error: {e}")
+
+record("15_analysis_regression", s15_ok, "; ".join(s15_notes),
+       reg_file=str(reg_file.relative_to(REPO_ROOT)) if reg_file.exists() else None)
+
+# ════════════════════════════════════════════════════════════════════════════
+# Condition 16: Challenge seed-index audit PASS
+# Amendment 5: challenge_seed_index_audit.json audit_pass=true
+# Verifies rng(2042) produces correct sc30-54 seed array with CHALLENGE_POLICY_IDS
+# order and SEED_INDEX_BASE fix present; placebo seeds 218767960/365514213 unchanged.
+# ════════════════════════════════════════════════════════════════════════════
+print("\n[16] Challenge seed-index audit ...")
+seed_audit_file = REV2_DIR / "challenge_seed_index_audit.json"
+s16_ok = True; s16_notes = []
+
+if not seed_audit_file.exists():
+    s16_ok = False
+    s16_notes.append("challenge_seed_index_audit.json missing — run challenge_seed_index_audit.py first")
+else:
+    try:
+        sa = json.loads(seed_audit_file.read_text())
+        audit_pass = sa.get("audit_pass", False)
+        if not audit_pass:
+            s16_ok = False
+            fails = sa.get("failures", [])
+            s16_notes.append(f"audit_pass=false; failures: {'; '.join(str(f) for f in fails[:5])}")
+        else:
+            pg  = sa.get("placebo_global_perm_seed", "?")
+            pwc = sa.get("placebo_withincab_perm_seed", "?")
+            pvf = sa.get("placebo_seeds_verified", False)
+            n   = sa.get("n_scenarios", "?")
+            sib = sa.get("seed_index_base", "?")
+            # Spot-check sc30 and sc31 seeds from scenario_table
+            sc_tbl = sa.get("scenario_table", {})
+            sc30   = sc_tbl.get("sc30", {})
+            sc31   = sc_tbl.get("sc31", {})
+            s16_notes.append(
+                f"audit_pass=true; n_scenarios={n} seed_index_base={sib} "
+                f"placebo_seeds_verified={pvf} "
+                f"pg={pg} pwc={pwc}; "
+                f"sc30 scen={sc30.get('scen_seed','?')} sc31 scen={sc31.get('scen_seed','?')}"
+            )
+            if not pvf:
+                s16_ok = False
+                s16_notes.append(f"placebo_seeds_verified=false — seeds changed from frozen values")
+            if sib != SCENARIO_FIRST:
+                s16_ok = False
+                s16_notes.append(f"seed_index_base={sib} expected {SCENARIO_FIRST}")
+    except Exception as e:
+        s16_ok = False
+        s16_notes.append(f"Parse error: {e}")
+
+record("16_challenge_seed_index_audit", s16_ok, "; ".join(s16_notes),
+       seed_audit_file=str(seed_audit_file.relative_to(REPO_ROOT)) if seed_audit_file.exists() else None)
 
 # ════════════════════════════════════════════════════════════════════════════
 # Summary
@@ -527,7 +664,7 @@ else:
 # ── Write preflight JSON ──────────────────────────────────────────────────────
 preflight = {
     "script"              : "artifacts/revision2/r2_challenge_preflight.py",
-    "plan_ref"            : "REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 3)",
+    "plan_ref"            : "REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 5)",
     "preflight_run_at"    : datetime.datetime.utcnow().isoformat() + "Z",
     "challenge_freeze_commit": freeze_sha,
     "primary_beta_challenge" : primary_beta,

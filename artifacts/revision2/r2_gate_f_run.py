@@ -16,11 +16,16 @@ Key differences from r1_gate_f_run.py:
   - Output: artifacts/revision2/results/ with _r2challenge suffix
 
 Environment variables:
-  THERMALSHIFT_DATA_DIR   — required; path to frontier parquet directory
-  GATE_F_N_DEV            — number of scenarios to run (default 25)
-  GATE_F_N_FIRST          — first scenario index (default 30)
-  GATE_F_RATIOS_ONLY      — e.g. "1.0" or "1.25,unrestricted"
-  GATE_F_REQUIRE_CLEAN_GIT — set to 1 to enforce clean tree
+  THERMALSHIFT_DATA_DIR        — required; path to frontier parquet directory
+  GATE_F_N_DEV                 — number of scenarios to run (default 25)
+  GATE_F_N_FIRST               — first scenario index (default 30)
+  GATE_F_RATIOS_ONLY           — e.g. "1.0" or "1.25,unrestricted"
+  GATE_F_REQUIRE_CLEAN_GIT     — set to 1 to enforce clean tree
+  GATE_F_COMPAT_SEED           — compat master seed (e.g. 42 for r1 equiv test)
+  GATE_F_COMPAT_BETA           — override BETA_CHALLENGE (e.g. 1.12484352)
+  GATE_F_RESTRICT_POLICIES     — comma-sep active policies override
+  GATE_F_COMPAT_N_SCEN         — total draws for scen/wl seeds (e.g. 30 for r1)
+  GATE_F_COMPAT_POLICY_ORDER   — ordered policy list for pol_seed draws
 """
 import sys, io, os, json, time, heapq, math, hashlib, statistics, subprocess
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", line_buffering=True)
@@ -100,13 +105,31 @@ else:
 
 GATE_F_POLICIES          = CHALLENGE_POLICY_IDS
 GATE_F_REQUIRE_CLEAN_GIT = int(os.environ.get("GATE_F_REQUIRE_CLEAN_GIT", "0"))
+
+# ── Compat mode overrides (r1↔r2 equivalence; plan Amendment 4 §G1) ──────────
+_COMPAT_SEED_ENV = os.environ.get("GATE_F_COMPAT_SEED", "")
+_is_compat       = bool(_COMPAT_SEED_ENV)
+if _is_compat:
+    CHALLENGE_SEED    = int(_COMPAT_SEED_ENV)
+    _env_beta = os.environ.get("GATE_F_COMPAT_BETA", "")
+    if _env_beta:
+        BETA_CHALLENGE = float(_env_beta)
+    N_SCENARIOS_TOTAL = int(os.environ.get("GATE_F_COMPAT_N_SCEN", "30"))
+_restrict = os.environ.get("GATE_F_RESTRICT_POLICIES", "")
+if _restrict:
+    GATE_F_POLICIES = [p.strip() for p in _restrict.split(",")]
+_COMPAT_POLICY_ORDER_ENV = os.environ.get("GATE_F_COMPAT_POLICY_ORDER", "")
+_COMPAT_POLICY_ORDER = (_COMPAT_POLICY_ORDER_ENV.split(",")
+                        if _COMPAT_POLICY_ORDER_ENV else list(GATE_F_POLICIES))
+
 N_DEV    = int(os.environ.get("GATE_F_N_DEV",   str(N_SCENARIOS_TOTAL)))
-N_FIRST  = int(os.environ.get("GATE_F_N_FIRST", str(SCENARIO_FIRST)))
+N_FIRST  = int(os.environ.get("GATE_F_N_FIRST", str(SCENARIO_FIRST) if not _is_compat else "0"))
 
 _scen_tag  = f"sc{N_FIRST}-{N_FIRST + N_DEV - 1}"
 _ratio_tag = (_ENV_RATIOS.replace(",", "_").replace(".", "p").replace("unrestricted", "unr")
               if _ENV_RATIOS else "all")
-OUT_FILE  = OUT_DIR / f"gate_f_{_scen_tag}_{_ratio_tag}_r2challenge.json"
+_run_suffix = "r2compat" if _is_compat else "r2challenge"
+OUT_FILE  = OUT_DIR / f"gate_f_{_scen_tag}_{_ratio_tag}_{_run_suffix}.json"
 CKPT_FILE = OUT_FILE.with_name(OUT_FILE.stem + "_checkpoint.json")
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
@@ -971,24 +994,41 @@ print(f"    n_base={n_base}  n_extra_max={n_extra_max}  N_DEV={N_DEV}  N_FIRST={
 _challenge_rng = np.random.default_rng(CHALLENGE_SEED)
 scen_seeds = [int(_challenge_rng.integers(0, 2**31)) for _ in range(N_SCENARIOS_TOTAL)]
 wl_seeds   = [int(_challenge_rng.integers(0, 2**31)) for _ in range(N_SCENARIOS_TOTAL)]
-# Consume the two placebo-seed draws to maintain the rng sequence
-_pg_seed  = int(_challenge_rng.integers(0, 2**31))
-_pwc_seed = int(_challenge_rng.integers(0, 2**31))
-assert _pg_seed  == PLACEBO_GLOBAL_PERM_SEED,    \
-    f"Placebo global seed mismatch: got {_pg_seed}, expected {PLACEBO_GLOBAL_PERM_SEED}"
-assert _pwc_seed == PLACEBO_WITHINCAB_PERM_SEED, \
-    f"Placebo withincab seed mismatch: got {_pwc_seed}, expected {PLACEBO_WITHINCAB_PERM_SEED}"
-# pol_seeds for 7 policies × 25 scenarios
-pol_seeds = {p: [int(_challenge_rng.integers(0, 2**31)) for _ in range(N_SCENARIOS_TOTAL)]
-             for p in CHALLENGE_POLICY_IDS}
+if not _is_compat:
+    # Consume the two placebo-seed draws to maintain the rng sequence
+    _pg_seed  = int(_challenge_rng.integers(0, 2**31))
+    _pwc_seed = int(_challenge_rng.integers(0, 2**31))
+    assert _pg_seed  == PLACEBO_GLOBAL_PERM_SEED,    \
+        f"Placebo global seed mismatch: got {_pg_seed}, expected {PLACEBO_GLOBAL_PERM_SEED}"
+    assert _pwc_seed == PLACEBO_WITHINCAB_PERM_SEED, \
+        f"Placebo withincab seed mismatch: got {_pwc_seed}, expected {PLACEBO_WITHINCAB_PERM_SEED}"
+# pol_seeds: draw in policy order; compat mode uses r1's original 7-policy draw order
+# and aliases full_loc → position_template
+_POL_ALIAS = {"full_loc": "position_template"}
+_pol_seeds_all = {p: [int(_challenge_rng.integers(0, 2**31)) for _ in range(N_SCENARIOS_TOTAL)]
+                  for p in _COMPAT_POLICY_ORDER}
+pol_seeds: dict[str, list] = {}
+for _p_raw, _seeds in _pol_seeds_all.items():
+    _p_active = _POL_ALIAS.get(_p_raw, _p_raw)
+    if _p_active in GATE_F_POLICIES:
+        pol_seeds[_p_active] = _seeds
 del _challenge_rng
 
-# Map: scenario absolute index (30-54) → position in the 25-element arrays (0-24)
-def _sc_idx(sc_abs: int) -> int:
-    return sc_abs - SCENARIO_FIRST
+# Seed-index base is fixed to the experiment's SCENARIO_FIRST (30 for challenge, 0 for compat),
+# NOT to the worker's N_FIRST. This guarantees that a one-scenario parallel worker launched
+# with N_FIRST=31 selects seed-array index 1, not 0.
+SEED_INDEX_BASE = 0 if _is_compat else SCENARIO_FIRST
 
-print(f"    sc30: scen_seed={scen_seeds[0]}  wl_seed={wl_seeds[0]}")
-print(f"    Placebo seeds: global={_pg_seed}  withincab={_pwc_seed}  [PASS]")
+def _sc_idx(sc_abs: int) -> int:
+    idx = sc_abs - SEED_INDEX_BASE
+    assert 0 <= idx < len(scen_seeds), \
+        f"_sc_idx({sc_abs}): idx={idx} out of range [0, {len(scen_seeds)})"
+    return idx
+
+_sc0_label = "sc0" if _is_compat else "sc30"
+print(f"    {_sc0_label}: scen_seed={scen_seeds[0]}  wl_seed={wl_seeds[0]}")
+if not _is_compat:
+    print(f"    Placebo seeds: global={_pg_seed}  withincab={_pwc_seed}  [PASS]")
 
 # ════════════════════════════════════════════════════════════════════════════
 # Main scenario loop
@@ -1165,6 +1205,8 @@ for s_abs in range(N_FIRST, N_FIRST + N_DEV):
 result = {
     "script"                 : "artifacts/revision2/r2_gate_f_run.py",
     "plan_ref"               : "REVIEW2_CHALLENGE_PLAN.md Phase D (amendment 6b45030)",
+    "compat_mode"            : _is_compat,
+    "compat_seed"            : CHALLENGE_SEED if _is_compat else None,
     "git_commit_full"        : _PROV["git_commit_full"],
     "git_commit_short"       : _PROV["git_commit_short"],
     "git_tracked_dirty"      : _PROV["git_tracked_dirty"],

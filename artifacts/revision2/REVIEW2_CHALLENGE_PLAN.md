@@ -1134,5 +1134,188 @@ Phase I:
 
 ---
 
+## Amendment 4 — Governance Gaps Closed Before Challenge Exposure (2026-10-03)
+
+**Pre-results amendment. No challenge scenarios (sc30–54) had been run at the time
+this amendment was written. Superseded freezes: 2814bb6 (Amendment 2) and 4ca95fb
+(Amendment 3 corrections). New freeze SHA recorded after 15/15 preflight PASS.**
+
+### Gaps identified after Amendment 3
+
+1. **Equivalence test was Stage 1 only.**  
+   `r2_vs_r1_equivalence.py` verified sc0–4 seeds and frozen constants but never
+   invoked the simulator.  Preflight condition 13 passed even when
+   `stage2_simulation.ran = false`.  This is insufficient governance.
+
+2. **Challenge post-processing code not frozen.**  
+   `r2_gate_f_challenge_merge.py` and `r2_gate_f_challenge_analysis.py` were listed
+   in the execution order (§14) but had not been written.  The analysis rules in §H
+   cannot be verified as faithfully implemented until the script is committed and
+   regression-tested against known-good outputs.
+
+### Corrections
+
+**G1 — Full simulation equivalence (Stage 2).**  
+`r2_gate_f_run.py` is extended with compat-mode env vars:
+
+| Variable | Value for compat | Purpose |
+|---|---|---|
+| `GATE_F_COMPAT_SEED` | 42 | Replaces rng(2042) with rng(42) |
+| `GATE_F_COMPAT_BETA` | 1.12484352 | Replaces PRIMARY_BETA_CHALLENGE with BETA_F_FROZEN |
+| `GATE_F_RESTRICT_POLICIES` | full_random,full_fp,position_template,full_fp_spread | 4 r1 policies |
+| `GATE_F_COMPAT_N_SCEN` | 30 | Draw 30 scen/wl seeds (matching rng(42) draw count) |
+| `GATE_F_COMPAT_POLICY_ORDER` | full_random,full_fp,full_loc,full_compact,marginal_random,marginal_fp,full_fp_spread | Reproduce r1 pol_seed draw order; alias full_loc→position_template |
+| `GATE_F_N_FIRST` | 0 | Run sc0–4 |
+| `GATE_F_N_DEV` | 5 | 5 scenarios |
+
+Output: `gate_f_sc0-4_*_r2compat.json` (separate from challenge outputs).
+
+`r2_vs_r1_equivalence.py` is rewritten to run Stage 2: invoke r2 in compat mode as a
+subprocess, then hard-compare per scenario × policy × ratio × lambda row against the
+three frozen r1 dev files.  Comparison rules:
+
+- int/str/bool fields: exact equality
+- float fields: `abs(a − b) ≤ 1e-9`
+- policy name alias: `full_loc` (r1) treated as `position_template` (r2)
+- Fields present in one format but not the other: skipped (e.g. B_secondary_h in r1)
+- Crossing dict fields: C_lower_pct, C_upper_pct, status, right_censored, first_binding_constraint
+
+Output: `r2_vs_r1_equivalence.json` with `stage2_simulation.ran = true` and
+`stage2_simulation.pass = true` both required.
+
+**G2 — Challenge merge and analysis scripts frozen.**  
+`r2_gate_f_challenge_merge.py`: merges per-batch `*_r2challenge.json` files into a
+single unified results file covering all sc30–54.
+
+`r2_gate_f_challenge_analysis.py`: implements the 8 preregistered comparisons from §H:
+
+| # | Comparison | Policy A | Policy B | Category |
+|---|---|---|---|---|
+| 1 | FP_vs_Random | full_fp | full_random | primary |
+| 2 | FP_vs_WithinCabPlacebo | full_fp | fp_withincab_placebo | node_level_placebo |
+| 3 | FP_vs_GlobalPlacebo | full_fp | fp_global_placebo | global_placebo |
+| 4 | RandomSpread_vs_Random | random_spread | full_random | spread_baseline |
+| 5 | FPSpread_vs_RandomSpread | full_fp_spread | random_spread | spread_advantage |
+| 6 | FPSpread_vs_FP | full_fp_spread | full_fp | spread_vs_fp |
+| 7 | FP_vs_PositionTemplate | full_fp | position_template | thermal_vs_position |
+| 8 | FPSpread_vs_PositionTemplate | full_fp_spread | position_template | spread_vs_position |
+
+Bootstrap: 5000 paired scenario resamples, seed=9999, percentile CI (same as Gate F).
+Right-censored scenarios excluded from pairwise delta computation.
+
+**G3 — Analysis regression test.**  
+`r2_analysis_regression.py` applies the analysis engine to the frozen sc5–29 Gate F
+outputs and compares against `gate_f_heldout_analysis.json` for the 5 overlapping
+comparisons (FP_vs_Random, Loc_vs_Random, FPSpread_vs_Random, FPSpread_vs_FP,
+FPSpread_vs_Loc).  Produces `r2_analysis_regression.json` with `overall_pass = true`.
+Tolerance for per-scenario delta values: `abs(a − b) ≤ 1e-9`.  Verdicts must match
+exactly.
+
+### New preflight conditions (15/15 required for challenge run)
+
+| # | Condition | Change |
+|---|---|---|
+| 13 | r1↔r2 equivalence (Stage 1) | Strengthened: `stage2_simulation.ran = true` AND `stage2_simulation.pass = true` both required |
+| 14 | Full r1↔r2 SIMULATION equivalence | New: zero-mismatch hard comparison from Stage 2 |
+| 15 | r2 challenge analysis regression PASS | New: `r2_analysis_regression.json overall_pass = true` |
+
+### What did NOT change
+
+- No selector definitions changed.
+- PRIMARY_BETA_CHALLENGE, T_THR_PRIMARY, T_THR_SECONDARY, DELTA_CAP unchanged.
+- BETA_F_FROZEN unchanged.
+- Delta formula, bootstrap parameters, comparison list unchanged.
+- sc30–54 were not touched.
+
+---
+
+## Amendment 5 — Parallel-Worker Seed-Index Correctness Fix (2026-10-03)
+
+**Status:** Pre-results. No sc30–54 scenario had been run when this amendment was written.
+**Nature:** Implementation correctness fix. No selector, metric, threshold, comparison,
+seed value, or interpretation rule changes.
+
+### Finding
+
+A parallel-worker audit found that `_sc_idx()` in `r2_gate_f_run.py` used `N_FIRST`
+as the seed-array base:
+
+```python
+def _sc_idx(sc_abs: int) -> int:
+    return sc_abs - N_FIRST          # WRONG for parallel workers
+```
+
+This is correct for a monolithic sequential run where one process runs the full
+contiguous set (e.g., N_FIRST=30 covers sc30–sc54). It is incorrect for
+one-scenario parallel workers: a worker launched with N_FIRST=31 would compute
+`_sc_idx(31) = 31 − 31 = 0`, selecting seed-array position 0 — the same entry as
+sc30. Every independent worker would silently reuse sc30's RNG entries, which would
+badly compromise the claimed 25 independent scenarios.
+
+### Fix
+
+Replaced `N_FIRST` with a fixed experiment-relative base:
+
+```python
+SEED_INDEX_BASE = 0 if _is_compat else SCENARIO_FIRST
+
+def _sc_idx(sc_abs: int) -> int:
+    idx = sc_abs - SEED_INDEX_BASE
+    assert 0 <= idx < len(scen_seeds), ...
+    return idx
+```
+
+For challenge mode: `SCENARIO_FIRST = 30`, so sc30→0, sc31→1, …, sc54→24.
+For compat mode: `SEED_INDEX_BASE = 0`, so sc0→0, sc1→1, …, sc4→4.
+A worker with N_FIRST=31 now correctly gets sc31→1.
+
+### Seed-index verification table (challenge, sc30–54)
+
+| Scenario | Seed-array index | scen_seed       | wl_seed         |
+|----------|-----------------|-----------------|-----------------|
+| sc30     | 0               | from rng(2042)  | from rng(2042)  |
+| sc31     | 1               | from rng(2042)  | from rng(2042)  |
+| …        | …               | …               | …               |
+| sc54     | 24              | from rng(2042)  | from rng(2042)  |
+
+All 25 scen_seeds and wl_seeds are distinct (verified by Stage 1 unit test).
+
+### Seed-index verification table (compat, sc0–4)
+
+| Scenario | Seed-array index | scen_seed       | wl_seed         |
+|----------|-----------------|-----------------|-----------------|
+| sc0      | 0               | from rng(42)    | from rng(42)    |
+| sc1      | 1               | from rng(42)    | from rng(42)    |
+| …        | …               | …               | …               |
+| sc4      | 4               | from rng(42)    | from rng(42)    |
+
+Exact seed values captured in `r2_vs_r1_equivalence.json` →
+`stage1_seed_verification.seed_index_table_compat` and
+`stage1_seed_verification.seed_index_table_challenge`.
+
+### Stage 2 parallelization
+
+The sc0–4 equivalence test now runs five parallel one-scenario workers
+(N_FIRST=i, N_DEV=1 for i in 0..4). The SEED_INDEX_BASE fix ensures each
+worker selects its correct seed-array position. Old sequential checkpoint
+archived as `SUPERSEDED_pre_amend5_gate_f_sc0-4_r2compat_checkpoint.json`.
+
+### Comparator null-asymmetry fix
+
+`_compare_row()` and `_compare_crossing()` previously silently skipped any
+field where one side was None and the other was non-null. The comparator now
+treats this as a mismatch (`null_asymmetry: true`). Fields absent from either
+schema entirely are counted as `schema_skipped` (not a content mismatch).
+
+### What did NOT change
+
+- CHALLENGE_SEED (2042), COMPAT_SEED (42), all seed values unchanged.
+- PRIMARY_BETA_CHALLENGE, BETA_F_FROZEN, T_THR_PRIMARY, T_THR_SECONDARY, DELTA_CAP unchanged.
+- All 8 preregistered comparisons unchanged.
+- Bootstrap parameters (N=5000, seed=9999), delta formula, interpretation rules unchanged.
+- sc30–54 were not touched. Analysis regression (315/315) preserved.
+
+---
+
 *Preregistered on 2026-10-02. No analysis, simulation, or interpretation rules
 may change after this document is committed to git.*

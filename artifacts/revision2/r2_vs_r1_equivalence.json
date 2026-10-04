@@ -1,92 +1,426 @@
 {
-  "audit_script": "artifacts/revision2/r2_vs_r1_equivalence.py",
-  "audit_date": "2026-10-03",
-  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Amendment 3 \u00a7F-13",
+  "script": "artifacts/revision2/r2_vs_r1_equivalence.py",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Amendment 5",
+  "run_at": "2026-10-04T00:13:46.960740Z",
   "stage1_seed_verification": {
-    "sc0_4_scen_seeds": [
-      191664964,
-      1662057958,
-      1405681632,
-      942484272,
-      929893138
+    "pass": true,
+    "seeds_match": true,
+    "seed_index_tests_pass": true,
+    "constants_match": true,
+    "r1_dev_files_present": true,
+    "notes": [
+      "sc0-4 seeds match rng(42). sc0: scen=191664964 wl=967354525",
+      "Parallel-worker seed-index fix verified: sc31 old_idx=0(WRONG) new_idx=1(CORRECT). All sc30-54 indices unique: True. All sc0-4 compat indices unique: True.",
+      "Seed-index unit tests PASS: sc0-4 compat + sc30-54 challenge all correct",
+      "BETA_F_FROZEN: found",
+      "T_THR_PRIMARY: found",
+      "T_THR_SECONDARY: found",
+      "DELTA_CAP: found",
+      "SEED_INDEX_BASE: found"
     ],
-    "sc0_4_wl_seeds": [
-      967354525,
-      487991439,
-      197860369,
-      1190961761,
-      1906728919
-    ],
-    "r1_scen_seeds": {
-      "0": 191664964,
-      "1": 1662057958,
-      "2": 1405681632,
-      "3": 942484272,
-      "4": 929893138
+    "r1_dev_sha256": {
+      "gate_f_sc0-4_1p0.json": "4c71acd16dcfc7715081b061ae74fdbaa85f3efe1a0e10f52c3ee8d3813184ad",
+      "gate_f_sc0-4_1p25_1p5_2p0_4p0_8p0.json": "fde76902889d6ad5b15dd327c1f25c101011dbbc9b947c3ae61976f64c61baf4",
+      "gate_f_sc0-4_unr.json": "591055110a91c2656e0e7348b7a8a7b3e7322cb690e78bf426571004e67e743f"
     },
-    "r1_wl_seeds": {
-      "0": 967354525,
-      "1": 487991439,
-      "2": 197860369,
-      "3": 1190961761,
-      "4": 1906728919
+    "sc0_scen_seed": 191664964,
+    "sc0_wl_seed": 967354525,
+    "seed_index_table_compat": {
+      "sc0": {
+        "seed_index": 0,
+        "scen_seed": 191664964,
+        "wl_seed": 967354525,
+        "pol_seed_full_random": 1981113450,
+        "pol_seed_full_fp": 934620677,
+        "pol_seed_full_loc": 944062963,
+        "pol_seed_full_compact": 1837539165,
+        "pol_seed_marginal_random": 2014450024,
+        "pol_seed_marginal_fp": 560793882,
+        "pol_seed_full_fp_spread": 301129327
+      },
+      "sc1": {
+        "seed_index": 1,
+        "scen_seed": 1662057958,
+        "wl_seed": 487991439,
+        "pol_seed_full_random": 1599364551,
+        "pol_seed_full_fp": 1728218298,
+        "pol_seed_full_loc": 1435384430,
+        "pol_seed_full_compact": 604267306,
+        "pol_seed_marginal_random": 327087749,
+        "pol_seed_marginal_fp": 1539509958,
+        "pol_seed_full_fp_spread": 1254340837
+      },
+      "sc2": {
+        "seed_index": 2,
+        "scen_seed": 1405681632,
+        "wl_seed": 197860369,
+        "pol_seed_full_random": 787359109,
+        "pol_seed_full_fp": 1807519525,
+        "pol_seed_full_loc": 1405375275,
+        "pol_seed_full_compact": 1970642946,
+        "pol_seed_marginal_random": 1068008206,
+        "pol_seed_marginal_fp": 1694378690,
+        "pol_seed_full_fp_spread": 203355303
+      },
+      "sc3": {
+        "seed_index": 3,
+        "scen_seed": 942484272,
+        "wl_seed": 1190961761,
+        "pol_seed_full_random": 2077711329,
+        "pol_seed_full_fp": 832103482,
+        "pol_seed_full_loc": 1011671399,
+        "pol_seed_full_compact": 630487793,
+        "pol_seed_marginal_random": 1495336619,
+        "pol_seed_marginal_fp": 964996477,
+        "pol_seed_full_fp_spread": 1395534950
+      },
+      "sc4": {
+        "seed_index": 4,
+        "scen_seed": 929893138,
+        "wl_seed": 1906728919,
+        "pol_seed_full_random": 882294417,
+        "pol_seed_full_fp": 1928628491,
+        "pol_seed_full_loc": 1836270334,
+        "pol_seed_full_compact": 932688238,
+        "pol_seed_marginal_random": 1064348453,
+        "pol_seed_marginal_fp": 1582522788,
+        "pol_seed_full_fp_spread": 1350220222
+      }
     },
-    "seeds_match": true
+    "seed_index_table_challenge": {
+      "sc30": {
+        "seed_index": 0,
+        "scen_seed": 1520047186,
+        "wl_seed": 1994769663,
+        "pol_seed_full_random": 1310625525,
+        "pol_seed_full_fp": 1160149723,
+        "pol_seed_position_template": 1887302131,
+        "pol_seed_full_fp_spread": 1538353507,
+        "pol_seed_random_spread": 713603992,
+        "pol_seed_fp_global_placebo": 1129278036,
+        "pol_seed_fp_withincab_placebo": 1802287779
+      },
+      "sc31": {
+        "seed_index": 1,
+        "scen_seed": 1145613857,
+        "wl_seed": 98741167,
+        "pol_seed_full_random": 710789042,
+        "pol_seed_full_fp": 1944544240,
+        "pol_seed_position_template": 944247494,
+        "pol_seed_full_fp_spread": 1242480745,
+        "pol_seed_random_spread": 1426869177,
+        "pol_seed_fp_global_placebo": 1492051212,
+        "pol_seed_fp_withincab_placebo": 664986878
+      },
+      "sc32": {
+        "seed_index": 2,
+        "scen_seed": 1521583570,
+        "wl_seed": 581721350,
+        "pol_seed_full_random": 1993409324,
+        "pol_seed_full_fp": 561870617,
+        "pol_seed_position_template": 1174731679,
+        "pol_seed_full_fp_spread": 1101957600,
+        "pol_seed_random_spread": 741394648,
+        "pol_seed_fp_global_placebo": 493478519,
+        "pol_seed_fp_withincab_placebo": 556297840
+      },
+      "sc33": {
+        "seed_index": 3,
+        "scen_seed": 629767374,
+        "wl_seed": 1816866876,
+        "pol_seed_full_random": 361371759,
+        "pol_seed_full_fp": 2131115309,
+        "pol_seed_position_template": 2014399602,
+        "pol_seed_full_fp_spread": 1900255239,
+        "pol_seed_random_spread": 1179122099,
+        "pol_seed_fp_global_placebo": 1286935804,
+        "pol_seed_fp_withincab_placebo": 625824136
+      },
+      "sc34": {
+        "seed_index": 4,
+        "scen_seed": 1112822527,
+        "wl_seed": 1012191133,
+        "pol_seed_full_random": 188829268,
+        "pol_seed_full_fp": 1083982836,
+        "pol_seed_position_template": 1467840037,
+        "pol_seed_full_fp_spread": 1419376875,
+        "pol_seed_random_spread": 89835299,
+        "pol_seed_fp_global_placebo": 1975903394,
+        "pol_seed_fp_withincab_placebo": 767686797
+      },
+      "sc35": {
+        "seed_index": 5,
+        "scen_seed": 1702157981,
+        "wl_seed": 479602785,
+        "pol_seed_full_random": 2019537345,
+        "pol_seed_full_fp": 886381085,
+        "pol_seed_position_template": 955291092,
+        "pol_seed_full_fp_spread": 845758946,
+        "pol_seed_random_spread": 1687566255,
+        "pol_seed_fp_global_placebo": 153084404,
+        "pol_seed_fp_withincab_placebo": 1211816050
+      },
+      "sc36": {
+        "seed_index": 6,
+        "scen_seed": 684253553,
+        "wl_seed": 1332425394,
+        "pol_seed_full_random": 1293368643,
+        "pol_seed_full_fp": 468905798,
+        "pol_seed_position_template": 1757903378,
+        "pol_seed_full_fp_spread": 418511212,
+        "pol_seed_random_spread": 2087663957,
+        "pol_seed_fp_global_placebo": 793222691,
+        "pol_seed_fp_withincab_placebo": 1403080594
+      },
+      "sc37": {
+        "seed_index": 7,
+        "scen_seed": 118246515,
+        "wl_seed": 201221264,
+        "pol_seed_full_random": 1422052435,
+        "pol_seed_full_fp": 354028300,
+        "pol_seed_position_template": 878729161,
+        "pol_seed_full_fp_spread": 1491340791,
+        "pol_seed_random_spread": 307754744,
+        "pol_seed_fp_global_placebo": 1274705502,
+        "pol_seed_fp_withincab_placebo": 825629225
+      },
+      "sc38": {
+        "seed_index": 8,
+        "scen_seed": 418197535,
+        "wl_seed": 342687064,
+        "pol_seed_full_random": 393689956,
+        "pol_seed_full_fp": 710028411,
+        "pol_seed_position_template": 1752340485,
+        "pol_seed_full_fp_spread": 628814254,
+        "pol_seed_random_spread": 898432654,
+        "pol_seed_fp_global_placebo": 1164019137,
+        "pol_seed_fp_withincab_placebo": 796731860
+      },
+      "sc39": {
+        "seed_index": 9,
+        "scen_seed": 552807005,
+        "wl_seed": 1159106977,
+        "pol_seed_full_random": 2083697555,
+        "pol_seed_full_fp": 496118675,
+        "pol_seed_position_template": 2088167227,
+        "pol_seed_full_fp_spread": 1952255159,
+        "pol_seed_random_spread": 1781602397,
+        "pol_seed_fp_global_placebo": 1465393312,
+        "pol_seed_fp_withincab_placebo": 312022693
+      },
+      "sc40": {
+        "seed_index": 10,
+        "scen_seed": 860057835,
+        "wl_seed": 871759594,
+        "pol_seed_full_random": 1776308008,
+        "pol_seed_full_fp": 1419416995,
+        "pol_seed_position_template": 1366913491,
+        "pol_seed_full_fp_spread": 1290343367,
+        "pol_seed_random_spread": 1979793254,
+        "pol_seed_fp_global_placebo": 1894162649,
+        "pol_seed_fp_withincab_placebo": 671594395
+      },
+      "sc41": {
+        "seed_index": 11,
+        "scen_seed": 2017429576,
+        "wl_seed": 143054453,
+        "pol_seed_full_random": 1890554810,
+        "pol_seed_full_fp": 1199590080,
+        "pol_seed_position_template": 2061721569,
+        "pol_seed_full_fp_spread": 1420706024,
+        "pol_seed_random_spread": 207703850,
+        "pol_seed_fp_global_placebo": 1286178306,
+        "pol_seed_fp_withincab_placebo": 729179996
+      },
+      "sc42": {
+        "seed_index": 12,
+        "scen_seed": 930605457,
+        "wl_seed": 1086829000,
+        "pol_seed_full_random": 1570536093,
+        "pol_seed_full_fp": 1143506537,
+        "pol_seed_position_template": 2075277521,
+        "pol_seed_full_fp_spread": 770420327,
+        "pol_seed_random_spread": 1367172818,
+        "pol_seed_fp_global_placebo": 1315394850,
+        "pol_seed_fp_withincab_placebo": 465356394
+      },
+      "sc43": {
+        "seed_index": 13,
+        "scen_seed": 904615776,
+        "wl_seed": 1256185540,
+        "pol_seed_full_random": 1334991685,
+        "pol_seed_full_fp": 1585064174,
+        "pol_seed_position_template": 502492536,
+        "pol_seed_full_fp_spread": 1135115767,
+        "pol_seed_random_spread": 896402058,
+        "pol_seed_fp_global_placebo": 93989805,
+        "pol_seed_fp_withincab_placebo": 232546132
+      },
+      "sc44": {
+        "seed_index": 14,
+        "scen_seed": 2132759622,
+        "wl_seed": 574886723,
+        "pol_seed_full_random": 1277639611,
+        "pol_seed_full_fp": 1374892560,
+        "pol_seed_position_template": 1664948588,
+        "pol_seed_full_fp_spread": 2026219798,
+        "pol_seed_random_spread": 982382162,
+        "pol_seed_fp_global_placebo": 996483486,
+        "pol_seed_fp_withincab_placebo": 1995274976
+      },
+      "sc45": {
+        "seed_index": 15,
+        "scen_seed": 234115232,
+        "wl_seed": 1255220541,
+        "pol_seed_full_random": 2052554657,
+        "pol_seed_full_fp": 1511627215,
+        "pol_seed_position_template": 845829002,
+        "pol_seed_full_fp_spread": 1399299519,
+        "pol_seed_random_spread": 1681948627,
+        "pol_seed_fp_global_placebo": 411196710,
+        "pol_seed_fp_withincab_placebo": 1847904423
+      },
+      "sc46": {
+        "seed_index": 16,
+        "scen_seed": 1207943457,
+        "wl_seed": 565014714,
+        "pol_seed_full_random": 2048116105,
+        "pol_seed_full_fp": 2048221178,
+        "pol_seed_position_template": 1263072870,
+        "pol_seed_full_fp_spread": 1641374218,
+        "pol_seed_random_spread": 764340413,
+        "pol_seed_fp_global_placebo": 1160909751,
+        "pol_seed_fp_withincab_placebo": 1310950975
+      },
+      "sc47": {
+        "seed_index": 17,
+        "scen_seed": 1052894112,
+        "wl_seed": 1984834199,
+        "pol_seed_full_random": 1982583293,
+        "pol_seed_full_fp": 1388200184,
+        "pol_seed_position_template": 1736409028,
+        "pol_seed_full_fp_spread": 1080884465,
+        "pol_seed_random_spread": 1367470297,
+        "pol_seed_fp_global_placebo": 1303673359,
+        "pol_seed_fp_withincab_placebo": 1210561529
+      },
+      "sc48": {
+        "seed_index": 18,
+        "scen_seed": 1093599206,
+        "wl_seed": 1038460268,
+        "pol_seed_full_random": 1742946199,
+        "pol_seed_full_fp": 695097752,
+        "pol_seed_position_template": 920276274,
+        "pol_seed_full_fp_spread": 141032377,
+        "pol_seed_random_spread": 413571664,
+        "pol_seed_fp_global_placebo": 307372947,
+        "pol_seed_fp_withincab_placebo": 1061207141
+      },
+      "sc49": {
+        "seed_index": 19,
+        "scen_seed": 1506954242,
+        "wl_seed": 1430752378,
+        "pol_seed_full_random": 948635228,
+        "pol_seed_full_fp": 1158044367,
+        "pol_seed_position_template": 890031521,
+        "pol_seed_full_fp_spread": 1718121268,
+        "pol_seed_random_spread": 1016049043,
+        "pol_seed_fp_global_placebo": 156166215,
+        "pol_seed_fp_withincab_placebo": 1499349499
+      },
+      "sc50": {
+        "seed_index": 20,
+        "scen_seed": 1354524148,
+        "wl_seed": 1493659955,
+        "pol_seed_full_random": 459740417,
+        "pol_seed_full_fp": 1761881087,
+        "pol_seed_position_template": 1740473149,
+        "pol_seed_full_fp_spread": 1047365164,
+        "pol_seed_random_spread": 1092136612,
+        "pol_seed_fp_global_placebo": 485567557,
+        "pol_seed_fp_withincab_placebo": 580547224
+      },
+      "sc51": {
+        "seed_index": 21,
+        "scen_seed": 982358118,
+        "wl_seed": 194826593,
+        "pol_seed_full_random": 1555299684,
+        "pol_seed_full_fp": 974358925,
+        "pol_seed_position_template": 1755434965,
+        "pol_seed_full_fp_spread": 465313272,
+        "pol_seed_random_spread": 1376466543,
+        "pol_seed_fp_global_placebo": 1162907649,
+        "pol_seed_fp_withincab_placebo": 1971217836
+      },
+      "sc52": {
+        "seed_index": 22,
+        "scen_seed": 1629465822,
+        "wl_seed": 290894800,
+        "pol_seed_full_random": 389338771,
+        "pol_seed_full_fp": 1719656190,
+        "pol_seed_position_template": 2090509189,
+        "pol_seed_full_fp_spread": 1089711727,
+        "pol_seed_random_spread": 951370808,
+        "pol_seed_fp_global_placebo": 373689200,
+        "pol_seed_fp_withincab_placebo": 719714637
+      },
+      "sc53": {
+        "seed_index": 23,
+        "scen_seed": 1923189114,
+        "wl_seed": 238926708,
+        "pol_seed_full_random": 1291638209,
+        "pol_seed_full_fp": 1567352448,
+        "pol_seed_position_template": 1076836355,
+        "pol_seed_full_fp_spread": 1203039827,
+        "pol_seed_random_spread": 1743301722,
+        "pol_seed_fp_global_placebo": 1853280050,
+        "pol_seed_fp_withincab_placebo": 1077547779
+      },
+      "sc54": {
+        "seed_index": 24,
+        "scen_seed": 918802192,
+        "wl_seed": 57164757,
+        "pol_seed_full_random": 1760113223,
+        "pol_seed_full_fp": 680556826,
+        "pol_seed_position_template": 1688364426,
+        "pol_seed_full_fp_spread": 1436027812,
+        "pol_seed_random_spread": 1016183401,
+        "pol_seed_fp_global_placebo": 2101383161,
+        "pol_seed_fp_withincab_placebo": 1974414523
+      }
+    }
   },
   "stage2_simulation": {
-    "ran": false,
-    "note": "THERMALSHIFT_DATA_DIR not set; seed + constant verification only."
+    "ran": true,
+    "pass": true,
+    "compare_existing_mode": true,
+    "n_scenario_workers_total": 5,
+    "max_concurrent_workers": 2,
+    "scenario_indices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "output_files": [
+      "artifacts\\revision2\\results\\gate_f_sc0-0_1p0_1p25_1p5_2p0_4p0_8p0_unr_r2compat.json",
+      "artifacts\\revision2\\results\\gate_f_sc1-1_1p0_1p25_1p5_2p0_4p0_8p0_unr_r2compat.json",
+      "artifacts\\revision2\\results\\gate_f_sc2-2_1p0_1p25_1p5_2p0_4p0_8p0_unr_r2compat.json",
+      "artifacts\\revision2\\results\\gate_f_sc3-3_1p0_1p25_1p5_2p0_4p0_8p0_unr_r2compat.json",
+      "artifacts\\revision2\\results\\gate_f_sc4-4_1p0_1p25_1p5_2p0_4p0_8p0_unr_r2compat.json"
+    ],
+    "n_scenarios_checked": 5,
+    "n_rows_checked": 2565,
+    "total_fields_compared": 70110,
+    "schema_skipped": 2420,
+    "null_mismatches": 0,
+    "n_exact_matches": 19740,
+    "n_float_matches": 50370,
+    "mismatch_count": 0,
+    "max_abs_float_diff": 0.0,
+    "mismatch_examples": [],
+    "all_mismatches": []
   },
-  "overall_pass": true,
-  "checks": {
-    "1b_seeds_match": {
-      "pass": true,
-      "notes": "sc0: scen=191664964 wl=967354525 MATCH; sc1: scen=1662057958 wl=487991439 MATCH; sc2: scen=1405681632 wl=197860369 MATCH; sc3: scen=942484272 wl=1190961761 MATCH; sc4: scen=929893138 wl=1906728919 MATCH",
-      "sc0_4_scen_seeds": [
-        191664964,
-        1662057958,
-        1405681632,
-        942484272,
-        929893138
-      ],
-      "sc0_4_wl_seeds": [
-        967354525,
-        487991439,
-        197860369,
-        1190961761,
-        1906728919
-      ],
-      "r1_scen_seeds": {
-        "0": 191664964,
-        "1": 1662057958,
-        "2": 1405681632,
-        "3": 942484272,
-        "4": 929893138
-      },
-      "r1_wl_seeds": {
-        "0": 967354525,
-        "1": 487991439,
-        "2": 197860369,
-        "3": 1190961761,
-        "4": 1906728919
-      }
-    },
-    "1c_constants_match": {
-      "pass": true,
-      "notes": "BETA_F_FROZEN=1.12484352 present; T_THR_PRIMARY=63.625 present; T_THR_SECONDARY=60.602770562770566 present; DELTA_CAP=0.10 present"
-    },
-    "1d_r1_files_present": {
-      "pass": true,
-      "notes": "3/3 frozen r1 dev files present",
-      "r1_file_sha256": {
-        "gate_f_sc0-4_1p0.json": "4c71acd16dcfc7715081b061ae74fdbaa85f3efe1a0e10f52c3ee8d3813184ad",
-        "gate_f_sc0-4_1p25_1p5_2p0_4p0_8p0.json": "fde76902889d6ad5b15dd327c1f25c101011dbbc9b947c3ae61976f64c61baf4",
-        "gate_f_sc0-4_unr.json": "591055110a91c2656e0e7348b7a8a7b3e7322cb690e78bf426571004e67e743f"
-      }
-    },
-    "2_simulation": {
-      "pass": true,
-      "notes": "Stage 2 skipped (data not available); Stage 1 seed+constant checks sufficient for preflight. Run with THERMALSHIFT_DATA_DIR for full simulation equivalence."
-    }
-  }
+  "overall_pass": true
 }

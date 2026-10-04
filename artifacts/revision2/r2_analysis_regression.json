@@ -1,0 +1,51 @@
+{
+  "script": "artifacts/revision2/r2_analysis_regression.py",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Amendment 4 \u00a7G3",
+  "run_at": "2026-10-03T16:32:13.236988Z",
+  "reference": "artifacts/revision1/results/gate_f_heldout_analysis.json",
+  "n_scenarios": 25,
+  "n_comparisons": 5,
+  "n_bootstrap": 5000,
+  "bootstrap_seed": 9999,
+  "float_tolerance": 1e-09,
+  "total_checks": 315,
+  "failed_checks": 0,
+  "comparisons": {
+    "FP_vs_Random": {
+      "r1_name": "FP_vs_Random",
+      "policy_A": "full_fp",
+      "policy_B": "full_random",
+      "pass": true,
+      "notes": []
+    },
+    "Loc_vs_Random": {
+      "r1_name": "Loc_vs_Random",
+      "policy_A": "full_loc",
+      "policy_B": "full_random",
+      "pass": true,
+      "notes": []
+    },
+    "FPSpread_vs_Random": {
+      "r1_name": "FPSpread_vs_Random",
+      "policy_A": "full_fp_spread",
+      "policy_B": "full_random",
+      "pass": true,
+      "notes": []
+    },
+    "FPSpread_vs_FP": {
+      "r1_name": "FPSpread_vs_FP",
+      "policy_A": "full_fp_spread",
+      "policy_B": "full_fp",
+      "pass": true,
+      "notes": []
+    },
+    "FPSpread_vs_Loc": {
+      "r1_name": "FPSpread_vs_Loc",
+      "policy_A": "full_fp_spread",
+      "policy_B": "full_loc",
+      "pass": true,
+      "notes": []
+    }
+  },
+  "overall_pass": true
+}
