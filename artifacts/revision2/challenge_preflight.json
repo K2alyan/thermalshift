@@ -1,8 +1,8 @@
 {
   "script": "artifacts/revision2/r2_challenge_preflight.py",
-  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 3)",
-  "preflight_run_at": "2026-10-03T15:40:53.279100Z",
-  "challenge_freeze_commit": "9c5f2869b2b710e1e669d69ac9c3ea16b3c62baf",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md Phase F (Amendment 5)",
+  "preflight_run_at": "2026-10-04T00:18:02.922077Z",
+  "challenge_freeze_commit": "92ffdb933bbc7552429e04fb7e16e8b91e82952d",
   "primary_beta_challenge": 1.11416358,
   "plan_commits": {
     "original_preregistration": "d28f29d",
@@ -282,11 +282,11 @@
       "all_unique": true
     },
     "6_clean_git": {
-      "pass": true,
-      "notes": "dirty=False untracked=0 commit=9c5f286",
-      "commit_full": "9c5f2869b2b710e1e669d69ac9c3ea16b3c62baf",
-      "commit_short": "9c5f286",
-      "tracked_dirty": false,
+      "pass": false,
+      "notes": "dirty=True untracked=0 commit=92ffdb9",
+      "commit_full": "92ffdb933bbc7552429e04fb7e16e8b91e82952d",
+      "commit_short": "92ffdb9",
+      "tracked_dirty": true,
       "untracked_count": 0,
       "untracked_files": []
     },
@@ -318,12 +318,31 @@
       "pass": true,
       "notes": "Operator confirmed: no policy/metric/threshold/seed/interpretation rule changed after preregistration (including Amendment 3 corrections)"
     },
-    "13_r1r2_equivalence": {
+    "13_r1r2_equiv_stage1": {
       "pass": true,
-      "notes": "r2_vs_r1_equivalence.json: overall_pass=true; Stage 1 seed match: PASS; Stage 2 simulation: not run (seed+constant verification only)",
+      "notes": "Stage 1 PASS: seeds match, constants verified, seed-index tests PASS; sc0 scen_seed=191664964 wl_seed=967354525",
       "equiv_file": "artifacts\\revision2\\r2_vs_r1_equivalence.json"
+    },
+    "14_r1r2_equiv_stage2": {
+      "pass": true,
+      "notes": "Stage 2 PASS: workers=5 max_concurrent=2 rows=2565 fields=70110 schema_skipped=2420 null_mm=0 mismatches=0 max_float_diff=0.00e+00",
+      "stage2_ran": true,
+      "stage2_pass": true,
+      "mismatch_count": 0,
+      "null_mismatches": 0,
+      "schema_skipped": 2420
+    },
+    "15_analysis_regression": {
+      "pass": true,
+      "notes": "Regression PASS: 315 checks, 0 failures;   5 overlapping comparisons verified against gate_f_heldout_analysis.json",
+      "reg_file": "artifacts\\revision2\\r2_analysis_regression.json"
+    },
+    "16_challenge_seed_index_audit": {
+      "pass": true,
+      "notes": "audit_pass=true; n_scenarios=25 seed_index_base=30 placebo_seeds_verified=True pg=218767960 pwc=365514213; sc30 scen=1520047186 sc31 scen=1145613857",
+      "seed_audit_file": "artifacts\\revision2\\challenge_seed_index_audit.json"
     }
   },
-  "n_conditions": 13,
-  "overall_pass": true
+  "n_conditions": 16,
+  "overall_pass": false
 }
