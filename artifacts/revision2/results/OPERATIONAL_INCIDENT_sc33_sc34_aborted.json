@@ -1,0 +1,66 @@
+{
+  "record_type": "operational_incident",
+  "title": "sc33/sc34 killed by Windows process-tree termination during orchestrator handoff",
+  "recorded_utc": "2026-10-04T04:38:00.870475+00:00",
+  "scientific_impact": "NONE \u2014 no final outputs produced, no partial results inspected or used, no seeds or configuration changed",
+  "frozen_runner_sha256": "750150c337a1f81368bdba35e2af6ccda23f2917297d5f9ab3ebf51dd8281856",
+  "original_orchestrator_sha256": "c45e97aa67607200b4b1349f538e07b77a370a36302a8cbd277cf9d672f586d3",
+  "superseded_4w_draft_sha256": "e5d5f5c79dd6e852765b5f461dca344b04965aa6161ffc2a5e1bd41f1cbd89bd",
+  "freeze_sha": "5733b73",
+  "head_unchanged": true,
+  "completed_under_original_orchestrator": {
+    "sc30": {
+      "output": "gate_f_sc30-30_all_r2challenge.json",
+      "sha256": "70808e6105e7fb9f1bfc9b04b5b39df534cd26c6fc2930ab53ea132ab7ea67fb",
+      "size": 1633218
+    },
+    "sc31": {
+      "output": "gate_f_sc31-31_all_r2challenge.json",
+      "sha256": "e3c860fdd4a8213d620fee8c8ae70d82b909122ae41ac6064c8282b314857b6f",
+      "size": 1958505
+    },
+    "sc32": {
+      "output": "gate_f_sc32-32_all_r2challenge.json",
+      "sha256": "45c75ab877b946ccd7eceb383410975dda24e1ee210eb2f14db9858b33a18e38",
+      "size": 1895114
+    }
+  },
+  "interrupted": {
+    "sc33": {
+      "status": "KILLED before final output",
+      "partial_artifacts": "none found",
+      "reason": "parent orchestrator termination propagated to child via Windows job/process-group inheritance"
+    },
+    "sc34": {
+      "status": "KILLED before final output",
+      "partial_artifacts": "none found",
+      "reason": "same \u2014 sc34 had just been launched by old orchestrator when PID 3360 was terminated"
+    }
+  },
+  "not_started": [
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54
+  ],
+  "incident_cause": "taskkill /F /PID <orchestrator> terminated the Windows process together with its child subprocesses (sc33/sc34 workers) via inherited job-object/process-group handling. Windows does not reliably allow child-process survival across parent termination in this environment.",
+  "lesson_learned": "On Windows, orchestrator handoffs must occur only at clean points when no worker subprocesses are active. Never attempt mid-run orchestrator replacement while workers are in flight.",
+  "recovery_plan": "sc33 and sc34 will be rerun from scratch under the final 4-worker launcher (FIRST_SCENARIO=33). This is recovery from an interrupted computation with no prior valid result, not a replicate or post-hoc rerun.",
+  "superseded_draft_note": "r2_challenge_orchestrator_4w.py SHA e5d5f5c7...89bd was written but never executed to produce any challenge result. Superseded by revised launcher with FIRST_SCENARIO=33."
+}

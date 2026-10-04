@@ -1,0 +1,158 @@
+{
+  "orchestrator": "r2_challenge_orchestrator_4w.py",
+  "version": "final (FIRST_SCENARIO=33)",
+  "original_orchestrator_sha256": "c45e97aa67607200b4b1349f538e07b77a370a36302a8cbd277cf9d672f586d3",
+  "incident_record": "OPERATIONAL_INCIDENT_sc33_sc34_aborted.json",
+  "superseded_draft_sha256": "e5d5f5c79dd6e852765b5f461dca344b04965aa6161ffc2a5e1bd41f1cbd89bd",
+  "freeze_sha": "5733b73",
+  "data_dir": "C:/Users/kalya/Downloads",
+  "max_workers": 4,
+  "first_scenario": 33,
+  "last_scenario": 54,
+  "timeout_s": 21600,
+  "started_utc": "2026-10-04T04:39:28.503519+00:00",
+  "done_at_start": [],
+  "scenarios_this_run": [
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54
+  ],
+  "completed_utc": "2026-10-04T16:46:12.503432+00:00",
+  "elapsed_total_s": 43604.0,
+  "results": {
+    "33": {
+      "ok": true,
+      "elapsed_s": 7771.3,
+      "output_file": "gate_f_sc33-33_all_r2challenge.json"
+    },
+    "34": {
+      "ok": true,
+      "elapsed_s": 7784.8,
+      "output_file": "gate_f_sc34-34_all_r2challenge.json"
+    },
+    "35": {
+      "ok": true,
+      "elapsed_s": 8041.8,
+      "output_file": "gate_f_sc35-35_all_r2challenge.json"
+    },
+    "36": {
+      "ok": true,
+      "elapsed_s": 7058.4,
+      "output_file": "gate_f_sc36-36_all_r2challenge.json"
+    },
+    "37": {
+      "ok": true,
+      "elapsed_s": 7188.7,
+      "output_file": "gate_f_sc37-37_all_r2challenge.json"
+    },
+    "38": {
+      "ok": true,
+      "elapsed_s": 7804.7,
+      "output_file": "gate_f_sc38-38_all_r2challenge.json"
+    },
+    "39": {
+      "ok": true,
+      "elapsed_s": 7476.8,
+      "output_file": "gate_f_sc39-39_all_r2challenge.json"
+    },
+    "40": {
+      "ok": true,
+      "elapsed_s": 8426.9,
+      "output_file": "gate_f_sc40-40_all_r2challenge.json"
+    },
+    "41": {
+      "ok": true,
+      "elapsed_s": 7226.8,
+      "output_file": "gate_f_sc41-41_all_r2challenge.json"
+    },
+    "42": {
+      "ok": true,
+      "elapsed_s": 8275.0,
+      "output_file": "gate_f_sc42-42_all_r2challenge.json"
+    },
+    "43": {
+      "ok": true,
+      "elapsed_s": 7462.9,
+      "output_file": "gate_f_sc43-43_all_r2challenge.json"
+    },
+    "44": {
+      "ok": true,
+      "elapsed_s": 7423.5,
+      "output_file": "gate_f_sc44-44_all_r2challenge.json"
+    },
+    "45": {
+      "ok": true,
+      "elapsed_s": 7226.2,
+      "output_file": "gate_f_sc45-45_all_r2challenge.json"
+    },
+    "46": {
+      "ok": true,
+      "elapsed_s": 7614.3,
+      "output_file": "gate_f_sc46-46_all_r2challenge.json"
+    },
+    "47": {
+      "ok": true,
+      "elapsed_s": 6744.3,
+      "output_file": "gate_f_sc47-47_all_r2challenge.json"
+    },
+    "48": {
+      "ok": true,
+      "elapsed_s": 8195.7,
+      "output_file": "gate_f_sc48-48_all_r2challenge.json"
+    },
+    "49": {
+      "ok": true,
+      "elapsed_s": 7725.7,
+      "output_file": "gate_f_sc49-49_all_r2challenge.json"
+    },
+    "50": {
+      "ok": true,
+      "elapsed_s": 7613.0,
+      "output_file": "gate_f_sc50-50_all_r2challenge.json"
+    },
+    "51": {
+      "ok": true,
+      "elapsed_s": 7503.1,
+      "output_file": "gate_f_sc51-51_all_r2challenge.json"
+    },
+    "52": {
+      "ok": true,
+      "elapsed_s": 7122.9,
+      "output_file": "gate_f_sc52-52_all_r2challenge.json"
+    },
+    "53": {
+      "ok": true,
+      "elapsed_s": 6576.8,
+      "output_file": "gate_f_sc53-53_all_r2challenge.json"
+    },
+    "54": {
+      "ok": true,
+      "elapsed_s": 5710.0,
+      "output_file": "gate_f_sc54-54_all_r2challenge.json"
+    }
+  },
+  "n_run": 22,
+  "n_skipped_at_launch": 0,
+  "n_skipped_at_start": 0,
+  "n_failed": 0,
+  "all_pass": true
+}

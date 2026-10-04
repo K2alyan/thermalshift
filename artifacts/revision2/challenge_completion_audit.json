@@ -1,0 +1,169 @@
+{
+  "audit_script": "artifacts/revision2/challenge_completion_audit.py",
+  "audit_run_utc": "2026-10-04T16:52:33.513472+00:00",
+  "audit_pass": true,
+  "n_files_found": 25,
+  "n_scenarios": 25,
+  "scenario_indices": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54
+  ],
+  "missing_scenarios": [],
+  "extra_scenarios": [],
+  "duplicate_scenarios": [],
+  "seed_mismatches": [],
+  "provenance_mismatches": [],
+  "missing_ratios": {},
+  "missing_policies": {},
+  "malformed_files": [],
+  "nan_inf_counts": {},
+  "invariant_violations": {},
+  "right_censored_counts_by_policy_ratio": {},
+  "right_censored_total": 0,
+  "per_file_sha256": {
+    "sc30": {
+      "sha256": "70808e6105e7fb9f1bfc9b04b5b39df534cd26c6fc2930ab53ea132ab7ea67fb",
+      "path": "gate_f_sc30-30_all_r2challenge.json"
+    },
+    "sc31": {
+      "sha256": "e3c860fdd4a8213d620fee8c8ae70d82b909122ae41ac6064c8282b314857b6f",
+      "path": "gate_f_sc31-31_all_r2challenge.json"
+    },
+    "sc32": {
+      "sha256": "45c75ab877b946ccd7eceb383410975dda24e1ee210eb2f14db9858b33a18e38",
+      "path": "gate_f_sc32-32_all_r2challenge.json"
+    },
+    "sc33": {
+      "sha256": "f4ee2d601101f79422f143246aaf836e47cf25d267c3ddbeaae5cbb896138d8d",
+      "path": "gate_f_sc33-33_all_r2challenge.json"
+    },
+    "sc34": {
+      "sha256": "5bde3f212b6322b6b71133be4d9ba968af48ca19d84230fadec79e3871e1fcaa",
+      "path": "gate_f_sc34-34_all_r2challenge.json"
+    },
+    "sc35": {
+      "sha256": "d9bd39bfab33469d9f6e8748b25b9a5389cb0e7a63e0a262461573996aa0b655",
+      "path": "gate_f_sc35-35_all_r2challenge.json"
+    },
+    "sc36": {
+      "sha256": "a17a74f53ffb2b19128e94ccfc020e24c71fa3502887b9ae1c95546096e3b7b8",
+      "path": "gate_f_sc36-36_all_r2challenge.json"
+    },
+    "sc37": {
+      "sha256": "0dde0d5222d081644712b184c583e36f9fe58d7b1ec7fc4cc94e61bf738757ae",
+      "path": "gate_f_sc37-37_all_r2challenge.json"
+    },
+    "sc38": {
+      "sha256": "d330253f3d61b8dc7f76b72cb25cb9cb5aea7093e75101f71d4138d07c050a29",
+      "path": "gate_f_sc38-38_all_r2challenge.json"
+    },
+    "sc39": {
+      "sha256": "7c40c3ade623d9c49d21dba4e5778a6bddc5ddef04199f684159ef34a3831b07",
+      "path": "gate_f_sc39-39_all_r2challenge.json"
+    },
+    "sc40": {
+      "sha256": "61c275c7dd6f1d9b674d05b68f8f04bb81bb4c3b8b6013baa8ad12a017b4f3fd",
+      "path": "gate_f_sc40-40_all_r2challenge.json"
+    },
+    "sc41": {
+      "sha256": "e1ebdac5113dee6f7bbdb474b532301788068e39159092901d3f809c985fd9bd",
+      "path": "gate_f_sc41-41_all_r2challenge.json"
+    },
+    "sc42": {
+      "sha256": "e226d44269ff5099a49d463955cc0c4ea6df3539593aa9f2b955514681bdec5b",
+      "path": "gate_f_sc42-42_all_r2challenge.json"
+    },
+    "sc43": {
+      "sha256": "ce833db8437596bfa6303bef062410e1a73c774f623f98f36fcef2824c7780e4",
+      "path": "gate_f_sc43-43_all_r2challenge.json"
+    },
+    "sc44": {
+      "sha256": "a636468b9a472c94c58eb42d175d8c5596b0aff966346d1db96f0d9f12a259c4",
+      "path": "gate_f_sc44-44_all_r2challenge.json"
+    },
+    "sc45": {
+      "sha256": "50c16575b3a12813918d4931ed4453127608ce1e984995c98d10e69f0d50ea2b",
+      "path": "gate_f_sc45-45_all_r2challenge.json"
+    },
+    "sc46": {
+      "sha256": "a4160db777cbc3a7f0a559c0ef0fb214026d9182cc0c47eecade54a8ee9a4a85",
+      "path": "gate_f_sc46-46_all_r2challenge.json"
+    },
+    "sc47": {
+      "sha256": "ea43a6655c0244747b3bca34079862d8f53b21669246868e6f650b457f36d8ea",
+      "path": "gate_f_sc47-47_all_r2challenge.json"
+    },
+    "sc48": {
+      "sha256": "31f2b7ae4c7385229cc4fa06ea49963ac5cacdda068ac77aba6a0012912be5ea",
+      "path": "gate_f_sc48-48_all_r2challenge.json"
+    },
+    "sc49": {
+      "sha256": "cd65514b134612b23953d2b2d5c244b276dd8999512233d6089ded649a41f7bc",
+      "path": "gate_f_sc49-49_all_r2challenge.json"
+    },
+    "sc50": {
+      "sha256": "10c662172261429cc9432eedc81c4e6ffc49bca04adf3f7e5e7a827908f5303c",
+      "path": "gate_f_sc50-50_all_r2challenge.json"
+    },
+    "sc51": {
+      "sha256": "273a6fe970e24cedb9c1b7e760720f7940a3183b086af611b4ad3a6ace3fd974",
+      "path": "gate_f_sc51-51_all_r2challenge.json"
+    },
+    "sc52": {
+      "sha256": "e235c95243851985925ece8c3b51cd90893d320db3febf42dd5be210f633ee8b",
+      "path": "gate_f_sc52-52_all_r2challenge.json"
+    },
+    "sc53": {
+      "sha256": "9d9ee904811b1399246b9e6fca8450c030ebaee9fe6a7c73376c33a6afc0d340",
+      "path": "gate_f_sc53-53_all_r2challenge.json"
+    },
+    "sc54": {
+      "sha256": "bd45531a850f44ce4ed0e52ace7e974502b854583049c2d0121da49ee0df9df9",
+      "path": "gate_f_sc54-54_all_r2challenge.json"
+    }
+  },
+  "provenance": {
+    "original_orchestrator_sha256": "c45e97aa67607200b4b1349f538e07b77a370a36302a8cbd277cf9d672f586d3",
+    "final_4w_orchestrator_sha256": "f4f4bd9eda899c878e6e31698f9d191345e78fb5f27b034ca922d87e3bf3d2a7",
+    "frozen_runner_sha256": "750150c337a1f81368bdba35e2af6ccda23f2917297d5f9ab3ebf51dd8281856",
+    "frozen_head_sha": "5733b73",
+    "sc30_sha256_verified": true,
+    "sc31_sha256_verified": true,
+    "sc32_sha256_verified": true,
+    "incident_record_present": true,
+    "incident_record_path": "OPERATIONAL_INCIDENT_sc33_sc34_aborted.json"
+  },
+  "notes": [
+    "Found 25 r2challenge files in results/",
+    "Scenario indices: [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54]",
+    "sc30 SHA256 verified [PASS]",
+    "sc31 SHA256 verified [PASS]",
+    "sc32 SHA256 verified [PASS]",
+    "Incident record present: OPERATIONAL_INCIDENT_sc33_sc34_aborted.json [PASS]",
+    "Right-censored crossing events (total): 0 \u2014 reported as outcome state, not corruption"
+  ],
+  "failures": []
+}
