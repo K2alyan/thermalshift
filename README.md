@@ -17,15 +17,17 @@ useful work the system can absorb before reaching historical thermal and power o
 > Can telemetry-aware placement deliver more useful compute from existing infrastructure
 > before thermal or electrical constraints become binding?
 
-**Answer: yes** — and the advantage is robust.
+**Answer: yes** — and a preregistered held-out challenge experiment provides evidence that individual node-level thermal fingerprints contribute scheduling value beyond cabinet-level structure and spreading alone under the historical operating-envelope replay model.
 
-Across 25 held-out workload-replay scenarios, thermal-fingerprint-aware placement showed a
+Across 25 held-out workload-replay scenarios (Gate F, sc5–sc29), thermal-fingerprint-aware placement showed a
 positive capacity advantage over thermally unaware placement at every nondegenerate
 availability level tested (fp node availability ratio r = 1.25–8.0), with median
-conservative lower-bound gains of **+3.6 to +5.6 percentage points** and paired bootstrap
+conservative bracket separations of **+3.6 to +5.6 percentage points** and paired bootstrap
 intervals across the held-out scenarios excluding zero at every ratio. When scheduler
 availability is reduced to exactly the minimum required (r = 1.0), all policies converge
 by construction — no selection freedom means no placement signal.
+
+A subsequent preregistered challenge experiment (Review-2, sc30–sc54, 25 new scenarios) addressed whether that benefit reflects individual node-level thermal identity or cabinet-level structure. At the preregistered 1.25× choice ratio, fingerprint-guided placement produced a median conservative bracket separation of **+6.71 percentage points** versus random placement (bootstrap 95% CI [+3.92, +8.72] pp) and **+3.54 percentage points** versus a within-cabinet permutation placebo that preserves cabinet membership and score distribution while breaking the node–fingerprint association (95% CI [+0.56, +4.44] pp). Both intervals exclude zero. Spreading alone showed no clear primary-ratio advantage. See [Review-2 Challenge Results](#review-2-challenge-results-sc30sc54) below.
 
 ---
 
@@ -81,6 +83,48 @@ and evaluation on held-out scenarios. The Gate F result is the authoritative mag
 
 ---
 
+### Review-2 Challenge Results (sc30–sc54)
+
+**Preregistered factorial decomposition — 25 new held-out scenarios.**
+Scientific code frozen at Git commit 5733b73 (runner SHA256 750150c337a1f81368bdba35e2af6ccda23f2917297d5f9ab3ebf51dd8281856) before challenge execution. Analysis plan frozen at the same commit (5,000 bootstrap replicates, seed 9999). Completion audit passed all 16 checks before analysis was run. Evidence frozen at commit f1c78a3.
+
+**Primary endpoint — FP vs Random at r = 1.25 (H4):**
+
+| Metric | Value |
+|--------|-------|
+| n_definitely_FP / n_total | **22 / 25** |
+| Median conservative bracket separation (delta_lo) | **+6.71 pp** |
+| Bootstrap 95% CI | [+3.92, +8.72] pp |
+| Verdict | **primary_success** |
+
+**Preregistered factorial decomposition at r = 1.25:**
+
+All eight comparisons, preregistered before challenge exposure. delta_lo = C_lower_A − C_upper_B; definitely_A when delta_lo > 0.
+
+| Comparison | A / Indist / B | Median delta_lo | Bootstrap 95% CI |
+|---|---|---|---|
+| **FP vs Random** (primary) | **22 / 1 / 2** | +6.71 pp | [+3.92, +8.72] |
+| **FP vs WithinCabPlacebo** (node-specificity) | **20 / 5 / 0** | +3.54 pp | [+0.56, +4.44] |
+| FP vs GlobalPlacebo | 22 / 1 / 2 | +4.55 pp | [+2.95, +7.82] |
+| FPSpread vs RandomSpread | 20 / 5 / 0 | +2.15 pp | [+0.52, +4.25] |
+| RandomSpread vs Random | 8 / 14 / 3 | 0.00 pp | [−0.26, +0.03] |
+| FPSpread vs FP | 4 / 3 / 18 | −2.64 pp | [−4.49, −2.00] |
+| FP vs PositionTemplate | 16 / 5 / 4 | +0.74 pp | [−0.82, +1.50] |
+| FPSpread vs PositionTemplate | 6 / 11 / 8 | −1.16 pp | [−2.29, −0.25] |
+
+**Negative control (r = 1.0):** All 8 comparisons: 0 / 25 / 0 (all indistinguishable). No policy separates where no scheduling choice exists.
+
+**Right-censored crossing events:** 0 across all 25 scenarios × 7 ratios × 7 policies.
+
+**Node-specificity interpretation:**
+The within-cabinet placebo preserves cabinet membership and the within-cabinet distribution of fingerprint scores while breaking the association between a particular node and its historical fingerprint. Fingerprint-guided placement beat this placebo in 20/25 held-out scenarios (median conservative bracket separation +3.54 pp, 95% CI [+0.56, +4.44] pp), providing held-out evidence that individual node-level fingerprint information contributes scheduling value beyond the cabinet-level score structure retained by the placebo.
+
+The global placebo (22/25, +4.55 pp) shows that an arbitrary globally permuted ranking does not reproduce the observed advantage. FPSpread beating RandomSpread (20/25, +2.15 pp) provides evidence that fingerprint ranking adds value even when both policies use the spreading rule. RandomSpread vs Random (8/14/3, 0.00 pp) shows no clear primary-ratio advantage from spreading alone.
+
+**Position-template limitation:** Fingerprint-guided placement was not statistically separated from the thermally informed structural-position template at the primary choice ratio (16/5/4, median delta_lo +0.74 pp, 95% CI [−0.82, +1.50] pp). The position template is thermally informed — it reflects the average historical fingerprint at each physical position — not a purely topological index. We do not claim fingerprints outperform all thermally informed placement strategies.
+
+---
+
 ## Figures
 
 | Figure | Description |
@@ -110,6 +154,8 @@ signal, and exploiting that signal consistently delivers more capacity than igno
 The revised model identifies cabinet power as the binding resource for the fingerprint-
 aware policy — a distinction that matters for system operators weighing power versus
 cooling constraints.
+
+The Review-2 challenge experiment adds a further element to this chain: the association between individual nodes and their historical thermal fingerprints is load-bearing beyond cabinet-level structure. Permuting fingerprint scores among nodes within the same cabinet materially reduced scheduling performance in 20/25 held-out challenge scenarios. This does not establish a causal physical mechanism for the fingerprint; it establishes that the scheduling signal is not reducible to the cabinet-level structure retained by the placebo.
 
 ---
 
@@ -141,9 +187,9 @@ This constraint-regime shift coincides with the performance reversal and is cons
 a mechanism in which geographic diversification forces thermally inferior node selection
 at low availability but can achieve diversification without that penalty at high availability.
 
-**This is post-hoc exploratory analysis, not a pre-specified Gate F test.** The
-pre-specified Gate F confirmatory result is the full_fp vs full_random comparison at
-restricted ratios. The FPSpread regime dependence warrants a targeted follow-on experiment.
+**Gate F note:** The pre-specified Gate F confirmatory result is the full_fp vs full_random comparison at restricted ratios. The FPSpread regime dependence was exploratory in Gate F.
+
+**Review-2 challenge confirmation (preregistered secondary finding):** The FPSpread crossover was preregistered as a secondary finding in the Review-2 challenge. Challenge results (sc30–sc54) replicate the crossover: FPSpread vs FP is −2.64 pp [−4.49, −2.00] at r = 1.25 (FP wins), +0.72 pp at r = 8.0 (FPSpread wins), and +2.01 pp median delta_lo at unrestricted (FPSpread wins). A plausible interpretation — explicitly labeled as an interpretation, not a tested causal mechanism — is that under limited candidate choice, forcing additional spreading restricts direct exploitation of the most favorable individual nodes; once the choice set is large enough, spreading and fingerprint selection can become complementary. The mechanism is consistent with the binding-constraint regime shift but has not been separately tested.
 
 ---
 
@@ -273,9 +319,12 @@ historically but is superseded for scientific conclusions by Gate F's held-out e
 **What this is:**
 
 - Evidence that persistent machine-level thermal heterogeneity, where it exists, is
-  actionable scheduling information.
+  actionable scheduling information — and that the scheduling signal contains node-specific
+  information beyond the cabinet-level structure retained by the within-cabinet placebo and
+  beyond spreading alone, within the historical operating-envelope replay model.
 - A replicable methodology: fingerprint derivation, stateful replay, Monte Carlo
-  robustness testing, symmetric discrete-bound validation.
+  robustness testing, symmetric discrete-bound validation, preregistered factorial
+  placebo decomposition.
 - A demonstration that naive thermal optimization has a failure mode (power concentration)
   that a simple cap constraint can avoid — and that the constrained policy is still
   consistently better than thermally unaware placement.
@@ -320,6 +369,20 @@ historically but is superseded for scientific conclusions by Gate F's held-out e
   replay scenarios. They quantify uncertainty in the median paired advantage over those
   scenarios; they do not represent population-level uncertainty bounds for real HPC
   deployments with different workloads, thermal profiles, or scheduling policies.
+
+- **Position-template separation is unresolved at the primary ratio.** Fingerprint-guided
+  placement was not statistically separated from the thermally informed structural-position
+  template at r = 1.25 (16/5/4, median conservative bracket separation +0.74 pp, 95% CI
+  [−0.82, +1.50] pp). The position template is thermally informed — it reflects the average
+  historical fingerprint at each physical position — not a purely topological index. We do
+  not claim fingerprints outperform all thermally informed placement strategies.
+
+- **Node-level scheduling evidence is within the replay model.** The Review-2 challenge
+  experiment provides held-out evidence that the association between individual nodes and
+  their historical thermal fingerprints is load-bearing beyond cabinet-level structure in
+  the historical operating-envelope replay model. This does not establish a causal physical
+  mechanism for the fingerprint signal, and does not constitute evidence about live
+  scheduling behavior outside the replay framework.
 
 ---
 
