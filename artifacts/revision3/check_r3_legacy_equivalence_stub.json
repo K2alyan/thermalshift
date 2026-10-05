@@ -1,0 +1,8 @@
+{
+  "script": "artifacts/revision3/check_r3_legacy_equivalence.py",
+  "plan_ref": "artifacts/revision3/THIRD_REVIEW_ANALYSIS_PLAN.md \u00a7Q",
+  "post_exposure_label": "Post-exposure: designed after sc30-sc54 primary results observed. Equivalence check verifies Round-3 legacy mode matches revision2 challenge.",
+  "status": "PENDING \u2014 no r3-output file provided",
+  "tolerance": 1e-09,
+  "stop_condition": "Do not run corrected-mode policy simulations until: (1) D support audit complete; (2) F reference definitions frozen; (3) this equivalence check passes; (4) plan committed."
+}

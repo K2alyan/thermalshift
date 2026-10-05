@@ -1,0 +1,284 @@
+{
+  "plan_version": "1.0",
+  "plan_label": "Round-3 reviewer-requested robustness and exploratory analyses",
+  "exposure_status": "post-exposure — all new work executed after sc30-sc54 primary results were observed",
+  "plan_frozen_at_commit": "TBD — freeze this file before any new simulation",
+  "plan_authored": "2026-10-04",
+
+  "CRITICAL_NOTE": "The frozen sc30-sc54 challenge (commit 5733b73, analysis commit f1c78a3) remains unchanged and is the original pre-specified result. All tasks below are post-exposure reviewer-requested work and must be labeled as such in all outputs.",
+
+  "existing_data_analyses": {
+    "label": "Analyses of already-frozen sc30-sc54 outputs — no new simulation required",
+    "B1_absolute_capacity_levels": {
+      "description": "Absolute capacity levels at r=1.25 for all 7 policies",
+      "source": "artifacts/revision2/challenge_analysis.json policy_summaries[policy][1.25]",
+      "policies": ["full_fp", "full_random", "full_fp_spread", "random_spread", "fp_withincab_placebo", "fp_global_placebo", "position_template"],
+      "output_fields": ["median_C_lower_pct", "median_C_upper_pct", "bracket_width", "n_right_censored"],
+      "floor_handling": "Report n_right_censored from policy_summaries; floor-at-zero cells are those with C_lower=0 and C_upper>0; base-infeasible cells are both [0,0]",
+      "bracket_width_summary": "Exclude [0,0] base-infeasible cells from bracket-width aggregates"
+    },
+    "B2_binding_constraints": {
+      "description": "Which constraint (B=thermal, S=thermal-severity, B_cab=cabinet-power) binds at crossing for each policy at r=1.25",
+      "label": "legacy_cabinet_reference_binding_diagnostic",
+      "note": "Cabinet reference is legacy job-contribution P99 (per_cabinet_p99_kW_correct from cabinet_power_envelopes.json). B_cab_ratio reported per scenario.",
+      "source": "artifacts/revision1/results/gate_f_sc30-54_* merged scenario files"
+    },
+    "B3_fpspread_vs_fp_both_directions": {
+      "description": "FPSpread vs FP and FP vs FPSpread both directions with paired bootstrap CI",
+      "source": "artifacts/revision2/challenge_analysis.json results.FPSpread_vs_FP and results.FP_vs_FPSpread if present",
+      "bootstrap_n": 5000,
+      "bootstrap_seed": 9999,
+      "ratios": ["1.25", "1.5", "2.0", "4.0", "8.0", "unrestricted"]
+    },
+    "B4_sign_tests_holm": {
+      "description": "Exact sign tests with Holm-Bonferroni correction for all 8 r=1.25 comparisons",
+      "comparisons": ["FP_vs_Random", "FP_vs_WithinCabPlacebo", "FP_vs_GlobalPlacebo", "RandomSpread_vs_Random", "FPSpread_vs_RandomSpread", "FPSpread_vs_FP", "FP_vs_PositionTemplate", "FPSpread_vs_PositionTemplate"],
+      "null_hypothesis": "P(delta_lo > 0) = 0.5 (sign test, binomial)",
+      "correction": "Holm-Bonferroni",
+      "n_scenarios": 25,
+      "note": "Directional sign test; ties (indistinguishable verdicts) treated as 0.5 under null, recorded separately"
+    },
+    "B5_decomposition_contrasts": {
+      "description": "Exploratory decomposition contrasts to separate sources of FP advantage",
+      "contrasts": [
+        {"name": "global_score_advantage", "comparison": "FP_vs_GlobalPlacebo", "interpretation": "advantage from knowing thermal ordering globally"},
+        {"name": "node_vs_cabinet_level", "comparison": "FP_vs_WithinCabPlacebo", "interpretation": "advantage from node-specific identity beyond cabinet-level composition"},
+        {"name": "cabinet_composition_advantage", "comparison": "GlobalPlacebo_vs_Random", "derived_from": "FP_vs_GlobalPlacebo and FP_vs_Random medians"},
+        {"name": "spreading_at_constrained_ratio", "comparison": "FPSpread_vs_FP", "interpretation": "cost of cabinet-spreading at r=1.25"}
+      ],
+      "label": "exploratory — not preregistered"
+    },
+    "B6_order_statistic_median_intervals": {
+      "description": "Order-statistic confidence intervals for median delta_lo (n=25)",
+      "method": "exact binomial order statistics OS_8 and OS_18 for 95% CI on median (n=25)",
+      "OS_lower": 8,
+      "OS_upper": 18,
+      "note": "Bootstrap CI is primary; OS interval is a non-parametric confirmation"
+    },
+    "B7_sc5_sc29_evaluation": {
+      "description": "Earlier held-out sc5-sc29 evaluation at r=1.25 using frozen revision1 outputs",
+      "source": "artifacts/revision1/results/gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json",
+      "note": "sc5-sc29 used revision1 selectors (no position_template, no placebos); comparisons limited to FP_vs_Random, FP_vs_Loc, FPSpread_vs_FP. Reported as context only — not a new pre-registered endpoint.",
+      "label": "exploratory context, revision1 design"
+    }
+  },
+
+  "cabinet_reference_audit": {
+    "label": "Task C — document legacy cabinet envelope construction",
+    "legacy_source": "artifacts/revision1/results/cabinet_power_envelopes.json",
+    "legacy_method": "Uniform node-power approximation: P_cab_j = (mean_power_j / node_count_j) * n_nodes_in_cab_j using CORRECT topology. Applied to all jobs with reported mean_power > 0. P99 taken over all qualifying job contributions.",
+    "n_jobs_used": 152400,
+    "key_distinction": "Legacy P99 is computed over job-level contributions (one value per job-cabinet pair); it is NOT the same statistical object as concurrent cabinet power averaged over time. These are different estimators of cabinet thermal/power capacity.",
+    "late_cabinets": {
+      "2600": 71.17105449833713,
+      "2601": 74.00896172973643,
+      "2602": 68.74125732927479
+    },
+    "fleet_median_p99_kW": 92.48734323804247,
+    "output_files": ["artifacts/revision3/CABINET_REFERENCE_AUDIT.md", "artifacts/revision3/cabinet_reference_audit.json"]
+  },
+
+  "cabinet_support_audit": {
+    "label": "Task D — determine support for concurrent cabinet power reconstruction",
+    "definition": "observed reconstructed concurrent cabinet power — the value computed from jobs that overlap in time within a cabinet, using the uniform node-power approximation",
+    "required_outputs": ["collection_dates", "contiguous_blocks", "support_hours", "concurrent_job_distribution", "concurrent_node_distribution"],
+    "output_files": ["artifacts/revision3/cabinet_support_audit.py", "artifacts/revision3/cabinet_support_audit.json"]
+  },
+
+  "cabinet_reference_modes": {
+    "label": "Task F — three cabinet-reference definitions (frozen, no simulation yet)",
+    "F1_legacy_job_contribution_p99": {
+      "name": "legacy_job_contribution_p99",
+      "description": "Current production definition. P99 of per-job cabinet power contributions over all 152,400 jobs. Used in all sc0-sc54 results.",
+      "source": "artifacts/revision1/results/cabinet_power_envelopes.json"
+    },
+    "F2_corrected_timeweighted_total_p99": {
+      "name": "corrected_timeweighted_total_p99",
+      "description": "Concurrent cabinet power time-weighted total: sum of simultaneous job power contributions at each time point, P99 over the support period. Requires D (support audit) to define the period.",
+      "status": "definition frozen; computation deferred pending support audit"
+    },
+    "F3_corrected_eventweighted_total_p99": {
+      "name": "corrected_eventweighted_total_p99",
+      "description": "Concurrent cabinet power event-weighted: P99 over job-start-event-weighted samples of concurrent power. Alternative to F2.",
+      "status": "definition frozen; computation deferred pending support audit"
+    },
+    "reporting_rule": "All Round-3 policy simulation results must report: (1) which cabinet reference mode was used; (2) whether any legacy vs corrected discrepancy exists; (3) the post-exposure disclosure. Primary preregistered result (sc30-sc54) used F1 only."
+  },
+
+  "severity_diagnostic": {
+    "label": "Task G — S_cab severity diagnostic (kWh above reference)",
+    "metric": "S_cab_kWh = sum over cabinets of max(0, P_reconstructed - P_reference) * duration_h",
+    "purpose": "diagnostic only — not a feasibility criterion or policy comparison endpoint",
+    "note": "Prepared as code only pending D (support audit)"
+  },
+
+  "power_validation": {
+    "label": "Task H — validate concurrent cabinet power computation",
+    "condition": "Only scenarios where all concurrent jobs have usable telemetry",
+    "output": "artifacts/revision3/validate_concurrent_cabinet_power.py"
+  },
+
+  "e1_cabinet_scale_behavior": {
+    "label": "Task J — document E1 behavior explicitly",
+    "current_behavior": "CAB_SCALE multiplies each cabinet's P99 envelope by the scale factor, then reruns the simulator. This tests sensitivity to uniform over/underestimation of cabinet capacity. It is NOT a fixed-budget test.",
+    "historical_b_cab_denominators": "For each scale factor, the denominator B_cab changes proportionally. Must be recorded in CABINET_REFERENCE_AUDIT.",
+    "e1_is_reference_scale_sensitivity": true,
+    "e1_is_not_fixed_budget": true,
+    "e1_is_not_T_thr_sensitivity": true
+  },
+
+  "threshold_population_audit": {
+    "label": "Task K",
+    "nominal_jobs": 3945,
+    "contributing_jobs": 3940,
+    "excluded_count": 5,
+    "exclusion_reason_source": "to be determined from training data filtering in r1_m3_thermal_model.py or m4 scripts",
+    "primary_threshold_grid": {
+      "p90_C": 61.875,
+      "p95_C": 63.625,
+      "p99_C": 66.6625,
+      "source": "artifacts/revision1/results/m4_threshold_audit.json full_population"
+    },
+    "legacy_T_thr_secondary": {
+      "value_C": 60.602770562770566,
+      "provenance": "frozen in BETA_F calibration; source to be confirmed in r1_m3_thermal_model.py",
+      "T_thr_primary_C": 63.625
+    },
+    "output_file": "artifacts/revision3/threshold_population_audit.json"
+  },
+
+  "floor_left_censor_rule": {
+    "label": "Task L — frozen floor/left-censor handling rule",
+    "base_infeasible": {
+      "definition": "C_lower = 0 AND C_upper = 0; scenario is completely infeasible under this policy at this ratio",
+      "treatment": "Report as [0, 0]; exclude from bracket-width summary statistics; count separately"
+    },
+    "floor_at_zero": {
+      "definition": "C_lower = 0 AND C_upper > 0; scenario is left-censored but not completely infeasible",
+      "treatment": "Report C_lower=0, C_upper as computed; include in delta_lo computation as delta_lo = 0 - C_upper_B (conservative)"
+    },
+    "bracket_width_summary": "Bracket-width summaries (mean, median, IQR) exclude [0,0] base-infeasible cells. N of excluded cells reported separately."
+  },
+
+  "position_template_audit": {
+    "label": "Task M",
+    "scheduling_key": "pos_key = chassis + '_' + slot + '_' + board + '_' + node_pos",
+    "grouping_columns": ["chassis", "slot", "board", "node_pos"],
+    "source_file": "artifacts/revision2/r2_gate_f_run.py lines 236-246",
+    "loc_fa_construction": "Mean FA_2024 over all fp nodes sharing the same pos_key. NaN filled with global mean.",
+    "from_selector_audit": {
+      "n_unique_scores": 67,
+      "n_duplicated_nodes": 1933,
+      "max_multiplicity": 73,
+      "hash_immune": false
+    },
+    "loo_position_score": {
+      "description": "For each node, compute position template score excluding that node (LOO). Fallback if LOO group is singleton: use cross-chassis average at same slot/board/node_pos.",
+      "fallback_levels": [
+        "LOO within pos_key (primary)",
+        "mean over same slot_board_nodepos across all chassis",
+        "mean over same slot_board across all chassis",
+        "global mean FA_2024"
+      ],
+      "note": "Freeze fallback rule before execution; compute rank correlation between fallback variants"
+    },
+    "output_files": ["artifacts/revision3/position_template_audit.json"]
+  },
+
+  "placebo_and_seed_plan": {
+    "label": "Task N",
+    "placebo_scope": "Placebo score permutation affects the selector score only. The thermal model (FA_2024, beta) is unchanged. The constraint checker uses actual node power (not permuted scores).",
+    "unit_test_required": "Verify placebo_fa not passed to thermal model; add assertion in r3_selectors.py",
+    "round3_root_seed": 847291653,
+    "seed_derivation": "rng = np.random.default_rng(847291653); scen_seeds = [int(rng.integers(0, 2**31)) for _ in range(25)]; wl_seeds = [int(rng.integers(0, 2**31)) for _ in range(25)]",
+    "scenario_first_index": 55,
+    "n_scenarios": 25,
+    "seed_table_verified": true,
+    "scen_seeds_unique": true,
+    "wl_seeds_unique": true,
+    "seeds_r3": {
+      "sc55": {"seed_index": 0, "scenario_index": 55, "scen_seed": 1904386450, "wl_seed": 977279263},
+      "sc56": {"seed_index": 1, "scenario_index": 56, "scen_seed": 313800891, "wl_seed": 498745018},
+      "sc57": {"seed_index": 2, "scenario_index": 57, "scen_seed": 2025222357, "wl_seed": 1950300279},
+      "sc58": {"seed_index": 3, "scenario_index": 58, "scen_seed": 477937402, "wl_seed": 1029216890},
+      "sc59": {"seed_index": 4, "scenario_index": 59, "scen_seed": 638036904, "wl_seed": 1599240198},
+      "sc60": {"seed_index": 5, "scenario_index": 60, "scen_seed": 1896999442, "wl_seed": 541016197},
+      "sc61": {"seed_index": 6, "scenario_index": 61, "scen_seed": 1227074784, "wl_seed": 99709171},
+      "sc62": {"seed_index": 7, "scenario_index": 62, "scen_seed": 1831068730, "wl_seed": 1303540434},
+      "sc63": {"seed_index": 8, "scenario_index": 63, "scen_seed": 692298778, "wl_seed": 1171597058},
+      "sc64": {"seed_index": 9, "scenario_index": 64, "scen_seed": 1866114391, "wl_seed": 512454599},
+      "sc65": {"seed_index": 10, "scenario_index": 65, "scen_seed": 597289215, "wl_seed": 777856846},
+      "sc66": {"seed_index": 11, "scenario_index": 66, "scen_seed": 1310291338, "wl_seed": 867962360},
+      "sc67": {"seed_index": 12, "scenario_index": 67, "scen_seed": 281306444, "wl_seed": 1760341653},
+      "sc68": {"seed_index": 13, "scenario_index": 68, "scen_seed": 765916616, "wl_seed": 1376942482},
+      "sc69": {"seed_index": 14, "scenario_index": 69, "scen_seed": 2073810169, "wl_seed": 225153310},
+      "sc70": {"seed_index": 15, "scenario_index": 70, "scen_seed": 648527551, "wl_seed": 1811153282},
+      "sc71": {"seed_index": 16, "scenario_index": 71, "scen_seed": 1221674886, "wl_seed": 1180004610},
+      "sc72": {"seed_index": 17, "scenario_index": 72, "scen_seed": 44859, "wl_seed": 583818257},
+      "sc73": {"seed_index": 18, "scenario_index": 73, "scen_seed": 1780201749, "wl_seed": 481639077},
+      "sc74": {"seed_index": 19, "scenario_index": 74, "scen_seed": 868128083, "wl_seed": 1101340298},
+      "sc75": {"seed_index": 20, "scenario_index": 75, "scen_seed": 527967842, "wl_seed": 698767369},
+      "sc76": {"seed_index": 21, "scenario_index": 76, "scen_seed": 1428443707, "wl_seed": 946098883},
+      "sc77": {"seed_index": 22, "scenario_index": 77, "scen_seed": 1520695285, "wl_seed": 1637364493},
+      "sc78": {"seed_index": 23, "scenario_index": 78, "scen_seed": 209700599, "wl_seed": 529424009},
+      "sc79": {"seed_index": 24, "scenario_index": 79, "scen_seed": 960876882, "wl_seed": 1885369134}
+    }
+  },
+
+  "late_cabinet_plan": {
+    "label": "Task O",
+    "exclusion_set": [2600, 2601, 2602],
+    "rationale": "Late-commissioned cabinets (first appeared 2024-07-18 to 2024-11-22); coolest in fleet (FA mean -1.24 to -2.22); FP selector preferentially picks them; may overstate FP advantage",
+    "diagnostic": "Compare FP vs Random with and without late-cabinet nodes in candidate pool. Not a re-run of preregistered analysis; labeled exploratory.",
+    "output_files": ["artifacts/revision3/late_cabinet_diagnostic.json"]
+  },
+
+  "calendar_split_plan": {
+    "label": "Task P",
+    "split_boundary_rule": "median start_time of the 2637 frozen base-cohort test-set jobs",
+    "split_boundary_status": "exact timestamp to be computed from test-set job data before execution",
+    "purpose": "Assess temporal stability of FP advantage: first half vs second half of test period",
+    "label_exploratory": true,
+    "output_files": ["artifacts/revision3/calendar_split_plan.json"]
+  },
+
+  "round3_runner": {
+    "label": "Task Q",
+    "legacy_mode": "identical to sc30-sc54 runner; uses cabinet_power_envelopes.json F1 reference",
+    "corrected_mode": "uses F2 or F3 reference once D (support audit) is complete",
+    "equivalence_check": "artifacts/revision3/check_r3_legacy_equivalence.py — verifies that Round-3 legacy-mode output matches sc30-sc54 results on shared scenarios before running new scenarios",
+    "STOP_CONDITION": "Do NOT run corrected-mode policy simulations until: (1) D support audit complete; (2) F reference definitions frozen; (3) Q equivalence check passes; (4) this plan committed"
+  },
+
+  "interpretation_rules": {
+    "label": "Task R — frozen interpretation rules for all Round-3 analyses",
+    "primary_challenge_unchanged": "sc30-sc54 challenge is pre-specified; Round-3 results do not modify or supersede it",
+    "legacy_vs_corrected": "If corrected reference changes any comparison verdict, report both; discrepancy is a finding, not a correction of the primary result",
+    "late_cabinet": "Late-cabinet exclusion results reported as sensitivity; if they change the sign of FP_vs_Random, this is a material finding requiring disclosure",
+    "loo_position": "LOO Position is a robustness check; non-separation finding stands regardless of LOO variant",
+    "placebos": "Placebo comparisons reported as preregistered secondary; no reinterpretation of primary endpoint",
+    "thresholds": "p90/p95/p99 variants reported as exploratory threshold sensitivity",
+    "calendar_split": "Calendar-split reported as exploratory temporal stability; if second-half sign reverses, disclose",
+    "post_exposure_disclosure": "ALL Round-3 outputs must include: 'Post-exposure: this analysis was designed and executed after the sc30-sc54 primary results were observed. The design was not changed after primary results were available, but the work is exploratory and reviewer-requested.'"
+  },
+
+  "output_file_registry": {
+    "THIRD_REVIEW_ANALYSIS_PLAN.md": "Human-readable plan (this file's companion)",
+    "third_review_plan.json": "This file — machine-readable frozen plan",
+    "analyze_existing_round3_requests.py": "Task B — existing-output diagnostics",
+    "existing_round3_diagnostics.json": "Task B output",
+    "existing_round3_diagnostics.md": "Task B human-readable summary",
+    "CABINET_REFERENCE_AUDIT.md": "Task C output",
+    "cabinet_reference_audit.json": "Task C output",
+    "cabinet_support_audit.py": "Task D script",
+    "cabinet_support_audit.json": "Task D output",
+    "threshold_population_audit.json": "Task K output",
+    "position_template_audit.json": "Task M output",
+    "validate_concurrent_cabinet_power.py": "Task H script",
+    "check_r3_legacy_equivalence.py": "Task Q equivalence check script",
+    "late_cabinet_diagnostic.json": "Task O output",
+    "calendar_split_plan.json": "Task P plan"
+  },
+
+  "commit_message": "Freeze Round-3 reviewer-requested analysis plan"
+}

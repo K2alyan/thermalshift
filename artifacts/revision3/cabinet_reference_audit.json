@@ -1,0 +1,71 @@
+{
+  "audit_label": "Cabinet Reference Audit — Round-3 Task C",
+  "plan_ref": "artifacts/revision3/THIRD_REVIEW_ANALYSIS_PLAN.md §C",
+  "post_exposure_label": "produced after sc30-sc54 primary results were observed",
+  "source": "artifacts/revision1/results/cabinet_power_envelopes.json",
+
+  "legacy_formula": {
+    "description": "P_cab_j = (mean_power_j / node_count_j) * n_nodes_in_cabinet_j",
+    "n_jobs_used": 152400,
+    "stat": "P99 of per-job contributions per cabinet",
+    "condition": "jobs with reported mean_power > 0",
+    "topology": "CORRECT (native array zip, fixed from earlier bug)"
+  },
+
+  "key_distinction_verbatim": "The legacy cabinet envelope (P99 of per-job contributions) is not the same statistical object as the P99 of observed concurrent cabinet power over time. These are different estimators. The former is a marginal P99 over individual job contributions, each treated as an independent draw; the latter integrates simultaneous job loads at each moment. The legacy estimator is used in all sc0-sc54 results.",
+
+  "fleet_summary": {
+    "fleet_median_p99_kW": 92.487,
+    "fleet_min_p99_kW": 68.741,
+    "fleet_max_p99_kW": 95.978,
+    "n_cabinets": 77
+  },
+
+  "late_cabinets": {
+    "2600": {
+      "p99_kW": 71.171,
+      "first_job_data": "2024-11-22",
+      "fa_2024_mean": -2.221,
+      "n_jobs_train_mean": 6.27
+    },
+    "2601": {
+      "p99_kW": 74.009,
+      "first_job_data": "2024-07-18",
+      "fa_2024_mean": -1.244,
+      "n_jobs_train_mean": 23.65
+    },
+    "2602": {
+      "p99_kW": 68.741,
+      "first_job_data": "2024-07-18",
+      "fa_2024_mean": -1.841,
+      "n_jobs_train_mean": 18.46
+    }
+  },
+
+  "e1_behavior": {
+    "scale_factors": [0.90, 0.95, 1.00, 1.05, 1.10],
+    "application": "CAB_SCALE multiplies each cabinet P99 uniformly; B_cab denominator scales proportionally",
+    "is_fixed_budget": false,
+    "is_T_thr_sensitivity": false,
+    "is_reference_scale_sensitivity": true,
+    "note": "E1 tests uniform mis-estimation of cabinet P99 ceiling, not T_thr or physical power budget"
+  },
+
+  "corrected_modes_defined": {
+    "F1": {
+      "name": "legacy_job_contribution_p99",
+      "status": "used in all sc0-sc54 results",
+      "source": "cabinet_power_envelopes.json"
+    },
+    "F2": {
+      "name": "corrected_timeweighted_total_p99",
+      "status": "definition frozen; computation pending Task D support audit",
+      "description": "P99 of concurrent cabinet power sum over time, computed from overlapping job telemetry"
+    },
+    "F3": {
+      "name": "corrected_eventweighted_total_p99",
+      "status": "definition frozen; computation pending Task D support audit",
+      "description": "P99 of concurrent cabinet power sum weighted by job-start events"
+    }
+  }
+}
