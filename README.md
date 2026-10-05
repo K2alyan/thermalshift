@@ -129,9 +129,50 @@ The global placebo (22/25, +4.55 pp) shows that an arbitrary globally permuted r
 
 | Figure | Description |
 |--------|-------------|
-| `figures/fig_mc_paired.png` | Paired Random vs FP capacity across all 30 scenarios |
-| `figures/fig_mc_dc_dist.png` | Distribution of paired ΔC with bootstrap CI |
-| `figures/fig_mc_constraints.png` | Binding constraint breakdown and FP capacity by constraint type |
+| `artifacts/phase1/figures/fig_mc_paired.png` | Paired Random vs FP capacity across all 30 scenarios (Phase 3B development) |
+| `artifacts/phase1/figures/fig_mc_dc_dist.png` | Distribution of paired ΔC with bootstrap CI (Phase 3B development) |
+| `artifacts/phase1/figures/fig_mc_constraints.png` | Binding constraint breakdown and FP capacity by constraint type (Phase 3B development) |
+| `artifacts/revision2/figures/fig_r2_factorial_r125.png` | Forest plot: 8 preregistered comparisons at r = 1.25 (Review-2, sc30–sc54) |
+| `artifacts/revision2/figures/fig_r2_fpspread_crossover.png` | FPSpread vs FP crossover across ratio sweep (Review-2) |
+| `artifacts/revision2/figures/fig_r2_policy_matrix.png` | Policy comparison matrix across all ratios (Review-2) |
+| `artifacts/revision2/figures/fig_r2_robustness.png` | Supplemental: E1 cabinet-scale sensitivity and E2 beta sensitivity (H8=ROBUST, H7=STABLE) |
+
+---
+
+### Review-2 Sensitivity Analyses (E1/E2)
+
+**Post-exposure disclosure:** Phases E1 and E2 were prespecified at Git commit 5733b73 before any challenge scenario (sc30–sc54) was executed. Execution occurred after primary challenge results (Phase G) were exposed, due to an omission discovered during post-analysis review. The analysis design (parameters, scenarios, comparisons, and interpretation rules) was not changed after primary-result exposure. Full disclosure: `artifacts/revision2/POST_EXPOSURE_SENSITIVITY_RECOVERY.md`.
+
+**E1 — Cabinet-envelope scale sensitivity (H8 = ROBUST):**
+
+FP_vs_Random at r = 1.25, 25 challenge scenarios, across 5 cabinet-envelope scale factors:
+
+| Scale factor | n_A / n_I / n_B | Median delta_lo | 95% CI |
+|---|---|---|---|
+| 0.90 | 18 / 6 / 1 | +0.81 pp | [+0.002, +2.38] |
+| 0.95 | 21 / 4 / 0 | +2.98 pp | [+0.55, +4.28] |
+| **1.00 (primary)** | **22 / 1 / 2** | **+6.71 pp** | **[+3.92, +8.72]** |
+| 1.05 | 20 / 3 / 2 | +4.40 pp | [+3.20, +5.54] |
+| 1.10 | 20 / 2 / 3 | +4.69 pp | [+0.87, +5.33] |
+
+H8 interpretation (frozen): Sign stable across [0.90, 1.10] → **ROBUST**. The median is positive at all five scale factors. At scale = 0.90 the CI just clears zero ([+0.002, +2.38]); at the primary scale the result is substantially above zero.
+
+**E2 — Beta sensitivity (H7 = STABLE):**
+
+FP_vs_Random at r = 1.25, 25 challenge scenarios, across 6 prespecified beta values:
+
+| Beta label | Value | n_A / n_I / n_B | Median delta_lo |
+|---|---|---|---|
+| **Primary (LOO CF)** | **1.11416** | **22 / 1 / 2** | **+6.71 pp** |
+| Frozen | 1.12484 | 22 / 1 / 2 | +6.48 pp |
+| Prospective (M1) | 0.96 | 22 / 1 / 2 | +6.67 pp |
+| Jackknife mean | 1.08293 | 22 / 1 / 2 | +5.59 pp |
+| CF P5 (5th pct) | 1.06587 | 21 / 2 / 2 | +6.42 pp |
+| CF P95 (95th pct) | 1.16910 | 22 / 1 / 2 | +5.35 pp |
+
+H7 interpretation (frozen): No sign reversal across any beta value → **STABLE**. All medians positive; sign and qualitative verdict identical across all 6 beta values.
+
+See `artifacts/revision2/sensitivity_cabinet_scale.json` (E1) and `artifacts/revision2/sensitivity_loo_beta.json` (E2).
 
 ---
 
@@ -238,7 +279,7 @@ The result did not come from a single model. It is the product of eleven sequent
 - 2,000 AMD MI250X GPU nodes across 77 Olympus rack HPE cabinets
 - ~26 cohort nodes per cabinet (20.3% of each cabinet's 128 nodes)
 - Thermal fingerprints: FA\_2024, trained on 2024 historical telemetry
-- BETA\_F (revision1, frozen): 1.12484 (training-median; replaces published 0.957 test-set value)
+- BETA\_F (revision1, frozen): 1.12484 (training-median; replaces published 0.957 test-set value); Review-2 primary: 1.11416 (LOO cross-fitted; −0.95% from frozen value, within the pre-specified negligible-correction threshold)
 - Thermal threshold: T\_thr = 63.625°C primary / 60.602°C secondary (revision1 calibration)
 - Cabinet power model: Corrected node-to-cabinet mapping (Gate C); 3.2% of original assignments
   corrected; cabinet P99 envelopes validated against telemetry (MAE 0.37 kW)
@@ -273,11 +314,13 @@ The result did not come from a single model. It is the product of eleven sequent
 The modeled base workload represents 1.09% of all fleet node-hours in the matched replay
 windows (H\_cohort\_base / H\_all\_replay = 78,907 / 7,260,985). The 2,000-node cohort
 is physically ~20% of Frontier's nodes; the 1.09% reflects the 78,907 node-hours in the
-selected 2,637-job base workload, not all activity on those nodes. The median incremental gain
-corresponds to approximately **12,265 additional node-hours** per replay window, or
-**0.17% of total fleet activity** in those windows.
+selected 2,637-job base workload, not all activity on those nodes. Based on Gate F's
+authoritative median conservative C_lower separation of +3.6 to +5.6 pp across tested ratios
+(primary ratio r = 1.25: +4.77 pp), an algebraic replay-model translation gives approximately
+**2,800–4,400 additional cohort node-hours** per replay window (replay-model translation only,
+not observed output), or approximately **0.04–0.06% of total fleet activity** in those windows.
 
-This number is reported for scope honesty, not as the primary result. The experiment
+This figure is reported for scope honesty, not as the primary result. The experiment
 has thermal fingerprints only for the 2,000-node study cohort. It does not show what
 would happen if fingerprint-aware scheduling were deployed across all 9,856 Frontier nodes.
 The cohort-relative scheduling improvement (+3.6 to +5.6 pp, Gate F held-out) is the correct primary metric.
@@ -383,6 +426,22 @@ historically but is superseded for scientific conclusions by Gate F's held-out e
   the historical operating-envelope replay model. This does not establish a causal physical
   mechanism for the fingerprint signal, and does not constitute evidence about live
   scheduling behavior outside the replay framework.
+
+- **Cabinet-envelope scaling at ±10% (H8=ROBUST, with caveat at −10%).** The E1 sensitivity
+  analysis tested FP_vs_Random under ±10% cabinet-envelope scaling. The sign of the advantage
+  is positive at all five tested scale factors. At −10% scale, the advantage is substantially
+  weakened (median +0.81 pp, 95% CI [+0.002, +2.38]), with the CI barely clearing zero.
+  Claims of robustness to cabinet-envelope calibration error should not exceed this range.
+
+- **Thermal threshold T_thr not directly tested.** The primary thermal threshold
+  (T_thr = 63.625°C) was fixed at Gate F and was not separately varied in the Review-2
+  sensitivity analyses. The E1 cabinet-scale sensitivity is a partial proxy for calibration
+  uncertainty but does not directly test T_thr sensitivity.
+
+- **Sensitivity analyses executed post-exposure.** Phases E1 and E2 were prespecified before
+  challenge execution but run after primary results were observed, due to an omission
+  discovered during post-analysis review. The design was not changed after exposure.
+  Full disclosure: `artifacts/revision2/POST_EXPOSURE_SENSITIVITY_RECOVERY.md`.
 
 ---
 
