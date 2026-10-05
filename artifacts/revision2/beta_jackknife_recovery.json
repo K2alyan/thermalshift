@@ -1,0 +1,29 @@
+{
+  "script": "artifacts/revision2/beta_jackknife_recovery.py",
+  "purpose": "Recovery of BETA_F_JACKKNIFE_MEAN from v1 (run_b1_loo_beta.py) formula",
+  "estimand": "Leave-one-job-out of pooled FE slope (sum_c_xy/sum_c_xx); v1 r_ij=T_p95 formula",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md \u00a7B2a (v1 implementation at commit 2814bb6)",
+  "provenance_note": "run_b1_loo_beta_v2.py B2a field: 'Jackknife not recomputed for v2; refer to run_b1_loo_beta.py for FE-slope jackknife.' This script reproduces that computation from the same frozen telemetry data without overwriting loo_beta_results.json.",
+  "training_data": {
+    "n_jobs_loaded": 462,
+    "n_jobs_failed": 0,
+    "n_unique_jobs_in_aggregates": 462
+  },
+  "cross_check": {
+    "expected_beta_FE": 1.08293343,
+    "computed_beta_FE": 1.08293343,
+    "diff": 4.3e-09,
+    "tol": 1e-06,
+    "pass": true
+  },
+  "BETA_F_JACKKNIFE_MEAN": 1.08293397,
+  "jackknife_distribution": {
+    "n_jobs": 462,
+    "mean": 1.08293397,
+    "std": 0.00095511,
+    "min": 1.07798777,
+    "max": 1.08747467,
+    "P5": 1.08148556,
+    "P95": 1.08455262
+  }
+}
