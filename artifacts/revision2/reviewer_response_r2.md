@@ -12,9 +12,12 @@ correlated signals rather than individual node-level thermal identity.
 
 **What we did:** Designed, preregistered, and executed a 25-scenario held-out challenge
 experiment (sc30–sc54) with a factorial placebo structure. The scientific code and analysis
-plan were frozen at Git commit 5733b73 before any scenario was executed. A 16-condition
-completion audit — including Stage 2 simulation equivalence, analysis regression test, and
-seed-index correctness — passed before analysis ran.
+plan were frozen at Git commit 5733b73 before any scenario was executed. The 16/16 preflight
+gate — including Stage 2 simulation equivalence (condition 14), analysis regression test
+(condition 15), and seed-index correctness (condition 16, Amendment 5) — passed before any
+scenario ran. After all 25 scenarios completed, a separate completion audit verified scenario
+completeness, seeds, provenance hashes, absence of NaN/Inf, and invariant conditions before
+the frozen analysis was run.
 
 **Primary result (H4):** At the preregistered 1.25× choice ratio, fingerprint-guided placement
 produced a median conservative bracket separation of **+6.71 pp** versus random placement
@@ -69,9 +72,9 @@ spreading become complementary at larger choice sets.
 > constraint-aware replay model. Fingerprint-guided placement was not statistically separated
 > from the thermally informed structural-position template at the primary choice ratio.
 
-**Provenance:** Frozen commit 5733b73; evidence freeze f1c78a3; completion audit PASS (16
-conditions); 25 scenarios; 5,000 bootstrap replicates, seed 9999; 13/13 Phase I artifacts
-verified (`final_output_audit.json`, overall PASS).
+**Provenance:** Frozen commit 5733b73; evidence freeze f1c78a3; preflight: PASS (16/16
+conditions); completion audit: PASS; 25 scenarios; 5,000 bootstrap replicates, seed 9999;
+13/13 Phase I artifacts verified (`final_output_audit.json`, overall PASS).
 
 ---
 
@@ -260,12 +263,14 @@ not changed after exposure. Full disclosure: `POST_EXPOSURE_SENSITIVITY_RECOVERY
 |---|---|
 | Frozen commit | 5733b73 |
 | Evidence freeze | f1c78a3 |
-| Completion audit | PASS (16 conditions) |
+| Preflight | PASS (16/16 conditions, before execution) |
+| Completion audit | PASS (after scenarios, before analysis) |
 | n_scenarios | 25 (sc30–sc54) |
 | Bootstrap | 5,000 replicates, seed 9999 |
 | Sensitivity recovery | commit 0aa995e (E1/E2 + Phase I audit) |
 | Phase I artifacts | 13/13 (final_output_audit.json, overall PASS) |
 
 **Change to manuscript:** "The scientific runner and analysis plan were frozen before any
-challenge scenario was executed. A 16-condition preflight gate passed before sc30–sc54 ran.
-All artifacts are traceable to frozen commits; full provenance is in `final_output_audit.json`."
+challenge scenario was executed. The 16/16 preflight gate passed before sc30–sc54 ran; a
+separate completion audit passed after all scenarios completed and before the frozen analysis
+ran. All artifacts are traceable to frozen commits; full provenance is in `final_output_audit.json`."
