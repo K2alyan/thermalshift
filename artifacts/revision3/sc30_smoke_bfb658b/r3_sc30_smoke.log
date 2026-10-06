@@ -1,0 +1,97 @@
+
+Round-3 Legacy Equivalence Run (R3-0): r3_gate_f_run.py
+======================================================================
+  BETA_CHALLENGE = 1.11416358  (PRIMARY_BETA_CHALLENGE from §B1)
+  CHALLENGE_SEED = 2042  sc30-sc30
+  Policies: ['full_fp', 'full_random']
+
+[0] Loading inputs ...
+    fp nodes: 2000  test rows: 64,545  all jobs: 152,400
+
+[1] Building node-to-cabinet map ...
+    9,856 nodes, 77 cabinets
+
+[2] Building location-only fingerprint (position_template) ...
+
+[2b] Building placebo FA dicts (one-time, from frozen seeds) ...
+    global placebo: 2000 nodes
+    withincab placebo: 2000 nodes
+
+[3] Loading cabinet P^99 ...
+    77 cabinets loaded
+
+[4] Building schedule arrays ...
+    49,550 cohort-containing jobs  (1.5s)
+
+[5] Aggregating test-job summaries ...
+    2637 base test jobs  hist_fleet_avg=39.454h
+
+[6] Building residual model (BETA_CHALLENGE = 1.11416358) ...
+    2637 jobs with residuals
+
+[7] Precomputing background busy arrays ...
+    Done  (0.4s)
+
+[8] Precomputing cabinet background power ...
+    bg_records: 141,363  hist_cohort: 2,637  (7.5s)
+[8b] Pre-sorting background cabinet events ...
+    3,481,450 bg events sorted  (3.7s)
+    B_cab_hist: 67917.76 h
+
+[9] Generating challenge scenario seeds from rng(2042) ...
+    n_base=2637  n_extra_max=7911  N_DEV=1  N_FIRST=30
+    sc30: scen_seed=1520047186  wl_seed=1994769663
+    Placebo seeds: global=218767960  withincab=365514213  [PASS]
+
+[10] Running challenge scenarios sc30-sc30
+     Ratios: [1.25]
+     Policies: ['full_fp', 'full_random']
+     Lambda sweep: [1.0, 1.06, 1.1, 1.15, 1.2, 1.3, 1.4, 1.5, 1.55, 1.6, 1.7, 1.8, 1.9, 2.0]
+
+======================================================================
+Scenario 30  (idx=0  scen_seed=1520047186  wl_seed=1994769663)
+======================================================================
+    B_ref_s=2449.93h  S_ref_s=5907.1072C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8375  Bcab=0.9995  drops=0/0/0  (7s)
+    lam=1.06 r=1.25 full_fp               : C=  4.1%  B/Bref=0.8373  Bcab=0.9997  drops=5/3/0  (12s)
+    lam=1.10 r=1.25 full_fp               : C=  8.3%  B/Bref=0.8808  Bcab=1.0001  drops=11/9/0  (11s)
+    lam=1.15 r=1.25 full_fp               : C= 12.1%  B/Bref=0.9504  Bcab=1.0003  drops=13/13/2  (11s)
+    lam=1.20 r=1.25 full_fp               : C= 15.3%  B/Bref=0.9716  Bcab=1.0006  drops=15/14/2  (12s)
+    lam=1.30 r=1.25 full_fp               : C= 22.3%  B/Bref=1.0062  Bcab=1.0011  drops=24/23/6  (17s)
+    lam=1.40 r=1.25 full_fp               : C= 34.5%  B/Bref=1.0590  Bcab=1.0017  drops=31/30/10  (15s)
+    lam=1.50 r=1.25 full_fp               : C= 42.4%  B/Bref=1.1516  Bcab=1.0024  drops=41/47/17  (15s)
+    lam=1.55 r=1.25 full_fp               : C= 45.7%  B/Bref=1.1822  Bcab=1.0028  drops=48/50/25  (18s)
+    lam=1.60 r=1.25 full_fp               : C= 47.8%  B/Bref=1.2616  Bcab=1.0030  drops=53/62/30  (18s)
+    lam=1.70 r=1.25 full_fp               : C= 55.4%  B/Bref=1.3042  Bcab=1.0036  drops=82/66/35  (18s)
+    lam=1.80 r=1.25 full_fp               : C= 61.1%  B/Bref=1.3465  Bcab=1.0042  drops=89/77/40  (23s)
+    lam=1.90 r=1.25 full_fp               : C= 67.9%  B/Bref=1.4136  Bcab=1.0045  drops=114/73/48  (18s)
+    lam=2.00 r=1.25 full_fp               : C= 76.2%  B/Bref=1.4611  Bcab=1.0055  drops=139/83/52  (19s)
+      [refine] full_fp r=1.25: [5.83,5.88]%  gap=0.05pp  4 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=5.831207678338511%  C_upper=5.878896501858212%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9550  Bcab=0.9996  drops=0/0/0  (10s)
+    lam=1.06 r=1.25 full_random           : C=  4.0%  B/Bref=0.9790  Bcab=0.9999  drops=5/3/1  (10s)
+    lam=1.10 r=1.25 full_random           : C=  8.3%  B/Bref=1.0011  Bcab=1.0002  drops=11/7/0  (11s)
+    lam=1.15 r=1.25 full_random           : C= 12.3%  B/Bref=1.1269  Bcab=1.0003  drops=13/11/2  (12s)
+    lam=1.20 r=1.25 full_random           : C= 15.5%  B/Bref=1.1346  Bcab=1.0006  drops=15/14/1  (13s)
+    lam=1.30 r=1.25 full_random           : C= 22.2%  B/Bref=1.1659  Bcab=1.0012  drops=24/18/7  (14s)
+    lam=1.40 r=1.25 full_random           : C= 34.5%  B/Bref=1.2296  Bcab=1.0022  drops=31/29/11  (14s)
+    lam=1.50 r=1.25 full_random           : C= 42.7%  B/Bref=1.3424  Bcab=1.0029  drops=41/40/19  (15s)
+    lam=1.55 r=1.25 full_random           : C= 45.8%  B/Bref=1.3579  Bcab=1.0031  drops=51/43/24  (16s)
+    lam=1.60 r=1.25 full_random           : C= 49.4%  B/Bref=1.4463  Bcab=1.0036  drops=58/48/34  (21s)
+    lam=1.70 r=1.25 full_random           : C= 55.4%  B/Bref=1.5090  Bcab=1.0041  drops=79/64/42  (19s)
+    lam=1.80 r=1.25 full_random           : C= 61.4%  B/Bref=1.5288  Bcab=1.0045  drops=92/54/53  (21s)
+    lam=1.90 r=1.25 full_random           : C= 68.0%  B/Bref=1.5998  Bcab=1.0048  drops=120/59/53  (24s)
+    lam=2.00 r=1.25 full_random           : C= 76.3%  B/Bref=1.6379  Bcab=1.0060  drops=140/77/53  (24s)
+      [refine] full_random r=1.25: [4.82,4.82]%  gap=0.01pp  4 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=4.817588542690798%  C_upper=4.823682184991017%
+
+Scenario 30 done in 528s
+    [checkpoint] 1/1 saved -> gate_f_sc30-30_1p25_r3legacy_checkpoint.json
+
+Saved: C:\Users\kalya\thermalops\artifacts\revision3\results\gate_f_sc30-30_1p25_r3legacy.json
+Total elapsed: 552s
+
+NEXT: Run check_r3_legacy_equivalence.py --r3-output <this_file>
+  python artifacts/revision3/check_r3_legacy_equivalence.py --r3-output <output>
