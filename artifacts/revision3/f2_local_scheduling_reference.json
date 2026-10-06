@@ -1,0 +1,706 @@
+{
+  "provenance": {
+    "sha256": "e1f7425ec2ba06fe6ba7ec5335f80d21b9cbb2a4304b8c8dac7d2563bab5ac31",
+    "plan_commit": "pending",
+    "r3_evidence_commit": "a80d51f",
+    "task_d_commit": "90dc62f",
+    "task_d2_commit": "ab3119c",
+    "n_cabinets": 77,
+    "validation": "77 unique cabinet IDs, all Q_F2_local_kW > 0 and finite, W/kW factor exactly 1000"
+  },
+  "per_cabinet": [
+    {
+      "cabinet_id": 2000,
+      "Q_F1_kW": 91.34974692997685,
+      "Q_F2_UTC_kW": 196.70359510895452,
+      "Q_F2_local_kW": 196.90393885895418,
+      "Q_F2_local_W": 196903.93885895418,
+      "local_over_utc_ratio": 1.0010185057872922,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2001,
+      "Q_F1_kW": 92.7141841113281,
+      "Q_F2_UTC_kW": 198.80361888673204,
+      "Q_F2_local_kW": 198.80361888673173,
+      "Q_F2_local_W": 198803.61888673174,
+      "local_over_utc_ratio": 0.9999999999999984,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2002,
+      "Q_F1_kW": 94.15524700598745,
+      "Q_F2_UTC_kW": 198.01555705088518,
+      "Q_F2_local_kW": 198.71443830852255,
+      "Q_F2_local_W": 198714.43830852254,
+      "local_over_utc_ratio": 1.0035294260109966,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2003,
+      "Q_F1_kW": 93.98596446411105,
+      "Q_F2_UTC_kW": 201.83608612950698,
+      "Q_F2_local_kW": 201.89969750631695,
+      "Q_F2_local_W": 201899.69750631697,
+      "local_over_utc_ratio": 1.0003151635469643,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2004,
+      "Q_F1_kW": 94.9212626464844,
+      "Q_F2_UTC_kW": 199.00215488917908,
+      "Q_F2_local_kW": 200.63400355902797,
+      "Q_F2_local_W": 200634.00355902797,
+      "local_over_utc_ratio": 1.0082001557759896,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2005,
+      "Q_F1_kW": 94.98903398437503,
+      "Q_F2_UTC_kW": 205.22539311771953,
+      "Q_F2_local_kW": 206.48887878125052,
+      "Q_F2_local_W": 206488.87878125053,
+      "local_over_utc_ratio": 1.0061565756768034,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2006,
+      "Q_F1_kW": 95.9782434895832,
+      "Q_F2_UTC_kW": 207.29444411621148,
+      "Q_F2_local_kW": 208.61115278125018,
+      "Q_F2_local_W": 208611.1527812502,
+      "local_over_utc_ratio": 1.0063518762919692,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2007,
+      "Q_F1_kW": 95.67595480732699,
+      "Q_F2_UTC_kW": 208.3435934244796,
+      "Q_F2_local_kW": 209.02378393554702,
+      "Q_F2_local_W": 209023.78393554702,
+      "local_over_utc_ratio": 1.0032647536691066,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2008,
+      "Q_F1_kW": 95.31550110355255,
+      "Q_F2_UTC_kW": 203.3939033203134,
+      "Q_F2_local_kW": 204.68200748697973,
+      "Q_F2_local_W": 204682.00748697974,
+      "local_over_utc_ratio": 1.006333052002241,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2009,
+      "Q_F1_kW": 94.18618451111065,
+      "Q_F2_UTC_kW": 203.66975330435514,
+      "Q_F2_local_kW": 204.16296604166732,
+      "Q_F2_local_W": 204162.96604166733,
+      "local_over_utc_ratio": 1.0024216297673574,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2010,
+      "Q_F1_kW": 94.3796165418542,
+      "Q_F2_UTC_kW": 215.259442176871,
+      "Q_F2_local_kW": 213.97668090124608,
+      "Q_F2_local_W": 213976.6809012461,
+      "local_over_utc_ratio": 0.9940408594268728,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2011,
+      "Q_F1_kW": 93.46896504866608,
+      "Q_F2_UTC_kW": 214.4300685340926,
+      "Q_F2_local_kW": 212.50986127192976,
+      "Q_F2_local_W": 212509.86127192975,
+      "local_over_utc_ratio": 0.9910450652966258,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2100,
+      "Q_F1_kW": 93.41971533203099,
+      "Q_F2_UTC_kW": 215.77166916302343,
+      "Q_F2_local_kW": 213.57772778486415,
+      "Q_F2_local_W": 213577.72778486414,
+      "local_over_utc_ratio": 0.9898321156495218,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2101,
+      "Q_F1_kW": 93.94243444039145,
+      "Q_F2_UTC_kW": 215.77166916302377,
+      "Q_F2_local_kW": 215.25944217687098,
+      "Q_F2_local_W": 215259.44217687097,
+      "local_over_utc_ratio": 0.9976260693160519,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2102,
+      "Q_F1_kW": 94.84130033333332,
+      "Q_F2_UTC_kW": 216.17762945419202,
+      "Q_F2_local_kW": 215.259442176871,
+      "Q_F2_local_W": 215259.442176871,
+      "local_over_utc_ratio": 0.9957526258399666,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2103,
+      "Q_F1_kW": 95.39306809401381,
+      "Q_F2_UTC_kW": 223.12736000000064,
+      "Q_F2_local_kW": 222.6103827659577,
+      "Q_F2_local_W": 222610.3827659577,
+      "local_over_utc_ratio": 0.9976830397041271,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2104,
+      "Q_F1_kW": 93.94871166345996,
+      "Q_F2_UTC_kW": 215.77166916302394,
+      "Q_F2_local_kW": 215.25944217687135,
+      "Q_F2_local_W": 215259.44217687135,
+      "local_over_utc_ratio": 0.9976260693160528,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2105,
+      "Q_F1_kW": 94.13677507706925,
+      "Q_F2_UTC_kW": 216.8746133928574,
+      "Q_F2_local_kW": 214.43006853409256,
+      "Q_F2_local_W": 214430.06853409254,
+      "local_over_utc_ratio": 0.9887283033245726,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2106,
+      "Q_F1_kW": 95.06216378627835,
+      "Q_F2_UTC_kW": 216.06702778486437,
+      "Q_F2_local_kW": 215.10086884855815,
+      "Q_F2_local_W": 215100.86884855814,
+      "local_over_utc_ratio": 0.9955284295516472,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2107,
+      "Q_F1_kW": 93.9401444001715,
+      "Q_F2_UTC_kW": 214.0248933411461,
+      "Q_F2_local_kW": 213.21357500000047,
+      "Q_F2_local_W": 213213.57500000048,
+      "local_over_utc_ratio": 0.9962092337555687,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2108,
+      "Q_F1_kW": 95.48702003593748,
+      "Q_F2_UTC_kW": 215.20607619747474,
+      "Q_F2_local_kW": 213.5777277848643,
+      "Q_F2_local_W": 213577.72778486428,
+      "local_over_utc_ratio": 0.9924335388601376,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2109,
+      "Q_F1_kW": 95.85707330322252,
+      "Q_F2_UTC_kW": 220.34831933593838,
+      "Q_F2_local_kW": 219.17440000000008,
+      "Q_F2_local_W": 219174.40000000008,
+      "local_over_utc_ratio": 0.9946724379860208,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2110,
+      "Q_F1_kW": 95.55904683359381,
+      "Q_F2_UTC_kW": 215.25944217687118,
+      "Q_F2_local_kW": 214.25251133132664,
+      "Q_F2_local_W": 214252.51133132665,
+      "local_over_utc_ratio": 0.9953222454013554,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2111,
+      "Q_F1_kW": 94.55313091406252,
+      "Q_F2_UTC_kW": 213.4933881835942,
+      "Q_F2_local_kW": 212.4176675906963,
+      "Q_F2_local_W": 212417.6675906963,
+      "local_over_utc_ratio": 0.9949613400112756,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2200,
+      "Q_F1_kW": 94.81849688695262,
+      "Q_F2_UTC_kW": 213.7130588854226,
+      "Q_F2_local_kW": 213.3383150490297,
+      "Q_F2_local_W": 213338.31504902968,
+      "local_over_utc_ratio": 0.9982465094161895,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2201,
+      "Q_F1_kW": 93.76115502929679,
+      "Q_F2_UTC_kW": 217.4621000000005,
+      "Q_F2_local_kW": 213.71305888542233,
+      "Q_F2_local_W": 213713.05888542233,
+      "local_over_utc_ratio": 0.9827600252431198,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2202,
+      "Q_F1_kW": 94.07806190881442,
+      "Q_F2_UTC_kW": 217.829339711112,
+      "Q_F2_local_kW": 217.82933971111183,
+      "Q_F2_local_W": 217829.33971111182,
+      "local_over_utc_ratio": 0.9999999999999992,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2203,
+      "Q_F1_kW": 93.61473024902295,
+      "Q_F2_UTC_kW": 215.259442176871,
+      "Q_F2_local_kW": 214.87483832193044,
+      "Q_F2_local_W": 214874.83832193044,
+      "local_over_utc_ratio": 0.9982133008844994,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2204,
+      "Q_F1_kW": 92.48420609325005,
+      "Q_F2_UTC_kW": 219.17440000000042,
+      "Q_F2_local_kW": 217.81532388091213,
+      "Q_F2_local_W": 217815.32388091212,
+      "local_over_utc_ratio": 0.993799111031725,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2205,
+      "Q_F1_kW": 92.3897782951108,
+      "Q_F2_UTC_kW": 217.8153238809122,
+      "Q_F2_local_kW": 216.12543325591216,
+      "Q_F2_local_W": 216125.43325591215,
+      "local_over_utc_ratio": 0.9922416357357668,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2206,
+      "Q_F1_kW": 93.01363413574124,
+      "Q_F2_UTC_kW": 213.02784642187675,
+      "Q_F2_local_kW": 212.37294804050637,
+      "Q_F2_local_W": 212372.94804050637,
+      "local_over_utc_ratio": 0.9969257616205094,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2207,
+      "Q_F1_kW": 92.13393664354625,
+      "Q_F2_UTC_kW": 215.10086884855798,
+      "Q_F2_local_kW": 212.59830017496535,
+      "Q_F2_local_W": 212598.30017496535,
+      "local_over_utc_ratio": 0.9883656040675756,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2208,
+      "Q_F1_kW": 92.59664330310768,
+      "Q_F2_UTC_kW": 213.81049364507692,
+      "Q_F2_local_kW": 211.89600000000004,
+      "Q_F2_local_W": 211896.00000000003,
+      "local_over_utc_ratio": 0.9910458387124118,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2209,
+      "Q_F1_kW": 92.62479696281899,
+      "Q_F2_UTC_kW": 213.85202700591233,
+      "Q_F2_local_kW": 212.9042007078348,
+      "Q_F2_local_W": 212904.2007078348,
+      "local_over_utc_ratio": 0.9955678404766707,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2210,
+      "Q_F1_kW": 92.68968887562511,
+      "Q_F2_UTC_kW": 220.26759179687517,
+      "Q_F2_local_kW": 220.2675917968752,
+      "Q_F2_local_W": 220267.5917968752,
+      "local_over_utc_ratio": 1.0000000000000002,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2211,
+      "Q_F1_kW": 93.89276711571851,
+      "Q_F2_UTC_kW": 221.6894969813556,
+      "Q_F2_local_kW": 221.68949698135506,
+      "Q_F2_local_W": 221689.49698135507,
+      "local_over_utc_ratio": 0.9999999999999976,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2300,
+      "Q_F1_kW": 94.03512703857442,
+      "Q_F2_UTC_kW": 221.08879200591227,
+      "Q_F2_local_kW": 221.08879200591213,
+      "Q_F2_local_W": 221088.79200591214,
+      "local_over_utc_ratio": 0.9999999999999993,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2301,
+      "Q_F1_kW": 91.90399476562499,
+      "Q_F2_UTC_kW": 223.92013070312527,
+      "Q_F2_local_kW": 223.92013070312507,
+      "Q_F2_local_W": 223920.13070312506,
+      "local_over_utc_ratio": 0.9999999999999991,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2302,
+      "Q_F1_kW": 90.74033345833357,
+      "Q_F2_UTC_kW": 220.9116438802085,
+      "Q_F2_local_kW": 220.91164388020857,
+      "Q_F2_local_W": 220911.64388020858,
+      "local_over_utc_ratio": 1.0000000000000004,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2303,
+      "Q_F1_kW": 90.69542759063623,
+      "Q_F2_UTC_kW": 210.38516936813477,
+      "Q_F2_local_kW": 210.38516936813477,
+      "Q_F2_local_W": 210385.16936813478,
+      "local_over_utc_ratio": 1.0,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2304,
+      "Q_F1_kW": 89.37083003417958,
+      "Q_F2_UTC_kW": 211.7958765440608,
+      "Q_F2_local_kW": 211.79587654406077,
+      "Q_F2_local_W": 211795.87654406077,
+      "local_over_utc_ratio": 0.9999999999999999,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2306,
+      "Q_F1_kW": 91.59564729697966,
+      "Q_F2_UTC_kW": 211.89600000000007,
+      "Q_F2_local_kW": 211.89600000000004,
+      "Q_F2_local_W": 211896.00000000003,
+      "local_over_utc_ratio": 0.9999999999999999,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2307,
+      "Q_F1_kW": 91.08723898193358,
+      "Q_F2_UTC_kW": 211.17247029406144,
+      "Q_F2_local_kW": 211.17247029406047,
+      "Q_F2_local_W": 211172.47029406048,
+      "local_over_utc_ratio": 0.9999999999999954,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2308,
+      "Q_F1_kW": 90.92998881020316,
+      "Q_F2_UTC_kW": 211.73801311813452,
+      "Q_F2_local_kW": 211.73801311813443,
+      "Q_F2_local_W": 211738.01311813443,
+      "local_over_utc_ratio": 0.9999999999999996,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2309,
+      "Q_F1_kW": 91.06986496826178,
+      "Q_F2_UTC_kW": 211.7380131181348,
+      "Q_F2_local_kW": 211.54217561813442,
+      "Q_F2_local_W": 211542.1756181344,
+      "local_over_utc_ratio": 0.9990750952220794,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2310,
+      "Q_F1_kW": 90.12384523591965,
+      "Q_F2_UTC_kW": 211.6319818681349,
+      "Q_F2_local_kW": 211.6319818681348,
+      "Q_F2_local_W": 211631.9818681348,
+      "local_over_utc_ratio": 0.9999999999999996,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2311,
+      "Q_F1_kW": 90.9498635489156,
+      "Q_F2_UTC_kW": 211.00857561813442,
+      "Q_F2_local_kW": 211.00857561813442,
+      "Q_F2_local_W": 211008.5756181344,
+      "local_over_utc_ratio": 1.0,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2400,
+      "Q_F1_kW": 93.97115889404273,
+      "Q_F2_UTC_kW": 211.63198186813523,
+      "Q_F2_local_kW": 211.63198186813466,
+      "Q_F2_local_W": 211631.98186813467,
+      "local_over_utc_ratio": 0.9999999999999973,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2401,
+      "Q_F1_kW": 92.77273124521469,
+      "Q_F2_UTC_kW": 211.63198186813483,
+      "Q_F2_local_kW": 211.6319818681345,
+      "Q_F2_local_W": 211631.9818681345,
+      "local_over_utc_ratio": 0.9999999999999983,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2402,
+      "Q_F1_kW": 92.52752907725443,
+      "Q_F2_UTC_kW": 211.6319818681345,
+      "Q_F2_local_kW": 211.63198186813443,
+      "Q_F2_local_W": 211631.98186813443,
+      "local_over_utc_ratio": 0.9999999999999998,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2403,
+      "Q_F1_kW": 92.52343045096954,
+      "Q_F2_UTC_kW": 211.00857561813442,
+      "Q_F2_local_kW": 211.00857561813442,
+      "Q_F2_local_W": 211008.5756181344,
+      "local_over_utc_ratio": 1.0,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2404,
+      "Q_F1_kW": 94.57002571289061,
+      "Q_F2_UTC_kW": 212.13983140517203,
+      "Q_F2_local_kW": 211.8593418218381,
+      "Q_F2_local_W": 211859.34182183808,
+      "local_over_utc_ratio": 0.9986778080218315,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2405,
+      "Q_F1_kW": 91.59693500000056,
+      "Q_F2_UTC_kW": 214.18730796767207,
+      "Q_F2_local_kW": 213.91851193646124,
+      "Q_F2_local_W": 213918.51193646123,
+      "local_over_utc_ratio": 0.9987450422073963,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2406,
+      "Q_F1_kW": 91.00489341866925,
+      "Q_F2_UTC_kW": 215.3886527304035,
+      "Q_F2_local_kW": 215.38865273040295,
+      "Q_F2_local_W": 215388.65273040294,
+      "local_over_utc_ratio": 0.9999999999999974,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2407,
+      "Q_F1_kW": 92.48734323804247,
+      "Q_F2_UTC_kW": 207.80154866927137,
+      "Q_F2_local_kW": 208.87561809082052,
+      "Q_F2_local_W": 208875.61809082053,
+      "local_over_utc_ratio": 1.0051687267415828,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2408,
+      "Q_F1_kW": 91.67867065798197,
+      "Q_F2_UTC_kW": 207.71549073092336,
+      "Q_F2_local_kW": 207.71549073092345,
+      "Q_F2_local_W": 207715.49073092345,
+      "local_over_utc_ratio": 1.0000000000000004,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2409,
+      "Q_F1_kW": 89.56146453383766,
+      "Q_F2_UTC_kW": 202.1973469387762,
+      "Q_F2_local_kW": 203.61564651705277,
+      "Q_F2_local_W": 203615.64651705278,
+      "local_over_utc_ratio": 1.0070144321859278,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2410,
+      "Q_F1_kW": 88.76154864843757,
+      "Q_F2_UTC_kW": 201.8598392842062,
+      "Q_F2_local_kW": 201.85983928420626,
+      "Q_F2_local_W": 201859.83928420625,
+      "local_over_utc_ratio": 1.0000000000000002,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2411,
+      "Q_F1_kW": 88.66479465192718,
+      "Q_F2_UTC_kW": 198.53607715210367,
+      "Q_F2_local_kW": 198.53607715210362,
+      "Q_F2_local_W": 198536.07715210362,
+      "local_over_utc_ratio": 0.9999999999999997,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2500,
+      "Q_F1_kW": 87.95524057189243,
+      "Q_F2_UTC_kW": 203.8415047616235,
+      "Q_F2_local_kW": 203.841504761623,
+      "Q_F2_local_W": 203841.50476162301,
+      "local_over_utc_ratio": 0.9999999999999977,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2501,
+      "Q_F1_kW": 88.14133018421077,
+      "Q_F2_UTC_kW": 205.9376651974111,
+      "Q_F2_local_kW": 206.01324866927084,
+      "Q_F2_local_W": 206013.24866927083,
+      "local_over_utc_ratio": 1.0003670211167408,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2502,
+      "Q_F1_kW": 86.68099796311996,
+      "Q_F2_UTC_kW": 209.6646335733698,
+      "Q_F2_local_kW": 209.6646335733698,
+      "Q_F2_local_W": 209664.6335733698,
+      "local_over_utc_ratio": 1.0,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2503,
+      "Q_F1_kW": 86.41277679421762,
+      "Q_F2_UTC_kW": 204.27347114653725,
+      "Q_F2_local_kW": 204.27347114653725,
+      "Q_F2_local_W": 204273.47114653725,
+      "local_over_utc_ratio": 1.0,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2504,
+      "Q_F1_kW": 86.37190922131515,
+      "Q_F2_UTC_kW": 204.315608540963,
+      "Q_F2_local_kW": 204.31560854096313,
+      "Q_F2_local_W": 204315.60854096312,
+      "local_over_utc_ratio": 1.0000000000000007,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2505,
+      "Q_F1_kW": 86.54807679183848,
+      "Q_F2_UTC_kW": 206.0357955597467,
+      "Q_F2_local_kW": 206.03579555974662,
+      "Q_F2_local_W": 206035.79555974662,
+      "local_over_utc_ratio": 0.9999999999999996,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2506,
+      "Q_F1_kW": 86.7062223435375,
+      "Q_F2_UTC_kW": 202.7856716840281,
+      "Q_F2_local_kW": 202.78567168402782,
+      "Q_F2_local_W": 202785.67168402782,
+      "local_over_utc_ratio": 0.9999999999999986,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2507,
+      "Q_F1_kW": 86.19005124444458,
+      "Q_F2_UTC_kW": 206.5965978487575,
+      "Q_F2_local_kW": 206.59659784875765,
+      "Q_F2_local_W": 206596.59784875766,
+      "local_over_utc_ratio": 1.0000000000000007,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2508,
+      "Q_F1_kW": 86.07441850192689,
+      "Q_F2_UTC_kW": 207.60945483398487,
+      "Q_F2_local_kW": 208.4071968750006,
+      "Q_F2_local_W": 208407.1968750006,
+      "local_over_utc_ratio": 1.0038425130572866,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2509,
+      "Q_F1_kW": 85.1556810020182,
+      "Q_F2_UTC_kW": 200.89341219112328,
+      "Q_F2_local_kW": 200.89341219112336,
+      "Q_F2_local_W": 200893.41219112335,
+      "local_over_utc_ratio": 1.0000000000000004,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2510,
+      "Q_F1_kW": 84.34955116476209,
+      "Q_F2_UTC_kW": 202.0152155199276,
+      "Q_F2_local_kW": 202.01521551992786,
+      "Q_F2_local_W": 202015.21551992785,
+      "local_over_utc_ratio": 1.0000000000000013,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2511,
+      "Q_F1_kW": 82.39819529333339,
+      "Q_F2_UTC_kW": 200.42077426901295,
+      "Q_F2_local_kW": 200.42077426901295,
+      "Q_F2_local_W": 200420.77426901294,
+      "local_over_utc_ratio": 1.0,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2600,
+      "Q_F1_kW": 71.17105449833713,
+      "Q_F2_UTC_kW": 162.0298540939291,
+      "Q_F2_local_kW": 161.76448658449246,
+      "Q_F2_local_W": 161764.48658449246,
+      "local_over_utc_ratio": 0.9983622307696285,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2601,
+      "Q_F1_kW": 74.00896172973643,
+      "Q_F2_UTC_kW": 173.06430985040222,
+      "Q_F2_local_kW": 173.53919928531167,
+      "Q_F2_local_W": 173539.19928531165,
+      "local_over_utc_ratio": 1.0027440055972254,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2602,
+      "Q_F1_kW": 68.74125732927479,
+      "Q_F2_UTC_kW": 163.09897424280138,
+      "Q_F2_local_kW": 163.12551238783743,
+      "Q_F2_local_W": 163125.51238783743,
+      "local_over_utc_ratio": 1.0001627119064314,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2609,
+      "Q_F1_kW": 78.38090039612392,
+      "Q_F2_UTC_kW": 208.2295529248047,
+      "Q_F2_local_kW": 209.00374296276794,
+      "Q_F2_local_W": 209003.74296276795,
+      "local_over_utc_ratio": 1.0037179642711083,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2610,
+      "Q_F1_kW": 71.38540877187515,
+      "Q_F2_UTC_kW": 201.93890794270834,
+      "Q_F2_local_kW": 200.71150000000006,
+      "Q_F2_local_W": 200711.50000000006,
+      "local_over_utc_ratio": 0.9939218848154983,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    },
+    {
+      "cabinet_id": 2611,
+      "Q_F1_kW": 80.72802721500001,
+      "Q_F2_UTC_kW": 208.79384059637283,
+      "Q_F2_local_kW": 208.327,
+      "Q_F2_local_W": 208327.0,
+      "local_over_utc_ratio": 0.997764107432291,
+      "source": "Task-D2 f2_local_date_support commit ab3119c"
+    }
+  ]
+}

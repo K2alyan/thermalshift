@@ -112,11 +112,14 @@ GATE_F_REQUIRE_CLEAN_GIT = int(os.environ.get("GATE_F_REQUIRE_CLEAN_GIT", "0"))
 # ── Cabinet reference mode (R3 only) ──────────────────────────────────────────
 CABINET_REFERENCE_MODE = os.environ.get(
     "R3_CABINET_REFERENCE_MODE", "legacy_job_contribution_p99")
-if CABINET_REFERENCE_MODE != "legacy_job_contribution_p99":
+_ALLOWED_CAB_MODES = {
+    "legacy_job_contribution_p99",
+    "corrected_timeweighted_total_p99_local",
+}
+if CABINET_REFERENCE_MODE not in _ALLOWED_CAB_MODES:
     raise NotImplementedError(
         f"Cabinet reference mode {CABINET_REFERENCE_MODE!r} not implemented. "
-        "F2/F3 require Task D support audit and corrected thresholds. "
-        "Only F1 (legacy_job_contribution_p99) is available in r3_gate_f_run.py."
+        f"Allowed modes: {sorted(_ALLOWED_CAB_MODES)}"
     )
 
 # ── Compat mode overrides (r1↔r2 equivalence; plan Amendment 4 §G1) ──────────
@@ -145,7 +148,12 @@ N_FIRST  = int(os.environ.get("GATE_F_N_FIRST", str(SCENARIO_FIRST) if not _is_c
 _scen_tag  = f"sc{N_FIRST}-{N_FIRST + N_DEV - 1}"
 _ratio_tag = (_ENV_RATIOS.replace(",", "_").replace(".", "p").replace("unrestricted", "unr")
               if _ENV_RATIOS else "all")
-_run_suffix = "r3compat" if _is_compat else "r3legacy"
+if CABINET_REFERENCE_MODE == "corrected_timeweighted_total_p99_local":
+    _run_suffix = "r3f2local"
+elif _is_compat:
+    _run_suffix = "r3compat"
+else:
+    _run_suffix = "r3legacy"
 OUT_FILE  = OUT_DIR / f"gate_f_{_scen_tag}_{_ratio_tag}_{_run_suffix}.json"
 CKPT_FILE = OUT_FILE.with_name(OUT_FILE.stem + "_checkpoint.json")
 
@@ -272,13 +280,29 @@ print(f"    withincab placebo: {len(placebo_fa_withincab)} nodes")
 print("\n[3] Loading cabinet P^99 ...")
 with open(REV1_DIR / "results" / "cabinet_power_envelopes.json") as fh:
     cab_env = json.load(fh)
-cab_p99_W: dict[int, float] = {
+_cab_p99_W_F1: dict[int, float] = {
     int(float(k)): v * 1e3
     for k, v in cab_env["per_cabinet_p99_kW_correct"].items()
 }
-_p99_med  = float(np.median(list(cab_p99_W.values())))
-cab_p99_W = {c: cab_p99_W.get(c, _p99_med) for c in all_cabinets}
-print(f"    {len(cab_p99_W)} cabinets loaded")
+_p99_med_F1 = float(np.median(list(_cab_p99_W_F1.values())))
+_cab_p99_W_F1 = {c: _cab_p99_W_F1.get(c, _p99_med_F1) for c in all_cabinets}
+
+if CABINET_REFERENCE_MODE == "corrected_timeweighted_total_p99_local":
+    _f2_ref_path = REV3_DIR / "f2_local_scheduling_reference.json"
+    with open(_f2_ref_path) as fh:
+        _f2_ref = json.load(fh)
+    _cab_p99_W_F2: dict[int, float] = {
+        int(x["cabinet_id"]): float(x["Q_F2_local_W"])
+        for x in _f2_ref["per_cabinet"]
+    }
+    _p99_med_F2 = float(np.median(list(_cab_p99_W_F2.values())))
+    cab_p99_W = {c: _cab_p99_W_F2.get(c, _p99_med_F2) for c in all_cabinets}
+    assert cab_p99_W is not _cab_p99_W_F1, "F2/F1 threshold dict aliasing"
+    print(f"    F2 local-date: {len(cab_p99_W)} cabinets from {_f2_ref_path.name}")
+    print(f"    F2 median threshold: {_p99_med_F2/1000:.2f} kW")
+else:
+    cab_p99_W = _cab_p99_W_F1
+    print(f"    F1 legacy: {len(cab_p99_W)} cabinets loaded")
 
 print("\n[4] Building schedule arrays ...")
 t0 = time.time()
@@ -441,8 +465,16 @@ def sweep_cab_budget_fast(cohort_records, thr):
         P_cab[c] += sign * dp; last_t[c] = t
     return B, S
 
-B_cab_hist, _ = sweep_cab_budget_fast(cohort_hist_records, cab_p99_W)
-print(f"    B_cab_hist: {B_cab_hist:.2f} h")
+if CABINET_REFERENCE_MODE == "corrected_timeweighted_total_p99_local":
+    _denom_path = REV3_DIR / "f2_denominator.json"
+    with open(_denom_path) as fh:
+        _denom = json.load(fh)
+    B_cab_hist = float(_denom["aggregate"]["B_cab_hist_F2_h"])
+    print(f"    B_cab_hist (F2 local-date, frozen artifact): {B_cab_hist:.4f} h")
+    print(f"    F2 aggregate exceedance fraction: {_denom['aggregate']['aggregate_exceedance_fraction']:.4%}")
+else:
+    B_cab_hist, _ = sweep_cab_budget_fast(cohort_hist_records, cab_p99_W)
+    print(f"    B_cab_hist (F1): {B_cab_hist:.2f} h")
 
 # ── Helper functions ──────────────────────────────────────────────────────────
 def bg_busy_at_ms(t_ms: int) -> frozenset:
