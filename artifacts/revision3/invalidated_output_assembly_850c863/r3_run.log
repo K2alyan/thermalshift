@@ -1,0 +1,1098 @@
+
+Round-3 Legacy Equivalence Run (R3-0): r3_gate_f_run.py
+======================================================================
+  BETA_CHALLENGE = 1.11416358  (PRIMARY_BETA_CHALLENGE from §B1)
+  CHALLENGE_SEED = 2042  sc30-sc54
+  Policies: ['full_fp', 'full_random']
+
+[0] Loading inputs ...
+    fp nodes: 2000  test rows: 64,545  all jobs: 152,400
+
+[1] Building node-to-cabinet map ...
+    9,856 nodes, 77 cabinets
+
+[2] Building location-only fingerprint (position_template) ...
+
+[2b] Building placebo FA dicts (one-time, from frozen seeds) ...
+    global placebo: 2000 nodes
+    withincab placebo: 2000 nodes
+
+[3] Loading cabinet P^99 ...
+    77 cabinets loaded
+
+[4] Building schedule arrays ...
+    49,550 cohort-containing jobs  (1.1s)
+
+[5] Aggregating test-job summaries ...
+    2637 base test jobs  hist_fleet_avg=39.454h
+
+[6] Building residual model (BETA_CHALLENGE = 1.11416358) ...
+    2637 jobs with residuals
+
+[7] Precomputing background busy arrays ...
+    Done  (0.3s)
+
+[8] Precomputing cabinet background power ...
+    bg_records: 141,363  hist_cohort: 2,637  (5.0s)
+[8b] Pre-sorting background cabinet events ...
+    3,481,450 bg events sorted  (1.4s)
+    B_cab_hist: 67917.76 h
+
+[9] Generating challenge scenario seeds from rng(2042) ...
+    n_base=2637  n_extra_max=7911  N_DEV=25  N_FIRST=30
+    sc30: scen_seed=1520047186  wl_seed=1994769663
+    Placebo seeds: global=218767960  withincab=365514213  [PASS]
+
+[10] Running challenge scenarios sc30-sc54
+     Ratios: [1.25]
+     Policies: ['full_fp', 'full_random']
+     Lambda sweep: [1.0, 1.06, 1.1, 1.15, 1.2, 1.3, 1.4, 1.5, 1.55, 1.6, 1.7, 1.8, 1.9, 2.0]
+
+======================================================================
+Scenario 30  (idx=0  scen_seed=1520047186  wl_seed=1994769663)
+======================================================================
+    B_ref_s=2449.93h  S_ref_s=5907.1072C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8375  Bcab=0.9995  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  4.1%  B/Bref=0.8373  Bcab=0.9997  drops=5/3/0  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  8.3%  B/Bref=0.8808  Bcab=1.0001  drops=11/9/0  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 12.1%  B/Bref=0.9504  Bcab=1.0003  drops=13/13/2  (5s)
+    lam=1.20 r=1.25 full_fp               : C= 15.3%  B/Bref=0.9716  Bcab=1.0006  drops=15/14/2  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 22.3%  B/Bref=1.0062  Bcab=1.0011  drops=24/23/6  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 34.5%  B/Bref=1.0590  Bcab=1.0017  drops=31/30/10  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 42.4%  B/Bref=1.1516  Bcab=1.0024  drops=41/47/17  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 45.7%  B/Bref=1.1822  Bcab=1.0028  drops=48/50/25  (7s)
+    lam=1.60 r=1.25 full_fp               : C= 47.8%  B/Bref=1.2616  Bcab=1.0030  drops=53/62/30  (7s)
+    lam=1.70 r=1.25 full_fp               : C= 55.4%  B/Bref=1.3042  Bcab=1.0036  drops=82/66/35  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 61.1%  B/Bref=1.3465  Bcab=1.0042  drops=89/77/40  (8s)
+    lam=1.90 r=1.25 full_fp               : C= 67.9%  B/Bref=1.4136  Bcab=1.0045  drops=114/73/48  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 76.2%  B/Bref=1.4611  Bcab=1.0055  drops=139/83/52  (9s)
+      [refine] full_fp r=1.25: [5.83,5.88]%  gap=0.05pp  4 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=5.831207678338511%  C_upper=5.878896501858212%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9827  Bcab=0.9996  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  4.1%  B/Bref=0.9482  Bcab=0.9997  drops=5/3/0  (6s)
+    lam=1.10 r=1.25 full_random           : C=  8.3%  B/Bref=1.0218  Bcab=1.0001  drops=11/8/1  (5s)
+    lam=1.15 r=1.25 full_random           : C= 12.1%  B/Bref=1.1190  Bcab=1.0004  drops=13/11/2  (6s)
+    lam=1.20 r=1.25 full_random           : C= 15.5%  B/Bref=1.1288  Bcab=1.0008  drops=15/13/2  (6s)
+    lam=1.30 r=1.25 full_random           : C= 22.3%  B/Bref=1.1601  Bcab=1.0011  drops=22/20/8  (6s)
+    lam=1.40 r=1.25 full_random           : C= 34.5%  B/Bref=1.2342  Bcab=1.0021  drops=29/32/11  (7s)
+    lam=1.50 r=1.25 full_random           : C= 42.6%  B/Bref=1.3366  Bcab=1.0031  drops=44/38/17  (7s)
+    lam=1.55 r=1.25 full_random           : C= 46.0%  B/Bref=1.3731  Bcab=1.0031  drops=49/45/27  (7s)
+    lam=1.60 r=1.25 full_random           : C= 49.5%  B/Bref=1.4394  Bcab=1.0036  drops=56/56/31  (8s)
+    lam=1.70 r=1.25 full_random           : C= 55.5%  B/Bref=1.4879  Bcab=1.0042  drops=73/69/40  (8s)
+    lam=1.80 r=1.25 full_random           : C= 61.2%  B/Bref=1.5426  Bcab=1.0045  drops=98/55/49  (8s)
+    lam=1.90 r=1.25 full_random           : C= 68.0%  B/Bref=1.6049  Bcab=1.0046  drops=118/63/55  (9s)
+    lam=2.00 r=1.25 full_random           : C= 76.0%  B/Bref=1.6367  Bcab=1.0058  drops=133/87/55  (9s)
+      [refine] full_random r=1.25: [4.14,4.23]%  gap=0.09pp  2 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=4.137834823422491%  C_upper=4.231517797207518%
+
+Scenario 30 done in 224s
+    [checkpoint] 1/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 31  (idx=1  scen_seed=1145613857  wl_seed=98741167)
+======================================================================
+    B_ref_s=2456.55h  S_ref_s=5856.7341C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8692  Bcab=0.9995  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  4.3%  B/Bref=0.9486  Bcab=0.9998  drops=3/8/0  (5s)
+    lam=1.10 r=1.25 full_fp               : C= 11.1%  B/Bref=0.9571  Bcab=1.0002  drops=8/11/0  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 14.1%  B/Bref=0.9911  Bcab=1.0004  drops=9/19/0  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 17.7%  B/Bref=0.9887  Bcab=1.0007  drops=13/25/2  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 23.4%  B/Bref=1.0646  Bcab=1.0012  drops=14/31/10  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 31.6%  B/Bref=1.1701  Bcab=1.0021  drops=25/38/12  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 41.1%  B/Bref=1.1851  Bcab=1.0026  drops=40/50/16  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 45.1%  B/Bref=1.1774  Bcab=1.0029  drops=46/52/24  (7s)
+    lam=1.60 r=1.25 full_fp               : C= 48.5%  B/Bref=1.1904  Bcab=1.0033  drops=55/67/26  (7s)
+    lam=1.70 r=1.25 full_fp               : C= 55.7%  B/Bref=1.3345  Bcab=1.0037  drops=69/66/34  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 62.4%  B/Bref=1.4124  Bcab=1.0042  drops=96/69/45  (8s)
+    lam=1.90 r=1.25 full_fp               : C= 71.6%  B/Bref=1.4153  Bcab=1.0050  drops=117/86/51  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 81.5%  B/Bref=1.4517  Bcab=1.0059  drops=135/81/63  (9s)
+      [refine] full_fp r=1.25: [7.04,7.11]%  gap=0.07pp  5 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=7.038696519008424%  C_upper=7.113663456598567%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9804  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  4.6%  B/Bref=1.0848  Bcab=1.0000  drops=3/7/0  (5s)
+    lam=1.10 r=1.25 full_random           : C= 11.4%  B/Bref=1.0853  Bcab=1.0004  drops=7/11/1  (5s)
+    lam=1.15 r=1.25 full_random           : C= 14.4%  B/Bref=1.1111  Bcab=1.0008  drops=9/18/1  (6s)
+    lam=1.20 r=1.25 full_random           : C= 18.2%  B/Bref=1.1258  Bcab=1.0008  drops=14/17/3  (6s)
+    lam=1.30 r=1.25 full_random           : C= 23.9%  B/Bref=1.1936  Bcab=1.0014  drops=16/27/11  (6s)
+    lam=1.40 r=1.25 full_random           : C= 35.2%  B/Bref=1.3091  Bcab=1.0026  drops=29/39/13  (7s)
+    lam=1.50 r=1.25 full_random           : C= 44.7%  B/Bref=1.3188  Bcab=1.0032  drops=39/56/15  (7s)
+    lam=1.55 r=1.25 full_random           : C= 47.7%  B/Bref=1.3216  Bcab=1.0033  drops=48/54/24  (7s)
+    lam=1.60 r=1.25 full_random           : C= 51.5%  B/Bref=1.3326  Bcab=1.0037  drops=55/62/28  (8s)
+    lam=1.70 r=1.25 full_random           : C= 58.4%  B/Bref=1.4782  Bcab=1.0043  drops=72/66/32  (8s)
+    lam=1.80 r=1.25 full_random           : C= 66.1%  B/Bref=1.5577  Bcab=1.0050  drops=96/68/41  (8s)
+    lam=1.90 r=1.25 full_random           : C= 74.5%  B/Bref=1.5965  Bcab=1.0054  drops=114/81/53  (9s)
+    lam=2.00 r=1.25 full_random           : C= 85.0%  B/Bref=1.6208  Bcab=1.0063  drops=137/85/68  (9s)
+      [refine] full_random r=1.25: [1.52,1.77]%  gap=0.25pp  4 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=1.521308250859616%  C_upper=1.77252191096524%
+
+Scenario 31 done in 236s
+    [checkpoint] 2/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 32  (idx=2  scen_seed=1521583570  wl_seed=581721350)
+======================================================================
+    B_ref_s=2531.93h  S_ref_s=5873.7000C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8643  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  6.6%  B/Bref=0.8660  Bcab=1.0003  drops=6/6/0  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  9.9%  B/Bref=0.8742  Bcab=1.0004  drops=11/8/4  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 12.7%  B/Bref=0.8883  Bcab=1.0006  drops=12/10/5  (5s)
+    lam=1.20 r=1.25 full_fp               : C= 16.9%  B/Bref=0.8963  Bcab=1.0009  drops=14/20/6  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 20.1%  B/Bref=0.9188  Bcab=1.0009  drops=19/24/12  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 29.1%  B/Bref=0.9340  Bcab=1.0013  drops=24/32/17  (6s)
+    lam=1.50 r=1.25 full_fp               : C= 41.3%  B/Bref=1.0347  Bcab=1.0024  drops=41/38/31  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 41.1%  B/Bref=1.0427  Bcab=1.0022  drops=47/33/26  (7s)
+    lam=1.60 r=1.25 full_fp               : C= 46.5%  B/Bref=1.0833  Bcab=1.0026  drops=49/42/31  (7s)
+    lam=1.70 r=1.25 full_fp               : C= 56.2%  B/Bref=1.1382  Bcab=1.0032  drops=61/54/37  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 61.4%  B/Bref=1.3167  Bcab=1.0036  drops=76/56/54  (8s)
+    lam=1.90 r=1.25 full_fp               : C= 72.5%  B/Bref=1.4447  Bcab=1.0046  drops=95/66/68  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 80.7%  B/Bref=1.5049  Bcab=1.0055  drops=116/79/80  (9s)
+      [refine] full_fp r=1.25: [3.15,5.78]%  gap=2.63pp  9 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=3.1470395640621684%  C_upper=5.780691700496854%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9868  Bcab=0.9995  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  4.0%  B/Bref=1.0007  Bcab=0.9999  drops=6/4/1  (5s)
+    lam=1.10 r=1.25 full_random           : C= 10.0%  B/Bref=1.0091  Bcab=1.0006  drops=11/7/4  (5s)
+    lam=1.15 r=1.25 full_random           : C= 13.0%  B/Bref=0.9951  Bcab=1.0005  drops=12/8/6  (6s)
+    lam=1.20 r=1.25 full_random           : C= 17.1%  B/Bref=1.0128  Bcab=1.0010  drops=14/12/11  (6s)
+    lam=1.30 r=1.25 full_random           : C= 20.2%  B/Bref=1.0555  Bcab=1.0010  drops=19/20/13  (6s)
+    lam=1.40 r=1.25 full_random           : C= 31.7%  B/Bref=1.1021  Bcab=1.0021  drops=24/29/20  (7s)
+    lam=1.50 r=1.25 full_random           : C= 39.0%  B/Bref=1.2051  Bcab=1.0021  drops=38/34/24  (7s)
+    lam=1.55 r=1.25 full_random           : C= 43.7%  B/Bref=1.2108  Bcab=1.0028  drops=45/36/31  (7s)
+    lam=1.60 r=1.25 full_random           : C= 49.0%  B/Bref=1.2648  Bcab=1.0031  drops=53/39/35  (8s)
+    lam=1.70 r=1.25 full_random           : C= 56.7%  B/Bref=1.3007  Bcab=1.0031  drops=60/43/42  (8s)
+    lam=1.80 r=1.25 full_random           : C= 64.7%  B/Bref=1.5001  Bcab=1.0042  drops=78/46/61  (8s)
+    lam=1.90 r=1.25 full_random           : C= 73.1%  B/Bref=1.6150  Bcab=1.0047  drops=100/42/75  (9s)
+    lam=2.00 r=1.25 full_random           : C= 81.1%  B/Bref=1.7219  Bcab=1.0052  drops=130/47/84  (9s)
+      [refine] full_random r=1.25: [3.53,3.96]%  gap=0.43pp  7 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=3.529639333576045%  C_upper=3.956029192440073%
+
+Scenario 32 done in 269s
+    [checkpoint] 3/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 33  (idx=3  scen_seed=629767374  wl_seed=1816866876)
+======================================================================
+    B_ref_s=2440.35h  S_ref_s=5876.5237C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8788  Bcab=0.9992  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  3.9%  B/Bref=0.8648  Bcab=0.9995  drops=5/3/2  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  7.3%  B/Bref=0.8875  Bcab=0.9997  drops=7/10/3  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 12.7%  B/Bref=0.8839  Bcab=1.0006  drops=10/14/5  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 18.9%  B/Bref=0.8777  Bcab=1.0012  drops=11/18/7  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 25.3%  B/Bref=0.9047  Bcab=1.0018  drops=18/24/10  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 31.5%  B/Bref=0.9381  Bcab=1.0025  drops=28/39/12  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 38.0%  B/Bref=0.9944  Bcab=1.0031  drops=38/48/17  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 40.8%  B/Bref=1.0445  Bcab=1.0032  drops=45/53/19  (7s)
+    lam=1.60 r=1.25 full_fp               : C= 44.0%  B/Bref=1.0989  Bcab=1.0034  drops=54/59/24  (7s)
+    lam=1.70 r=1.25 full_fp               : C= 50.4%  B/Bref=1.1670  Bcab=1.0037  drops=71/68/30  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 60.6%  B/Bref=1.1913  Bcab=1.0050  drops=82/77/38  (8s)
+    lam=1.90 r=1.25 full_fp               : C= 66.3%  B/Bref=1.2883  Bcab=1.0056  drops=93/94/44  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 73.8%  B/Bref=1.3917  Bcab=1.0066  drops=119/88/57  (9s)
+      [refine] full_fp r=1.25: [7.82,10.48]%  gap=2.65pp  8 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=7.821491582189364%  C_upper=10.476197235169805%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9928  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  3.9%  B/Bref=0.9968  Bcab=0.9995  drops=5/2/2  (5s)
+    lam=1.10 r=1.25 full_random           : C=  7.3%  B/Bref=0.9915  Bcab=0.9999  drops=7/9/4  (5s)
+    lam=1.15 r=1.25 full_random           : C= 16.5%  B/Bref=1.0200  Bcab=1.0015  drops=10/18/3  (5s)
+    lam=1.20 r=1.25 full_random           : C= 19.7%  B/Bref=1.0161  Bcab=1.0014  drops=11/20/7  (6s)
+    lam=1.30 r=1.25 full_random           : C= 25.8%  B/Bref=1.0350  Bcab=1.0019  drops=18/26/10  (6s)
+    lam=1.40 r=1.25 full_random           : C= 33.2%  B/Bref=1.0706  Bcab=1.0027  drops=28/34/10  (7s)
+    lam=1.50 r=1.25 full_random           : C= 38.2%  B/Bref=1.1493  Bcab=1.0028  drops=39/46/19  (7s)
+    lam=1.55 r=1.25 full_random           : C= 41.2%  B/Bref=1.1873  Bcab=1.0030  drops=44/46/22  (7s)
+    lam=1.60 r=1.25 full_random           : C= 44.2%  B/Bref=1.2545  Bcab=1.0033  drops=58/49/25  (8s)
+    lam=1.70 r=1.25 full_random           : C= 51.8%  B/Bref=1.3414  Bcab=1.0040  drops=75/62/31  (8s)
+    lam=1.80 r=1.25 full_random           : C= 61.6%  B/Bref=1.3729  Bcab=1.0049  drops=93/65/39  (8s)
+    lam=1.90 r=1.25 full_random           : C= 68.3%  B/Bref=1.4910  Bcab=1.0059  drops=115/73/42  (9s)
+    lam=2.00 r=1.25 full_random           : C= 75.6%  B/Bref=1.5730  Bcab=1.0070  drops=125/73/66  (9s)
+    CROSSING full_random            r=1.25: status=left_boundary  C_lower=0.0%  C_upper=0.0%
+
+Scenario 33 done in 232s
+    [checkpoint] 4/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 34  (idx=4  scen_seed=1112822527  wl_seed=1012191133)
+======================================================================
+    B_ref_s=2503.64h  S_ref_s=5876.4705C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8745  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  5.2%  B/Bref=0.9987  Bcab=1.0002  drops=5/7/0  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  7.2%  B/Bref=1.0120  Bcab=1.0004  drops=6/11/3  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 10.0%  B/Bref=1.0328  Bcab=1.0004  drops=11/14/3  (5s)
+    lam=1.20 r=1.25 full_fp               : C= 13.4%  B/Bref=1.0516  Bcab=1.0008  drops=15/14/3  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 20.4%  B/Bref=1.1923  Bcab=1.0012  drops=21/27/6  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 26.6%  B/Bref=1.2257  Bcab=1.0018  drops=31/43/9  (6s)
+    lam=1.50 r=1.25 full_fp               : C= 33.8%  B/Bref=1.2619  Bcab=1.0024  drops=39/42/12  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 37.7%  B/Bref=1.2874  Bcab=1.0028  drops=42/60/15  (7s)
+    lam=1.60 r=1.25 full_fp               : C= 39.9%  B/Bref=1.2987  Bcab=1.0029  drops=47/63/17  (7s)
+    lam=1.70 r=1.25 full_fp               : C= 50.3%  B/Bref=1.3634  Bcab=1.0042  drops=64/70/20  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 58.6%  B/Bref=1.4186  Bcab=1.0055  drops=89/79/37  (8s)
+    lam=1.90 r=1.25 full_fp               : C= 65.7%  B/Bref=1.4922  Bcab=1.0059  drops=97/88/41  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 72.8%  B/Bref=1.6226  Bcab=1.0064  drops=118/91/50  (9s)
+      [refine] full_fp r=1.25: [4.57,4.61]%  gap=0.04pp  8 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=4.567612620674578%  C_upper=4.609003272363361%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9967  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  5.1%  B/Bref=1.1112  Bcab=1.0002  drops=5/4/1  (5s)
+    lam=1.10 r=1.25 full_random           : C=  7.3%  B/Bref=1.1542  Bcab=1.0003  drops=7/7/3  (5s)
+    lam=1.15 r=1.25 full_random           : C= 10.0%  B/Bref=1.1844  Bcab=1.0006  drops=11/15/4  (6s)
+    lam=1.20 r=1.25 full_random           : C= 13.3%  B/Bref=1.1903  Bcab=1.0008  drops=15/18/4  (6s)
+    lam=1.30 r=1.25 full_random           : C= 20.5%  B/Bref=1.3572  Bcab=1.0013  drops=19/28/6  (6s)
+    lam=1.40 r=1.25 full_random           : C= 27.7%  B/Bref=1.3695  Bcab=1.0021  drops=32/40/10  (7s)
+    lam=1.50 r=1.25 full_random           : C= 34.2%  B/Bref=1.4234  Bcab=1.0025  drops=45/37/11  (7s)
+    lam=1.55 r=1.25 full_random           : C= 38.2%  B/Bref=1.4761  Bcab=1.0029  drops=52/39/16  (7s)
+    lam=1.60 r=1.25 full_random           : C= 41.7%  B/Bref=1.4823  Bcab=1.0031  drops=54/41/19  (7s)
+    lam=1.70 r=1.25 full_random           : C= 50.7%  B/Bref=1.5292  Bcab=1.0043  drops=71/50/25  (8s)
+    lam=1.80 r=1.25 full_random           : C= 59.2%  B/Bref=1.6039  Bcab=1.0054  drops=91/59/43  (8s)
+    lam=1.90 r=1.25 full_random           : C= 66.6%  B/Bref=1.7133  Bcab=1.0060  drops=103/68/46  (9s)
+    lam=2.00 r=1.25 full_random           : C= 74.4%  B/Bref=1.8388  Bcab=1.0068  drops=122/73/55  (9s)
+      [refine] full_random r=1.25: [0.12,0.58]%  gap=0.46pp  5 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=0.11988211537423522%  C_upper=0.5751669628947771%
+
+Scenario 34 done in 254s
+    [checkpoint] 5/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 35  (idx=5  scen_seed=1702157981  wl_seed=479602785)
+======================================================================
+    B_ref_s=2491.35h  S_ref_s=5861.9818C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8311  Bcab=0.9990  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  4.3%  B/Bref=0.8788  Bcab=0.9994  drops=3/2/1  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  7.6%  B/Bref=0.8905  Bcab=0.9996  drops=5/3/1  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 12.9%  B/Bref=0.9762  Bcab=0.9999  drops=6/7/3  (5s)
+    lam=1.20 r=1.25 full_fp               : C= 16.5%  B/Bref=1.0019  Bcab=1.0001  drops=9/14/3  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 23.3%  B/Bref=1.0080  Bcab=1.0006  drops=25/23/9  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 31.6%  B/Bref=1.0538  Bcab=1.0017  drops=35/31/10  (6s)
+    lam=1.50 r=1.25 full_fp               : C= 39.9%  B/Bref=1.2419  Bcab=1.0024  drops=41/45/13  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 44.5%  B/Bref=1.2479  Bcab=1.0024  drops=47/56/15  (7s)
+    lam=1.60 r=1.25 full_fp               : C= 47.6%  B/Bref=1.2660  Bcab=1.0026  drops=52/52/19  (7s)
+    lam=1.70 r=1.25 full_fp               : C= 55.2%  B/Bref=1.3898  Bcab=1.0032  drops=61/70/27  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 61.8%  B/Bref=1.4590  Bcab=1.0037  drops=82/75/33  (8s)
+    lam=1.90 r=1.25 full_fp               : C= 69.2%  B/Bref=1.6276  Bcab=1.0046  drops=105/79/38  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 73.2%  B/Bref=1.6339  Bcab=1.0050  drops=124/78/52  (9s)
+      [refine] full_fp r=1.25: [13.72,13.85]%  gap=0.12pp  4 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=13.721714071947497%  C_upper=13.846711889800458%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9293  Bcab=0.9992  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  4.8%  B/Bref=1.0145  Bcab=0.9995  drops=3/0/1  (5s)
+    lam=1.10 r=1.25 full_random           : C=  8.0%  B/Bref=1.0197  Bcab=0.9998  drops=5/2/1  (5s)
+    lam=1.15 r=1.25 full_random           : C= 13.5%  B/Bref=1.1660  Bcab=1.0001  drops=6/5/2  (6s)
+    lam=1.20 r=1.25 full_random           : C= 16.9%  B/Bref=1.1746  Bcab=1.0004  drops=9/12/3  (6s)
+    lam=1.30 r=1.25 full_random           : C= 23.7%  B/Bref=1.2401  Bcab=1.0007  drops=24/19/9  (6s)
+    lam=1.40 r=1.25 full_random           : C= 32.1%  B/Bref=1.2447  Bcab=1.0018  drops=35/32/10  (7s)
+    lam=1.50 r=1.25 full_random           : C= 40.3%  B/Bref=1.4469  Bcab=1.0025  drops=41/38/15  (7s)
+    lam=1.55 r=1.25 full_random           : C= 45.1%  B/Bref=1.4490  Bcab=1.0026  drops=50/46/17  (7s)
+    lam=1.60 r=1.25 full_random           : C= 47.7%  B/Bref=1.4796  Bcab=1.0029  drops=53/50/17  (8s)
+    lam=1.70 r=1.25 full_random           : C= 56.3%  B/Bref=1.6278  Bcab=1.0036  drops=63/58/28  (8s)
+    lam=1.80 r=1.25 full_random           : C= 63.4%  B/Bref=1.7151  Bcab=1.0040  drops=82/61/39  (9s)
+    lam=1.90 r=1.25 full_random           : C= 70.6%  B/Bref=1.8496  Bcab=1.0048  drops=105/71/42  (9s)
+    lam=2.00 r=1.25 full_random           : C= 74.0%  B/Bref=1.9023  Bcab=1.0052  drops=119/73/52  (10s)
+      [refine] full_random r=1.25: [1.09,1.37]%  gap=0.28pp  3 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=1.090103675315052%  C_upper=1.3711691420882808%
+
+Scenario 35 done in 230s
+    [checkpoint] 6/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 36  (idx=6  scen_seed=684253553  wl_seed=1332425394)
+======================================================================
+    B_ref_s=2442.83h  S_ref_s=5867.2962C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8862  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  5.0%  B/Bref=0.8963  Bcab=0.9998  drops=2/8/1  (6s)
+    lam=1.10 r=1.25 full_fp               : C=  9.2%  B/Bref=1.0069  Bcab=1.0000  drops=5/12/2  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 11.9%  B/Bref=1.0068  Bcab=1.0003  drops=10/15/2  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 14.3%  B/Bref=1.0165  Bcab=1.0006  drops=18/22/3  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 20.6%  B/Bref=1.0534  Bcab=1.0011  drops=25/35/9  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 28.8%  B/Bref=1.0629  Bcab=1.0015  drops=37/38/12  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 36.2%  B/Bref=1.1619  Bcab=1.0022  drops=47/50/15  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 40.3%  B/Bref=1.1764  Bcab=1.0025  drops=55/54/12  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 42.7%  B/Bref=1.2191  Bcab=1.0026  drops=63/59/15  (7s)
+    lam=1.70 r=1.25 full_fp               : C= 49.7%  B/Bref=1.2428  Bcab=1.0031  drops=77/65/18  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 57.1%  B/Bref=1.2905  Bcab=1.0038  drops=89/68/27  (9s)
+    lam=1.90 r=1.25 full_fp               : C= 62.0%  B/Bref=1.3432  Bcab=1.0043  drops=104/75/27  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 71.9%  B/Bref=1.4237  Bcab=1.0054  drops=131/84/34  (10s)
+      [refine] full_fp r=1.25: [8.95,9.08]%  gap=0.14pp  6 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=8.946090694188328%  C_upper=9.083533834758773%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9840  Bcab=0.9993  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  5.1%  B/Bref=1.0132  Bcab=0.9998  drops=2/9/1  (5s)
+    lam=1.10 r=1.25 full_random           : C=  9.3%  B/Bref=1.1440  Bcab=1.0000  drops=5/11/2  (6s)
+    lam=1.15 r=1.25 full_random           : C= 12.0%  B/Bref=1.1679  Bcab=1.0004  drops=10/12/3  (6s)
+    lam=1.20 r=1.25 full_random           : C= 14.7%  B/Bref=1.1659  Bcab=1.0007  drops=18/18/4  (7s)
+    lam=1.30 r=1.25 full_random           : C= 21.0%  B/Bref=1.2124  Bcab=1.0009  drops=27/30/9  (7s)
+    lam=1.40 r=1.25 full_random           : C= 28.8%  B/Bref=1.2329  Bcab=1.0016  drops=36/35/14  (7s)
+    lam=1.50 r=1.25 full_random           : C= 36.3%  B/Bref=1.3708  Bcab=1.0023  drops=49/47/16  (7s)
+    lam=1.55 r=1.25 full_random           : C= 41.2%  B/Bref=1.3461  Bcab=1.0028  drops=53/52/15  (8s)
+    lam=1.60 r=1.25 full_random           : C= 43.2%  B/Bref=1.3574  Bcab=1.0026  drops=61/57/19  (8s)
+    lam=1.70 r=1.25 full_random           : C= 50.0%  B/Bref=1.4424  Bcab=1.0031  drops=79/56/20  (9s)
+    lam=1.80 r=1.25 full_random           : C= 57.5%  B/Bref=1.5334  Bcab=1.0041  drops=97/56/29  (9s)
+    lam=1.90 r=1.25 full_random           : C= 62.2%  B/Bref=1.5419  Bcab=1.0041  drops=116/55/31  (10s)
+    lam=2.00 r=1.25 full_random           : C= 72.2%  B/Bref=1.6215  Bcab=1.0054  drops=144/63/37  (10s)
+      [refine] full_random r=1.25: [0.00,0.39]%  gap=0.39pp  2 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=0.0%  C_upper=0.3883864415029578%
+
+Scenario 36 done in 247s
+    [checkpoint] 7/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 37  (idx=7  scen_seed=118246515  wl_seed=201221264)
+======================================================================
+    B_ref_s=2461.97h  S_ref_s=5898.4212C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8901  Bcab=0.9998  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  5.0%  B/Bref=0.9511  Bcab=1.0001  drops=3/3/0  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  8.9%  B/Bref=1.0155  Bcab=1.0004  drops=8/10/0  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 12.6%  B/Bref=1.0662  Bcab=1.0005  drops=9/16/1  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 18.6%  B/Bref=1.0761  Bcab=1.0008  drops=11/20/3  (7s)
+    lam=1.30 r=1.25 full_fp               : C= 24.7%  B/Bref=1.1177  Bcab=1.0011  drops=26/26/9  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 36.0%  B/Bref=1.3586  Bcab=1.0019  drops=35/34/10  (9s)
+    lam=1.50 r=1.25 full_fp               : C= 43.3%  B/Bref=1.3638  Bcab=1.0024  drops=45/44/13  (8s)
+    lam=1.55 r=1.25 full_fp               : C= 47.2%  B/Bref=1.4343  Bcab=1.0029  drops=52/49/17  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 50.8%  B/Bref=1.4406  Bcab=1.0033  drops=54/65/21  (8s)
+    lam=1.70 r=1.25 full_fp               : C= 57.3%  B/Bref=1.4443  Bcab=1.0037  drops=69/77/28  (9s)
+    lam=1.80 r=1.25 full_fp               : C= 63.4%  B/Bref=1.5875  Bcab=1.0043  drops=86/81/24  (9s)
+    lam=1.90 r=1.25 full_fp               : C= 72.4%  B/Bref=1.8540  Bcab=1.0052  drops=105/110/26  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 78.3%  B/Bref=1.8683  Bcab=1.0055  drops=140/101/30  (10s)
+      [refine] full_fp r=1.25: [4.07,4.09]%  gap=0.02pp  6 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=4.067889244224625%  C_upper=4.085242571618576%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=1.0282  Bcab=0.9998  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  5.0%  B/Bref=1.0917  Bcab=1.0001  drops=3/1/1  (7s)
+    lam=1.10 r=1.25 full_random           : C=  8.9%  B/Bref=1.1693  Bcab=1.0003  drops=8/8/1  (6s)
+    lam=1.15 r=1.25 full_random           : C= 12.6%  B/Bref=1.2055  Bcab=1.0005  drops=8/10/5  (7s)
+    lam=1.20 r=1.25 full_random           : C= 18.8%  B/Bref=1.2132  Bcab=1.0009  drops=11/10/5  (6s)
+    lam=1.30 r=1.25 full_random           : C= 24.8%  B/Bref=1.2509  Bcab=1.0011  drops=23/26/9  (7s)
+    lam=1.40 r=1.25 full_random           : C= 36.0%  B/Bref=1.5375  Bcab=1.0019  drops=34/28/12  (8s)
+    lam=1.50 r=1.25 full_random           : C= 43.4%  B/Bref=1.5249  Bcab=1.0024  drops=44/42/15  (9s)
+    lam=1.55 r=1.25 full_random           : C= 47.3%  B/Bref=1.5999  Bcab=1.0029  drops=48/53/17  (8s)
+    lam=1.60 r=1.25 full_random           : C= 50.9%  B/Bref=1.6254  Bcab=1.0032  drops=53/65/22  (9s)
+    lam=1.70 r=1.25 full_random           : C= 57.5%  B/Bref=1.6197  Bcab=1.0035  drops=70/67/28  (9s)
+    lam=1.80 r=1.25 full_random           : C= 64.0%  B/Bref=1.7779  Bcab=1.0043  drops=92/60/28  (10s)
+    lam=1.90 r=1.25 full_random           : C= 72.7%  B/Bref=2.0869  Bcab=1.0053  drops=113/78/30  (10s)
+    lam=2.00 r=1.25 full_random           : C= 78.7%  B/Bref=2.1092  Bcab=1.0054  drops=141/78/39  (10s)
+    CROSSING full_random            r=1.25: status=left_boundary  C_lower=0.0%  C_upper=0.0%
+
+Scenario 37 done in 256s
+    [checkpoint] 8/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 38  (idx=8  scen_seed=418197535  wl_seed=342687064)
+======================================================================
+    B_ref_s=2466.16h  S_ref_s=5906.3128C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8693  Bcab=0.9993  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  7.1%  B/Bref=1.0385  Bcab=0.9999  drops=4/5/2  (5s)
+    lam=1.10 r=1.25 full_fp               : C= 10.5%  B/Bref=1.0454  Bcab=1.0000  drops=6/8/2  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 14.7%  B/Bref=1.0923  Bcab=1.0006  drops=10/13/3  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 19.7%  B/Bref=1.0904  Bcab=1.0013  drops=15/15/4  (8s)
+    lam=1.30 r=1.25 full_fp               : C= 27.7%  B/Bref=1.2724  Bcab=1.0020  drops=23/30/6  (8s)
+    lam=1.40 r=1.25 full_fp               : C= 33.8%  B/Bref=1.3725  Bcab=1.0024  drops=33/34/10  (8s)
+    lam=1.50 r=1.25 full_fp               : C= 40.2%  B/Bref=1.4381  Bcab=1.0031  drops=43/34/11  (9s)
+    lam=1.55 r=1.25 full_fp               : C= 43.2%  B/Bref=1.4518  Bcab=1.0035  drops=52/34/15  (9s)
+    lam=1.60 r=1.25 full_fp               : C= 48.9%  B/Bref=1.4867  Bcab=1.0045  drops=58/42/21  (9s)
+    lam=1.70 r=1.25 full_fp               : C= 52.2%  B/Bref=1.4974  Bcab=1.0042  drops=74/43/34  (9s)
+    lam=1.80 r=1.25 full_fp               : C= 64.2%  B/Bref=1.5444  Bcab=1.0050  drops=92/61/45  (8s)
+    lam=1.90 r=1.25 full_fp               : C= 71.3%  B/Bref=1.6166  Bcab=1.0056  drops=120/68/57  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 77.3%  B/Bref=1.6597  Bcab=1.0064  drops=137/81/62  (9s)
+      [refine] full_fp r=1.25: [4.90,6.09]%  gap=1.19pp  9 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=4.895134805360881%  C_upper=6.088517444955568%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9904  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  7.1%  B/Bref=1.1659  Bcab=1.0001  drops=4/5/2  (5s)
+    lam=1.10 r=1.25 full_random           : C= 10.5%  B/Bref=1.1869  Bcab=1.0001  drops=6/7/2  (5s)
+    lam=1.15 r=1.25 full_random           : C= 14.6%  B/Bref=1.2340  Bcab=1.0006  drops=10/12/3  (6s)
+    lam=1.20 r=1.25 full_random           : C= 19.7%  B/Bref=1.2378  Bcab=1.0014  drops=15/17/4  (6s)
+    lam=1.30 r=1.25 full_random           : C= 28.0%  B/Bref=1.4052  Bcab=1.0020  drops=23/29/6  (6s)
+    lam=1.40 r=1.25 full_random           : C= 34.6%  B/Bref=1.5240  Bcab=1.0027  drops=34/31/9  (7s)
+    lam=1.50 r=1.25 full_random           : C= 40.6%  B/Bref=1.6545  Bcab=1.0033  drops=46/31/11  (7s)
+    lam=1.55 r=1.25 full_random           : C= 43.6%  B/Bref=1.6239  Bcab=1.0034  drops=56/32/15  (7s)
+    lam=1.60 r=1.25 full_random           : C= 49.3%  B/Bref=1.6657  Bcab=1.0043  drops=61/32/29  (8s)
+    lam=1.70 r=1.25 full_random           : C= 54.8%  B/Bref=1.6569  Bcab=1.0047  drops=79/42/40  (8s)
+    lam=1.80 r=1.25 full_random           : C= 64.2%  B/Bref=1.7362  Bcab=1.0050  drops=98/50/56  (9s)
+    lam=1.90 r=1.25 full_random           : C= 71.6%  B/Bref=1.8182  Bcab=1.0056  drops=127/57/59  (9s)
+    lam=2.00 r=1.25 full_random           : C= 78.4%  B/Bref=1.8506  Bcab=1.0062  drops=150/54/68  (10s)
+      [refine] full_random r=1.25: [0.61,0.93]%  gap=0.32pp  4 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=0.6056485515424572%  C_upper=0.9295001176115206%
+
+Scenario 38 done in 282s
+    [checkpoint] 9/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 39  (idx=9  scen_seed=552807005  wl_seed=1159106977)
+======================================================================
+    B_ref_s=2453.67h  S_ref_s=5890.2222C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8491  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  3.0%  B/Bref=0.8609  Bcab=0.9995  drops=3/8/3  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  7.8%  B/Bref=0.8829  Bcab=0.9997  drops=5/10/3  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 13.9%  B/Bref=0.8837  Bcab=1.0004  drops=7/17/6  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 17.1%  B/Bref=0.8961  Bcab=1.0008  drops=11/22/6  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 25.6%  B/Bref=1.0495  Bcab=1.0014  drops=19/26/11  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 32.0%  B/Bref=1.0746  Bcab=1.0017  drops=35/34/11  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 38.0%  B/Bref=1.1247  Bcab=1.0021  drops=41/47/18  (8s)
+    lam=1.55 r=1.25 full_fp               : C= 42.2%  B/Bref=1.1810  Bcab=1.0026  drops=53/45/19  (7s)
+    lam=1.60 r=1.25 full_fp               : C= 46.3%  B/Bref=1.1921  Bcab=1.0030  drops=56/51/22  (7s)
+    lam=1.70 r=1.25 full_fp               : C= 55.1%  B/Bref=1.2270  Bcab=1.0041  drops=65/67/30  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 63.2%  B/Bref=1.2509  Bcab=1.0046  drops=85/79/39  (9s)
+    lam=1.90 r=1.25 full_fp               : C= 70.2%  B/Bref=1.2964  Bcab=1.0052  drops=112/90/40  (11s)
+    lam=2.00 r=1.25 full_fp               : C= 77.1%  B/Bref=1.3812  Bcab=1.0056  drops=137/82/53  (9s)
+      [refine] full_fp r=1.25: [12.42,12.76]%  gap=0.33pp  6 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=12.424779292658652%  C_upper=12.759428680234047%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9891  Bcab=0.9991  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_random           : C=  3.0%  B/Bref=1.0109  Bcab=0.9996  drops=3/7/3  (5s)
+    lam=1.10 r=1.25 full_random           : C=  7.7%  B/Bref=1.0149  Bcab=0.9997  drops=6/10/3  (6s)
+    lam=1.15 r=1.25 full_random           : C= 14.0%  B/Bref=1.0355  Bcab=1.0004  drops=7/13/6  (6s)
+    lam=1.20 r=1.25 full_random           : C= 17.1%  B/Bref=1.0701  Bcab=1.0010  drops=10/18/6  (6s)
+    lam=1.30 r=1.25 full_random           : C= 25.6%  B/Bref=1.2106  Bcab=1.0013  drops=19/24/9  (8s)
+    lam=1.40 r=1.25 full_random           : C= 32.0%  B/Bref=1.2330  Bcab=1.0018  drops=32/33/13  (7s)
+    lam=1.50 r=1.25 full_random           : C= 38.2%  B/Bref=1.2796  Bcab=1.0023  drops=44/34/20  (7s)
+    lam=1.55 r=1.25 full_random           : C= 42.3%  B/Bref=1.3383  Bcab=1.0025  drops=55/37/22  (8s)
+    lam=1.60 r=1.25 full_random           : C= 46.5%  B/Bref=1.3796  Bcab=1.0028  drops=61/41/24  (8s)
+    lam=1.70 r=1.25 full_random           : C= 55.2%  B/Bref=1.3788  Bcab=1.0041  drops=71/46/32  (10s)
+    lam=1.80 r=1.25 full_random           : C= 63.3%  B/Bref=1.4193  Bcab=1.0044  drops=85/59/39  (9s)
+    lam=1.90 r=1.25 full_random           : C= 70.4%  B/Bref=1.4656  Bcab=1.0051  drops=119/62/43  (9s)
+    lam=2.00 r=1.25 full_random           : C= 77.5%  B/Bref=1.6200  Bcab=1.0055  drops=135/67/54  (11s)
+      [refine] full_random r=1.25: [0.00,0.19]%  gap=0.19pp  2 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=0.0%  C_upper=0.1894714400366993%
+
+Scenario 39 done in 255s
+    [checkpoint] 10/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 40  (idx=10  scen_seed=860057835  wl_seed=871759594)
+======================================================================
+    B_ref_s=2540.15h  S_ref_s=5874.9536C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8183  Bcab=0.9995  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  9.1%  B/Bref=0.8534  Bcab=1.0005  drops=2/7/1  (7s)
+    lam=1.10 r=1.25 full_fp               : C= 13.8%  B/Bref=1.0634  Bcab=1.0008  drops=2/9/2  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 17.5%  B/Bref=1.1456  Bcab=1.0012  drops=5/11/3  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 19.8%  B/Bref=1.1535  Bcab=1.0014  drops=11/17/6  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 27.4%  B/Bref=1.1885  Bcab=1.0022  drops=18/27/6  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 36.0%  B/Bref=1.3163  Bcab=1.0028  drops=28/36/9  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 43.6%  B/Bref=1.3956  Bcab=1.0034  drops=41/53/11  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 47.7%  B/Bref=1.4036  Bcab=1.0037  drops=50/52/15  (9s)
+    lam=1.60 r=1.25 full_fp               : C= 50.3%  B/Bref=1.4336  Bcab=1.0040  drops=58/71/15  (8s)
+    lam=1.70 r=1.25 full_fp               : C= 54.7%  B/Bref=1.4453  Bcab=1.0046  drops=74/76/26  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 64.0%  B/Bref=1.4958  Bcab=1.0057  drops=97/72/38  (8s)
+    lam=1.90 r=1.25 full_fp               : C= 69.7%  B/Bref=1.5735  Bcab=1.0062  drops=109/86/38  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 76.7%  B/Bref=1.5953  Bcab=1.0065  drops=131/95/48  (10s)
+      [refine] full_fp r=1.25: [2.88,5.41]%  gap=2.53pp  9 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=2.884775676815939%  C_upper=5.414854903776267%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9935  Bcab=0.9995  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_random           : C=  9.1%  B/Bref=1.0239  Bcab=1.0004  drops=2/7/1  (5s)
+    lam=1.10 r=1.25 full_random           : C= 14.1%  B/Bref=1.2332  Bcab=1.0012  drops=3/8/2  (5s)
+    lam=1.15 r=1.25 full_random           : C= 17.7%  B/Bref=1.3126  Bcab=1.0016  drops=6/11/3  (6s)
+    lam=1.20 r=1.25 full_random           : C= 20.0%  B/Bref=1.3402  Bcab=1.0016  drops=11/14/5  (6s)
+    lam=1.30 r=1.25 full_random           : C= 27.6%  B/Bref=1.3536  Bcab=1.0027  drops=18/22/8  (6s)
+    lam=1.40 r=1.25 full_random           : C= 36.7%  B/Bref=1.5317  Bcab=1.0030  drops=30/31/9  (7s)
+    lam=1.50 r=1.25 full_random           : C= 44.4%  B/Bref=1.5970  Bcab=1.0038  drops=42/41/13  (7s)
+    lam=1.55 r=1.25 full_random           : C= 48.4%  B/Bref=1.6372  Bcab=1.0042  drops=50/46/18  (7s)
+    lam=1.60 r=1.25 full_random           : C= 51.3%  B/Bref=1.6610  Bcab=1.0042  drops=56/54/18  (7s)
+    lam=1.70 r=1.25 full_random           : C= 55.2%  B/Bref=1.7137  Bcab=1.0044  drops=76/61/26  (8s)
+    lam=1.80 r=1.25 full_random           : C= 64.4%  B/Bref=1.7766  Bcab=1.0057  drops=97/63/41  (9s)
+    lam=1.90 r=1.25 full_random           : C= 70.1%  B/Bref=1.8294  Bcab=1.0062  drops=111/76/39  (9s)
+    lam=2.00 r=1.25 full_random           : C= 77.6%  B/Bref=1.9006  Bcab=1.0065  drops=141/76/53  (9s)
+      [refine] full_random r=1.25: [1.15,1.40]%  gap=0.25pp  4 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=1.1452041421038934%  C_upper=1.3994012579284278%
+
+Scenario 40 done in 270s
+    [checkpoint] 11/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 41  (idx=11  scen_seed=2017429576  wl_seed=143054453)
+======================================================================
+    B_ref_s=2509.34h  S_ref_s=5914.8908C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8567  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  4.8%  B/Bref=0.8587  Bcab=0.9999  drops=3/5/1  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  9.0%  B/Bref=0.9794  Bcab=1.0004  drops=5/12/1  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 12.8%  B/Bref=1.0171  Bcab=1.0007  drops=9/14/1  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 16.7%  B/Bref=1.0340  Bcab=1.0011  drops=9/20/1  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 22.5%  B/Bref=1.1688  Bcab=1.0014  drops=18/29/2  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 30.2%  B/Bref=1.1838  Bcab=1.0019  drops=28/37/7  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 36.2%  B/Bref=1.2919  Bcab=1.0023  drops=40/43/11  (8s)
+    lam=1.55 r=1.25 full_fp               : C= 41.0%  B/Bref=1.2954  Bcab=1.0026  drops=47/46/15  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 44.5%  B/Bref=1.3213  Bcab=1.0029  drops=55/48/17  (8s)
+    lam=1.70 r=1.25 full_fp               : C= 54.6%  B/Bref=1.5148  Bcab=1.0035  drops=66/67/25  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 64.2%  B/Bref=1.7292  Bcab=1.0044  drops=88/76/30  (8s)
+    lam=1.90 r=1.25 full_fp               : C= 70.9%  B/Bref=1.7667  Bcab=1.0049  drops=115/79/37  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 77.4%  B/Bref=1.8511  Bcab=1.0055  drops=129/92/43  (12s)
+      [refine] full_fp r=1.25: [6.78,6.97]%  gap=0.19pp  3 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=6.779879711219368%  C_upper=6.965354552698337%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=1.0072  Bcab=0.9994  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_random           : C=  4.8%  B/Bref=0.9818  Bcab=0.9999  drops=3/4/1  (6s)
+    lam=1.10 r=1.25 full_random           : C=  9.1%  B/Bref=1.1387  Bcab=1.0003  drops=5/9/1  (6s)
+    lam=1.15 r=1.25 full_random           : C= 12.9%  B/Bref=1.2050  Bcab=1.0010  drops=9/12/1  (6s)
+    lam=1.20 r=1.25 full_random           : C= 16.9%  B/Bref=1.2086  Bcab=1.0014  drops=9/15/2  (7s)
+    lam=1.30 r=1.25 full_random           : C= 22.5%  B/Bref=1.3497  Bcab=1.0015  drops=18/22/5  (6s)
+    lam=1.40 r=1.25 full_random           : C= 30.6%  B/Bref=1.3916  Bcab=1.0022  drops=28/25/9  (8s)
+    lam=1.50 r=1.25 full_random           : C= 36.4%  B/Bref=1.4822  Bcab=1.0026  drops=40/35/16  (8s)
+    lam=1.55 r=1.25 full_random           : C= 41.2%  B/Bref=1.4786  Bcab=1.0028  drops=47/43/20  (11s)
+    lam=1.60 r=1.25 full_random           : C= 45.3%  B/Bref=1.4992  Bcab=1.0031  drops=53/41/24  (8s)
+    lam=1.70 r=1.25 full_random           : C= 54.7%  B/Bref=1.8060  Bcab=1.0039  drops=66/49/27  (8s)
+    lam=1.80 r=1.25 full_random           : C= 64.1%  B/Bref=2.0243  Bcab=1.0048  drops=86/62/31  (9s)
+    lam=1.90 r=1.25 full_random           : C= 71.0%  B/Bref=2.0464  Bcab=1.0050  drops=108/68/43  (11s)
+    lam=2.00 r=1.25 full_random           : C= 78.0%  B/Bref=2.1686  Bcab=1.0057  drops=130/78/54  (9s)
+    CROSSING full_random            r=1.25: status=left_boundary  C_lower=0.0%  C_upper=0.0%
+
+Scenario 41 done in 232s
+    [checkpoint] 12/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 42  (idx=12  scen_seed=930605457  wl_seed=1086829000)
+======================================================================
+    B_ref_s=2522.08h  S_ref_s=5877.7432C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8424  Bcab=0.9993  drops=0/0/0  (7s)
+    lam=1.06 r=1.25 full_fp               : C=  5.5%  B/Bref=0.9379  Bcab=0.9994  drops=4/5/0  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  9.5%  B/Bref=0.9544  Bcab=0.9998  drops=5/9/3  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 12.5%  B/Bref=0.9673  Bcab=0.9999  drops=8/12/3  (5s)
+    lam=1.20 r=1.25 full_fp               : C= 18.3%  B/Bref=0.9789  Bcab=1.0003  drops=14/16/5  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 23.9%  B/Bref=1.0433  Bcab=1.0007  drops=23/29/6  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 31.3%  B/Bref=1.0499  Bcab=1.0012  drops=32/36/11  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 39.0%  B/Bref=1.1491  Bcab=1.0018  drops=38/60/12  (8s)
+    lam=1.55 r=1.25 full_fp               : C= 42.4%  B/Bref=1.1352  Bcab=1.0022  drops=51/56/14  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 46.0%  B/Bref=1.1498  Bcab=1.0025  drops=60/56/18  (10s)
+    lam=1.70 r=1.25 full_fp               : C= 51.7%  B/Bref=1.1968  Bcab=1.0030  drops=77/80/19  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 58.3%  B/Bref=1.2182  Bcab=1.0036  drops=94/77/36  (9s)
+    lam=1.90 r=1.25 full_fp               : C= 63.6%  B/Bref=1.2516  Bcab=1.0039  drops=110/87/40  (12s)
+    lam=2.00 r=1.25 full_fp               : C= 72.6%  B/Bref=1.2740  Bcab=1.0047  drops=130/96/48  (14s)
+      [refine] full_fp r=1.25: [12.89,13.12]%  gap=0.23pp  3 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=12.892323942995345%  C_upper=13.121952520993505%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9783  Bcab=0.9993  drops=0/0/0  (9s)
+    lam=1.06 r=1.25 full_random           : C=  5.6%  B/Bref=1.1178  Bcab=0.9996  drops=4/5/0  (6s)
+    lam=1.10 r=1.25 full_random           : C=  9.5%  B/Bref=1.0883  Bcab=1.0001  drops=5/8/2  (6s)
+    lam=1.15 r=1.25 full_random           : C= 12.8%  B/Bref=1.0902  Bcab=1.0000  drops=8/10/2  (6s)
+    lam=1.20 r=1.25 full_random           : C= 18.2%  B/Bref=1.1550  Bcab=1.0004  drops=14/17/5  (7s)
+    lam=1.30 r=1.25 full_random           : C= 24.1%  B/Bref=1.2097  Bcab=1.0010  drops=24/20/8  (7s)
+    lam=1.40 r=1.25 full_random           : C= 31.4%  B/Bref=1.2521  Bcab=1.0013  drops=33/33/11  (8s)
+    lam=1.50 r=1.25 full_random           : C= 38.9%  B/Bref=1.3204  Bcab=1.0018  drops=41/52/12  (8s)
+    lam=1.55 r=1.25 full_random           : C= 42.3%  B/Bref=1.3248  Bcab=1.0022  drops=54/54/16  (8s)
+    lam=1.60 r=1.25 full_random           : C= 45.8%  B/Bref=1.3464  Bcab=1.0023  drops=62/57/18  (8s)
+    lam=1.70 r=1.25 full_random           : C= 52.0%  B/Bref=1.3900  Bcab=1.0030  drops=88/57/23  (8s)
+    lam=1.80 r=1.25 full_random           : C= 58.2%  B/Bref=1.4664  Bcab=1.0036  drops=105/62/35  (9s)
+    lam=1.90 r=1.25 full_random           : C= 63.6%  B/Bref=1.4782  Bcab=1.0039  drops=119/63/44  (10s)
+    lam=2.00 r=1.25 full_random           : C= 72.9%  B/Bref=1.4816  Bcab=1.0045  drops=139/72/55  (20s)
+      [refine] full_random r=1.25: [0.10,1.30]%  gap=1.20pp  7 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=0.10277380098091729%  C_upper=1.301765689357331%
+
+Scenario 42 done in 298s
+    [checkpoint] 13/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 43  (idx=13  scen_seed=904615776  wl_seed=1256185540)
+======================================================================
+    B_ref_s=2442.49h  S_ref_s=5902.4977C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8462  Bcab=0.9995  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  7.2%  B/Bref=0.8487  Bcab=0.9998  drops=4/4/1  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  9.4%  B/Bref=0.8623  Bcab=1.0000  drops=6/8/2  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 13.4%  B/Bref=0.8791  Bcab=1.0003  drops=9/10/2  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 17.2%  B/Bref=0.9684  Bcab=1.0006  drops=11/20/3  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 23.6%  B/Bref=1.0487  Bcab=1.0012  drops=19/30/8  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 29.2%  B/Bref=1.1026  Bcab=1.0015  drops=27/35/8  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 37.7%  B/Bref=1.1076  Bcab=1.0022  drops=38/39/14  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 42.1%  B/Bref=1.1653  Bcab=1.0025  drops=43/42/15  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 48.5%  B/Bref=1.2382  Bcab=1.0032  drops=48/46/19  (8s)
+    lam=1.70 r=1.25 full_fp               : C= 56.0%  B/Bref=1.3484  Bcab=1.0035  drops=59/59/15  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 61.2%  B/Bref=1.3749  Bcab=1.0040  drops=74/71/27  (9s)
+    lam=1.90 r=1.25 full_fp               : C= 66.9%  B/Bref=1.4126  Bcab=1.0045  drops=87/81/40  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 72.5%  B/Bref=1.4821  Bcab=1.0049  drops=97/94/41  (10s)
+      [refine] full_fp r=1.25: [9.38,9.47]%  gap=0.09pp  2 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=9.382578186543952%  C_upper=9.46981900815717%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9784  Bcab=0.9996  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_random           : C=  7.2%  B/Bref=0.9420  Bcab=1.0000  drops=4/4/1  (6s)
+    lam=1.10 r=1.25 full_random           : C=  9.3%  B/Bref=0.9835  Bcab=1.0000  drops=7/9/2  (7s)
+    lam=1.15 r=1.25 full_random           : C= 13.3%  B/Bref=0.9902  Bcab=1.0005  drops=10/11/2  (6s)
+    lam=1.20 r=1.25 full_random           : C= 17.2%  B/Bref=1.1005  Bcab=1.0007  drops=11/18/4  (6s)
+    lam=1.30 r=1.25 full_random           : C= 23.7%  B/Bref=1.1911  Bcab=1.0012  drops=19/28/6  (7s)
+    lam=1.40 r=1.25 full_random           : C= 27.1%  B/Bref=1.2512  Bcab=1.0016  drops=28/29/10  (7s)
+    lam=1.50 r=1.25 full_random           : C= 37.8%  B/Bref=1.2307  Bcab=1.0024  drops=40/33/18  (8s)
+    lam=1.55 r=1.25 full_random           : C= 39.9%  B/Bref=1.3073  Bcab=1.0025  drops=44/38/18  (9s)
+    lam=1.60 r=1.25 full_random           : C= 50.9%  B/Bref=1.3757  Bcab=1.0037  drops=50/42/22  (8s)
+    lam=1.70 r=1.25 full_random           : C= 56.0%  B/Bref=1.5168  Bcab=1.0037  drops=62/49/20  (9s)
+    lam=1.80 r=1.25 full_random           : C= 61.3%  B/Bref=1.5790  Bcab=1.0046  drops=76/48/38  (9s)
+    lam=1.90 r=1.25 full_random           : C= 67.1%  B/Bref=1.6304  Bcab=1.0047  drops=93/59/47  (10s)
+    lam=2.00 r=1.25 full_random           : C= 72.6%  B/Bref=1.6278  Bcab=1.0050  drops=109/72/45  (10s)
+      [refine] full_random r=1.25: [9.05,9.31]%  gap=0.26pp  3 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=9.046511877520933%  C_upper=9.309522772794953%
+
+Scenario 43 done in 239s
+    [checkpoint] 14/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 44  (idx=14  scen_seed=2132759622  wl_seed=574886723)
+======================================================================
+    B_ref_s=2490.52h  S_ref_s=5846.3682C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8726  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  6.1%  B/Bref=0.8910  Bcab=0.9998  drops=3/9/0  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  8.5%  B/Bref=0.9413  Bcab=1.0002  drops=4/13/0  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 11.6%  B/Bref=0.9810  Bcab=1.0003  drops=5/15/1  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 15.1%  B/Bref=1.0454  Bcab=1.0007  drops=8/24/3  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 22.3%  B/Bref=1.1515  Bcab=1.0013  drops=13/27/6  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 27.8%  B/Bref=1.2074  Bcab=1.0017  drops=29/34/13  (8s)
+    lam=1.50 r=1.25 full_fp               : C= 34.3%  B/Bref=1.3470  Bcab=1.0024  drops=36/46/17  (8s)
+    lam=1.55 r=1.25 full_fp               : C= 38.2%  B/Bref=1.4799  Bcab=1.0026  drops=50/46/19  (9s)
+    lam=1.60 r=1.25 full_fp               : C= 41.2%  B/Bref=1.5017  Bcab=1.0029  drops=57/48/21  (9s)
+    lam=1.70 r=1.25 full_fp               : C= 48.0%  B/Bref=1.5180  Bcab=1.0035  drops=71/63/28  (11s)
+    lam=1.80 r=1.25 full_fp               : C= 59.3%  B/Bref=1.5443  Bcab=1.0046  drops=93/75/40  (9s)
+    lam=1.90 r=1.25 full_fp               : C= 64.0%  B/Bref=1.5528  Bcab=1.0049  drops=105/84/39  (9s)
+    lam=2.00 r=1.25 full_fp               : C= 70.7%  B/Bref=1.6980  Bcab=1.0052  drops=127/83/57  (10s)
+      [refine] full_fp r=1.25: [6.82,7.31]%  gap=0.49pp  5 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=6.816959049375465%  C_upper=7.310372636998783%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9880  Bcab=0.9995  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  6.2%  B/Bref=0.9968  Bcab=0.9999  drops=2/6/1  (5s)
+    lam=1.10 r=1.25 full_random           : C=  8.6%  B/Bref=1.0920  Bcab=1.0004  drops=4/9/2  (5s)
+    lam=1.15 r=1.25 full_random           : C= 12.1%  B/Bref=1.1115  Bcab=1.0006  drops=5/11/3  (6s)
+    lam=1.20 r=1.25 full_random           : C= 15.8%  B/Bref=1.1992  Bcab=1.0010  drops=8/19/6  (6s)
+    lam=1.30 r=1.25 full_random           : C= 22.5%  B/Bref=1.2978  Bcab=1.0016  drops=13/18/7  (6s)
+    lam=1.40 r=1.25 full_random           : C= 28.0%  B/Bref=1.3644  Bcab=1.0018  drops=30/28/12  (7s)
+    lam=1.50 r=1.25 full_random           : C= 34.6%  B/Bref=1.5129  Bcab=1.0026  drops=45/25/21  (7s)
+    lam=1.55 r=1.25 full_random           : C= 38.4%  B/Bref=1.6587  Bcab=1.0026  drops=50/39/21  (7s)
+    lam=1.60 r=1.25 full_random           : C= 41.7%  B/Bref=1.6658  Bcab=1.0031  drops=59/32/22  (7s)
+    lam=1.70 r=1.25 full_random           : C= 48.2%  B/Bref=1.6902  Bcab=1.0036  drops=74/43/30  (8s)
+    lam=1.80 r=1.25 full_random           : C= 58.7%  B/Bref=1.7119  Bcab=1.0049  drops=83/71/41  (8s)
+    lam=1.90 r=1.25 full_random           : C= 64.9%  B/Bref=1.6861  Bcab=1.0052  drops=115/62/44  (9s)
+    lam=2.00 r=1.25 full_random           : C= 72.1%  B/Bref=1.8825  Bcab=1.0057  drops=145/67/55  (9s)
+      [refine] full_random r=1.25: [3.82,4.07]%  gap=0.25pp  5 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=3.819566103872157%  C_upper=4.074128979046774%
+
+Scenario 44 done in 257s
+    [checkpoint] 15/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 45  (idx=15  scen_seed=234115232  wl_seed=1255220541)
+======================================================================
+    B_ref_s=2490.21h  S_ref_s=5877.4651C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8895  Bcab=0.9992  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  4.2%  B/Bref=0.9186  Bcab=0.9998  drops=7/14/0  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  6.7%  B/Bref=0.9166  Bcab=1.0000  drops=9/18/0  (5s)
+    lam=1.15 r=1.25 full_fp               : C= 11.4%  B/Bref=0.9951  Bcab=1.0006  drops=11/27/2  (5s)
+    lam=1.20 r=1.25 full_fp               : C= 14.9%  B/Bref=1.0356  Bcab=1.0010  drops=14/26/4  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 24.0%  B/Bref=1.0929  Bcab=1.0015  drops=24/28/6  (6s)
+    lam=1.40 r=1.25 full_fp               : C= 31.9%  B/Bref=1.1224  Bcab=1.0020  drops=33/40/10  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 40.4%  B/Bref=1.1950  Bcab=1.0026  drops=47/52/15  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 42.9%  B/Bref=1.1898  Bcab=1.0029  drops=59/55/19  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 46.2%  B/Bref=1.2102  Bcab=1.0031  drops=62/59/20  (8s)
+    lam=1.70 r=1.25 full_fp               : C= 51.8%  B/Bref=1.2210  Bcab=1.0036  drops=83/59/25  (9s)
+    lam=1.80 r=1.25 full_fp               : C= 60.5%  B/Bref=1.2361  Bcab=1.0041  drops=100/68/29  (10s)
+    lam=1.90 r=1.25 full_fp               : C= 65.1%  B/Bref=1.2642  Bcab=1.0044  drops=120/84/36  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 75.3%  B/Bref=1.3396  Bcab=1.0055  drops=132/104/52  (11s)
+      [refine] full_fp r=1.25: [6.42,6.67]%  gap=0.25pp  6 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=6.420816679093858%  C_upper=6.6708989142224215%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=1.0101  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  4.2%  B/Bref=1.0449  Bcab=0.9999  drops=7/6/2  (5s)
+    lam=1.10 r=1.25 full_random           : C=  6.8%  B/Bref=1.0530  Bcab=1.0003  drops=8/16/0  (6s)
+    lam=1.15 r=1.25 full_random           : C= 11.7%  B/Bref=1.1529  Bcab=1.0007  drops=10/23/1  (6s)
+    lam=1.20 r=1.25 full_random           : C= 14.9%  B/Bref=1.1785  Bcab=1.0012  drops=13/21/4  (6s)
+    lam=1.30 r=1.25 full_random           : C= 23.7%  B/Bref=1.2568  Bcab=1.0015  drops=23/28/8  (7s)
+    lam=1.40 r=1.25 full_random           : C= 32.0%  B/Bref=1.2906  Bcab=1.0017  drops=32/34/11  (7s)
+    lam=1.50 r=1.25 full_random           : C= 40.7%  B/Bref=1.3671  Bcab=1.0024  drops=49/43/19  (10s)
+    lam=1.55 r=1.25 full_random           : C= 42.7%  B/Bref=1.3654  Bcab=1.0027  drops=59/45/22  (9s)
+    lam=1.60 r=1.25 full_random           : C= 46.3%  B/Bref=1.3813  Bcab=1.0034  drops=64/46/25  (9s)
+    lam=1.70 r=1.25 full_random           : C= 51.5%  B/Bref=1.4078  Bcab=1.0036  drops=83/42/37  (8s)
+    lam=1.80 r=1.25 full_random           : C= 60.5%  B/Bref=1.4414  Bcab=1.0043  drops=101/56/33  (9s)
+    lam=1.90 r=1.25 full_random           : C= 65.3%  B/Bref=1.4726  Bcab=1.0046  drops=127/68/39  (9s)
+    lam=2.00 r=1.25 full_random           : C= 74.5%  B/Bref=1.5492  Bcab=1.0055  drops=140/80/61  (9s)
+    CROSSING full_random            r=1.25: status=left_boundary  C_lower=0.0%  C_upper=0.0%
+
+Scenario 45 done in 244s
+    [checkpoint] 16/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 46  (idx=16  scen_seed=1207943457  wl_seed=565014714)
+======================================================================
+    B_ref_s=2483.92h  S_ref_s=5871.6678C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8500  Bcab=0.9995  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  5.0%  B/Bref=0.8531  Bcab=1.0001  drops=5/4/0  (5s)
+    lam=1.10 r=1.25 full_fp               : C=  7.8%  B/Bref=0.8538  Bcab=1.0004  drops=6/6/1  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 10.7%  B/Bref=0.8749  Bcab=1.0005  drops=10/11/3  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 13.9%  B/Bref=0.8777  Bcab=1.0008  drops=15/16/3  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 19.6%  B/Bref=0.9603  Bcab=1.0013  drops=21/20/4  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 30.2%  B/Bref=1.0161  Bcab=1.0021  drops=25/32/9  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 34.3%  B/Bref=1.0959  Bcab=1.0024  drops=42/41/14  (8s)
+    lam=1.55 r=1.25 full_fp               : C= 37.8%  B/Bref=1.1349  Bcab=1.0026  drops=46/44/14  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 41.7%  B/Bref=1.1575  Bcab=1.0030  drops=55/47/20  (8s)
+    lam=1.70 r=1.25 full_fp               : C= 46.8%  B/Bref=1.1969  Bcab=1.0033  drops=63/57/28  (9s)
+    lam=1.80 r=1.25 full_fp               : C= 52.5%  B/Bref=1.2148  Bcab=1.0037  drops=88/58/36  (9s)
+    lam=1.90 r=1.25 full_fp               : C= 59.2%  B/Bref=1.2176  Bcab=1.0042  drops=110/77/46  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 67.9%  B/Bref=1.2260  Bcab=1.0047  drops=127/92/47  (11s)
+      [refine] full_fp r=1.25: [3.56,3.70]%  gap=0.14pp  6 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=3.5598361298135055%  C_upper=3.6992319817553736%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9490  Bcab=0.9994  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_random           : C=  5.0%  B/Bref=0.9688  Bcab=1.0004  drops=5/4/0  (6s)
+    lam=1.10 r=1.25 full_random           : C=  7.9%  B/Bref=0.9952  Bcab=1.0004  drops=7/5/1  (6s)
+    lam=1.15 r=1.25 full_random           : C= 11.1%  B/Bref=1.0591  Bcab=1.0009  drops=9/10/2  (6s)
+    lam=1.20 r=1.25 full_random           : C= 14.1%  B/Bref=1.0421  Bcab=1.0014  drops=14/18/2  (6s)
+    lam=1.30 r=1.25 full_random           : C= 19.7%  B/Bref=1.0934  Bcab=1.0015  drops=21/22/4  (7s)
+    lam=1.40 r=1.25 full_random           : C= 30.6%  B/Bref=1.2000  Bcab=1.0021  drops=24/30/9  (10s)
+    lam=1.50 r=1.25 full_random           : C= 34.8%  B/Bref=1.2464  Bcab=1.0024  drops=50/29/14  (8s)
+    lam=1.55 r=1.25 full_random           : C= 38.1%  B/Bref=1.3075  Bcab=1.0025  drops=54/31/18  (8s)
+    lam=1.60 r=1.25 full_random           : C= 42.0%  B/Bref=1.3024  Bcab=1.0030  drops=59/37/24  (9s)
+    lam=1.70 r=1.25 full_random           : C= 47.2%  B/Bref=1.3593  Bcab=1.0034  drops=73/42/31  (11s)
+    lam=1.80 r=1.25 full_random           : C= 52.5%  B/Bref=1.3951  Bcab=1.0039  drops=88/45/49  (15s)
+    lam=1.90 r=1.25 full_random           : C= 59.6%  B/Bref=1.4086  Bcab=1.0043  drops=113/62/50  (12s)
+    lam=2.00 r=1.25 full_random           : C= 68.2%  B/Bref=1.4155  Bcab=1.0047  drops=129/73/57  (10s)
+      [refine] full_random r=1.25: [3.15,3.28]%  gap=0.13pp  5 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=3.1468121525702006%  C_upper=3.275171858578397%
+
+Scenario 46 done in 289s
+    [checkpoint] 17/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 47  (idx=17  scen_seed=1052894112  wl_seed=1984834199)
+======================================================================
+    B_ref_s=2495.51h  S_ref_s=5885.8108C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8771  Bcab=0.9993  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  3.3%  B/Bref=0.8798  Bcab=0.9998  drops=3/1/0  (6s)
+    lam=1.10 r=1.25 full_fp               : C=  4.9%  B/Bref=0.8867  Bcab=0.9998  drops=5/9/1  (6s)
+    lam=1.15 r=1.25 full_fp               : C=  7.9%  B/Bref=0.8974  Bcab=1.0000  drops=7/13/1  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 11.7%  B/Bref=0.9141  Bcab=1.0003  drops=11/23/2  (8s)
+    lam=1.30 r=1.25 full_fp               : C= 19.6%  B/Bref=0.9788  Bcab=1.0009  drops=21/35/4  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 27.0%  B/Bref=1.0265  Bcab=1.0017  drops=39/41/8  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 38.6%  B/Bref=1.1731  Bcab=1.0025  drops=53/54/7  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 42.6%  B/Bref=1.1952  Bcab=1.0028  drops=59/51/12  (10s)
+    lam=1.60 r=1.25 full_fp               : C= 45.6%  B/Bref=1.2023  Bcab=1.0030  drops=67/56/12  (11s)
+    lam=1.70 r=1.25 full_fp               : C= 52.8%  B/Bref=1.2300  Bcab=1.0035  drops=78/65/19  (10s)
+    lam=1.80 r=1.25 full_fp               : C= 61.7%  B/Bref=1.2616  Bcab=1.0039  drops=100/74/19  (10s)
+    lam=1.90 r=1.25 full_fp               : C= 68.3%  B/Bref=1.2796  Bcab=1.0044  drops=119/80/29  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 79.2%  B/Bref=1.4538  Bcab=1.0051  drops=133/96/32  (11s)
+      [refine] full_fp r=1.25: [7.33,7.38]%  gap=0.04pp  4 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=7.331810922523966%  C_upper=7.375571793369732%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9989  Bcab=0.9993  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  3.3%  B/Bref=1.0096  Bcab=0.9999  drops=3/1/0  (6s)
+    lam=1.10 r=1.25 full_random           : C=  5.0%  B/Bref=1.0425  Bcab=0.9999  drops=6/7/0  (7s)
+    lam=1.15 r=1.25 full_random           : C=  8.0%  B/Bref=1.0435  Bcab=1.0003  drops=7/13/1  (6s)
+    lam=1.20 r=1.25 full_random           : C= 11.7%  B/Bref=1.0583  Bcab=1.0002  drops=13/22/1  (6s)
+    lam=1.30 r=1.25 full_random           : C= 19.8%  B/Bref=1.0948  Bcab=1.0009  drops=22/28/6  (7s)
+    lam=1.40 r=1.25 full_random           : C= 27.2%  B/Bref=1.1618  Bcab=1.0015  drops=35/37/11  (8s)
+    lam=1.50 r=1.25 full_random           : C= 38.6%  B/Bref=1.3253  Bcab=1.0020  drops=49/51/11  (9s)
+    lam=1.55 r=1.25 full_random           : C= 42.5%  B/Bref=1.3514  Bcab=1.0026  drops=55/53/10  (11s)
+    lam=1.60 r=1.25 full_random           : C= 45.8%  B/Bref=1.3590  Bcab=1.0029  drops=66/61/8  (11s)
+    lam=1.70 r=1.25 full_random           : C= 52.9%  B/Bref=1.4055  Bcab=1.0036  drops=77/64/17  (12s)
+    lam=1.80 r=1.25 full_random           : C= 61.6%  B/Bref=1.3984  Bcab=1.0036  drops=100/68/26  (13s)
+    lam=1.90 r=1.25 full_random           : C= 67.9%  B/Bref=1.4379  Bcab=1.0044  drops=121/76/33  (14s)
+    lam=2.00 r=1.25 full_random           : C= 81.7%  B/Bref=1.6638  Bcab=1.0056  drops=139/83/33  (12s)
+      [refine] full_random r=1.25: [0.00,0.37]%  gap=0.37pp  1 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=0.0%  C_upper=0.3749297360975178%
+
+Scenario 47 done in 276s
+    [checkpoint] 18/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 48  (idx=18  scen_seed=1093599206  wl_seed=1038460268)
+======================================================================
+    B_ref_s=2479.19h  S_ref_s=5888.7916C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8356  Bcab=0.9994  drops=0/0/0  (7s)
+    lam=1.06 r=1.25 full_fp               : C=  3.6%  B/Bref=0.8381  Bcab=0.9997  drops=3/6/0  (6s)
+    lam=1.10 r=1.25 full_fp               : C=  7.1%  B/Bref=0.8384  Bcab=0.9998  drops=6/9/0  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 12.9%  B/Bref=0.8546  Bcab=1.0002  drops=9/15/0  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 14.9%  B/Bref=0.8980  Bcab=1.0003  drops=10/18/1  (7s)
+    lam=1.30 r=1.25 full_fp               : C= 22.9%  B/Bref=0.9016  Bcab=1.0009  drops=19/28/3  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 31.3%  B/Bref=0.9609  Bcab=1.0015  drops=33/34/6  (8s)
+    lam=1.50 r=1.25 full_fp               : C= 36.7%  B/Bref=0.9679  Bcab=1.0020  drops=39/35/8  (11s)
+    lam=1.55 r=1.25 full_fp               : C= 41.5%  B/Bref=0.9744  Bcab=1.0022  drops=43/46/13  (9s)
+    lam=1.60 r=1.25 full_fp               : C= 45.7%  B/Bref=1.0091  Bcab=1.0025  drops=46/46/17  (9s)
+    lam=1.70 r=1.25 full_fp               : C= 52.6%  B/Bref=1.1957  Bcab=1.0027  drops=62/49/23  (9s)
+    lam=1.80 r=1.25 full_fp               : C= 59.3%  B/Bref=1.2136  Bcab=1.0032  drops=76/65/33  (10s)
+    lam=1.90 r=1.25 full_fp               : C= 67.7%  B/Bref=1.2504  Bcab=1.0041  drops=91/79/37  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 76.7%  B/Bref=1.2644  Bcab=1.0052  drops=104/92/40  (10s)
+      [refine] full_fp r=1.25: [9.59,10.84]%  gap=1.24pp  8 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=9.594396854013356%  C_upper=10.83764843999114%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9551  Bcab=0.9994  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  3.7%  B/Bref=0.9759  Bcab=0.9996  drops=3/5/0  (7s)
+    lam=1.10 r=1.25 full_random           : C=  7.6%  B/Bref=0.9777  Bcab=1.0000  drops=6/6/0  (8s)
+    lam=1.15 r=1.25 full_random           : C= 13.6%  B/Bref=0.9908  Bcab=1.0003  drops=9/9/0  (7s)
+    lam=1.20 r=1.25 full_random           : C= 15.9%  B/Bref=1.0329  Bcab=1.0005  drops=10/12/1  (7s)
+    lam=1.30 r=1.25 full_random           : C= 23.8%  B/Bref=1.0425  Bcab=1.0012  drops=22/18/4  (8s)
+    lam=1.40 r=1.25 full_random           : C= 32.0%  B/Bref=1.1103  Bcab=1.0016  drops=34/25/8  (8s)
+    lam=1.50 r=1.25 full_random           : C= 37.3%  B/Bref=1.1295  Bcab=1.0020  drops=40/31/7  (8s)
+    lam=1.55 r=1.25 full_random           : C= 42.2%  B/Bref=1.1261  Bcab=1.0022  drops=45/44/11  (9s)
+    lam=1.60 r=1.25 full_random           : C= 46.2%  B/Bref=1.1767  Bcab=1.0025  drops=46/45/14  (9s)
+    lam=1.70 r=1.25 full_random           : C= 53.3%  B/Bref=1.3921  Bcab=1.0031  drops=62/52/22  (10s)
+    lam=1.80 r=1.25 full_random           : C= 59.7%  B/Bref=1.4057  Bcab=1.0035  drops=74/61/35  (11s)
+    lam=1.90 r=1.25 full_random           : C= 68.2%  B/Bref=1.4358  Bcab=1.0041  drops=102/68/36  (12s)
+    lam=2.00 r=1.25 full_random           : C= 77.1%  B/Bref=1.4540  Bcab=1.0053  drops=106/80/44  (11s)
+      [refine] full_random r=1.25: [11.87,11.91]%  gap=0.03pp  7 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=11.874056952969259%  C_upper=11.905964967879244%
+
+Scenario 48 done in 336s
+    [checkpoint] 19/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 49  (idx=19  scen_seed=1506954242  wl_seed=1430752378)
+======================================================================
+    B_ref_s=2544.05h  S_ref_s=5878.8730C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8513  Bcab=0.9992  drops=0/0/0  (7s)
+    lam=1.06 r=1.25 full_fp               : C=  5.8%  B/Bref=0.8972  Bcab=0.9996  drops=3/5/0  (8s)
+    lam=1.10 r=1.25 full_fp               : C=  8.1%  B/Bref=0.9093  Bcab=0.9998  drops=7/7/1  (7s)
+    lam=1.15 r=1.25 full_fp               : C= 15.1%  B/Bref=0.9255  Bcab=1.0007  drops=14/11/1  (9s)
+    lam=1.20 r=1.25 full_fp               : C= 18.4%  B/Bref=0.9572  Bcab=1.0010  drops=17/9/1  (8s)
+    lam=1.30 r=1.25 full_fp               : C= 25.7%  B/Bref=0.9891  Bcab=1.0019  drops=24/24/1  (9s)
+    lam=1.40 r=1.25 full_fp               : C= 36.7%  B/Bref=1.0482  Bcab=1.0032  drops=33/34/3  (8s)
+    lam=1.50 r=1.25 full_fp               : C= 43.5%  B/Bref=1.0615  Bcab=1.0036  drops=46/46/5  (9s)
+    lam=1.55 r=1.25 full_fp               : C= 47.4%  B/Bref=1.0781  Bcab=1.0040  drops=50/60/5  (9s)
+    lam=1.60 r=1.25 full_fp               : C= 49.7%  B/Bref=1.0750  Bcab=1.0042  drops=63/61/7  (11s)
+    lam=1.70 r=1.25 full_fp               : C= 56.2%  B/Bref=1.1657  Bcab=1.0046  drops=79/60/12  (9s)
+    lam=1.80 r=1.25 full_fp               : C= 63.3%  B/Bref=1.2007  Bcab=1.0049  drops=96/75/14  (11s)
+    lam=1.90 r=1.25 full_fp               : C= 68.0%  B/Bref=1.2187  Bcab=1.0053  drops=113/85/23  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 73.5%  B/Bref=1.3014  Bcab=1.0060  drops=128/88/30  (11s)
+      [refine] full_fp r=1.25: [8.96,11.64]%  gap=2.69pp  8 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=8.955072392030491%  C_upper=11.640667636629495%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9908  Bcab=0.9992  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  5.8%  B/Bref=1.0286  Bcab=0.9995  drops=3/4/0  (5s)
+    lam=1.10 r=1.25 full_random           : C=  8.1%  B/Bref=1.0303  Bcab=0.9997  drops=7/6/1  (6s)
+    lam=1.15 r=1.25 full_random           : C= 14.9%  B/Bref=1.0685  Bcab=1.0008  drops=14/10/2  (6s)
+    lam=1.20 r=1.25 full_random           : C= 18.2%  B/Bref=1.0877  Bcab=1.0011  drops=17/12/2  (6s)
+    lam=1.30 r=1.25 full_random           : C= 26.0%  B/Bref=1.1228  Bcab=1.0018  drops=25/22/2  (7s)
+    lam=1.40 r=1.25 full_random           : C= 36.8%  B/Bref=1.2092  Bcab=1.0033  drops=32/35/6  (7s)
+    lam=1.50 r=1.25 full_random           : C= 43.9%  B/Bref=1.2145  Bcab=1.0037  drops=47/48/5  (8s)
+    lam=1.55 r=1.25 full_random           : C= 47.9%  B/Bref=1.2369  Bcab=1.0040  drops=48/59/9  (8s)
+    lam=1.60 r=1.25 full_random           : C= 50.0%  B/Bref=1.2491  Bcab=1.0042  drops=60/61/11  (8s)
+    lam=1.70 r=1.25 full_random           : C= 56.6%  B/Bref=1.3290  Bcab=1.0045  drops=78/55/13  (8s)
+    lam=1.80 r=1.25 full_random           : C= 63.8%  B/Bref=1.4022  Bcab=1.0050  drops=90/60/19  (9s)
+    lam=1.90 r=1.25 full_random           : C= 68.3%  B/Bref=1.4246  Bcab=1.0055  drops=113/65/26  (9s)
+    lam=2.00 r=1.25 full_random           : C= 74.0%  B/Bref=1.5308  Bcab=1.0059  drops=122/70/38  (10s)
+      [refine] full_random r=1.25: [0.00,0.23]%  gap=0.23pp  2 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=0.0%  C_upper=0.23021682041778102%
+
+Scenario 49 done in 286s
+    [checkpoint] 20/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 50  (idx=20  scen_seed=1354524148  wl_seed=1493659955)
+======================================================================
+    B_ref_s=2477.98h  S_ref_s=5861.6776C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8488  Bcab=0.9993  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  6.4%  B/Bref=0.8662  Bcab=0.9997  drops=2/8/3  (5s)
+    lam=1.10 r=1.25 full_fp               : C= 10.0%  B/Bref=0.9346  Bcab=1.0000  drops=5/9/3  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 15.9%  B/Bref=1.0185  Bcab=1.0004  drops=8/15/4  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 18.9%  B/Bref=1.0505  Bcab=1.0006  drops=17/14/7  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 26.4%  B/Bref=1.0626  Bcab=1.0015  drops=24/22/10  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 34.2%  B/Bref=1.0451  Bcab=1.0022  drops=38/37/15  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 40.6%  B/Bref=1.0815  Bcab=1.0025  drops=46/43/24  (7s)
+    lam=1.55 r=1.25 full_fp               : C= 46.6%  B/Bref=1.0962  Bcab=1.0033  drops=48/55/26  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 51.2%  B/Bref=1.2013  Bcab=1.0037  drops=57/56/29  (8s)
+    lam=1.70 r=1.25 full_fp               : C= 58.4%  B/Bref=1.2571  Bcab=1.0040  drops=69/74/35  (8s)
+    lam=1.80 r=1.25 full_fp               : C= 64.6%  B/Bref=1.2887  Bcab=1.0047  drops=87/81/44  (10s)
+    lam=1.90 r=1.25 full_fp               : C= 71.3%  B/Bref=1.3139  Bcab=1.0053  drops=97/84/50  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 77.3%  B/Bref=1.3360  Bcab=1.0057  drops=115/94/54  (10s)
+      [refine] full_fp r=1.25: [9.36,9.52]%  gap=0.16pp  4 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=9.356468460618768%  C_upper=9.516894947145117%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9924  Bcab=0.9993  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_random           : C=  6.1%  B/Bref=1.0102  Bcab=0.9997  drops=2/7/3  (6s)
+    lam=1.10 r=1.25 full_random           : C=  9.7%  B/Bref=1.0633  Bcab=1.0001  drops=5/12/3  (7s)
+    lam=1.15 r=1.25 full_random           : C= 15.8%  B/Bref=1.1760  Bcab=1.0005  drops=8/15/4  (7s)
+    lam=1.20 r=1.25 full_random           : C= 18.9%  B/Bref=1.2539  Bcab=1.0008  drops=17/14/8  (7s)
+    lam=1.30 r=1.25 full_random           : C= 26.2%  B/Bref=1.2397  Bcab=1.0015  drops=24/24/10  (7s)
+    lam=1.40 r=1.25 full_random           : C= 34.7%  B/Bref=1.2490  Bcab=1.0023  drops=37/33/15  (9s)
+    lam=1.50 r=1.25 full_random           : C= 41.3%  B/Bref=1.2762  Bcab=1.0026  drops=46/37/26  (9s)
+    lam=1.55 r=1.25 full_random           : C= 47.6%  B/Bref=1.2664  Bcab=1.0035  drops=48/49/26  (9s)
+    lam=1.60 r=1.25 full_random           : C= 52.4%  B/Bref=1.3721  Bcab=1.0041  drops=57/55/25  (9s)
+    lam=1.70 r=1.25 full_random           : C= 59.2%  B/Bref=1.4899  Bcab=1.0043  drops=71/64/34  (9s)
+    lam=1.80 r=1.25 full_random           : C= 65.2%  B/Bref=1.4358  Bcab=1.0048  drops=96/73/41  (11s)
+    lam=1.90 r=1.25 full_random           : C= 71.5%  B/Bref=1.5230  Bcab=1.0052  drops=105/72/52  (11s)
+    lam=2.00 r=1.25 full_random           : C= 80.2%  B/Bref=1.6122  Bcab=1.0062  drops=121/86/52  (12s)
+      [refine] full_random r=1.25: [2.74,2.87]%  gap=0.13pp  4 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=2.743613337464336%  C_upper=2.8743013710388907%
+
+Scenario 50 done in 270s
+    [checkpoint] 21/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 51  (idx=21  scen_seed=982358118  wl_seed=194826593)
+======================================================================
+    B_ref_s=2500.02h  S_ref_s=5835.7803C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8539  Bcab=0.9993  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_fp               : C=  4.5%  B/Bref=0.8928  Bcab=0.9998  drops=3/7/1  (6s)
+    lam=1.10 r=1.25 full_fp               : C=  8.2%  B/Bref=0.8903  Bcab=0.9998  drops=6/5/1  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 13.9%  B/Bref=1.0272  Bcab=1.0006  drops=7/11/3  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 16.9%  B/Bref=1.0357  Bcab=1.0010  drops=8/13/3  (7s)
+    lam=1.30 r=1.25 full_fp               : C= 24.8%  B/Bref=1.0834  Bcab=1.0017  drops=18/30/4  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 38.2%  B/Bref=1.1340  Bcab=1.0028  drops=24/55/6  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 46.7%  B/Bref=1.2635  Bcab=1.0034  drops=33/63/12  (8s)
+    lam=1.55 r=1.25 full_fp               : C= 51.2%  B/Bref=1.2545  Bcab=1.0035  drops=35/71/14  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 53.9%  B/Bref=1.2762  Bcab=1.0036  drops=42/71/21  (9s)
+    lam=1.70 r=1.25 full_fp               : C= 60.2%  B/Bref=1.2929  Bcab=1.0040  drops=59/69/30  (9s)
+    lam=1.80 r=1.25 full_fp               : C= 67.9%  B/Bref=1.3315  Bcab=1.0049  drops=76/88/38  (10s)
+    lam=1.90 r=1.25 full_fp               : C= 74.1%  B/Bref=1.3543  Bcab=1.0053  drops=102/95/49  (11s)
+    lam=2.00 r=1.25 full_fp               : C= 79.3%  B/Bref=1.3454  Bcab=1.0057  drops=123/107/55  (12s)
+      [refine] full_fp r=1.25: [8.82,9.10]%  gap=0.28pp  4 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=8.82380456476047%  C_upper=9.100645669453826%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9930  Bcab=0.9997  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_random           : C=  4.5%  B/Bref=0.9987  Bcab=0.9996  drops=3/4/1  (6s)
+    lam=1.10 r=1.25 full_random           : C=  8.2%  B/Bref=1.0144  Bcab=1.0000  drops=6/5/1  (6s)
+    lam=1.15 r=1.25 full_random           : C= 13.9%  B/Bref=1.1541  Bcab=1.0007  drops=7/5/4  (7s)
+    lam=1.20 r=1.25 full_random           : C= 16.8%  B/Bref=1.1679  Bcab=1.0010  drops=8/11/4  (9s)
+    lam=1.30 r=1.25 full_random           : C= 24.7%  B/Bref=1.2251  Bcab=1.0014  drops=18/24/5  (9s)
+    lam=1.40 r=1.25 full_random           : C= 38.5%  B/Bref=1.2935  Bcab=1.0029  drops=24/50/6  (8s)
+    lam=1.50 r=1.25 full_random           : C= 47.1%  B/Bref=1.4030  Bcab=1.0034  drops=35/55/13  (8s)
+    lam=1.55 r=1.25 full_random           : C= 52.0%  B/Bref=1.4105  Bcab=1.0035  drops=45/51/15  (9s)
+    lam=1.60 r=1.25 full_random           : C= 53.4%  B/Bref=1.4492  Bcab=1.0036  drops=49/55/19  (9s)
+    lam=1.70 r=1.25 full_random           : C= 60.5%  B/Bref=1.4510  Bcab=1.0041  drops=59/65/30  (10s)
+    lam=1.80 r=1.25 full_random           : C= 68.5%  B/Bref=1.4479  Bcab=1.0048  drops=84/72/39  (10s)
+    lam=1.90 r=1.25 full_random           : C= 74.4%  B/Bref=1.5055  Bcab=1.0051  drops=107/74/57  (13s)
+    lam=2.00 r=1.25 full_random           : C= 79.3%  B/Bref=1.5139  Bcab=1.0054  drops=137/85/52  (13s)
+    CROSSING full_random            r=1.25: status=left_boundary  C_lower=0.0%  C_upper=0.0%
+
+Scenario 51 done in 262s
+    [checkpoint] 22/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 52  (idx=22  scen_seed=1629465822  wl_seed=290894800)
+======================================================================
+    B_ref_s=2474.99h  S_ref_s=5822.9164C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8531  Bcab=0.9993  drops=0/0/0  (7s)
+    lam=1.06 r=1.25 full_fp               : C=  5.2%  B/Bref=0.9749  Bcab=0.9997  drops=1/6/1  (9s)
+    lam=1.10 r=1.25 full_fp               : C=  8.3%  B/Bref=0.9783  Bcab=0.9998  drops=5/11/1  (11s)
+    lam=1.15 r=1.25 full_fp               : C= 11.3%  B/Bref=0.9959  Bcab=1.0002  drops=7/16/1  (8s)
+    lam=1.20 r=1.25 full_fp               : C= 14.3%  B/Bref=1.0051  Bcab=1.0005  drops=8/20/4  (7s)
+    lam=1.30 r=1.25 full_fp               : C= 23.3%  B/Bref=1.1859  Bcab=1.0013  drops=16/36/5  (8s)
+    lam=1.40 r=1.25 full_fp               : C= 30.5%  B/Bref=1.2646  Bcab=1.0018  drops=27/48/8  (12s)
+    lam=1.50 r=1.25 full_fp               : C= 37.5%  B/Bref=1.3549  Bcab=1.0024  drops=39/46/15  (10s)
+    lam=1.55 r=1.25 full_fp               : C= 40.4%  B/Bref=1.3591  Bcab=1.0027  drops=44/55/15  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 47.2%  B/Bref=1.3804  Bcab=1.0030  drops=49/59/17  (8s)
+    lam=1.70 r=1.25 full_fp               : C= 52.6%  B/Bref=1.4214  Bcab=1.0034  drops=61/72/20  (9s)
+    lam=1.80 r=1.25 full_fp               : C= 60.3%  B/Bref=1.5845  Bcab=1.0040  drops=70/76/25  (12s)
+    lam=1.90 r=1.25 full_fp               : C= 68.0%  B/Bref=1.5589  Bcab=1.0050  drops=83/95/35  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 72.4%  B/Bref=1.5699  Bcab=1.0053  drops=119/88/41  (11s)
+      [refine] full_fp r=1.25: [9.30,9.48]%  gap=0.18pp  5 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=9.296282917976281%  C_upper=9.47647906700627%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9980  Bcab=0.9995  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_random           : C=  5.3%  B/Bref=1.1351  Bcab=0.9999  drops=1/5/1  (6s)
+    lam=1.10 r=1.25 full_random           : C=  8.4%  B/Bref=1.1449  Bcab=0.9999  drops=5/10/1  (6s)
+    lam=1.15 r=1.25 full_random           : C= 12.3%  B/Bref=1.1491  Bcab=1.0006  drops=7/14/0  (7s)
+    lam=1.20 r=1.25 full_random           : C= 14.4%  B/Bref=1.2300  Bcab=1.0009  drops=8/18/4  (7s)
+    lam=1.30 r=1.25 full_random           : C= 23.4%  B/Bref=1.4006  Bcab=1.0012  drops=17/29/6  (7s)
+    lam=1.40 r=1.25 full_random           : C= 30.9%  B/Bref=1.4368  Bcab=1.0020  drops=29/36/10  (8s)
+    lam=1.50 r=1.25 full_random           : C= 38.7%  B/Bref=1.5597  Bcab=1.0027  drops=35/46/18  (8s)
+    lam=1.55 r=1.25 full_random           : C= 42.3%  B/Bref=1.5551  Bcab=1.0032  drops=46/45/14  (10s)
+    lam=1.60 r=1.25 full_random           : C= 49.1%  B/Bref=1.6319  Bcab=1.0034  drops=49/52/17  (9s)
+    lam=1.70 r=1.25 full_random           : C= 54.5%  B/Bref=1.6502  Bcab=1.0038  drops=73/52/20  (9s)
+    lam=1.80 r=1.25 full_random           : C= 61.9%  B/Bref=1.8191  Bcab=1.0041  drops=82/54/24  (10s)
+    lam=1.90 r=1.25 full_random           : C= 66.2%  B/Bref=1.8185  Bcab=1.0045  drops=101/69/35  (10s)
+    lam=2.00 r=1.25 full_random           : C= 72.9%  B/Bref=1.8792  Bcab=1.0053  drops=124/72/43  (11s)
+      [refine] full_random r=1.25: [0.55,0.71]%  gap=0.16pp  3 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=0.5491543972974305%  C_upper=0.7052185259159632%
+
+Scenario 52 done in 291s
+    [checkpoint] 23/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 53  (idx=23  scen_seed=1923189114  wl_seed=238926708)
+======================================================================
+    B_ref_s=2481.73h  S_ref_s=5897.8344C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8238  Bcab=0.9995  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_fp               : C=  3.5%  B/Bref=0.8266  Bcab=0.9999  drops=1/6/1  (6s)
+    lam=1.10 r=1.25 full_fp               : C=  8.2%  B/Bref=0.8331  Bcab=1.0003  drops=3/5/2  (6s)
+    lam=1.15 r=1.25 full_fp               : C= 14.0%  B/Bref=0.8321  Bcab=1.0010  drops=9/9/5  (6s)
+    lam=1.20 r=1.25 full_fp               : C= 18.7%  B/Bref=0.8732  Bcab=1.0012  drops=11/16/5  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 26.3%  B/Bref=1.1548  Bcab=1.0017  drops=22/18/7  (7s)
+    lam=1.40 r=1.25 full_fp               : C= 33.8%  B/Bref=1.2790  Bcab=1.0025  drops=26/25/11  (7s)
+    lam=1.50 r=1.25 full_fp               : C= 40.9%  B/Bref=1.3019  Bcab=1.0031  drops=43/36/18  (8s)
+    lam=1.55 r=1.25 full_fp               : C= 43.7%  B/Bref=1.3425  Bcab=1.0033  drops=50/45/21  (8s)
+    lam=1.60 r=1.25 full_fp               : C= 47.2%  B/Bref=1.3414  Bcab=1.0035  drops=59/44/24  (8s)
+    lam=1.70 r=1.25 full_fp               : C= 54.1%  B/Bref=1.5156  Bcab=1.0040  drops=80/56/32  (9s)
+    lam=1.80 r=1.25 full_fp               : C= 59.1%  B/Bref=1.5306  Bcab=1.0045  drops=90/67/36  (9s)
+    lam=1.90 r=1.25 full_fp               : C= 64.7%  B/Bref=1.6009  Bcab=1.0050  drops=111/72/45  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 74.2%  B/Bref=1.6340  Bcab=1.0054  drops=139/78/52  (10s)
+      [refine] full_fp r=1.25: [4.13,4.15]%  gap=0.02pp  4 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=4.132337872266054%  C_upper=4.1508486748698905%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=0.9677  Bcab=0.9999  drops=0/0/0  (5s)
+    lam=1.06 r=1.25 full_random           : C=  3.4%  B/Bref=0.9742  Bcab=1.0000  drops=1/5/2  (6s)
+    lam=1.10 r=1.25 full_random           : C=  8.0%  B/Bref=0.9949  Bcab=1.0002  drops=3/8/3  (6s)
+    lam=1.15 r=1.25 full_random           : C= 13.9%  B/Bref=1.0076  Bcab=1.0010  drops=9/11/5  (6s)
+    lam=1.20 r=1.25 full_random           : C= 18.7%  B/Bref=1.0588  Bcab=1.0013  drops=9/16/6  (6s)
+    lam=1.30 r=1.25 full_random           : C= 23.9%  B/Bref=1.3527  Bcab=1.0011  drops=19/18/10  (7s)
+    lam=1.40 r=1.25 full_random           : C= 33.7%  B/Bref=1.5048  Bcab=1.0019  drops=23/22/10  (8s)
+    lam=1.50 r=1.25 full_random           : C= 41.0%  B/Bref=1.4927  Bcab=1.0032  drops=40/39/16  (9s)
+    lam=1.55 r=1.25 full_random           : C= 44.0%  B/Bref=1.5867  Bcab=1.0034  drops=49/39/21  (10s)
+    lam=1.60 r=1.25 full_random           : C= 45.0%  B/Bref=1.5699  Bcab=1.0029  drops=59/37/30  (8s)
+    lam=1.70 r=1.25 full_random           : C= 54.1%  B/Bref=1.7874  Bcab=1.0037  drops=80/49/33  (9s)
+    lam=1.80 r=1.25 full_random           : C= 60.4%  B/Bref=1.9243  Bcab=1.0042  drops=100/54/40  (9s)
+    lam=1.90 r=1.25 full_random           : C= 63.9%  B/Bref=1.9627  Bcab=1.0049  drops=126/48/51  (10s)
+    lam=2.00 r=1.25 full_random           : C= 71.5%  B/Bref=1.8856  Bcab=1.0048  drops=150/61/58  (10s)
+      [refine] full_random r=1.25: [1.43,1.46]%  gap=0.03pp  5 evals
+    CROSSING full_random            r=1.25: status=exact_bracket  C_lower=1.4251712747363552%  C_upper=1.4596508700624633%
+
+Scenario 53 done in 268s
+    [checkpoint] 24/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+
+======================================================================
+Scenario 54  (idx=24  scen_seed=918802192  wl_seed=57164757)
+======================================================================
+    B_ref_s=2524.26h  S_ref_s=5831.3000C*h
+
+  -- ratio=1.25 --
+    lam=1.00 r=1.25 full_fp               : C=  0.0%  B/Bref=0.8658  Bcab=0.9995  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_fp               : C=  4.7%  B/Bref=0.8759  Bcab=0.9999  drops=1/5/0  (6s)
+    lam=1.10 r=1.25 full_fp               : C=  9.8%  B/Bref=0.9190  Bcab=1.0000  drops=5/8/1  (7s)
+    lam=1.15 r=1.25 full_fp               : C= 13.6%  B/Bref=0.9186  Bcab=1.0003  drops=11/11/2  (7s)
+    lam=1.20 r=1.25 full_fp               : C= 19.4%  B/Bref=1.0789  Bcab=1.0006  drops=15/18/3  (6s)
+    lam=1.30 r=1.25 full_fp               : C= 30.4%  B/Bref=1.1117  Bcab=1.0019  drops=21/25/6  (8s)
+    lam=1.40 r=1.25 full_fp               : C= 35.5%  B/Bref=1.1741  Bcab=1.0024  drops=35/34/13  (8s)
+    lam=1.50 r=1.25 full_fp               : C= 44.0%  B/Bref=1.2602  Bcab=1.0033  drops=49/45/18  (8s)
+    lam=1.55 r=1.25 full_fp               : C= 46.7%  B/Bref=1.2659  Bcab=1.0035  drops=61/51/20  (9s)
+    lam=1.60 r=1.25 full_fp               : C= 50.4%  B/Bref=1.2791  Bcab=1.0038  drops=68/56/25  (11s)
+    lam=1.70 r=1.25 full_fp               : C= 56.3%  B/Bref=1.2900  Bcab=1.0044  drops=95/49/26  (11s)
+    lam=1.80 r=1.25 full_fp               : C= 63.9%  B/Bref=1.3516  Bcab=1.0047  drops=111/60/41  (10s)
+    lam=1.90 r=1.25 full_fp               : C= 70.0%  B/Bref=1.4338  Bcab=1.0055  drops=134/53/46  (10s)
+    lam=2.00 r=1.25 full_fp               : C= 74.9%  B/Bref=1.4835  Bcab=1.0059  drops=137/79/54  (11s)
+      [refine] full_fp r=1.25: [9.80,10.05]%  gap=0.25pp  2 evals
+    CROSSING full_fp                r=1.25: status=exact_bracket  C_lower=9.802593130999274%  C_upper=10.051449597064329%
+    lam=1.00 r=1.25 full_random           : C=  0.0%  B/Bref=1.0114  Bcab=0.9995  drops=0/0/0  (6s)
+    lam=1.06 r=1.25 full_random           : C=  4.9%  B/Bref=1.0064  Bcab=1.0002  drops=1/4/0  (7s)
+    lam=1.10 r=1.25 full_random           : C=  9.8%  B/Bref=1.0491  Bcab=1.0003  drops=5/10/1  (6s)
+    lam=1.15 r=1.25 full_random           : C= 13.7%  B/Bref=1.0725  Bcab=1.0005  drops=11/9/2  (6s)
+    lam=1.20 r=1.25 full_random           : C= 19.6%  B/Bref=1.2297  Bcab=1.0006  drops=15/17/3  (6s)
+    lam=1.30 r=1.25 full_random           : C= 30.2%  B/Bref=1.2409  Bcab=1.0019  drops=22/27/6  (7s)
+    lam=1.40 r=1.25 full_random           : C= 35.6%  B/Bref=1.3450  Bcab=1.0025  drops=37/33/12  (8s)
+    lam=1.50 r=1.25 full_random           : C= 44.3%  B/Bref=1.4325  Bcab=1.0033  drops=48/42/18  (9s)
+    lam=1.55 r=1.25 full_random           : C= 47.3%  B/Bref=1.4416  Bcab=1.0035  drops=56/49/21  (9s)
+    lam=1.60 r=1.25 full_random           : C= 50.8%  B/Bref=1.4342  Bcab=1.0038  drops=67/51/22  (9s)
+    lam=1.70 r=1.25 full_random           : C= 56.5%  B/Bref=1.4775  Bcab=1.0044  drops=94/48/31  (9s)
+    lam=1.80 r=1.25 full_random           : C= 64.4%  B/Bref=1.5429  Bcab=1.0046  drops=111/49/40  (10s)
+    lam=1.90 r=1.25 full_random           : C= 70.5%  B/Bref=1.6492  Bcab=1.0053  drops=127/46/51  (10s)
+    lam=2.00 r=1.25 full_random           : C= 76.0%  B/Bref=1.6999  Bcab=1.0059  drops=148/45/58  (11s)
+    CROSSING full_random            r=1.25: status=left_boundary  C_lower=0.0%  C_upper=0.0%
+
+Scenario 54 done in 244s
+    [checkpoint] 25/25 saved -> gate_f_sc30-54_1p25_r3legacy_checkpoint.json
+Traceback (most recent call last):
+  File "C:\users\kalya\thermalops\artifacts\revision3\r3_gate_f_run.py", line 1213, in <module>
+    "cabinet_reference_mode" : CABINET_REFERENCE_MODE,
+                               ^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'CABINET_REFERENCE_MODE' is not defined
