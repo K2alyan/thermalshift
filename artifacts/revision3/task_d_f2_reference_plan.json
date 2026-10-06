@@ -1,0 +1,84 @@
+{
+  "document": "Task D F2 Cabinet Power Reference Plan",
+  "version": "1.0",
+  "plan_commit": "c674209",
+  "r3_evidence_commit": "a80d51f",
+  "created": "2026-10-06",
+  "status": "Pre-computation freeze",
+
+  "purpose": "Construct a cabinet-power reference whose statistical object matches the quantity used by the replay cabinet constraint: total concurrent reconstructed cabinet power. No scheduling-policy comparison is executed in Task D.",
+
+  "definitions": {
+    "F1": {
+      "name": "frozen legacy reference",
+      "formula": "Q_F1,c = percentile_99({P_job,c for all qualifying jobs j})",
+      "P_job_c": "P_job,c = (mean_power_j / node_count_j) * n_nodes_in_c_for_job_j",
+      "weighting": "event-weighted (job-count-weighted) P99 of individual job-cabinet power contributions",
+      "note": "One observation per qualifying job regardless of duration. Used in all sc0-sc54 results."
+    },
+    "F2": {
+      "name": "corrected time-weighted total P99",
+      "formula": "Q_F2,c = time-weighted P99 of P_c(t)",
+      "P_c_t": "P_c(t) = sum_j P_job,c(t) — the total concurrent reconstructed cabinet power at time t",
+      "method": "Exact piecewise-constant event-driven process over selected-date calendar support. Weights are exact interval durations.",
+      "zero_states": "Zero observed load during a supported calendar interval is an observed state and is included."
+    },
+    "F3": {
+      "name": "corrected event-weighted total P99 (diagnostic only)",
+      "formula": "Q_F3,c = P99 of post-event power states at unique event timestamps",
+      "method": "Event timestamps are all unique job-start and job-end times inside supported intervals. Post-event power state sampled once per unique timestamp. Ordinary (unweighted) P99. No scheduling simulation."
+    }
+  },
+
+  "data_source": {
+    "parquet": "THERMALSHIFT_DATA_DIR/frontier-completed-job-info.parquet",
+    "required_fields": ["job_idx", "date_dir", "start_time", "end_time", "mean_power", "node_count", "host_list"],
+    "topology": "artifacts/revision1/tables/fleet_node_topology.csv"
+  },
+
+  "support_definition": {
+    "version": "v1",
+    "collection_dates": "All unique date_dir values in the parquet; 135 dates expected",
+    "intervals": "Each date d -> [d 00:00:00 UTC, d+1 00:00:00 UTC). Adjacent dates merged into contiguous blocks.",
+    "job_clipping": "observed_interval = [start_time, end_time) intersect support_union; unsupported gaps contribute zero duration",
+    "zero_states": "Zero observed load during an actually selected support interval is an observed state included in F2 distribution",
+    "terminology": "observed reconstructed concurrent cabinet power (not measured/actual/physical/facility-meter)"
+  },
+
+  "weighted_quantile_convention": {
+    "definition": "For sorted power states (P_k, duration_k): normalize by total calendar support duration; F2 P99 = smallest P such that cumulative time weight at or below P is >= 0.99 of total supported duration"
+  },
+
+  "stop_conditions": [
+    "F1 cannot be reproduced within 1e-6 tolerance",
+    "Cabinet count != 77",
+    "Weighted-quantile tests fail",
+    "Negative/invalid concurrent power appears",
+    "Support integration inconsistent",
+    "Any scheduling-policy code is called"
+  ],
+
+  "authorized_outputs": [
+    "task_d_f1_reproduction.json",
+    "f2_timeweighted_cabinet_reference.json",
+    "f3_eventweighted_cabinet_reference.json",
+    "cabinet_support_audit_v2.json",
+    "CABINET_SUPPORT_AUDIT_V2.md",
+    "task_d_validation.json",
+    "f1_vs_f2_cabinet_reference_audit.json",
+    "F1_VS_F2_CABINET_REFERENCE_AUDIT.md",
+    "figures/D1_f1_vs_f2_scatter.png",
+    "figures/D2_f2_f1_ratio_ecdf.png",
+    "figures/D3_exceedance_fractions.png",
+    "figures/D4_sorted_thresholds.png",
+    "figures/D5_concurrent_power_timeseries.png"
+  ],
+
+  "not_authorized": [
+    "Any scheduling-policy simulation",
+    "Modification of frozen F1 results",
+    "Production of F2 simulation output",
+    "F2 FP-vs-Random comparison",
+    "Edits to the paper"
+  ]
+}
