@@ -27,6 +27,7 @@ REV1_RESULTS = ROOT / "artifacts" / "revision1" / "results"
 OUT_DIR = ROOT / "artifacts" / "revision3"
 
 CHALLENGE_FILE = REV2 / "challenge_analysis.json"
+MERGED_FILE    = REV2 / "results" / "gate_f_sc30-54_all_r2challenge_merged.json"
 SC5_29_FILE    = REV1_RESULTS / "gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json"
 
 BOOTSTRAP_N    = 5000
@@ -67,17 +68,19 @@ def order_stat_median_ci(n, alpha=0.05):
     return k_lo, k_hi, actual_coverage
 
 
-def exact_sign_test_p(n_pos, n_neg, n_tie):
-    """One-sided exact sign test: H0: P(+ ) = 0.5. Ties counted as 0.5."""
-    n_effective = n_pos + n_neg + n_tie
-    n_effective_pos = n_pos + 0.5 * n_tie
-    # p-value = P(X >= n_effective_pos) under Binomial(n_effective, 0.5)
-    # Use floor for integer test
-    n_effective_int = n_pos + n_neg + n_tie
-    n_pos_int = n_pos
-    if n_effective_int == 0:
+def exact_sign_test_two_sided(n_A, n_B):
+    """Two-sided exact binomial sign test on DECISIVE scenarios only.
+
+    H0: P(A better | decisive) = 0.5.
+    n_decisive = n_A + n_B  (indistinguishable scenarios excluded).
+    p = 2 * min(P(X <= min(n_A,n_B)), P(X >= max(n_A,n_B))) under Binom(n_decisive, 0.5).
+    Capped at 1.0.
+    """
+    n_decisive = n_A + n_B
+    if n_decisive == 0:
         return 1.0
-    p_val = float(1 - binom.cdf(n_pos_int - 1, n_effective_int, 0.5))
+    k = min(n_A, n_B)
+    p_val = float(min(1.0, 2.0 * binom.cdf(k, n_decisive, 0.5)))
     return p_val
 
 
@@ -98,39 +101,81 @@ def holm_bonferroni(p_values, alpha=0.05):
     return reject, adj_p
 
 
+# ── Per-scenario crossing loader ───────────────────────────────────────────
+
+POLICIES_R2 = ["full_fp", "full_random", "full_fp_spread", "random_spread",
+               "fp_withincab_placebo", "fp_global_placebo", "position_template"]
+
+
+def load_per_scenario_crossings(merged):
+    """Extract crossing data per policy per scenario from merged file.
+
+    Returns dict: policy -> list of {status, C_lower_pct, C_upper_pct, ...} for each scenario.
+    """
+    scenarios = merged.get("scenario_results", [])
+    crossings = {p: [] for p in POLICIES_R2}
+    for sc in scenarios:
+        r125 = sc.get("ratios", {}).get("1.25", {})
+        for policy in POLICIES_R2:
+            pd = r125.get(policy, {})
+            cr = pd.get("crossing", {})
+            crossings[policy].append({
+                "scenario_idx": sc.get("scenario_idx"),
+                "status": cr.get("status", "unknown"),
+                "C_lower_pct": cr.get("C_lower_pct", 0.0),
+                "C_upper_pct": cr.get("C_upper_pct", 0.0),
+                "first_binding_constraint": cr.get("first_binding_constraint", None),
+                "right_censored": cr.get("right_censored", False),
+            })
+    return crossings
+
+
 # ── B1: Absolute capacity levels ───────────────────────────────────────────
 
-def b1_absolute_capacity(challenge):
+def b1_absolute_capacity(challenge, per_sc_crossings):
     ps = challenge["policy_summaries"]
     results = {}
-    for policy in ["full_fp", "full_random", "full_fp_spread", "random_spread",
-                   "fp_withincab_placebo", "fp_global_placebo", "position_template"]:
+    for policy in POLICIES_R2:
         r125 = ps.get(policy, {}).get("1.25", {})
         if not r125:
             results[policy] = {"error": "no r=1.25 data"}
             continue
-        # We need per-scenario C_lower / C_upper to count floor/infeasible
-        # policy_summaries only has medians; we need the per-scenario data.
-        # Per-scenario data is in the raw scenario files; for now report what's in summaries.
+        crlist = per_sc_crossings.get(policy, [])
+        # Floor/left-censor classification
+        n_base_infeasible = sum(
+            1 for c in crlist if c["status"] == "left_boundary"
+        )
+        n_floor_at_zero = sum(
+            1 for c in crlist
+            if c["status"] == "exact_bracket" and c["C_lower_pct"] == 0.0 and c["C_upper_pct"] > 0.0
+        )
+        n_right_censored = sum(1 for c in crlist if c["right_censored"])
+        # Bracket widths excluding [0,0] infeasible cells
+        widths = [
+            c["C_upper_pct"] - c["C_lower_pct"]
+            for c in crlist if c["status"] != "left_boundary"
+        ]
         results[policy] = {
             "median_C_lower_pct":  round(r125.get("median_C_lower_pct", 0), 6),
             "median_C_upper_pct":  round(r125.get("median_C_upper_pct", 0), 6),
-            "median_bracket_width": round(
-                r125.get("median_C_upper_pct", 0) - r125.get("median_C_lower_pct", 0), 6),
-            "n_right_censored":    r125.get("n_right_censored", 0),
+            "median_bracket_width_excl_infeasible": round(float(np.median(widths)), 6) if widths else None,
+            "n_right_censored":    n_right_censored,
+            "n_base_infeasible":   n_base_infeasible,
+            "n_floor_at_zero":     n_floor_at_zero,
+            "n_total_C_lower_0":   n_base_infeasible + n_floor_at_zero,
             "n_scenarios":         r125.get("n_scenarios", 25),
-            "note": "bracket_width = C_upper - C_lower; floor/infeasible counts require per-scenario data (see B2)"
+            "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B",
         }
     return results
 
 
 # ── B2: Binding constraints ────────────────────────────────────────────────
 
-def b2_binding_constraints(challenge):
+def b2_binding_constraints(challenge, per_sc_crossings):
     """
     Extract n_definitely_A, n_indistinguishable, n_definitely_B per comparison at r=1.25.
-    Binding constraint analysis requires per-scenario files not loaded here.
-    This provides the summary from challenge_analysis.json.
+    Also computes n_both_base_infeasible: scenarios where BOTH policies are left_boundary.
+    Cabinet reference = legacy job-contribution P99 (event-weighted).
     """
     results_raw = challenge.get("results", {})
     out = {}
@@ -145,6 +190,22 @@ def b2_binding_constraints(challenge):
         n_A = verdicts.count("definitely_A_better")
         n_I = verdicts.count("indistinguishable")
         n_B = verdicts.count("definitely_B_better")
+
+        # n_both_base_infeasible: scenarios where both pol_a and pol_b are left_boundary
+        cr_a = per_sc_crossings.get(pol_a, [])
+        cr_b = per_sc_crossings.get(pol_b, [])
+        n_both_infeasible = sum(
+            1 for ca, cb in zip(cr_a, cr_b)
+            if ca["status"] == "left_boundary" and cb["status"] == "left_boundary"
+        )
+
+        # First-binding constraint counts at crossing for policy_A scenarios
+        binding_A = {}
+        for c in cr_a:
+            if c["status"] != "left_boundary":
+                bc = c.get("first_binding_constraint", "unknown")
+                binding_A[bc] = binding_A.get(bc, 0) + 1
+
         out[comp_name] = {
             "label": "legacy_cabinet_reference_binding_diagnostic",
             "policy_A": pol_a,
@@ -152,9 +213,11 @@ def b2_binding_constraints(challenge):
             "n_definitely_A": n_A,
             "n_indistinguishable": n_I,
             "n_definitely_B": n_B,
+            "n_both_base_infeasible": n_both_infeasible,
+            "first_binding_constraint_counts_polA": binding_A,
             "median_delta_lo": round(r125.get("median_delta_lo", 0), 6),
             "bootstrap95_delta_lo": [round(x, 6) for x in r125.get("bootstrap95_delta_lo", [0, 0])],
-            "note": "Cabinet reference = legacy job-contribution P99 (cabinet_power_envelopes.json)"
+            "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
         }
     return out
 
@@ -222,8 +285,9 @@ def b4_sign_tests(challenge):
         n_A = verdicts.count("definitely_A_better")
         n_I = verdicts.count("indistinguishable")
         n_B = verdicts.count("definitely_B_better")
-        # One-sided: H0: P(A better) = 0.5; test direction is A > B
-        p = exact_sign_test_p(n_A, n_B, n_I)
+        n_decisive = n_A + n_B
+        # Two-sided exact sign test on decisive scenarios only (indistinguishable excluded)
+        p = exact_sign_test_two_sided(n_A, n_B)
         p_values.append(p)
         test_results.append({
             "comparison": comp_name,
@@ -233,12 +297,14 @@ def b4_sign_tests(challenge):
             "n_definitely_A": n_A,
             "n_indistinguishable": n_I,
             "n_definitely_B": n_B,
-            "p_raw_one_sided": round(p, 6)
+            "n_decisive": n_decisive,
+            "test": "two-sided exact binomial on decisive scenarios only",
+            "p_raw_two_sided": round(p, 6)
         })
 
     reject, adj_p = holm_bonferroni(p_values)
     for i, tr in enumerate(test_results):
-        tr["p_holm_adjusted"] = round(adj_p[i], 6)
+        tr["p_holm_adjusted_two_sided"] = round(adj_p[i], 6)
         tr["reject_H0_alpha05"] = reject[i]
 
     return test_results
@@ -414,11 +480,16 @@ def main():
     with open(CHALLENGE_FILE) as fh:
         challenge = json.load(fh)
 
+    print("[B] Loading merged sc30-54 for per-scenario crossing data ...")
+    with open(MERGED_FILE) as fh:
+        merged = json.load(fh)
+    per_sc_crossings = load_per_scenario_crossings(merged)
+
     print("[B1] Absolute capacity levels at r=1.25 ...")
-    b1 = b1_absolute_capacity(challenge)
+    b1 = b1_absolute_capacity(challenge, per_sc_crossings)
 
     print("[B2] Binding constraint diagnostic ...")
-    b2 = b2_binding_constraints(challenge)
+    b2 = b2_binding_constraints(challenge, per_sc_crossings)
 
     print("[B3] FPSpread vs FP both directions ...")
     b3 = b3_fpspread_vs_fp(challenge)
@@ -452,7 +523,7 @@ def main():
     }
 
     out_json = OUT_DIR / "existing_round3_diagnostics.json"
-    with open(out_json, "w") as fh:
+    with open(out_json, "w", encoding="utf-8") as fh:
         json.dump(output, fh, indent=2)
     print(f"\n[DONE] Written: {out_json}")
 
@@ -472,16 +543,18 @@ def _write_md_summary(out, path):
         "",
         "## B1. Absolute Capacity Levels at r=1.25",
         "",
-        "| Policy | Median C_lower (%) | Median C_upper (%) | Bracket width | n_right_censored |",
-        "|---|---|---|---|---|",
+        "| Policy | Median C_lower (%) | Median C_upper (%) | Bracket width (excl infeasible) | n_base_infeasible | n_floor_at_zero | n_right_censored |",
+        "|---|---|---|---|---|---|---|",
     ]
     for policy, v in out["B1_absolute_capacity_r125"].items():
         if "error" in v:
-            lines.append(f"| {policy} | ERROR | — | — | — |")
+            lines.append(f"| {policy} | ERROR | — | — | — | — | — |")
         else:
+            bw = v.get("median_bracket_width_excl_infeasible")
+            bw_str = f"{bw:.4f}" if bw is not None else "—"
             lines.append(
                 f"| {policy} | {v['median_C_lower_pct']:.4f} | {v['median_C_upper_pct']:.4f} "
-                f"| {v['median_bracket_width']:.4f} | {v['n_right_censored']} |"
+                f"| {bw_str} | {v['n_base_infeasible']} | {v['n_floor_at_zero']} | {v['n_right_censored']} |"
             )
 
     lines += [
@@ -523,19 +596,21 @@ def _write_md_summary(out, path):
         "",
         "## B4. Sign Tests with Holm-Bonferroni Correction (r=1.25)",
         "",
-        "| Comparison | A/I/B | p_raw | p_Holm | Reject H0 |",
-        "|---|---|---|---|---|",
+        "Two-sided exact binomial on decisive scenarios only (indistinguishable excluded from N).",
+        "",
+        "| Comparison | A/I/B | n_decisive | p_raw (two-sided) | p_Holm | Reject H0 |",
+        "|---|---|---|---|---|---|",
     ]
     for tr in out["B4_sign_tests_holm"]:
         if "error" in tr:
-            lines.append(f"| {tr['comparison']} | — | — | — | — |")
+            lines.append(f"| {tr['comparison']} | — | — | — | — | — |")
         else:
             aib = f"{tr['n_definitely_A']}/{tr['n_indistinguishable']}/{tr['n_definitely_B']}"
+            nd = tr.get("n_decisive", tr["n_definitely_A"] + tr["n_definitely_B"])
             lines.append(
-                f"| {tr['comparison']} | {aib} "
-                f"| {tr['p_raw_one_sided']:.4f} | {tr['p_holm_adjusted']:.4f} "
+                f"| {tr['comparison']} | {aib} | {nd} "
+                f"| {tr['p_raw_two_sided']:.4f} | {tr['p_holm_adjusted_two_sided']:.4f} "
                 f"| {'YES' if tr['reject_H0_alpha05'] else 'no'} |"
-
             )
 
     lines += [

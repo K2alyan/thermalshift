@@ -1,0 +1,38 @@
+%% Section 2: Background and Related Work
+%% STATUS: STUB — not yet drafted.
+%% See artifacts/revision2/SIGMETRICS_OUTLINE.md §2 for planned content (~2.5 pages).
+
+\section{Background and Related Work}
+\label{sec:background}
+
+\subsection{Thermal Management in HPC}
+% TODO: Discuss node-level thermal heterogeneity in production GPU supercomputers.
+% Key prior work: characterization of thermal non-uniformity, hot-spot analysis,
+% cooling efficiency variation. Contrast with our longitudinal fingerprint approach.
+% Citations needed: TODO:thermal-heterogeneity-hpc, TODO:datacenter-thermal,
+%                   TODO:power-management-hpc
+
+\subsection{Job Scheduling and Placement}
+% TODO: Cover topology-aware scheduling, performance-aware placement, thermally
+% informed policies in HPC. Note that existing work treats thermal constraints
+% as global (power caps) rather than node-specific (persistent fingerprints).
+% Citations needed: TODO:hpc-scheduling-survey, TODO:topology-aware-scheduling,
+%                   TODO:thermal-aware-scheduling
+
+\subsection{Workload Fingerprinting}
+% TODO: Cover fingerprinting approaches in systems contexts: performance
+% fingerprinting, behavioral characterization, workload classification.
+% Distinguish from our definition (persistent thermal identity).
+% Citations needed: TODO:workload-fingerprinting
+
+\subsection{Preregistered Measurement Studies}
+% TODO: Cover preregistration practice in CS/systems measurement.
+% Our preregistered challenge design (frozen commit, preflight, completion audit)
+% is a direct response to reproducibility challenges in systems measurement.
+% Citations needed: TODO:preregistration-cs
+
+\subsection{Replay-Based Evaluation}
+% TODO: Cover trace-replay and workload-replay methodology for scheduler evaluation.
+% Distinguish constraint-aware replay (thermal budget binding constraint, capacity
+% yield crossing) from pure trace replay.
+% Citations needed: TODO:replay-model

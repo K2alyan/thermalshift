@@ -9,58 +9,79 @@
     "full_fp": {
       "median_C_lower_pct": 7.331811,
       "median_C_upper_pct": 7.375572,
-      "median_bracket_width": 0.043761,
+      "median_bracket_width_excl_infeasible": 0.185475,
       "n_right_censored": 0,
+      "n_base_infeasible": 0,
+      "n_floor_at_zero": 0,
+      "n_total_C_lower_0": 0,
       "n_scenarios": 25,
-      "note": "bracket_width = C_upper - C_lower; floor/infeasible counts require per-scenario data (see B2)"
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
     },
     "full_random": {
       "median_C_lower_pct": 0.102774,
       "median_C_upper_pct": 0.575167,
-      "median_bracket_width": 0.472393,
+      "median_bracket_width_excl_infeasible": 0.243002,
       "n_right_censored": 0,
+      "n_base_infeasible": 9,
+      "n_floor_at_zero": 3,
+      "n_total_C_lower_0": 12,
       "n_scenarios": 25,
-      "note": "bracket_width = C_upper - C_lower; floor/infeasible counts require per-scenario data (see B2)"
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
     },
     "full_fp_spread": {
       "median_C_lower_pct": 4.961128,
       "median_C_upper_pct": 5.538898,
-      "median_bracket_width": 0.577769,
+      "median_bracket_width_excl_infeasible": 0.31957,
       "n_right_censored": 0,
+      "n_base_infeasible": 0,
+      "n_floor_at_zero": 0,
+      "n_total_C_lower_0": 0,
       "n_scenarios": 25,
-      "note": "bracket_width = C_upper - C_lower; floor/infeasible counts require per-scenario data (see B2)"
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
     },
     "random_spread": {
       "median_C_lower_pct": 0.119882,
       "median_C_upper_pct": 0.833983,
-      "median_bracket_width": 0.714101,
+      "median_bracket_width_excl_infeasible": 0.281065,
       "n_right_censored": 0,
+      "n_base_infeasible": 10,
+      "n_floor_at_zero": 1,
+      "n_total_C_lower_0": 11,
       "n_scenarios": 25,
-      "note": "bracket_width = C_upper - C_lower; floor/infeasible counts require per-scenario data (see B2)"
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
     },
     "fp_withincab_placebo": {
       "median_C_lower_pct": 2.884776,
       "median_C_upper_pct": 3.994231,
-      "median_bracket_width": 1.109455,
+      "median_bracket_width_excl_infeasible": 0.445556,
       "n_right_censored": 0,
+      "n_base_infeasible": 2,
+      "n_floor_at_zero": 0,
+      "n_total_C_lower_0": 2,
       "n_scenarios": 25,
-      "note": "bracket_width = C_upper - C_lower; floor/infeasible counts require per-scenario data (see B2)"
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
     },
     "fp_global_placebo": {
       "median_C_lower_pct": 0.7558,
       "median_C_upper_pct": 1.301766,
-      "median_bracket_width": 0.545966,
+      "median_bracket_width_excl_infeasible": 0.312281,
       "n_right_censored": 0,
+      "n_base_infeasible": 7,
+      "n_floor_at_zero": 1,
+      "n_total_C_lower_0": 8,
       "n_scenarios": 25,
-      "note": "bracket_width = C_upper - C_lower; floor/infeasible counts require per-scenario data (see B2)"
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
     },
     "position_template": {
       "median_C_lower_pct": 4.574479,
       "median_C_upper_pct": 5.779951,
-      "median_bracket_width": 1.205472,
+      "median_bracket_width_excl_infeasible": 0.427788,
       "n_right_censored": 0,
+      "n_base_infeasible": 0,
+      "n_floor_at_zero": 0,
+      "n_total_C_lower_0": 0,
       "n_scenarios": 25,
-      "note": "bracket_width = C_upper - C_lower; floor/infeasible counts require per-scenario data (see B2)"
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
     }
   },
   "B2_binding_constraint_diagnostic": {
@@ -71,12 +92,17 @@
       "n_definitely_A": 22,
       "n_indistinguishable": 1,
       "n_definitely_B": 2,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 23,
+        "B_ratio": 2
+      },
       "median_delta_lo": 6.706291,
       "bootstrap95_delta_lo": [
         3.919654,
         8.724856
       ],
-      "note": "Cabinet reference = legacy job-contribution P99 (cabinet_power_envelopes.json)"
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
     },
     "FP_vs_WithinCabPlacebo": {
       "label": "legacy_cabinet_reference_binding_diagnostic",
@@ -85,12 +111,17 @@
       "n_definitely_A": 20,
       "n_indistinguishable": 5,
       "n_definitely_B": 0,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 23,
+        "B_ratio": 2
+      },
       "median_delta_lo": 3.53776,
       "bootstrap95_delta_lo": [
         0.558065,
         4.435295
       ],
-      "note": "Cabinet reference = legacy job-contribution P99 (cabinet_power_envelopes.json)"
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
     },
     "FP_vs_GlobalPlacebo": {
       "label": "legacy_cabinet_reference_binding_diagnostic",
@@ -99,12 +130,17 @@
       "n_definitely_A": 22,
       "n_indistinguishable": 1,
       "n_definitely_B": 2,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 23,
+        "B_ratio": 2
+      },
       "median_delta_lo": 4.547527,
       "bootstrap95_delta_lo": [
         2.944597,
         7.817352
       ],
-      "note": "Cabinet reference = legacy job-contribution P99 (cabinet_power_envelopes.json)"
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
     },
     "RandomSpread_vs_Random": {
       "label": "legacy_cabinet_reference_binding_diagnostic",
@@ -113,12 +149,18 @@
       "n_definitely_A": 8,
       "n_indistinguishable": 14,
       "n_definitely_B": 3,
+      "n_both_base_infeasible": 6,
+      "first_binding_constraint_counts_polA": {
+        "B_ratio": 9,
+        "S_ratio": 3,
+        "B_cab_ratio": 3
+      },
       "median_delta_lo": 0.0,
       "bootstrap95_delta_lo": [
         -0.255787,
         0.030009
       ],
-      "note": "Cabinet reference = legacy job-contribution P99 (cabinet_power_envelopes.json)"
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
     },
     "FPSpread_vs_RandomSpread": {
       "label": "legacy_cabinet_reference_binding_diagnostic",
@@ -127,12 +169,18 @@
       "n_definitely_A": 20,
       "n_indistinguishable": 5,
       "n_definitely_B": 0,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 8,
+        "B_ratio": 13,
+        "S_ratio": 4
+      },
       "median_delta_lo": 2.151777,
       "bootstrap95_delta_lo": [
         0.524724,
         4.249484
       ],
-      "note": "Cabinet reference = legacy job-contribution P99 (cabinet_power_envelopes.json)"
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
     },
     "FPSpread_vs_FP": {
       "label": "legacy_cabinet_reference_binding_diagnostic",
@@ -141,12 +189,18 @@
       "n_definitely_A": 4,
       "n_indistinguishable": 3,
       "n_definitely_B": 18,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 8,
+        "B_ratio": 13,
+        "S_ratio": 4
+      },
       "median_delta_lo": -2.640257,
       "bootstrap95_delta_lo": [
         -4.489121,
         -2.004226
       ],
-      "note": "Cabinet reference = legacy job-contribution P99 (cabinet_power_envelopes.json)"
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
     },
     "FP_vs_PositionTemplate": {
       "label": "legacy_cabinet_reference_binding_diagnostic",
@@ -155,12 +209,17 @@
       "n_definitely_A": 16,
       "n_indistinguishable": 5,
       "n_definitely_B": 4,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 23,
+        "B_ratio": 2
+      },
       "median_delta_lo": 0.741114,
       "bootstrap95_delta_lo": [
         -0.816285,
         1.503522
       ],
-      "note": "Cabinet reference = legacy job-contribution P99 (cabinet_power_envelopes.json)"
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
     },
     "FPSpread_vs_PositionTemplate": {
       "label": "legacy_cabinet_reference_binding_diagnostic",
@@ -169,12 +228,18 @@
       "n_definitely_A": 6,
       "n_indistinguishable": 11,
       "n_definitely_B": 8,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 8,
+        "B_ratio": 13,
+        "S_ratio": 4
+      },
       "median_delta_lo": -1.159137,
       "bootstrap95_delta_lo": [
         -2.294362,
         -0.254073
       ],
-      "note": "Cabinet reference = legacy job-contribution P99 (cabinet_power_envelopes.json)"
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
     }
   },
   "B3_fpspread_vs_fp_both_directions": {
@@ -287,8 +352,10 @@
       "n_definitely_A": 22,
       "n_indistinguishable": 1,
       "n_definitely_B": 2,
-      "p_raw_one_sided": 7.8e-05,
-      "p_holm_adjusted": 0.000626,
+      "n_decisive": 24,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 3.6e-05,
+      "p_holm_adjusted_two_sided": 0.000215,
       "reject_H0_alpha05": true
     },
     {
@@ -299,8 +366,10 @@
       "n_definitely_A": 20,
       "n_indistinguishable": 5,
       "n_definitely_B": 0,
-      "p_raw_one_sided": 0.002039,
-      "p_holm_adjusted": 0.012232,
+      "n_decisive": 20,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 2e-06,
+      "p_holm_adjusted_two_sided": 1.5e-05,
       "reject_H0_alpha05": true
     },
     {
@@ -311,8 +380,10 @@
       "n_definitely_A": 22,
       "n_indistinguishable": 1,
       "n_definitely_B": 2,
-      "p_raw_one_sided": 7.8e-05,
-      "p_holm_adjusted": 0.000548,
+      "n_decisive": 24,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 3.6e-05,
+      "p_holm_adjusted_two_sided": 0.000179,
       "reject_H0_alpha05": true
     },
     {
@@ -323,8 +394,10 @@
       "n_definitely_A": 8,
       "n_indistinguishable": 14,
       "n_definitely_B": 3,
-      "p_raw_one_sided": 0.978357,
-      "p_holm_adjusted": 1.0,
+      "n_decisive": 11,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 0.226562,
+      "p_holm_adjusted_two_sided": 0.453125,
       "reject_H0_alpha05": false
     },
     {
@@ -335,8 +408,10 @@
       "n_definitely_A": 20,
       "n_indistinguishable": 5,
       "n_definitely_B": 0,
-      "p_raw_one_sided": 0.002039,
-      "p_holm_adjusted": 0.010193,
+      "n_decisive": 20,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 2e-06,
+      "p_holm_adjusted_two_sided": 1.3e-05,
       "reject_H0_alpha05": true
     },
     {
@@ -347,9 +422,11 @@
       "n_definitely_A": 4,
       "n_indistinguishable": 3,
       "n_definitely_B": 18,
-      "p_raw_one_sided": 0.999922,
-      "p_holm_adjusted": 0.999922,
-      "reject_H0_alpha05": false
+      "n_decisive": 22,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 0.004344,
+      "p_holm_adjusted_two_sided": 0.017374,
+      "reject_H0_alpha05": true
     },
     {
       "comparison": "FP_vs_PositionTemplate",
@@ -359,9 +436,11 @@
       "n_definitely_A": 16,
       "n_indistinguishable": 5,
       "n_definitely_B": 4,
-      "p_raw_one_sided": 0.114761,
-      "p_holm_adjusted": 0.459046,
-      "reject_H0_alpha05": false
+      "n_decisive": 20,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 0.011818,
+      "p_holm_adjusted_two_sided": 0.035454,
+      "reject_H0_alpha05": true
     },
     {
       "comparison": "FPSpread_vs_PositionTemplate",
@@ -371,8 +450,10 @@
       "n_definitely_A": 6,
       "n_indistinguishable": 11,
       "n_definitely_B": 8,
-      "p_raw_one_sided": 0.997961,
-      "p_holm_adjusted": 1.0,
+      "n_decisive": 14,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 0.790527,
+      "p_holm_adjusted_two_sided": 0.790527,
       "reject_H0_alpha05": false
     }
   ],

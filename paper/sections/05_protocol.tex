@@ -1,0 +1,85 @@
+%% Section 5: Preregistered Challenge Protocol
+%% STATUS: STUB — not yet drafted.
+%% See artifacts/revision2/SIGMETRICS_OUTLINE.md §5 for planned content (~2 pages).
+
+\section{Preregistered Challenge Protocol}
+\label{sec:protocol}
+
+\subsection{Preregistration}
+% Scientific runner and analysis plan frozen at Git commit 5733b73.
+% All comparison hypotheses, beta value, bootstrap parameters, interpretation rules
+% frozen before any sc30-sc54 scenario ran.
+% source: artifacts/revision2/challenge_preflight.json (plan_commit=5733b73)
+
+\subsection{Development Context and Prespecification Timeline}
+% The pre-specified challenge protocol (sc30-sc54) was designed and frozen
+% after two earlier evaluation phases:
+%   (1) Development runs sc0-sc4: 5 scenarios used for policy design,
+%       tuning, and verification. Results not included in primary analysis.
+%   (2) Earlier held-out evaluation sc5-sc29: 25 scenarios on the same base
+%       dataset, using revision1 selectors (no placebos, no position template).
+%       These earlier results are labeled "development-era evaluation on the
+%       same underlying base dataset" (Appendix) and are not primary results.
+% The frozen sc30-sc54 challenge was prespecified after sc5-sc29 was complete.
+% This timeline is explicitly disclosed per the post-exposure structure in
+% POST_EXPOSURE_SENSITIVITY_RECOVERY.md.
+
+\subsection{Primary Success Criterion}
+% H4 primary success: FP_vs_Random at r=1.25 achieves >= 13 of 25 held-out
+% scenarios with definitely-A verdict (n_definitely_A >= 13 of 25).
+% Achieved: 22/25 (n_definitely_A=22, n_indistinguishable=1, n_definitely_B=2).
+% Permutation-test p-value: 1/2001 approx 0.00050 (random policy wins in
+% 1 of 2001 permutations of the 25-scenario outcome).
+% source: artifacts/revision2/challenge_analysis.json
+%   FP_vs_Random r=1.25: n_definitely_A=22
+%   interpretation.H4_primary_success.pass = true
+
+\subsection{Preflight Gate (16/16 Conditions)}
+% Before challenge execution: 16-condition preflight gate.
+% source: artifacts/revision2/challenge_preflight.json
+%   n_conditions=16, overall_pass=True
+% Key conditions:
+%   Conditions 1-12: Phase A-E completeness checks
+%   Condition 14: Stage 2 full-simulation equivalence (Gate F sc0-sc4 at 1e-9 tolerance)
+%   Condition 15: Analysis regression test (315/315 output cells)
+%   Condition 16: Challenge seed-index audit (Amendment 5)
+
+\subsection{LOO Cross-Fitted Beta Estimator}
+% Amendment-3: per-job LOO cross-fit over 462 qualifying training jobs.
+% For each job j: exclude j from fingerprint; fit per-job slope beta_{j,CF};
+% PRIMARY_BETA_CHALLENGE = median_j(beta_{j,CF}) = 1.11416358 (-0.95% from frozen).
+% source: artifacts/revision2/loo_beta_results.json
+%   training_data.n_jobs_attempted = 462
+%   B3_primary_beta.PRIMARY_BETA_CHALLENGE = 1.11416358
+%   B3_primary_beta.pct_difference_from_frozen = -0.9495
+
+% Beta estimator variants in sensitivity:
+%   PRIMARY_BETA_CHALLENGE = 1.11416358 (Amendment-3 LOO cross-fit median)
+%   BETA_F_FROZEN          = 1.12484352 (original frozen estimator)
+%   Pooled FE slope        = 1.08293343 (superseded Amendment-2 diagnostic)
+%   Legacy jackknife mean  = 1.08293397 (similar value, DIFFERENT estimator)
+%   The pooled FE slope (1.08293343) and the legacy jackknife mean (1.08293397)
+%   are coincidentally similar but are distinct estimators. The primary
+%   estimator is the LOO CF median (1.11416358); neither 1.083 variant is primary.
+%   source: artifacts/revision2/loo_beta_results.json
+
+\subsection{Challenge Execution and Completion Audit}
+% 25 scenarios (sc30-sc54); frozen commit 5733b73.
+% After all scenarios: completion audit verifying completeness, seeds, hashes, NaN/Inf.
+% source: artifacts/revision2/challenge_completion_audit.json (audit_pass=True, n_scenarios=25)
+% Evidence freeze: commit f1c78a3.
+
+\subsection{Post-Exposure Sensitivity Disclosure}
+% E1 and E2 prespecified at 5733b73 but executed after primary results exposed.
+% Design not changed after exposure.
+% source: artifacts/revision2/POST_EXPOSURE_SENSITIVITY_RECOVERY.md
+% source: artifacts/revision2/final_output_audit.json (post_exposure_disclosure field)
+
+\subsection{AI-Use Disclosure}
+% Per SIGMETRICS 2027 CFP requirement.
+Generative-AI tools, including ChatGPT (OpenAI) and Claude/Claude Code (Anthropic),
+were used for research brainstorming and methodological critique, code-generation and
+debugging assistance, analysis auditing, figure-script development, and
+drafting/editing. The authors made and approved all final study-design, preregistration,
+analysis, and interpretation decisions; executed or supervised the analyses; verified
+numerical claims against frozen artifacts; and take responsibility for all content.

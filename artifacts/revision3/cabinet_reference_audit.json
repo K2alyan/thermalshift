@@ -7,12 +7,13 @@
   "legacy_formula": {
     "description": "P_cab_j = (mean_power_j / node_count_j) * n_nodes_in_cabinet_j",
     "n_jobs_used": 152400,
-    "stat": "P99 of per-job contributions per cabinet",
+    "stat": "P99 of per-job contributions per cabinet (JOB/EVENT-WEIGHTED, not time-weighted)",
+    "weighting": "Each job contributes one observation regardless of job duration. P99 is over job-count observations, not time bins.",
     "condition": "jobs with reported mean_power > 0",
     "topology": "CORRECT (native array zip, fixed from earlier bug)"
   },
 
-  "key_distinction_verbatim": "The legacy cabinet envelope (P99 of per-job contributions) is not the same statistical object as the P99 of observed concurrent cabinet power over time. These are different estimators. The former is a marginal P99 over individual job contributions, each treated as an independent draw; the latter integrates simultaneous job loads at each moment. The legacy estimator is used in all sc0-sc54 results.",
+  "key_distinction_verbatim": "The legacy P99 reference and the replayed concurrent cabinet quantity are not the same statistical object. The legacy reference is a marginal P99 over individual job contributions — each job contributes one observation, so it is EVENT-WEIGHTED (job-weighted), not time-weighted. The replayed concurrent quantity P_c_total(t) = sum_j P_job,c(t) over overlapping jobs is a time-varying sum; taking its P99 over time gives a TIME-WEIGHTED estimator of the concurrent power ceiling. These are different estimators and will generally differ. The legacy estimator is used in all sc0-sc54 results.",
 
   "fleet_summary": {
     "fleet_median_p99_kW": 92.487,

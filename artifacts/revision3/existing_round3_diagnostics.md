@@ -7,15 +7,15 @@
 
 ## B1. Absolute Capacity Levels at r=1.25
 
-| Policy | Median C_lower (%) | Median C_upper (%) | Bracket width | n_right_censored |
-|---|---|---|---|---|
-| full_fp | 7.3318 | 7.3756 | 0.0438 | 0 |
-| full_random | 0.1028 | 0.5752 | 0.4724 | 0 |
-| full_fp_spread | 4.9611 | 5.5389 | 0.5778 | 0 |
-| random_spread | 0.1199 | 0.8340 | 0.7141 | 0 |
-| fp_withincab_placebo | 2.8848 | 3.9942 | 1.1095 | 0 |
-| fp_global_placebo | 0.7558 | 1.3018 | 0.5460 | 0 |
-| position_template | 4.5745 | 5.7800 | 1.2055 | 0 |
+| Policy | Median C_lower (%) | Median C_upper (%) | Bracket width (excl infeasible) | n_base_infeasible | n_floor_at_zero | n_right_censored |
+|---|---|---|---|---|---|---|
+| full_fp | 7.3318 | 7.3756 | 0.1855 | 0 | 0 | 0 |
+| full_random | 0.1028 | 0.5752 | 0.2430 | 9 | 3 | 0 |
+| full_fp_spread | 4.9611 | 5.5389 | 0.3196 | 0 | 0 | 0 |
+| random_spread | 0.1199 | 0.8340 | 0.2811 | 10 | 1 | 0 |
+| fp_withincab_placebo | 2.8848 | 3.9942 | 0.4456 | 2 | 0 | 0 |
+| fp_global_placebo | 0.7558 | 1.3018 | 0.3123 | 7 | 1 | 0 |
+| position_template | 4.5745 | 5.7800 | 0.4278 | 0 | 0 | 0 |
 
 ## B2. Binding Constraint Diagnostic (legacy cabinet reference)
 
@@ -46,16 +46,18 @@ Crossover point: **8.0**
 
 ## B4. Sign Tests with Holm-Bonferroni Correction (r=1.25)
 
-| Comparison | A/I/B | p_raw | p_Holm | Reject H0 |
-|---|---|---|---|---|
-| FP_vs_Random | 22/1/2 | 0.0001 | 0.0006 | YES |
-| FP_vs_WithinCabPlacebo | 20/5/0 | 0.0020 | 0.0122 | YES |
-| FP_vs_GlobalPlacebo | 22/1/2 | 0.0001 | 0.0005 | YES |
-| RandomSpread_vs_Random | 8/14/3 | 0.9784 | 1.0000 | no |
-| FPSpread_vs_RandomSpread | 20/5/0 | 0.0020 | 0.0102 | YES |
-| FPSpread_vs_FP | 4/3/18 | 0.9999 | 0.9999 | no |
-| FP_vs_PositionTemplate | 16/5/4 | 0.1148 | 0.4590 | no |
-| FPSpread_vs_PositionTemplate | 6/11/8 | 0.9980 | 1.0000 | no |
+Two-sided exact binomial on decisive scenarios only (indistinguishable excluded from N).
+
+| Comparison | A/I/B | n_decisive | p_raw (two-sided) | p_Holm | Reject H0 |
+|---|---|---|---|---|---|
+| FP_vs_Random | 22/1/2 | 24 | 0.0000 | 0.0002 | YES |
+| FP_vs_WithinCabPlacebo | 20/5/0 | 20 | 0.0000 | 0.0000 | YES |
+| FP_vs_GlobalPlacebo | 22/1/2 | 24 | 0.0000 | 0.0002 | YES |
+| RandomSpread_vs_Random | 8/14/3 | 11 | 0.2266 | 0.4531 | no |
+| FPSpread_vs_RandomSpread | 20/5/0 | 20 | 0.0000 | 0.0000 | YES |
+| FPSpread_vs_FP | 4/3/18 | 22 | 0.0043 | 0.0174 | YES |
+| FP_vs_PositionTemplate | 16/5/4 | 20 | 0.0118 | 0.0355 | YES |
+| FPSpread_vs_PositionTemplate | 6/11/8 | 14 | 0.7905 | 0.7905 | no |
 
 ## B5. Decomposition Contrasts (exploratory)
 

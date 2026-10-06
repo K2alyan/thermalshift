@@ -1,0 +1,71 @@
+%% Section 8: Discussion and Limitations
+%% STATUS: STUB — key limitation topics outlined.
+%% See artifacts/revision2/SIGMETRICS_OUTLINE.md §8 for planned content (~1.5 pages).
+
+\section{Discussion and Limitations}
+\label{sec:discussion}
+
+\subsection{Scope: Constraint-Aware Replay Model}
+% All results are within the replay model. The +6.71 pp advantage is a capacity-yield
+% separation in the replay model — not observed live throughput improvement.
+% Node-hours translation: algebraic (78,907 base cohort node-hours × [0.036, 0.056])
+% -> ~2,800-4,400 additional cohort node-hours per replay window.
+% This is a replay-model algebraic translation, not observed output.
+% source: artifacts/phase1/analysis/phase3b_mc_results.json (H_cohort_hist_nh=78907.3775)
+
+\subsection{T\_thr Not Directly Tested}
+% Thermal threshold T_thr = 63.625C (primary) / 60.602C (secondary) was fixed
+% at Gate F calibration and not varied in Review-2.
+% E1 (cabinet-scale sensitivity) tests a different calibration dimension.
+% T_thr sensitivity is a documented limitation.
+
+\subsection{Monte Carlo vs.\ Data Uncertainty}
+% The capacity-yield separation is measured through replay-model simulation,
+% not from empirical before/after operational data. The bootstrap quantifies
+% uncertainty in the scenario-to-scenario ranking (25 random draws from a
+% fixed base workload with fixed fingerprints). It does not quantify:
+%   (1) uncertainty in the fingerprint estimates themselves (FA_2024 is
+%       computed from a finite training set; out-of-distribution workloads
+%       may not induce the same thermal ordering);
+%   (2) uncertainty from replay vs. live execution (live scheduling interacts
+%       with job start times, preemption, and node failures not captured in replay);
+%   (3) model-definition sensitivity (cabinet-reference definition; threshold T_thr).
+% The +6.71 pp advantage is a replay-model measurement with quantified
+% scenario-level uncertainty; it is not a Monte Carlo estimate of a population
+% parameter, and it is not confirmed by paired live A/B operational data.
+
+\subsection{Network Locality and Runtime Effects}
+% Frontier jobs are assigned in contiguous rack groups for network locality.
+% The fingerprint selector operates within a candidate set of size r=1.25×k,
+% where k is the requested node count. At constrained ratios (r=1.25),
+% the thermal-aware selector may conflict with topological locality preferences:
+% the coolest available nodes may not form a contiguous network-local allocation.
+% Potential effects: (1) communication overhead from non-contiguous placement
+% (not measured); (2) interference between thermal-aware and topology-aware
+% objectives in a production multi-policy scheduler. The replay model does not
+% model network locality beyond cabinet-level span (cab_span_median = 9 cabinets
+% for FP at r=1.25; see policy_summaries in challenge_analysis.json).
+% r=1.25 is not interpreted as modeling a specific locality regime; it is the
+% pre-specified primary ratio from the frozen challenge protocol.
+
+\subsection{Position Template Non-Separation}
+% FP not statistically separated from thermally informed structural-position template
+% at the primary choice ratio (16/5/4, median +0.74 pp, CI [-0.82, +1.50]).
+% source: artifacts/revision2/challenge_analysis.json
+% The position template reflects average historical fingerprint at each physical position.
+% We do not claim fingerprints outperform all thermally informed strategies.
+
+\subsection{Fleet Generalizability}
+% Study cohort: 2,000 nodes (20.3% of Frontier's 9,856 nodes).
+% Result applies to the study cohort under the historical operating envelope.
+% Extrapolation to full-fleet deployment is not validated.
+% Three late-arriving cabinets (2600-2602): documented calibration concern.
+% source: artifacts/revision2/cabinet_timeline_audit.json
+
+\subsection{Post-Exposure Sensitivity Disclosure}
+% E1/E2 prespecified at commit 5733b73 but executed after Phase G primary results
+% exposed. Design not changed after exposure.
+% source: artifacts/revision2/POST_EXPOSURE_SENSITIVITY_RECOVERY.md
+
+\subsection{AI-Use Disclosure}
+% See §\ref{sec:protocol} for full AI-use disclosure per SIGMETRICS 2027 CFP.
