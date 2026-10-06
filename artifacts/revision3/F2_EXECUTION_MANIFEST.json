@@ -1,0 +1,35 @@
+{
+  "manifest_version": 1,
+  "date": "2026-10-06",
+  "experiment": "F2_local_date_cabinet_reference_scheduling",
+  "authorization": "Phase 3 F2 narrow scheduling experiment authorized per specification",
+  "provenance": {
+    "runner_script": "artifacts/revision3/r3_gate_f_run.py",
+    "runner_commit": "73195ae906356457191e28a7443fe678ab7f4681",
+    "runner_sha256": "0abca44e96019bbc7c32b44db983c94305e4574b93757c647e4ec3f201c2d5a3",
+    "f2_reference_file": "artifacts/revision3/f2_local_scheduling_reference.json",
+    "f2_reference_sha256": "71de8abcd92cb8b800aecb401f1dc2a4edbcada8a971e72afa6491778d290c34",
+    "f2_denominator_file": "artifacts/revision3/f2_denominator.json",
+    "f2_denominator_sha256": "1b6c4a9f21fbc8471fde354883c258b1ebc18f4aaeb3b898c26310b5da69b534",
+    "B_cab_hist_F2_h": 2454.5711111111104,
+    "task_d2_commit": "ab3119c",
+    "f2_scheduling_plan_commit": "73195ae"
+  },
+  "scenario_parameters": {
+    "cabinet_reference_mode": "corrected_timeweighted_total_p99_local",
+    "policies": ["full_fp", "full_random"],
+    "ratios": [1.25],
+    "n_first": 30,
+    "n_dev": 25,
+    "scenarios": "sc30-sc54 (held-out set)"
+  },
+  "preflights": {
+    "sc30_smoke_max_diff": 0.0,
+    "seed_canonical_225": "PASS",
+    "restriction_invariance_50": "PASS",
+    "f2_reference_unit_tests_12": "PASS",
+    "py_compile": "PASS"
+  },
+  "no_F2_policy_result_observed": true,
+  "notes": "All preflight checks passed before any F2 scheduling result was observed. Runner commit and all artifact SHAs frozen here before launch."
+}
