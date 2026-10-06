@@ -1,0 +1,60 @@
+{
+  "plan_ref": "THIRD_REVIEW_ANALYSIS_PLAN.md \u00a7K (Amendment 2)",
+  "amendment": "2",
+  "source": "artifacts/revision1/results/m4_threshold_audit.json + full_train_t95_distribution.parquet",
+  "populations": {
+    "nominal_pre2025": {
+      "n_jobs": 3945,
+      "selection_rule": "All pre-2025 jobs in globus_batch.txt",
+      "source": "artifacts/phase1/globus_batch.txt (pre-2025 entries)"
+    },
+    "full_population": {
+      "n_jobs": 3940,
+      "n_node_job_pairs": 77627,
+      "selection_rule": "Nominal jobs with at least one fp node having >= 8 GCD channels and >= 5 valid T_p95 timestamps. No minimum fp-nodes-per-job requirement.",
+      "thresholds_C": {
+        "p90": 61.875,
+        "p95": 63.625,
+        "p99": 66.6625
+      },
+      "mean_C": 49.85338425449663
+    },
+    "training_subset_462": {
+      "n_jobs": 462,
+      "selection_rule": "Jobs from 1000-job random sample (seed=42) of 3945 nominal jobs, qualifying for power-model slope estimation (>= 8 fp nodes per job, each with >= 8 GCD channels and >= 5 valid timestamps).",
+      "thresholds_C": {
+        "p90": 61.801,
+        "p95": 63.625,
+        "p99": 66.264
+      }
+    }
+  },
+  "excluded_5_jobs": {
+    "n_excluded": 5,
+    "identification_method": "Diff of nominal 3945 job IDs (globus_batch.txt pre-2025) vs contributing 3940 job IDs (full_train_t95_distribution.parquet unique job_idx)",
+    "exclusion_criterion": "No fp node with >= 8 GCD channels AND >= 5 valid T_p95 timestamps",
+    "excluded_job_ids": {
+      "035490": "No fp node with >= 8 GCD channels AND >= 5 valid T_p95 timestamps",
+      "035492": "No fp node with >= 8 GCD channels AND >= 5 valid T_p95 timestamps",
+      "057113": "No fp node with >= 8 GCD channels AND >= 5 valid T_p95 timestamps",
+      "057851": "No fp node with >= 8 GCD channels AND >= 5 valid T_p95 timestamps",
+      "058085": "No fp node with >= 8 GCD channels AND >= 5 valid T_p95 timestamps"
+    },
+    "status": "RESOLVED"
+  },
+  "threshold_consistency": {
+    "delta_p95_full_minus_subset_C": 0.0,
+    "verdict": "Full-population p95 = 63.625 C = subset p95 = 63.625 C (delta = 0.0 C). Subset threshold is a reliable estimate."
+  },
+  "frozen_primary_threshold_grid": {
+    "p90_C": 61.875,
+    "p95_C": 63.625,
+    "p99_C": 66.6625,
+    "source_population": "full_population (n=3940)"
+  },
+  "legacy_T_thr_secondary": {
+    "value_C": 60.602770562770566,
+    "provenance": "Empirical p95 of node-job GCD temperature observations in the 462-job training subset, computed during phase3b1 analysis. Stored in phase3b1_realism.json empirical_thresholds.T_p95 and used as T_P95_THRESHOLD constant in phase3b2c_calibration.py and downstream scripts. This is the B_secondary / S_secondary threshold. It is NOT the primary threshold used in sc30-54 (which uses p95=63.625 from the full 3940-job population).",
+    "status": "RESOLVED"
+  }
+}

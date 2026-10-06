@@ -1,8 +1,8 @@
 {
-  "plan_version": "2.0",
+  "plan_version": "2.1",
   "plan_label": "Round-3 reviewer-requested robustness and exploratory analyses",
-  "exposure_status": "post-exposure \u00e2\u20ac\u201d all Round-3 work executed after sc30-sc54 primary results were observed",
-  "plan_frozen_at_commit": "TBD \u00e2\u20ac\u201d this file committed before any new simulation",
+  "exposure_status": "post-exposure — all Round-3 work executed after sc30-sc54 primary results were observed",
+  "plan_frozen_at_commit": "TBD — this file committed before any new simulation",
   "plan_authored": "2026-10-05",
   "CRITICAL_NOTE": "The frozen sc30-sc54 challenge (commit 5733b73, analysis commit f1c78a3) remains unchanged and is the original pre-specified result. All tasks below are post-exposure reviewer-requested work.",
   "primary_success_criterion": {
@@ -222,7 +222,7 @@
   },
   "legacy_vs_corrected_reporting_rule_verbatim": "The legacy cabinet-reference result remains the frozen pre-specified analysis. The concurrent-total-power reference is a post-exposure, reviewer-requested model-definition correction. All downstream Round-3 analyses use the corrected time-weighted reference regardless of its result. A main-text directional scheduling claim is described as robust to cabinet-reference definition only if legacy and corrected references agree in direction. If they disagree, the abstract, results, and conclusion explicitly report model-definition dependence.",
   "e1_reinterpretation": {
-    "behavior": "CAB_SCALE multiplies each cabinet P99 uniformly; both counterfactual cabinet exposure AND historical B_cab denominator scale by the same factor",
+    "behavior": "CAB_SCALE multiplies each cabinet P99 threshold uniformly. B_ref_s (historical exceedance denominator) is computed at the FIXED base threshold (CAB_SCALE=1.0) and does NOT scale with CAB_SCALE. Verified: B_ref_s = 2449.93 s at all 5 CAB_SCALE values for sc30. B_primary_h (counterfactual exceedance) changes nonlinearly: higher CAB_SCALE -> higher threshold -> less exceedance -> lower B_primary_h -> lower B_cab_ratio.",
     "label": "cabinet-reference scale sensitivity, not fixed-budget sweep",
     "historical_b_cab_approximate_hours": {
       "0.90": 89264,
@@ -231,7 +231,8 @@
       "1.05": 58851,
       "1.10": 50288
     },
-    "note": "Directional interpretation under legacy E1 is approximate; rerun around corrected time-weighted reference after R3-0 is accepted"
+    "note": "Directional interpretation under legacy E1 is approximate; rerun around corrected time-weighted reference after R3-0 is accepted",
+    "prior_incorrect_statement_retracted": "The prior statement that both counterfactual exposure AND historical B_cab denominator scale proportionally was FALSE. B_ref_s is invariant to CAB_SCALE."
   },
   "threshold_grid": {
     "primary_threshold_C": 63.625,
@@ -253,7 +254,7 @@
     "primary_feasibility_criterion": "B_cab incidence/exceedance-hours (model type closest to frozen analysis)"
   },
   "r3_0_plan": {
-    "label": "R3-0: corrected cabinet-reference run on sc30-sc54",
+    "label": "R3-0: corrected cabinet-reference run on sc30-sc54 (Amendment 2: replays all 25 frozen revision2 scenarios)",
     "modes": [
       "legacy_job_contribution_p99",
       "corrected_timeweighted_total_p99",
@@ -274,7 +275,9 @@
       "B_cab_ratios",
       "S_cab_diagnostic"
     ],
-    "STOP_AFTER": "Do not automatically launch R3-A through R3-E after R3-0; await review"
+    "STOP_AFTER": "Do not automatically launch R3-A through R3-E after R3-0; await review",
+    "scenarios": "sc30-sc54 (all 25 frozen revision2 held-out scenarios)",
+    "equiv_check_note": "Partial scenario sets fail immediately. Subset equivalence never passes. All 25 sc30-sc54 must be present in R3-0 output file."
   },
   "position_template_audit": {
     "scheduling_key": "pos_key = chassis + '_' + slot + '_' + board + '_' + node_pos",
@@ -296,7 +299,7 @@
         "rule": "global cohort mean FA_2024, excluding target node"
       }
     ],
-    "fallback_trigger": "first level where group size >= 2 after excluding target",
+    "fallback_trigger": "first level where at least 1 member remains after excluding the target node (group size >= 2 including target)",
     "do_not_drop_singletons": true,
     "validation": "compute rank correlation between LOO variant scores and original LOC_FA; run scheduling only if diagnostic shows consequential ranking change"
   },
@@ -319,7 +322,7 @@
   },
   "calendar_split": {
     "boundary_rule": "median start_time of the 2,637 frozen base-cohort test-set jobs",
-    "boundary_status": "PENDING \u00e2\u20ac\u201d compute and write exact timestamp into this file before any split result",
+    "boundary_status": "PENDING — compute and write exact timestamp into this file before any split result",
     "reference": "use corrected time-weighted reference",
     "comparisons": [
       "FP_vs_Random",
@@ -586,5 +589,15 @@
     "4": "report commit SHA",
     "5": "report exact R3 run matrix and estimated compute",
     "6": "show legacy-equivalence acceptance criteria (tolerance 1e-9)"
-  }
+  },
+  "amendment_2_status": "pre-execution methodological correction — no new policy simulation results observed at time of amendment",
+  "new_round3_policy_results_observed": false,
+  "initial_freeze_commit": "17c2e91",
+  "correction_commit_1": "bf4d2a3",
+  "superseded_outputs": [
+    "cabinet_reference_audit.json (v1) — superseded by cabinet_reference_audit_v3.json",
+    "CABINET_REFERENCE_AUDIT.md (v1) — superseded by cabinet_reference_audit_v3.json",
+    "threshold_population_audit.json — superseded by threshold_population_audit_v2.json",
+    "check_r3_legacy_equivalence_stub.json — superseded by Amendment 2 corrected script output"
+  ]
 }

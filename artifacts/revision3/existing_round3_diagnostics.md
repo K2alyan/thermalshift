@@ -1,5 +1,6 @@
 # Existing-Output Diagnostics — Round-3 (Task B)
 
+**Amendment:** 2  **Plan version:** 2.1
 **Post-exposure:** post-exposure reviewer-requested; designed and executed after sc30-sc54 primary results observed
 **Source:** `artifacts\revision2\challenge_analysis.json`
 
@@ -19,60 +20,68 @@
 
 ## B2. Binding Constraint Diagnostic (legacy cabinet reference)
 
-| Comparison | A/I/B | Median δ_lo (pp) | Bootstrap 95% CI |
+| Comparison | A/I/B | n_both_infeasible | Median delta_lo (pp) | Bootstrap 95% CI |
+|---|---|---|---|---|
+| FP_vs_Random | 22/1/2 | 0 | +6.706 | [+3.920, +8.725] |
+| FP_vs_WithinCabPlacebo | 20/5/0 | 0 | +3.538 | [+0.558, +4.435] |
+| FP_vs_GlobalPlacebo | 22/1/2 | 0 | +4.548 | [+2.945, +7.817] |
+| RandomSpread_vs_Random | 8/14/3 | 6 | +0.000 | [-0.256, +0.030] |
+| FPSpread_vs_RandomSpread | 20/5/0 | 0 | +2.152 | [+0.525, +4.249] |
+| FPSpread_vs_FP | 4/3/18 | 0 | -2.640 | [-4.489, -2.004] |
+| FP_vs_PositionTemplate | 16/5/4 | 0 | +0.741 | [-0.816, +1.504] |
+| FPSpread_vs_PositionTemplate | 6/11/8 | 0 | -1.159 | [-2.294, -0.254] |
+
+## B3. FPSpread vs FP — Both Directions
+
+FPSpread_vs_FP: delta_lo = C_lower(FPSpread) - C_upper(FP).
+FP-over-FPSpread reverse: uses identity delta_lo(FP,FPSpread) = -delta_hi(FPSpread,FP).
+NEVER negate delta_lo for the reverse direction.
+
+Crossover point (FPSpread_vs_FP median delta_lo flips +): **8.0**
+
+| Ratio | FPSpread_vs_FP median delta_lo | A/I/B | FP_over_FPSpread median (-delta_hi) |
 |---|---|---|---|
-| FP_vs_Random | 22/1/2 | +6.706 | [+3.920, +8.725] |
-| FP_vs_WithinCabPlacebo | 20/5/0 | +3.538 | [+0.558, +4.435] |
-| FP_vs_GlobalPlacebo | 22/1/2 | +4.548 | [+2.945, +7.817] |
-| RandomSpread_vs_Random | 8/14/3 | +0.000 | [-0.256, +0.030] |
-| FPSpread_vs_RandomSpread | 20/5/0 | +2.152 | [+0.525, +4.249] |
-| FPSpread_vs_FP | 4/3/18 | -2.640 | [-4.489, -2.004] |
-| FP_vs_PositionTemplate | 16/5/4 | +0.741 | [-0.816, +1.504] |
-| FPSpread_vs_PositionTemplate | 6/11/8 | -1.159 | [-2.294, -0.254] |
-
-## B3. FPSpread vs FP — crossover
-
-Crossover point: **8.0**
-
-| Ratio | FPSpread_vs_FP median δ_lo | A/I/B |
-|---|---|---|
-| 1.0 | -0.2302 | 0/25/0 |
-| 1.25 | -2.6403 | 4/3/18 |
-| 1.5 | -2.8761 | 1/4/20 |
-| 2.0 | -2.9506 | 4/4/17 |
-| 4.0 | -0.4638 | 12/3/10 |
-| 8.0 | +0.7215 | 17/3/5 |
-| unrestricted | +2.0117 | 21/3/1 |
+| 1.0 | -0.2302 | 0/25/0 | -0.2302 |
+| 1.25 | -2.6403 | 4/3/18 | +2.1482 |
+| 1.5 | -2.8761 | 1/4/20 | +1.0733 |
+| 2.0 | -2.9506 | 4/4/17 | +1.8552 |
+| 4.0 | -0.4638 | 12/3/10 | -1.3969 |
+| 8.0 | +0.7215 | 17/3/5 | -2.6316 |
+| unrestricted | +2.0117 | 21/3/1 | -3.2506 |
 
 ## B4. Sign Tests with Holm-Bonferroni Correction (r=1.25)
 
-Two-sided exact binomial on decisive scenarios only (indistinguishable excluded from N).
+Two-sided exact binomial on decisive scenarios only (indistinguishable excluded from n_decisive).
+Holm correction: cumulative-maximum step applied before capping at 1.0 (Amendment 2 fix).
 
 | Comparison | A/I/B | n_decisive | p_raw (two-sided) | p_Holm | Reject H0 |
 |---|---|---|---|---|---|
-| FP_vs_Random | 22/1/2 | 24 | 0.0000 | 0.0002 | YES |
-| FP_vs_WithinCabPlacebo | 20/5/0 | 20 | 0.0000 | 0.0000 | YES |
-| FP_vs_GlobalPlacebo | 22/1/2 | 24 | 0.0000 | 0.0002 | YES |
-| RandomSpread_vs_Random | 8/14/3 | 11 | 0.2266 | 0.4531 | no |
-| FPSpread_vs_RandomSpread | 20/5/0 | 20 | 0.0000 | 0.0000 | YES |
-| FPSpread_vs_FP | 4/3/18 | 22 | 0.0043 | 0.0174 | YES |
-| FP_vs_PositionTemplate | 16/5/4 | 20 | 0.0118 | 0.0355 | YES |
-| FPSpread_vs_PositionTemplate | 6/11/8 | 14 | 0.7905 | 0.7905 | no |
+| FP_vs_Random | 22/1/2 | 24 | 0.000036 | 0.000215 | YES |
+| FP_vs_WithinCabPlacebo | 20/5/0 | 20 | 0.000002 | 0.000015 | YES |
+| FP_vs_GlobalPlacebo | 22/1/2 | 24 | 0.000036 | 0.000215 | YES |
+| RandomSpread_vs_Random | 8/14/3 | 11 | 0.226562 | 0.453125 | no |
+| FPSpread_vs_RandomSpread | 20/5/0 | 20 | 0.000002 | 0.000015 | YES |
+| FPSpread_vs_FP | 4/3/18 | 22 | 0.004344 | 0.017374 | YES |
+| FP_vs_PositionTemplate | 16/5/4 | 20 | 0.011818 | 0.035454 | YES |
+| FPSpread_vs_PositionTemplate | 6/11/8 | 14 | 0.790527 | 0.790527 | no |
 
-## B5. Decomposition Contrasts (exploratory)
+## B5. Direct Paired Decomposition Contrasts (post-exposure exploratory)
 
-| Contrast | Median δ_lo (pp) | Interpretation |
-|---|---|---|
-| global_score_advantage | +4.5475 | Advantage from knowing global thermal ordering vs random permutation |
-| node_vs_cabinet_specificity | +3.5378 | Node-level fingerprint advantage beyond cabinet-level composition |
-| cabinet_composition_advantage | +2.1588 | Advantage attributable to cabinet-level thermal composition (approximate decomposition) |
-| spreading_cost_constrained | -2.6403 | Cost of cabinet-spreading at r=1.25 (FPSpread loses to FP) |
+Direct per-scenario bracket contrasts: delta_lo(A,B) = C_lower(A) - C_upper(B);
+delta_hi(A,B) = C_upper(A) - C_lower(B). Algebraic median subtraction NOT used.
+Both-infeasible scenarios: treated as [0,0] -> indistinguishable.
+
+| Contrast | A/I/B | n_both_infeasible | Median delta_lo | Median delta_hi | Boot95 delta_lo | p (sign test) |
+|---|---|---|---|---|---|---|
+| GlobalPlacebo_vs_Random | 8/13/4 | 5 | +0.0000 | +0.2541 | [-0.3728, +0.5088] | 0.387695 |
+| WithinCabPlacebo_vs_GlobalPlacebo | 14/7/4 | 2 | +0.0141 | +0.9560 | [-0.3435, +1.4484] | 0.030884 |
+| FP_vs_WithinCabPlacebo | 20/5/0 | 0 | +3.5378 | +3.9417 | [+0.5581, +4.4353] | 0.000002 |
 
 ## B6. Order-Statistic Median CI (n=25)
 
 OS_8 and OS_18; actual coverage = 0.9567
 
-| Comparison | Median δ_lo | OS CI | Bootstrap 95% CI |
+| Comparison | Median delta_lo | OS CI | Bootstrap 95% CI |
 |---|---|---|---|
 | FP_vs_Random | +6.706 | [+3.920, +8.725] | [+3.920, +8.725] |
 | FP_vs_WithinCabPlacebo | +3.538 | [+0.558, +4.435] | [+0.558, +4.435] |
@@ -83,16 +92,20 @@ OS_8 and OS_18; actual coverage = 0.9567
 | FP_vs_PositionTemplate | +0.741 | [-0.816, +1.504] | [-0.816, +1.504] |
 | FPSpread_vs_PositionTemplate | -1.159 | [-2.294, -0.254] | [-2.294, -0.254] |
 
-## B7. sc5–sc29 Evaluation (revision1 design, exploratory context)
+## B7. sc5-sc29 Evaluation (revision1 design, development-era, exploratory context)
 
+**Authoritative source:** `artifacts\revision1\results\gate_f_heldout_analysis.json`
+**Note:** Values read directly from gate_f_heldout_analysis.json (NOT gate_f_sc5-29 file).
 n_scenarios: 25
 
-| Comparison | n | Median δ_approx | Bootstrap 95% | n+/0/− |
-|---|---|---|---|---|
-| FP_vs_Random | 25 | -0.4370 | [-0.6604, -0.1729] | 5/0/20 |
-| FP_vs_Loc | 25 | +0.1222 | [-0.1267, +0.9401] | 14/0/11 |
-| FPSpread_vs_FP | 25 | +0.3168 | [+0.2341, +0.5049] | 21/0/4 |
+| Comparison | A/I/B | Median delta_lo | Bootstrap95 delta_lo |
+|---|---|---|---|
+| FP_vs_Random | 25/0/0 | 4.771026 | [2.585024, 6.063253] |
+| Loc_vs_Random | 22/3/0 | 2.620803 | [1.100455, 5.149012] |
+| FPSpread_vs_Random | 21/4/0 | 1.611426 | [0.438159, 2.908751] |
+| FPSpread_vs_FP | 3/3/19 | -3.362997 | [-4.935221, -1.879605] |
+| FPSpread_vs_Loc | 2/11/12 | -1.170622 | [-3.295356, -0.486615] |
 
 ---
 
-*Post-exposure reviewer-requested analysis.*
+*Post-exposure reviewer-requested analysis. Amendment 2 corrected.*
