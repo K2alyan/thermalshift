@@ -1,0 +1,95 @@
+{
+  "manifest_version": 2,
+  "date": "2026-10-06",
+  "experiment": "F2_local_date_cabinet_reference_scheduling_corrected",
+  "supersedes": "F2_EXECUTION_MANIFEST.json (v1, invalidated — denominator scope mismatch)",
+
+  "invalidated_run_disclosure": {
+    "scenarios_completed_before_termination": 8,
+    "scenarios_range": "sc30-sc37",
+    "reason": "B_cab_hist loaded from Task-D full-public-sample denominator (f2_denominator.json) while policy numerator used replay-world event process. Numerator and denominator had different workload populations and time support.",
+    "archive": "artifacts/revision3/invalidated_f2_denominator_scope_mismatch/",
+    "reused": false
+  },
+
+  "denominator_definitions": {
+    "task_d_reference_process": {
+      "key": "task_d_reference_process_B_cab_hist_F2_h",
+      "artifact": "f2_denominator.json",
+      "sha256": "1b6c4a9f21fbc8471fde354883c258b1ebc18f4aaeb3b898c26310b5da69b534",
+      "value_h": 2454.5711111111104,
+      "purpose": "Validates that Q_F2 is a true time-weighted P99 of the full observed public-job process. NOT the scheduler denominator.",
+      "workload": "All 152,400 jobs, all nodes, local-date clipping"
+    },
+    "replay_feasibility": {
+      "key": "replay_feasibility_B_cab_hist_F2_replay_h",
+      "artifact": "f2_replay_denominator.json",
+      "sha256": "b0594373af48fe6bb840ddc32c5628d7c3c26384e11c42fd58f4b9b27555ce48",
+      "value_h": 871.3691666666647,
+      "purpose": "Historical cabinet exposure in the scheduler replay world under F2 thresholds. THIS is the scheduling denominator.",
+      "workload": "bg_records (non-cohort nodes) + cohort_hist_records (test-set cohort nodes); no date clipping"
+    }
+  },
+
+  "f1_denominator_verification": {
+    "artifact": "frozen_f1_bcab_denominator_verification.json",
+    "sha256": "fce0e58351d8fe1973ecc88514e28abd898c96a8669ea834a6d0b6f7d3f2c674",
+    "B_cab_hist_F1_h": 67917.76333331302,
+    "pre_existing_anchor": "artifacts/revision1/results/m4_fair_baselines.json (2026-09-30, SHA256: cfb4912b...)",
+    "anchor_vs_reproduced_diff": 0.0,
+    "independent_code_path": "verify_frozen_f1_bcab_denominator.py (verbatim blocks from bfb658b)",
+    "overall_pass": true
+  },
+
+  "provenance": {
+    "runner_script": "artifacts/revision3/r3_gate_f_run.py",
+    "runner_commit": "4e7ba86d14970f62550a56bc6be9899b5779e5c2",
+    "runner_sha256": "3bc8bcb07defd342d925e3eed2e5258be5424a7d596201c0246ba41d0613a6e1",
+    "f2_reference_file": "artifacts/revision3/f2_local_scheduling_reference.json",
+    "f2_reference_sha256": "71de8abcd92cb8b800aecb401f1dc2a4edbcada8a971e72afa6491778d290c34",
+    "f2_replay_denominator_sha256": "b0594373af48fe6bb840ddc32c5628d7c3c26384e11c42fd58f4b9b27555ce48",
+    "runner_loaded_replay_sha256_matches": true
+  },
+
+  "scenario_parameters": {
+    "cabinet_reference_mode": "corrected_timeweighted_total_p99_local",
+    "policies": ["full_fp", "full_random"],
+    "ratios": [1.25],
+    "n_first": 30,
+    "n_dev": 25,
+    "scenarios": "sc30-sc54 (held-out set)",
+    "checkpoint_reuse": false
+  },
+
+  "preflights": {
+    "F2_reference_unit_tests_18_of_18": "PASS",
+    "runner_loads_replay_not_taskd_denominator": "PASS (checks 15+16)",
+    "sc30_F1_smoke_max_diff": 0.0,
+    "sc30_F2_software_smoke": "PASS (exact_bracket both policies)",
+    "sc30_F2_smoke_loaded_replay_sha": "b0594373af48fe6bb840ddc32c5628d7c3c26384e11c42fd58f4b9b27555ce48",
+    "seed_canonical_225": "PASS",
+    "restriction_invariance_50": "PASS",
+    "py_compile": "PASS",
+    "F1_denominator_independent_reproduction": "PASS (diff=0.00e+00 vs 2026-09-30 anchor)"
+  },
+
+  "sc30_F2_software_smoke_results": {
+    "label": "software smoke only — not scientific evidence",
+    "loaded_B_cab_hist_F2_replay_h": 871.3691666666647,
+    "full_fp": {
+      "status": "exact_bracket",
+      "C_lower_pct": 15.9185,
+      "C_upper_pct": 16.1767,
+      "first_binding": "B_ratio"
+    },
+    "full_random": {
+      "status": "exact_bracket",
+      "C_lower_pct": 4.8176,
+      "C_upper_pct": 4.8237,
+      "first_binding": "B_ratio"
+    }
+  },
+
+  "no_F2_policy_result_observed_for_scientific_use": true,
+  "invalidated_scope_mismatch_run_reused": false
+}
