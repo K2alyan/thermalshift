@@ -1,6 +1,6 @@
-# Round-3 Analysis Plan v2.1: Reviewer-Requested Robustness and Exploratory Analyses
+# Round-3 Analysis Plan v2.2: Reviewer-Requested Robustness and Exploratory Analyses
 
-**Version:** 2.1 (supersedes v2.0; see `artifacts/revision3/ROUND3_PLAN_AMENDMENT_2.md` for correction record)
+**Version:** 2.2 (supersedes v2.1; see `artifacts/revision3/ROUND3_PLAN_AMENDMENT_3.md` for correction record)
 
 **Exposure status:** post-exposure — all Round-3 work was designed and will be executed after the sc30–sc54 primary challenge results (evidence-frozen at commit f1c78a3) were observed.
 
@@ -117,8 +117,9 @@ For each comparison at r=1.25, compute the exact order-statistic 95% CI on the m
 ### B7. sc5–sc29 Development-Era Evaluation
 
 Source: `artifacts/revision1/results/gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json`
+Authoritative analysis: `artifacts/revision1/results/gate_f_heldout_analysis.json`
 
-Label: **"development-era evaluation on the same underlying base dataset"** — NOT a held-out evaluation. Scenarios sc5–sc29 were run during revision1 development (before the sc30–sc54 held-out challenge was designed). They share the same base job set. Report bootstrap analysis at r=1.25 for revision1 comparisons (FP_vs_Random, FP_vs_Loc, FPSpread_vs_FP). This is qualitative context only; revision1 uses different selectors from revision2.
+Label: **"development-era evaluation on the same underlying base dataset"** — NOT a held-out evaluation and NOT "previously unused challenge scenario seeds." Scenarios sc5–sc29 were run during revision1 development on the frozen base workload. They share the same base job set as sc30–sc54. Report bootstrap analysis at r=1.25 for revision1 comparisons (FP_vs_Random, FP_vs_Loc, FPSpread_vs_FP). This is qualitative context only; revision1 uses different selectors from revision2.
 
 ---
 
@@ -157,6 +158,13 @@ Determine the exact support over which historical concurrent cabinet power can b
 
 **Phrase required in all outputs:** "observed reconstructed concurrent cabinet power"
 
+**F2 GATE: Task D is a hard prerequisite for F2 policy execution.** F2 cannot run until:
+1. THERMALSHIFT_DATA_DIR is available (frontier-completed-job-info.parquet required)
+2. This audit completes and establishes exact event-driven support periods
+3. Corrected F2 per-cabinet thresholds are generated from the support audit
+4. Support audit output is reviewed
+Legacy R3-0 equivalence testing does NOT require Task D. Only F2 and F3 corrected-reference runs require it.
+
 ---
 
 ## E. Legacy Exceedance Fraction
@@ -168,21 +176,19 @@ legacy_exceedance_fraction_i = (hours where P_c_total_reconstructed_i(t) > P99_l
 
 Report: per-cabinet, aggregate (fleet-level), median, IQR, p90, max, min. Diagnostic only — not a feasibility criterion.
 
-**E1 Cabinet-Scale Behavior (Amendment 2 corrected):**
+**E1 Cabinet-Scale Behavior (Amendment 3 corrected — see `e1_cabinet_denominator_audit.json`):**
 
-`CAB_SCALE ∈ {0.90, 0.95, 1.00, 1.05, 1.10}` multiplies each cabinet's P99 uniformly. **B_ref_s (the historical exceedance-hours denominator) is computed at the FIXED base threshold (CAB_SCALE=1.0) and does NOT scale with CAB_SCALE.** Verified: B_ref_s is identical (2449.93 s) across all 5 CAB_SCALE values for sc30 in sensitivity run files. Only B_primary_h (counterfactual exceedance) changes nonlinearly — higher CAB_SCALE → higher threshold → less exceedance → lower B_primary_h → lower B_cab_ratio.
+`CAB_SCALE ∈ {0.90, 0.95, 1.00, 1.05, 1.10}` multiplies each per-cabinet P99 threshold uniformly: `Q_c_scaled = CAB_SCALE × Q_c_base`. This is applied in `r2_sensitivity_run.py` lines 262-263 before any B_cab computation.
 
-The approximate B_cab historical hours at each CAB_SCALE (fleet-total over the full observation window, not B_ref_s in the 25-scenario simulation) require THERMALSHIFT_DATA_DIR for exact recomputation:
+**Thermal vs cabinet distinction (mandatory):**
+- `B_ref_s` and `S_ref_s` in the scenario object are the **node-level thermal** incidence and severity references, computed from `T_THR_PRIMARY = 63.625°C`. They are invariant to `CAB_SCALE` (they do not depend on `cab_p99_W`). They are NOT the cabinet exceedance denominator.
+- `B_cab_hist` is the **cabinet exceedance** denominator (`sweep_cab_budget_fast(cohort_hist_records, cab_p99_W)`, line 428). It IS recomputed after `CAB_SCALE` is applied — higher `CAB_SCALE` → higher thresholds → fewer historical exceedance hours → lower `B_cab_hist`.
+- `B_cab_h` (numerator) is likewise recomputed per simulation run after scaling.
+- The ratio `B_cab_ratio = B_cab_h / B_cab_hist` changes nonlinearly and cannot be asserted without empirical simulation output.
 
-| CAB_SCALE | Approx fleet B_cab (hours, external data required) |
-|---|---|
-| 0.90 | ~89,264 |
-| 0.95 | ~77,950 |
-| 1.00 | ~67,918 |
-| 1.05 | ~58,851 |
-| 1.10 | ~50,288 |
+The prior claim (Amendment 2) that `B_ref_s` was fixed and was the cabinet denominator was an incorrect variable identification. Retracted. See `e1_cabinet_denominator_audit.json`.
 
-Label: "cabinet-reference scale sensitivity" — E1 tests uniform mis-estimation of cabinet P99 ceiling, not T_thr or physical power budget. E1 is NOT equivalent to T_thr sensitivity. The prior statement that "B_cab denominator scales proportionally" was FALSE and is retracted here.
+Label: "cabinet-reference scale sensitivity" — E1 tests uniform mis-estimation of cabinet P99 ceiling, not `T_thr` or physical power budget. E1 is NOT equivalent to T_thr sensitivity.
 
 ---
 
@@ -230,16 +236,18 @@ Validate the concurrent cabinet power reconstruction by filtering to scenarios w
 
 ---
 
-## J. E1 Cabinet-Scale Behavior Documentation (Amendment 2 corrected)
+## J. E1 Cabinet-Scale Behavior Documentation (Amendment 3 corrected)
 
-Exact E1 behavior:
-- `CAB_SCALE ∈ {0.90, 0.95, 1.00, 1.05, 1.10}` multiplies each cabinet's P99 threshold uniformly.
-- **B_ref_s (historical exceedance denominator) is computed at the FIXED base threshold (CAB_SCALE=1.0) and does NOT scale with CAB_SCALE.** Verified from sensitivity run files: B_ref_s = 2449.93 s at all 5 scale values for sc30.
-- B_primary_h (counterfactual exceedance hours) is recomputed using the scaled threshold: higher CAB_SCALE → higher threshold → less exceedance → lower B_primary_h → lower B_cab_ratio. The relationship is nonlinear.
+Exact E1 behavior (audited from `r2_sensitivity_run.py`; full audit in `e1_cabinet_denominator_audit.json`):
+
+- `CAB_SCALE ∈ {0.90, 0.95, 1.00, 1.05, 1.10}` multiplies each per-cabinet P99 threshold (`cab_p99_W`) uniformly (lines 262-263). Applied before all B_cab computations.
+- `B_cab_hist` (cabinet exceedance **denominator**) = `sweep_cab_budget_fast(cohort_hist_records, cab_p99_W)` (line 428). Recomputed after scaling. NOT fixed.
+- `B_cab_h` (cabinet exceedance **numerator**) = `sweep_cab_budget_fast(cohort_records, cab_p99_W)` (line 824). Recomputed per simulation. NOT fixed.
+- `B_cab_ratio = B_cab_h / max(B_cab_hist, 1e-9)` (line 825). Direction is empirical and nonlinear.
+- `B_ref_s` and `S_ref_s` in the scenario object are the **thermal** node-level references (T_THR_PRIMARY = 63.625°C). They are NOT the cabinet denominator. They are invariant to CAB_SCALE because they do not use `cab_p99_W`.
 - E1 tests sensitivity to uniform mis-estimation of cabinet capacity, not to a fixed physical budget.
 - E1 is **not** equivalent to T_thr sensitivity.
 - E1 is labeled "cabinet-reference scale sensitivity" in all outputs.
-- The prior statement "the historical B_cab denominator scales proportionally" was FALSE and is retracted.
 
 ---
 
@@ -397,13 +405,41 @@ All 25 scen_seeds unique: confirmed. All 25 wl_seeds unique: confirmed.
 
 **R3-0 equivalence criterion (corrected):** Run **sc30–sc54** (all 25 frozen revision2 held-out scenarios) in the Round-3 legacy-mode runner using the frozen revision2 seeds. Compare ALL 25 results against the frozen sc30–sc54 revision2 challenge outputs on: lambda_rows fields (lambda_val, capacity_unlock_pct, B_primary_h, S_primary_Cdoth, B_secondary_h, B_cab_ratio, syn_node_hours, n_syn_admit, n_drop_cap, n_drop_physical, n_drop_la, n_base_unserved) and crossing fields (status, C_lower_pct, C_upper_pct, first_binding_constraint, right_censored) for full_fp and full_random at r=1.25. Accept if max absolute difference ≤ 1e-9 on all numeric fields and exact match on categorical fields. Partial scenario sets fail immediately — subset equivalence never passes. STOP after R3-0 passes; report equivalence result before proceeding to corrected modes.
 
-**Corrected mode:** Uses F2 or F3 cabinet reference. Do NOT run until:
-1. D (support audit) complete
-2. F (corrected reference definitions) frozen, reviewed, and committed
-3. Q equivalence check (R3-0) passes on all sc30–sc54
-4. This plan committed (already required above)
+**Corrected mode — INITIAL F2 run (mandatory, before any broader matrix):**
+
+After R3-0 passes, the FIRST corrected scientific run is ONLY:
+
+| Parameter | Value |
+|---|---|
+| Reference | F2 (`corrected_timeweighted_total_p99`) |
+| Scenarios | sc30–sc54 (all 25 frozen revision2 scenarios) |
+| Policies | `full_fp`, `full_random` only |
+| Ratio | 1.25 only |
+| Seeds / CRN | Identical to revision2 (frozen sc30–sc54 seeds) |
+| Purpose | Isolate cabinet-reference-definition change (F1→F2); everything else identical |
+
+After the 25-scenario F2 result is obtained: **STOP AND REPORT.** Do NOT automatically proceed to:
+- F3 (event-weighted corrected reference)
+- Other policies
+- Other ratios
+- sc55–sc79 (new scenarios — reserved for later calendar/data-level replication)
+- Late-cabinet exclusion variant
+- LOO Position scheduling run
+- Scenario-specific placebos
+- Threshold sensitivity grid
+- Calendar split
+- Corrected E1
+
+All of the above require explicit review and authorization after the F2 result is received.
+
+**F2 gate conditions (all four required before F2 can run):**
+1. THERMALSHIFT_DATA_DIR available in the execution environment
+2. Task D (event-driven support audit) complete and reviewed — exact support periods and per-cabinet concurrent power timelines established
+3. F2 per-cabinet thresholds generated from the Task D support audit
+4. R3-0 legacy equivalence check passed on all sc30–sc54 (this section)
 
 **Equivalence check script:** `artifacts/revision3/check_r3_legacy_equivalence.py`
+Self-tests: 10/10 pass (see `equivalence_checker_selftest.json`).
 Purpose: verify Round-3 legacy-mode runner exactly reproduces sc30–sc54 revision2 results (tolerance ≤ 1e-9) on full_fp and full_random at r=1.25, before any new Round-3 scenarios run.
 
 ---

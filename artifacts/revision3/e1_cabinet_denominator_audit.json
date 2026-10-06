@@ -1,0 +1,55 @@
+{
+  "audit_label": "E1 Cabinet Denominator Audit — Amendment 3",
+  "plan_ref": "artifacts/revision3/THIRD_REVIEW_ANALYSIS_PLAN.md §E (v2.2)",
+  "amendment": "3",
+  "source_file_audited": "artifacts/revision2/r2_sensitivity_run.py",
+  "B_cab_ratio_denominator": {
+    "variable_name": "B_cab_hist",
+    "definition": "Historical concurrent cabinet exceedance-hours above the per-cabinet P99 threshold",
+    "computation": "B_cab_hist, _ = sweep_cab_budget_fast(cohort_hist_records, cab_p99_W)",
+    "line_in_source": 428,
+    "is_fixed_across_CAB_SCALE": false,
+    "reason": "cab_p99_W is scaled by CAB_SCALE at lines 262-263 BEFORE B_cab_hist is computed at line 428. Therefore B_cab_hist changes with CAB_SCALE."
+  },
+  "B_cab_ratio_numerator": {
+    "variable_name": "B_cab_h",
+    "definition": "Simulation concurrent cabinet exceedance-hours above the per-cabinet P99 threshold",
+    "computation": "B_cab_h, _ = sweep_cab_budget_fast(cohort_records, cab_p99_W)",
+    "line_in_source": 824,
+    "is_fixed_across_CAB_SCALE": false,
+    "reason": "Same cab_p99_W (already scaled by CAB_SCALE) is used for the numerator."
+  },
+  "CAB_SCALE_application": {
+    "lines": "262-263",
+    "code": "if CAB_SCALE != 1.00: cab_p99_W = {c: CAB_SCALE * v for c, v in cab_p99_W.items()}",
+    "effect": "Multiplies ALL per-cabinet P99 thresholds by CAB_SCALE. Applied once before B_cab_hist (line 428) and before all per-scenario B_cab_h computations (line 824).",
+    "timing": "After loading cabinet envelopes (lines 256-261) but before computing B_cab_hist (line 428) and before any per-scenario simulation (line 824)."
+  },
+  "B_cab_ratio_formula": "B_cab_ratio = B_cab_h / max(B_cab_hist, 1e-9)  [line 825]",
+  "CAB_SCALE_effect_on_ratio": {
+    "direction": "Higher CAB_SCALE -> higher thresholds -> fewer historical exceedance hours (lower B_cab_hist) AND fewer simulation exceedance hours (lower B_cab_h). The ratio B_cab_h/B_cab_hist changes nonlinearly depending on the relative sensitivity of historical vs simulation concurrent power to the threshold.",
+    "linearity": "Nonlinear. Both numerator and denominator decrease, but at rates determined by different concurrent power profiles (historical job cohort vs synthetic scheduling).",
+    "correct_statement": "CAB_SCALE changes both the B_cab numerator and denominator simultaneously. The ratio direction depends on empirical power distributions and cannot be stated without running the simulation."
+  },
+  "B_ref_s_correct_role": {
+    "variable_name": "B_ref_s",
+    "definition": "Node-level THERMAL incidence reference hours, computed from T_THR_PRIMARY (63.625 C)",
+    "computation": "B_ref_s, S_ref_s = compute_B_S_ref_s(job_perms, T_THR_PRIMARY)  [line 1105]",
+    "is_cabinet_denominator": false,
+    "varies_with_CAB_SCALE": false,
+    "varies_with_scenario": true,
+    "note": "B_ref_s is the thermal budget reference, paired with B_primary_h to form B_primary_ratio. It is NOT B_cab_hist. The prior plan claim that B_ref_s was the cabinet exceedance denominator was an incorrect variable identification."
+  },
+  "prior_incorrect_claims_retracted": [
+    "Amendment 2 stated that B_ref_s was the historical exceedance-hours denominator and was fixed at the base threshold. This confused B_ref_s (thermal, per-scenario, T_THR_PRIMARY-based) with B_cab_hist (cabinet, pre-simulation, varies with CAB_SCALE).",
+    "The empirical observation that B_ref_s=2449.93 is constant across CAB_SCALE for sc30 is correct but trivially explains nothing about the cabinet denominator: B_ref_s is invariant to CAB_SCALE because it depends only on T_THR_PRIMARY, not on cab_p99_W."
+  ],
+  "corrected_E1_statement": {
+    "threshold_effect": "CAB_SCALE multiplies each per-cabinet P99 threshold: Q_c_scaled = CAB_SCALE * Q_c_base.",
+    "denominator_effect": "B_cab_hist (cabinet denominator) is recomputed after scaling. Higher CAB_SCALE -> higher threshold -> fewer historical exceedance hours -> lower B_cab_hist.",
+    "numerator_effect": "B_cab_h (cabinet numerator) is recomputed after scaling. Higher CAB_SCALE -> higher threshold -> fewer simulation exceedance hours -> lower B_cab_h.",
+    "ratio_effect": "Nonlinear. Cannot be asserted without empirical simulation output.",
+    "thermal_reference_unaffected": "B_ref_s and S_ref_s (thermal node-level references) are unchanged by CAB_SCALE."
+  },
+  "plan_action": "Remove all assertions from the plan about whether the cabinet denominator is fixed or recomputed. State only: (1) CAB_SCALE multiplies per-cabinet P99 thresholds; (2) both B_cab_hist and B_cab_h are recomputed after scaling; (3) the B_cab_ratio is nonlinear in CAB_SCALE and requires empirical inspection."
+}

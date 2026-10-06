@@ -1,0 +1,110 @@
+{
+  "script": "artifacts/revision3/check_r3_legacy_equivalence.py",
+  "amendment": "3",
+  "r2_source": "artifacts\\revision2\\results\\gate_f_sc30-54_all_r2challenge_merged.json",
+  "n_tests": 10,
+  "n_passed": 10,
+  "overall_self_test_pass": true,
+  "tests": [
+    {
+      "test_id": 1,
+      "label": "Identity: r2 deep copy vs itself",
+      "expect_pass": true,
+      "actual_pass": true,
+      "hard_failure": false,
+      "n_failures_detected": 0,
+      "self_test_pass": true,
+      "first_failure": ""
+    },
+    {
+      "test_id": 2,
+      "label": "Remove sc30 from r3 (missing scenario)",
+      "expect_pass": false,
+      "actual_pass": false,
+      "hard_failure": true,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "r3: missing scenarios [30]"
+    },
+    {
+      "test_id": 3,
+      "label": "Extra sc99 in r3 (out-of-range scenario)",
+      "expect_pass": false,
+      "actual_pass": false,
+      "hard_failure": true,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "r3: extra scenarios not in {30..54}: [99]"
+    },
+    {
+      "test_id": 4,
+      "label": "Mutate scen_seed of sc30 in r3",
+      "expect_pass": false,
+      "actual_pass": false,
+      "hard_failure": false,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "NUMERIC_DIFF sc30.scen_seed: |1520047186-1520047187|=1.000e+00 > 1e-09"
+    },
+    {
+      "test_id": 5,
+      "label": "Mutate wl_seed of sc31 in r3",
+      "expect_pass": false,
+      "actual_pass": false,
+      "hard_failure": false,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "NUMERIC_DIFF sc31.wl_seed: |98741167-98741168|=1.000e+00 > 1e-09"
+    },
+    {
+      "test_id": 6,
+      "label": "Mutate lambda_val of sc32 full_fp row[0] by 2e-9",
+      "expect_pass": false,
+      "actual_pass": false,
+      "hard_failure": false,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "NUMERIC_DIFF sc32 r=1.25 full_fp lambda_row[0].lambda_val: |1.0-1.000000002|=2.000e-09 > 1e-09"
+    },
+    {
+      "test_id": 7,
+      "label": "Mutate C_lower_pct of sc33 full_random crossing by 2e-9",
+      "expect_pass": false,
+      "actual_pass": false,
+      "hard_failure": false,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "NUMERIC_DIFF sc33 r=1.25 full_random crossing.C_lower_pct: |0.7622914177659326-0.7622914197659326|=2.000e-09 > 1e-09"
+    },
+    {
+      "test_id": 8,
+      "label": "Mutate first_binding_constraint of sc34 full_fp",
+      "expect_pass": false,
+      "actual_pass": false,
+      "hard_failure": false,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "CATEGORICAL_MISMATCH sc34 r=1.25 full_fp crossing.first_binding_constraint: r2='B_cab_ratio' r3='B_ratio'"
+    },
+    {
+      "test_id": 9,
+      "label": "Delete B_ref_s field from sc35 in r3",
+      "expect_pass": false,
+      "actual_pass": false,
+      "hard_failure": false,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "MISSING_KEY r3 sc35.B_ref_s"
+    },
+    {
+      "test_id": 10,
+      "label": "Set B_primary_h to null for sc36 full_fp in r3",
+      "expect_pass": false,
+      "actual_pass": false,
+      "hard_failure": false,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "NULL_MISMATCH sc36 r=1.25 full_fp lambda_row[1].B_primary_h: r2=2189.620277777778 r3=None"
+    }
+  ]
+}

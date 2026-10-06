@@ -1,0 +1,255 @@
+{
+  "source_file": "artifacts/revision2/results/gate_f_sc30-54_all_r2challenge_merged.json",
+  "extracted_from": "scenario_results[0] (sc30) at ratio=1.25 policy=full_fp",
+  "n_scenarios_in_file": 25,
+  "scenario_indices": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54
+  ],
+  "scenario_object_keys": [
+    "scenario_idx",
+    "scenario_array_i",
+    "scen_seed",
+    "wl_seed",
+    "B_ref_s",
+    "S_ref_s",
+    "ratios",
+    "elapsed_s"
+  ],
+  "ratios_available": [
+    "1.0",
+    "1.25",
+    "1.5",
+    "2.0",
+    "4.0",
+    "8.0",
+    "unrestricted"
+  ],
+  "policies_at_1p25": [
+    "full_random",
+    "full_fp",
+    "position_template",
+    "full_fp_spread",
+    "random_spread",
+    "fp_global_placebo",
+    "fp_withincab_placebo"
+  ],
+  "policy_object_keys": [
+    "lambda_rows",
+    "crossing"
+  ],
+  "lambda_row_all_fields": {
+    "policy": {
+      "type": "str",
+      "example": "full_fp"
+    },
+    "lambda_val": {
+      "type": "float",
+      "example": 1.0
+    },
+    "nominal_choice_ratio": {
+      "type": "float",
+      "example": 1.25
+    },
+    "capacity_unlock_pct": {
+      "type": "float",
+      "example": 0.0
+    },
+    "B_primary_h": {
+      "type": "float",
+      "example": 2051.9363888888893
+    },
+    "S_primary_Cdoth": {
+      "type": "float",
+      "example": 4541.117753229122
+    },
+    "B_secondary_h": {
+      "type": "float",
+      "example": 5489.570277777776
+    },
+    "B_cab_ratio": {
+      "type": "float",
+      "example": 0.9995339339060404
+    },
+    "syn_node_hours": {
+      "type": "float",
+      "example": 0.0
+    },
+    "n_syn_admit": {
+      "type": "int",
+      "example": 0
+    },
+    "n_drop_cap": {
+      "type": "int",
+      "example": 0
+    },
+    "n_drop_physical": {
+      "type": "int",
+      "example": 0
+    },
+    "n_drop_la": {
+      "type": "int",
+      "example": 0
+    },
+    "n_base_unserved": {
+      "type": "int",
+      "example": 0
+    },
+    "mean_F_syn": {
+      "type": "NoneType",
+      "example": null
+    },
+    "cab_span_median": {
+      "type": "float",
+      "example": 9.0
+    },
+    "full_selector_eligible_count_p10": {
+      "type": "float",
+      "example": 73.0
+    },
+    "full_selector_eligible_count_p50": {
+      "type": "float",
+      "example": 614.0
+    },
+    "full_selector_eligible_count_p90": {
+      "type": "float",
+      "example": 1549.4
+    },
+    "exposed_selector_eligible_count_p10": {
+      "type": "float",
+      "example": 4.0
+    },
+    "exposed_selector_eligible_count_p50": {
+      "type": "float",
+      "example": 13.0
+    },
+    "exposed_selector_eligible_count_p90": {
+      "type": "float",
+      "example": 83.0
+    },
+    "realized_selector_choice_mult_p10": {
+      "type": "float",
+      "example": 1.25
+    },
+    "realized_selector_choice_mult_p50": {
+      "type": "float",
+      "example": 1.2727272727272727
+    },
+    "realized_selector_choice_mult_p90": {
+      "type": "float",
+      "example": 1.3333333333333333
+    },
+    "q_admit": {
+      "type": "dict",
+      "example": "(dict)"
+    },
+    "q_drop": {
+      "type": "dict",
+      "example": "(dict)"
+    },
+    "invariant_violated": {
+      "type": "bool",
+      "example": false
+    },
+    "B_primary_ratio": {
+      "type": "float",
+      "example": 0.837548606808899
+    },
+    "S_primary_ratio": {
+      "type": "float",
+      "example": 0.7687549203705467
+    },
+    "infeasible": {
+      "type": "bool",
+      "example": false
+    },
+    "first_binding": {
+      "type": "NoneType",
+      "example": null
+    }
+  },
+  "crossing_object": {
+    "fields": [
+      "status",
+      "C_lower_pct",
+      "C_upper_pct",
+      "first_binding_constraint",
+      "right_censored"
+    ],
+    "example": {
+      "status": "exact_bracket",
+      "C_lower_pct": 5.831207678338511,
+      "C_upper_pct": 5.878896501858212,
+      "first_binding_constraint": "B_cab_ratio",
+      "right_censored": false
+    }
+  },
+  "n_lambda_rows_full_fp_r125_sc30": 18,
+  "nota_bene": {
+    "B_ref_s": "THERMAL node-level budget reference (hours), computed from compute_B_S_ref_s(job_perms, T_THR_PRIMARY=63.625). Varies per scenario. NOT the cabinet exceedance denominator.",
+    "S_ref_s": "THERMAL severity reference (C*h), paired with B_ref_s.",
+    "B_cab_ratio": "Ratio: B_cab_h (simulation cabinet exceedance) / B_cab_hist (historical cabinet exceedance). B_cab_hist IS the cabinet exceedance denominator.",
+    "B_cab_hist": "Cabinet exceedance denominator. Computed in r2_gate_f_run.py line 427-428 as sweep_cab_budget_fast(cohort_hist_records, cab_p99_W). In sensitivity runs, cab_p99_W is scaled by CAB_SCALE before B_cab_hist is computed."
+  },
+  "lambda_row_numeric_fields": [
+    "lambda_val",
+    "nominal_choice_ratio",
+    "capacity_unlock_pct",
+    "B_primary_h",
+    "S_primary_Cdoth",
+    "B_secondary_h",
+    "B_cab_ratio",
+    "syn_node_hours",
+    "n_syn_admit",
+    "n_drop_cap",
+    "n_drop_physical",
+    "n_drop_la",
+    "n_base_unserved",
+    "cab_span_median",
+    "full_selector_eligible_count_p10",
+    "full_selector_eligible_count_p50",
+    "full_selector_eligible_count_p90",
+    "exposed_selector_eligible_count_p10",
+    "exposed_selector_eligible_count_p50",
+    "exposed_selector_eligible_count_p90",
+    "realized_selector_choice_mult_p10",
+    "realized_selector_choice_mult_p50",
+    "realized_selector_choice_mult_p90",
+    "B_primary_ratio",
+    "S_primary_ratio"
+  ],
+  "lambda_row_nullable_numeric_fields": [
+    "mean_F_syn",
+    "first_binding"
+  ],
+  "lambda_row_categorical_fields": [
+    "policy",
+    "q_admit (dict)",
+    "q_drop (dict)",
+    "invariant_violated",
+    "infeasible"
+  ]
+}

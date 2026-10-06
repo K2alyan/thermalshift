@@ -1,5 +1,5 @@
 {
-  "plan_version": "2.1",
+  "plan_version": "2.2",
   "plan_label": "Round-3 reviewer-requested robustness and exploratory analyses",
   "exposure_status": "post-exposure — all Round-3 work executed after sc30-sc54 primary results were observed",
   "plan_frozen_at_commit": "TBD — this file committed before any new simulation",
@@ -222,7 +222,7 @@
   },
   "legacy_vs_corrected_reporting_rule_verbatim": "The legacy cabinet-reference result remains the frozen pre-specified analysis. The concurrent-total-power reference is a post-exposure, reviewer-requested model-definition correction. All downstream Round-3 analyses use the corrected time-weighted reference regardless of its result. A main-text directional scheduling claim is described as robust to cabinet-reference definition only if legacy and corrected references agree in direction. If they disagree, the abstract, results, and conclusion explicitly report model-definition dependence.",
   "e1_reinterpretation": {
-    "behavior": "CAB_SCALE multiplies each cabinet P99 threshold uniformly. B_ref_s (historical exceedance denominator) is computed at the FIXED base threshold (CAB_SCALE=1.0) and does NOT scale with CAB_SCALE. Verified: B_ref_s = 2449.93 s at all 5 CAB_SCALE values for sc30. B_primary_h (counterfactual exceedance) changes nonlinearly: higher CAB_SCALE -> higher threshold -> less exceedance -> lower B_primary_h -> lower B_cab_ratio.",
+    "behavior": "CAB_SCALE multiplies each per-cabinet P99 threshold uniformly: Q_c_scaled = CAB_SCALE * Q_c_base. Applied in r2_sensitivity_run.py lines 262-263 before B_cab_hist (denominator) and B_cab_h (numerator) are computed. B_cab_hist is recomputed after scaling — NOT fixed. B_ref_s in the scenario object is the THERMAL node-level budget reference (T_THR_PRIMARY=63.625 C) and is NOT the cabinet denominator. The prior claim that B_ref_s was the fixed cabinet denominator was incorrect. See e1_cabinet_denominator_audit.json.",
     "label": "cabinet-reference scale sensitivity, not fixed-budget sweep",
     "historical_b_cab_approximate_hours": {
       "0.90": 89264,
@@ -232,7 +232,8 @@
       "1.10": 50288
     },
     "note": "Directional interpretation under legacy E1 is approximate; rerun around corrected time-weighted reference after R3-0 is accepted",
-    "prior_incorrect_statement_retracted": "The prior statement that both counterfactual exposure AND historical B_cab denominator scale proportionally was FALSE. B_ref_s is invariant to CAB_SCALE."
+    "B_cab_hist_behavior": "B_cab_hist = sweep_cab_budget_fast(cohort_hist_records, cab_p99_W) [line 428]. Recomputed after CAB_SCALE is applied. Higher CAB_SCALE -> lower B_cab_hist.",
+    "B_ref_s_correct_role": "Node-level thermal incidence reference (B_primary_h denominator). Invariant to CAB_SCALE. NOT the cabinet exceedance denominator."
   },
   "threshold_grid": {
     "primary_threshold_C": 63.625,
@@ -277,7 +278,26 @@
     ],
     "STOP_AFTER": "Do not automatically launch R3-A through R3-E after R3-0; await review",
     "scenarios": "sc30-sc54 (all 25 frozen revision2 held-out scenarios)",
-    "equiv_check_note": "Partial scenario sets fail immediately. Subset equivalence never passes. All 25 sc30-sc54 must be present in R3-0 output file."
+    "equiv_check_note": "Partial scenario sets fail immediately. Subset equivalence never passes. All 25 sc30-sc54 must be present in R3-0 output file.",
+    "initial_f2_run_matrix": {
+      "reference": "F2 (corrected_timeweighted_total_p99)",
+      "scenarios": "sc30-sc54 (all 25 frozen revision2 scenarios)",
+      "policies": [
+        "full_fp",
+        "full_random"
+      ],
+      "ratio": "1.25",
+      "crn": "Identical to revision2 frozen seeds",
+      "purpose": "Isolate cabinet-reference-definition change (F1 -> F2); everything else identical",
+      "stop_after": "STOP AND REPORT after 25-scenario F2 result. Do NOT auto-proceed to F3, other policies, other ratios, sc55-sc79, late-cabinet exclusion, LOO scheduling, placebos, threshold grid, calendar split, or corrected E1 without explicit review.",
+      "f2_gate_conditions": [
+        "THERMALSHIFT_DATA_DIR available in execution environment",
+        "Task D (support audit) complete and reviewed",
+        "F2 per-cabinet thresholds generated from Task D",
+        "R3-0 legacy equivalence check passed on all sc30-sc54"
+      ]
+    },
+    "sc55_sc79_role": "sc55-sc79 are reserved for later calendar/data-level replication. They are NOT part of the initial F2 run."
   },
   "position_template_audit": {
     "scheduling_key": "pos_key = chassis + '_' + slot + '_' + board + '_' + node_pos",
@@ -598,6 +618,8 @@
     "cabinet_reference_audit.json (v1) — superseded by cabinet_reference_audit_v3.json",
     "CABINET_REFERENCE_AUDIT.md (v1) — superseded by cabinet_reference_audit_v3.json",
     "threshold_population_audit.json — superseded by threshold_population_audit_v2.json",
-    "check_r3_legacy_equivalence_stub.json — superseded by Amendment 2 corrected script output"
-  ]
+    "check_r3_legacy_equivalence_stub.json — superseded by Amendment 2 corrected script output",
+    "check_r3_legacy_equivalence.py Amendment 2 version — superseded by Amendment 3 (nullable-categorical fix, self-tests)"
+  ],
+  "amendment_3_status": "pre-execution correction: equivalence-checker field validation, initial F2 run matrix, E1 B-vs-Bcab terminology"
 }
