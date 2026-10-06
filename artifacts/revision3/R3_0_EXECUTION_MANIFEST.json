@@ -1,0 +1,54 @@
+{
+  "document": "R3-0 Pre-Execution Provenance Manifest",
+  "created": "2026-10-05",
+
+  "plan_commit": "c674209",
+  "plan_version": "2.2",
+  "amendment_3_commit": "c674209",
+
+  "executable_runner_commit": "850c863",
+  "runner_file": "artifacts/revision3/r3_gate_f_run.py",
+  "runner_sha256": "a55a48197673fe8ef4c640cae10fc2872ece4f070128c7fc0350f65761bbde65",
+
+  "prior_invalid_runner_commit": "6ee64b2",
+  "prior_invalid_runner_sha256": "4223f201cf5c925920b61bad7871c85d4d6784101d153e8abf453a73b09c11bf",
+  "prior_invalid_runner_failure": "ModuleNotFoundError: No module named 'r2_selectors'",
+  "import_path_fix": "sys.path.insert(0, str(Path(__file__).parent.parent / 'revision2'))",
+  "fix_is_operational_not_scientific": true,
+
+  "checker_file": "artifacts/revision3/check_r3_legacy_equivalence.py",
+  "checker_sha256": "0f58c29de8fa1cb8fee2c8c2c3bfecf62a5abf86591254ca5a8505f5a18d93e3",
+
+  "r2_merged_artifact": "artifacts/revision2/results/gate_f_sc30-54_all_r2challenge_merged.json",
+  "r2_merged_artifact_sha256": "181161082cbf79e32fb138779af20327fd026d5383d70a942e7373a64d635a71",
+
+  "seed_check_artifact": "artifacts/revision3/r3_preexecution_seed_check.json",
+  "seed_check_artifact_sha256": "16d010524a5a784725e0883afe81bcd472a320f529e4d593aef261938837e52b",
+  "seed_check_result": "PASS",
+  "seed_check_n_pass": 25,
+  "seed_check_n_total": 25,
+
+  "run_parameters": {
+    "scenario_range": "30-54",
+    "n_scenarios": 25,
+    "policies": ["full_fp", "full_random"],
+    "ratio": 1.25,
+    "cabinet_reference_mode": "legacy_job_contribution_p99",
+    "beta_challenge": 1.11416358,
+    "t_thr_primary_c": 63.625,
+    "challenge_seed": 2042
+  },
+
+  "environment_variables": {
+    "THERMALSHIFT_DATA_DIR": "C:/Users/kalya/OneDrive/Documents/frontier-job-centric-telemetry-dataset",
+    "GATE_F_RESTRICT_POLICIES": "full_fp,full_random",
+    "GATE_F_RATIOS_ONLY": "1.25",
+    "R3_CABINET_REFERENCE_MODE": "legacy_job_contribution_p99 (default, not set)"
+  },
+
+  "invalidated_precommit_run_exists": true,
+  "invalidated_precommit_run_reused": false,
+  "invalidated_precommit_run_location": "artifacts/revision3/invalidated_precommit_r3_0/",
+  "invalidated_precommit_run_scenarios_completed": 2,
+  "invalidated_precommit_run_scenarios": ["sc30", "sc31"]
+}

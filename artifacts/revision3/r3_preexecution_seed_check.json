@@ -1,0 +1,262 @@
+{
+  "description": "Pre-execution seed check: runner-derived sc30-54 seeds vs frozen r2 merged artifact",
+  "challenge_seed": 2042,
+  "n_scenarios_total": 25,
+  "derivation": "default_rng(2042).integers(0,2**31) x25 for scen_seeds, then x25 for wl_seeds",
+  "r2_source": "artifacts/revision2/results/gate_f_sc30-54_all_r2challenge_merged.json",
+  "overall": "PASS",
+  "n_pass": 25,
+  "n_fail": 0,
+  "scenarios": [
+    {
+      "scenario_idx": 30,
+      "expected_scen_seed": 1520047186,
+      "actual_scen_seed": 1520047186,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1994769663,
+      "actual_wl_seed": 1994769663,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 31,
+      "expected_scen_seed": 1145613857,
+      "actual_scen_seed": 1145613857,
+      "scen_seed_match": true,
+      "expected_wl_seed": 98741167,
+      "actual_wl_seed": 98741167,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 32,
+      "expected_scen_seed": 1521583570,
+      "actual_scen_seed": 1521583570,
+      "scen_seed_match": true,
+      "expected_wl_seed": 581721350,
+      "actual_wl_seed": 581721350,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 33,
+      "expected_scen_seed": 629767374,
+      "actual_scen_seed": 629767374,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1816866876,
+      "actual_wl_seed": 1816866876,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 34,
+      "expected_scen_seed": 1112822527,
+      "actual_scen_seed": 1112822527,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1012191133,
+      "actual_wl_seed": 1012191133,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 35,
+      "expected_scen_seed": 1702157981,
+      "actual_scen_seed": 1702157981,
+      "scen_seed_match": true,
+      "expected_wl_seed": 479602785,
+      "actual_wl_seed": 479602785,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 36,
+      "expected_scen_seed": 684253553,
+      "actual_scen_seed": 684253553,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1332425394,
+      "actual_wl_seed": 1332425394,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 37,
+      "expected_scen_seed": 118246515,
+      "actual_scen_seed": 118246515,
+      "scen_seed_match": true,
+      "expected_wl_seed": 201221264,
+      "actual_wl_seed": 201221264,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 38,
+      "expected_scen_seed": 418197535,
+      "actual_scen_seed": 418197535,
+      "scen_seed_match": true,
+      "expected_wl_seed": 342687064,
+      "actual_wl_seed": 342687064,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 39,
+      "expected_scen_seed": 552807005,
+      "actual_scen_seed": 552807005,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1159106977,
+      "actual_wl_seed": 1159106977,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 40,
+      "expected_scen_seed": 860057835,
+      "actual_scen_seed": 860057835,
+      "scen_seed_match": true,
+      "expected_wl_seed": 871759594,
+      "actual_wl_seed": 871759594,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 41,
+      "expected_scen_seed": 2017429576,
+      "actual_scen_seed": 2017429576,
+      "scen_seed_match": true,
+      "expected_wl_seed": 143054453,
+      "actual_wl_seed": 143054453,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 42,
+      "expected_scen_seed": 930605457,
+      "actual_scen_seed": 930605457,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1086829000,
+      "actual_wl_seed": 1086829000,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 43,
+      "expected_scen_seed": 904615776,
+      "actual_scen_seed": 904615776,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1256185540,
+      "actual_wl_seed": 1256185540,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 44,
+      "expected_scen_seed": 2132759622,
+      "actual_scen_seed": 2132759622,
+      "scen_seed_match": true,
+      "expected_wl_seed": 574886723,
+      "actual_wl_seed": 574886723,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 45,
+      "expected_scen_seed": 234115232,
+      "actual_scen_seed": 234115232,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1255220541,
+      "actual_wl_seed": 1255220541,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 46,
+      "expected_scen_seed": 1207943457,
+      "actual_scen_seed": 1207943457,
+      "scen_seed_match": true,
+      "expected_wl_seed": 565014714,
+      "actual_wl_seed": 565014714,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 47,
+      "expected_scen_seed": 1052894112,
+      "actual_scen_seed": 1052894112,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1984834199,
+      "actual_wl_seed": 1984834199,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 48,
+      "expected_scen_seed": 1093599206,
+      "actual_scen_seed": 1093599206,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1038460268,
+      "actual_wl_seed": 1038460268,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 49,
+      "expected_scen_seed": 1506954242,
+      "actual_scen_seed": 1506954242,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1430752378,
+      "actual_wl_seed": 1430752378,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 50,
+      "expected_scen_seed": 1354524148,
+      "actual_scen_seed": 1354524148,
+      "scen_seed_match": true,
+      "expected_wl_seed": 1493659955,
+      "actual_wl_seed": 1493659955,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 51,
+      "expected_scen_seed": 982358118,
+      "actual_scen_seed": 982358118,
+      "scen_seed_match": true,
+      "expected_wl_seed": 194826593,
+      "actual_wl_seed": 194826593,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 52,
+      "expected_scen_seed": 1629465822,
+      "actual_scen_seed": 1629465822,
+      "scen_seed_match": true,
+      "expected_wl_seed": 290894800,
+      "actual_wl_seed": 290894800,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 53,
+      "expected_scen_seed": 1923189114,
+      "actual_scen_seed": 1923189114,
+      "scen_seed_match": true,
+      "expected_wl_seed": 238926708,
+      "actual_wl_seed": 238926708,
+      "wl_seed_match": true,
+      "pass": true
+    },
+    {
+      "scenario_idx": 54,
+      "expected_scen_seed": 918802192,
+      "actual_scen_seed": 918802192,
+      "scen_seed_match": true,
+      "expected_wl_seed": 57164757,
+      "actual_wl_seed": 57164757,
+      "wl_seed_match": true,
+      "pass": true
+    }
+  ]
+}
