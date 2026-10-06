@@ -1,0 +1,91 @@
+{
+  "audit_date": "2026-10-06",
+  "plan_commit": "c674209",
+  "rerun_script": "artifacts/revision3/task_d_rerun_modified.py",
+  "original_commit_f403998": "script committed at f403998 (diff vs 90dc62f: none for .py file)",
+  "tolerance": 1e-06,
+  "global_max_abs_numeric_diff": 6.776263578034403e-21,
+  "overall": "PASS",
+  "stop_triggered": false,
+  "stop_reason": null,
+  "files": {
+    "f2_timeweighted_cabinet_reference.json": {
+      "n_common_numeric_keys": 1695,
+      "n_missing_in_orig": 0,
+      "n_missing_in_rerun": 0,
+      "missing_in_orig": [],
+      "missing_in_rerun": [],
+      "max_abs_numeric_diff": 0.0,
+      "max_diff_key": null,
+      "sha256_orig_scientific": "aaa0feb0c12c282e7906bbbaf606c14a068677668f97035bac9fbbfae8e1a6e4",
+      "sha256_rerun_scientific": "aaa0feb0c12c282e7906bbbaf606c14a068677668f97035bac9fbbfae8e1a6e4",
+      "sha256_match": true,
+      "within_tolerance": true
+    },
+    "f3_eventweighted_cabinet_reference.json": {
+      "n_common_numeric_keys": 232,
+      "n_missing_in_orig": 0,
+      "n_missing_in_rerun": 0,
+      "missing_in_orig": [],
+      "missing_in_rerun": [],
+      "max_abs_numeric_diff": 0.0,
+      "max_diff_key": null,
+      "sha256_orig_scientific": "f41b5cb2440cf89b2ef3003036e6b2f2f9452f767e027f3a9daee5c2a6b4719c",
+      "sha256_rerun_scientific": "f41b5cb2440cf89b2ef3003036e6b2f2f9452f767e027f3a9daee5c2a6b4719c",
+      "sha256_match": true,
+      "within_tolerance": true
+    },
+    "task_d_f1_reproduction.json": {
+      "n_common_numeric_keys": 388,
+      "n_missing_in_orig": 0,
+      "n_missing_in_rerun": 0,
+      "missing_in_orig": [],
+      "missing_in_rerun": [],
+      "max_abs_numeric_diff": 0.0,
+      "max_diff_key": null,
+      "sha256_orig_scientific": "98c8b4fecf5fdca602e86e414873f97512c6a3194b68e86719691f03c30433f9",
+      "sha256_rerun_scientific": "98c8b4fecf5fdca602e86e414873f97512c6a3194b68e86719691f03c30433f9",
+      "sha256_match": true,
+      "within_tolerance": true
+    },
+    "task_d_validation.json": {
+      "n_common_numeric_keys": 3,
+      "n_missing_in_orig": 0,
+      "n_missing_in_rerun": 0,
+      "missing_in_orig": [],
+      "missing_in_rerun": [],
+      "max_abs_numeric_diff": 0.0,
+      "max_diff_key": null,
+      "sha256_orig_scientific": "f77a829525d637bfdcfc1c8c0a6d70f0fc1502020cfabcf0b4c746cd1d6cf94d",
+      "sha256_rerun_scientific": "f77a829525d637bfdcfc1c8c0a6d70f0fc1502020cfabcf0b4c746cd1d6cf94d",
+      "sha256_match": true,
+      "within_tolerance": true
+    },
+    "cabinet_support_audit_v2.json": {
+      "n_common_numeric_keys": 861,
+      "n_missing_in_orig": 0,
+      "n_missing_in_rerun": 0,
+      "missing_in_orig": [],
+      "missing_in_rerun": [],
+      "max_abs_numeric_diff": 0.0,
+      "max_diff_key": null,
+      "sha256_orig_scientific": "8ecf65d534c3fe3e5950f198f247d3bee157fba26014f9403ac5db7b8282f436",
+      "sha256_rerun_scientific": "8ecf65d534c3fe3e5950f198f247d3bee157fba26014f9403ac5db7b8282f436",
+      "sha256_match": true,
+      "within_tolerance": true
+    },
+    "f1_vs_f2_cabinet_reference_audit.json": {
+      "n_common_numeric_keys": 110,
+      "n_missing_in_orig": 0,
+      "n_missing_in_rerun": 0,
+      "missing_in_orig": [],
+      "missing_in_rerun": [],
+      "max_abs_numeric_diff": 6.776263578034403e-21,
+      "max_diff_key": "spearman_p",
+      "sha256_orig_scientific": "fe8114f9953ac06f00d373a76fcf493f57f08f5b548e7a8f3a600214c31c0d90",
+      "sha256_rerun_scientific": "6acb09fe5b63befc37f35d90ee493065719211208cc9a7f08ecbc7dfc74deff1",
+      "sha256_match": false,
+      "within_tolerance": true
+    }
+  }
+}

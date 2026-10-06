@@ -1,0 +1,153 @@
+{
+  "audit_date": "2026-10-06",
+  "plan_commit": "c674209",
+  "r3_evidence_commit": "a80d51f",
+  "result_commit": "90dc62f",
+  "provenance_commit": "f403998",
+  "n_items": 22,
+  "items": [
+    {
+      "id": 1,
+      "description": "metadata_source = frontier-completed-job-info.parquet",
+      "status": "PASS",
+      "proof": "provenance.metadata_source_path in all result JSONs ends with 'frontier-completed-job-info.parquet'; script line 85 sets PARQUET = DATA_DIR / 'frontier-completed-job-info.parquet'"
+    },
+    {
+      "id": 2,
+      "description": "F1 direct reproduction before reliance on F2",
+      "status": "PASS",
+      "proof": "task_d_f1_reproduction.json: n_pass=77, n_fail=0, mismatch_flag=false; script Step 3 runs F1 reproduction before Step 7 F2 computation"
+    },
+    {
+      "id": 3,
+      "description": "support = union of selected UTC date blocks (date_dir based)",
+      "status": "PASS",
+      "proof": "cabinet_support_audit_v2.json dataset_level: n_unique_dates=135, n_blocks=106, total_calendar_support_h=3240.0; script Step 4 parses date_dir unique values and merges contiguous dates into UTC blocks"
+    },
+    {
+      "id": 4,
+      "description": "unsupported gaps excluded from state intervals",
+      "status": "PASS",
+      "proof": "task_d_validation.json check 6: 'No unsupported gap contributes to state intervals' PASS; script uses midpoint test in reconstruct_cabinet to emit intervals only inside support"
+    },
+    {
+      "id": 5,
+      "description": "jobs clipped to support union",
+      "status": "PASS",
+      "proof": "Script Step 5 vectorized clipping against each support block: clip_starts = sub['start'].clip(lower=blk_start); validated by duration sums matching calendar support in validation check 5"
+    },
+    {
+      "id": 6,
+      "description": "exact event-driven process (no hourly bins)",
+      "status": "PASS",
+      "proof": "Script Step 6 reconstruct_cabinet uses per-job start/end timestamps as events; no binning; state intervals span between consecutive event timestamps"
+    },
+    {
+      "id": 7,
+      "description": "simultaneous events grouped at same timestamp",
+      "status": "PASS",
+      "proof": "Script aggregates delta_by_ts[ts.value] += dp for all events, then iterates unique sorted timestamps — simultaneous events produce no phantom zero-duration interval"
+    },
+    {
+      "id": 8,
+      "description": "post-event state governs [t, next_t)",
+      "status": "PASS",
+      "proof": "Script: running_power updated at ts, then interval [ts, t_next) emitted with that power; task_d_validation.json check 11 PASS"
+    },
+    {
+      "id": 9,
+      "description": "full calendar support includes observed zero states",
+      "status": "PASS",
+      "proof": "Weighted quantile convention in provenance: 'Zero-power intervals (idle observed state) are included. Weights are duration_s of each interval.'; state duration sums match 3240.0h per cabinet (validation check 5)"
+    },
+    {
+      "id": 10,
+      "description": "F2 = duration-weighted p99",
+      "status": "PASS",
+      "proof": "Script weighted_quantile function: sorts by value, cumulative duration weight, threshold = 0.99 * total_weight; f2_timeweighted_cabinet_reference.json p99_timeweighted_kW for all 77 cabinets"
+    },
+    {
+      "id": 11,
+      "description": "F3 = unique start/end state-change post-event p99",
+      "status": "PASS",
+      "proof": "Script Step 8: post_event_powers = [s['power_kW'] for s in states]; Q_F3 = np.percentile(post_event_powers, 99); f3_eventweighted_cabinet_reference.json: n_cabinets=77, all f3_finite=true"
+    },
+    {
+      "id": 12,
+      "description": "F1 exceedance fraction computed on concurrent process",
+      "status": "PASS",
+      "proof": "Script Step 10: exc_f1_s = durs[powers > Q_F1].sum(); f1_exceedance_fraction = exc_f1_s / total_s; present in f2_timeweighted_cabinet_reference.json per_cabinet (e.g. cab 2000: 0.4135)"
+    },
+    {
+      "id": 13,
+      "description": "F2 exceedance fraction computed",
+      "status": "PASS",
+      "proof": "Script Step 10: exc_f2_s = durs[powers > Q_F2].sum(); f2_exceedance_fraction present in per_cabinet (e.g. cab 2000: 0.0100); validation check 10 PASS"
+    },
+    {
+      "id": 14,
+      "description": "S_cab severity diagnostic computed",
+      "status": "PASS",
+      "proof": "Script: sev_f1_kWh and sev_f2_kWh computed via np.sum(np.maximum(powers - Q_Fx, 0) * durs / 3600); severity_f1_kWh and severity_f2_kWh present in per_cabinet"
+    },
+    {
+      "id": 15,
+      "description": "F1-vs-F2 distribution/rank audit",
+      "status": "PASS",
+      "proof": "f1_vs_f2_cabinet_reference_audit.json: delta/ratio stats, top10 lists, Pearson r=0.730, Spearman r=0.484; script Step 14"
+    },
+    {
+      "id": 16,
+      "description": "late-cabinet audit",
+      "status": "PASS",
+      "proof": "f1_vs_f2_cabinet_reference_audit.json: late_cabinets section with 2600/2601/2602 Q_F1/Q_F2/delta values"
+    },
+    {
+      "id": 17,
+      "description": "concurrency-association audit (Spearman F2/F1 vs concurrent metrics)",
+      "status": "PARTIAL",
+      "proof": "Not computed in original 90dc62f run. Per-cabinet concurrent job/node counts not in existing outputs. Will be computed in Step 4 supplementary analysis (task_d_supplementary_audit.py section J).",
+      "note": "Will be addressed in task_d_supplementary_audit.py"
+    },
+    {
+      "id": 18,
+      "description": "F2 active-only sensitivity computed",
+      "status": "PASS",
+      "proof": "Script Step 9 computes F2_active_only P99 (excludes zero-power intervals); f2_active_only_p99_kW present in per_cabinet (e.g. cab 2000: 196.827 vs F2 calendar 196.704)"
+    },
+    {
+      "id": 19,
+      "description": "support-edge diagnostics (block start/end nonzero load)",
+      "status": "PARTIAL",
+      "proof": "Not computed in original 90dc62f run. No per-block boundary power values in existing outputs. Will be computed in Step 4 supplementary analysis (task_d_supplementary_audit.py section B).",
+      "note": "Will be addressed in task_d_supplementary_audit.py"
+    },
+    {
+      "id": 20,
+      "description": "all 13 validation invariants PASS",
+      "status": "PASS",
+      "proof": "task_d_validation.json: n_checks=13, n_pass=13, n_fail=0, overall=PASS"
+    },
+    {
+      "id": 21,
+      "description": "no scheduling-policy code called",
+      "status": "PASS",
+      "proof": "task_d_validation.json check 13 PASS: 'No scheduling-policy function called — code inspection assertion — no r2_selectors / gate_f imports'; confirmed by script inspection"
+    },
+    {
+      "id": 22,
+      "description": "five diagnostic figures D1-D5",
+      "status": "PASS",
+      "proof": "Script saves D1_f1_vs_f2_scatter.png, D2_f2_f1_ratio_ecdf.png, D3_exceedance_fractions.png, D4_sorted_thresholds.png, D5_concurrent_power_timeseries.png to artifacts/revision3/figures/"
+    }
+  ],
+  "summary": {
+    "PASS": 19,
+    "PARTIAL": 2,
+    "FAIL": 0,
+    "NOT_APPLICABLE": 0
+  },
+  "stop_required": false,
+  "partial_items": [17, 19],
+  "partial_resolution": "Items 17 and 19 will be computed in task_d_supplementary_audit.py"
+}

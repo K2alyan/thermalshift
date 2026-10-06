@@ -1,0 +1,478 @@
+{
+  "provenance": {
+    "plan_commit": "c674209",
+    "r3_evidence_commit": "a80d51f",
+    "script_sha256": "8273f4df651435f7f294a9a650625417edd710b3e944253feb3f90d5125c08aa",
+    "metadata_source_path": "C:\\Users\\kalya\\OneDrive\\Documents\\frontier-job-centric-telemetry-dataset\\frontier-completed-job-info.parquet",
+    "python_version": "3.12.2",
+    "numpy_version": "2.0.0",
+    "pandas_version": "2.2.2",
+    "support_definition_version": "v1",
+    "weighted_quantile_convention": "Sort state intervals by power value; find smallest power P such that cumulative duration >= q * total_support_duration. Zero-power intervals (idle observed state) are included. Weights are duration_s of each interval."
+  },
+  "n_cabinets": 77,
+  "per_cabinet": [
+    {
+      "cabinet": 2000,
+      "Q_F3_kW": 185.235906487631,
+      "n_post_event_states": 38523,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2001,
+      "Q_F3_kW": 183.91286555735607,
+      "n_post_event_states": 36876,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2002,
+      "Q_F3_kW": 185.5231342354541,
+      "n_post_event_states": 36574,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2003,
+      "Q_F3_kW": 184.05502793071742,
+      "n_post_event_states": 37245,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2004,
+      "Q_F3_kW": 182.7250669887962,
+      "n_post_event_states": 36552,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2005,
+      "Q_F3_kW": 184.7752305625123,
+      "n_post_event_states": 36705,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2006,
+      "Q_F3_kW": 184.3536197356794,
+      "n_post_event_states": 36918,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2007,
+      "Q_F3_kW": 183.75108946289373,
+      "n_post_event_states": 36476,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2008,
+      "Q_F3_kW": 186.5062808459354,
+      "n_post_event_states": 36820,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2009,
+      "Q_F3_kW": 184.93610667009492,
+      "n_post_event_states": 36693,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2010,
+      "Q_F3_kW": 183.8351103681402,
+      "n_post_event_states": 36827,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2011,
+      "Q_F3_kW": 185.55954930358897,
+      "n_post_event_states": 37221,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2100,
+      "Q_F3_kW": 185.30482149195944,
+      "n_post_event_states": 37162,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2101,
+      "Q_F3_kW": 185.03852247263228,
+      "n_post_event_states": 37134,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2102,
+      "Q_F3_kW": 186.8441991659022,
+      "n_post_event_states": 37253,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2103,
+      "Q_F3_kW": 184.8973968844759,
+      "n_post_event_states": 37460,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2104,
+      "Q_F3_kW": 184.71953792317765,
+      "n_post_event_states": 37542,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2105,
+      "Q_F3_kW": 183.95176232458925,
+      "n_post_event_states": 37608,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2106,
+      "Q_F3_kW": 184.9168928072919,
+      "n_post_event_states": 37859,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2107,
+      "Q_F3_kW": 187.1709745961947,
+      "n_post_event_states": 37981,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2108,
+      "Q_F3_kW": 184.46124628436235,
+      "n_post_event_states": 37135,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2109,
+      "Q_F3_kW": 184.9055783031106,
+      "n_post_event_states": 38024,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2110,
+      "Q_F3_kW": 186.36481933919333,
+      "n_post_event_states": 38247,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2111,
+      "Q_F3_kW": 185.1769109154949,
+      "n_post_event_states": 38615,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2200,
+      "Q_F3_kW": 185.23124079465313,
+      "n_post_event_states": 38004,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2201,
+      "Q_F3_kW": 185.95068474170606,
+      "n_post_event_states": 38640,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2202,
+      "Q_F3_kW": 186.99220187079192,
+      "n_post_event_states": 38350,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2203,
+      "Q_F3_kW": 183.2910169156526,
+      "n_post_event_states": 38186,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2204,
+      "Q_F3_kW": 185.4819853037408,
+      "n_post_event_states": 38366,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2205,
+      "Q_F3_kW": 186.0036746845118,
+      "n_post_event_states": 38080,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2206,
+      "Q_F3_kW": 182.6789958651933,
+      "n_post_event_states": 38029,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2207,
+      "Q_F3_kW": 185.29163082708024,
+      "n_post_event_states": 38361,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2208,
+      "Q_F3_kW": 182.23298291008805,
+      "n_post_event_states": 38152,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2209,
+      "Q_F3_kW": 192.8295839251865,
+      "n_post_event_states": 37758,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2210,
+      "Q_F3_kW": 192.51869470585345,
+      "n_post_event_states": 37544,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2211,
+      "Q_F3_kW": 193.24847974573808,
+      "n_post_event_states": 37814,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2300,
+      "Q_F3_kW": 190.156608926931,
+      "n_post_event_states": 37174,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2301,
+      "Q_F3_kW": 188.07375330893606,
+      "n_post_event_states": 37252,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2302,
+      "Q_F3_kW": 190.26906235015622,
+      "n_post_event_states": 37778,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2303,
+      "Q_F3_kW": 190.9819089438002,
+      "n_post_event_states": 37506,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2304,
+      "Q_F3_kW": 190.46903513083706,
+      "n_post_event_states": 37348,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2306,
+      "Q_F3_kW": 190.55543462685432,
+      "n_post_event_states": 37037,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2307,
+      "Q_F3_kW": 188.49518136147617,
+      "n_post_event_states": 37696,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2308,
+      "Q_F3_kW": 187.14579215146907,
+      "n_post_event_states": 37641,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2309,
+      "Q_F3_kW": 188.8669495947224,
+      "n_post_event_states": 37877,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2310,
+      "Q_F3_kW": 189.79737733552088,
+      "n_post_event_states": 38247,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2311,
+      "Q_F3_kW": 183.70571779003694,
+      "n_post_event_states": 37859,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2400,
+      "Q_F3_kW": 186.81625691489418,
+      "n_post_event_states": 38381,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2401,
+      "Q_F3_kW": 187.46542341974066,
+      "n_post_event_states": 38194,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2402,
+      "Q_F3_kW": 190.6688162786813,
+      "n_post_event_states": 37894,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2403,
+      "Q_F3_kW": 187.63114362241387,
+      "n_post_event_states": 37561,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2404,
+      "Q_F3_kW": 188.8979849625977,
+      "n_post_event_states": 37650,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2405,
+      "Q_F3_kW": 191.39185905881968,
+      "n_post_event_states": 38452,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2406,
+      "Q_F3_kW": 192.9009373644373,
+      "n_post_event_states": 38304,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2407,
+      "Q_F3_kW": 192.8650394463589,
+      "n_post_event_states": 38493,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2408,
+      "Q_F3_kW": 193.7224570299825,
+      "n_post_event_states": 38217,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2409,
+      "Q_F3_kW": 189.44439166995667,
+      "n_post_event_states": 38067,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2410,
+      "Q_F3_kW": 189.28445031382063,
+      "n_post_event_states": 38447,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2411,
+      "Q_F3_kW": 188.0194472895873,
+      "n_post_event_states": 38547,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2500,
+      "Q_F3_kW": 193.45153896710926,
+      "n_post_event_states": 37994,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2501,
+      "Q_F3_kW": 196.86160404503573,
+      "n_post_event_states": 38444,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2502,
+      "Q_F3_kW": 191.89689069763753,
+      "n_post_event_states": 39147,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2503,
+      "Q_F3_kW": 192.50998489400894,
+      "n_post_event_states": 38696,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2504,
+      "Q_F3_kW": 192.93062481755663,
+      "n_post_event_states": 38946,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2505,
+      "Q_F3_kW": 194.09998607189863,
+      "n_post_event_states": 38763,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2506,
+      "Q_F3_kW": 192.09167586257132,
+      "n_post_event_states": 37764,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2507,
+      "Q_F3_kW": 193.61761073565094,
+      "n_post_event_states": 38816,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2508,
+      "Q_F3_kW": 195.40723436386153,
+      "n_post_event_states": 39090,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2509,
+      "Q_F3_kW": 190.04950414798728,
+      "n_post_event_states": 38751,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2510,
+      "Q_F3_kW": 192.74959316079585,
+      "n_post_event_states": 39403,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2511,
+      "Q_F3_kW": 187.95449598988972,
+      "n_post_event_states": 41585,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2600,
+      "Q_F3_kW": 168.13624739474483,
+      "n_post_event_states": 21184,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2601,
+      "Q_F3_kW": 169.2935198816586,
+      "n_post_event_states": 28866,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2602,
+      "Q_F3_kW": 167.2203133636873,
+      "n_post_event_states": 26348,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2609,
+      "Q_F3_kW": 193.55032851042003,
+      "n_post_event_states": 44954,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2610,
+      "Q_F3_kW": 200.28212132697738,
+      "n_post_event_states": 38429,
+      "f3_finite": true
+    },
+    {
+      "cabinet": 2611,
+      "Q_F3_kW": 211.04968673562036,
+      "n_post_event_states": 20762,
+      "f3_finite": true
+    }
+  ]
+}
