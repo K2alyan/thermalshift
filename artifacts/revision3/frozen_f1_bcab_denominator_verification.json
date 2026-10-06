@@ -1,0 +1,36 @@
+{
+  "script": "verify_frozen_f1_bcab_denominator.py",
+  "purpose": "Independent reproduction of F1 B_cab_hist from frozen runner code blocks",
+  "runner_commit": "bfb658b",
+  "runner_sha256": "fa1b6549d2e9b33f42eb5318194d2cb6a67c72e52c1352aeb9a78a8838584a6d",
+  "f1_threshold_artifact_sha256": "c74634a4e5cfdad94d93fd42a462c5a7f2350d4bdff786f91057de7ab5e2c371",
+  "pre_existing_anchor": {
+    "file": "artifacts/revision1/results/m4_fair_baselines.json",
+    "json_key": ".data_anchors.B_cab_hist_h",
+    "value_h": 67917.76333331302,
+    "sha256": "cfb4912b9a73bf8b4aaa4a20f16b25490b8110c4fc3b6aba2e2d300a0ec6badc",
+    "committed": "2026-09-30",
+    "note": "Created before any F2 work; independent of compute_f2_replay_denominator.py"
+  },
+  "structural_inputs": {
+    "n_all_jobs": 152400,
+    "n_test_id_set": 2637,
+    "n_cohort_set": 2000,
+    "bg_records": 141363,
+    "cohort_hist_records": 2637,
+    "bg_events_sorted": 3481450,
+    "bg_node_cab_contributions": 14602402,
+    "coh_node_cab_contributions": 65174
+  },
+  "result": {
+    "B_cab_hist_F1_h": 67917.76333331302
+  },
+  "acceptance": {
+    "vs_pre_existing_anchor_diff": 0.0,
+    "vs_pre_existing_anchor_pass": true,
+    "vs_replay_denominator_diff": 0.0,
+    "vs_replay_denominator_pass": true,
+    "structural_inputs_match": true,
+    "overall_pass": true
+  }
+}

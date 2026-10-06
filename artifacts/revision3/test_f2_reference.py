@@ -108,6 +108,46 @@ all_finite = all(x["Q_F2_local_kW"] > 0 and x["Q_F2_local_W"] > 0
                  for x in f2_ref["per_cabinet"])
 check("All F2 thresholds > 0 and finite", all_finite)
 
+# Load replay denominator and verify it is NOT the Task-D denominator
+replay_denom_path = REV3_DIR / "f2_replay_denominator.json"
+taskd_denom_path  = REV3_DIR / "f2_denominator.json"
+with open(replay_denom_path) as f:
+    replay_denom = json.load(f)
+with open(taskd_denom_path) as f:
+    taskd_denom = json.load(f)
+
+B_replay = replay_denom["aggregate"]["B_cab_hist_F2_replay_h"]
+B_taskd  = taskd_denom["aggregate"]["B_cab_hist_F2_h"]
+
+print("\n--- Check 13: Replay denominator artifact loads, B_F2_replay > 0 ---")
+check("F2 replay denominator B_cab_hist_F2_replay_h > 0", B_replay > 0,
+      f"{B_replay:.4f} h")
+
+print("\n--- Check 14: Replay denominator != Task-D denominator (not aliased) ---")
+check("B_cab_hist_F2_replay != B_cab_hist_F2_taskD",
+      abs(B_replay - B_taskd) > 100.0,
+      f"replay={B_replay:.2f} h  taskD={B_taskd:.2f} h  diff={abs(B_replay-B_taskd):.2f} h")
+
+print("\n--- Check 15: Runner source does NOT load f2_denominator.json for B_cab_hist ---")
+runner_src = (REPO_ROOT / "artifacts" / "revision3" / "r3_gate_f_run.py").read_text(encoding="utf-8")
+# The task-D denominator path must not appear in the scheduling denominator block
+taskd_key_in_runner = '"B_cab_hist_F2_h"' in runner_src
+check("Runner does not use B_cab_hist_F2_h (Task-D key) for scheduling",
+      not taskd_key_in_runner,
+      "key found in runner source — runner still reads Task-D denominator" if taskd_key_in_runner
+      else "key absent from runner source")
+
+print("\n--- Check 16: Runner uses B_cab_hist_F2_replay_h (replay key) ---")
+replay_key_in_runner = '"B_cab_hist_F2_replay_h"' in runner_src
+check("Runner uses B_cab_hist_F2_replay_h for scheduling",
+      replay_key_in_runner,
+      "key found" if replay_key_in_runner else "key missing from runner source")
+
+print("\n--- Check 17: F2 replay denominator has 77 per-cabinet entries ---")
+check("Replay denominator has 77 per-cabinet entries",
+      len(replay_denom["per_cabinet"]) == 77,
+      str(len(replay_denom["per_cabinet"])))
+
 print("\n" + "=" * 60)
 n_pass = sum(1 for _, s, _ in results if s == "PASS")
 n_fail = sum(1 for _, s, _ in results if s == "FAIL")

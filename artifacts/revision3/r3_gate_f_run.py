@@ -466,12 +466,20 @@ def sweep_cab_budget_fast(cohort_records, thr):
     return B, S
 
 if CABINET_REFERENCE_MODE == "corrected_timeweighted_total_p99_local":
-    _denom_path = REV3_DIR / "f2_denominator.json"
-    with open(_denom_path) as fh:
-        _denom = json.load(fh)
-    B_cab_hist = float(_denom["aggregate"]["B_cab_hist_F2_h"])
-    print(f"    B_cab_hist (F2 local-date, frozen artifact): {B_cab_hist:.4f} h")
-    print(f"    F2 aggregate exceedance fraction: {_denom['aggregate']['aggregate_exceedance_fraction']:.4%}")
+    _replay_denom_path = REV3_DIR / "f2_replay_denominator.json"
+    _replay_denom_sha256_expected = "b0594373af48fe6bb840ddc32c5628d7c3c26384e11c42fd58f4b9b27555ce48"
+    with open(_replay_denom_path) as fh:
+        _replay_denom = json.load(fh)
+    _replay_denom_sha256_actual = hashlib.sha256(
+        open(_replay_denom_path, "rb").read()).hexdigest()
+    if (_replay_denom_sha256_expected != "FROZEN_AFTER_FIRST_RUN" and
+            _replay_denom_sha256_actual != _replay_denom_sha256_expected):
+        sys.exit(f"f2_replay_denominator.json SHA256 mismatch: "
+                 f"expected {_replay_denom_sha256_expected}, "
+                 f"got {_replay_denom_sha256_actual}")
+    B_cab_hist = float(_replay_denom["aggregate"]["B_cab_hist_F2_replay_h"])
+    print(f"    B_cab_hist (F2 replay, frozen artifact): {B_cab_hist:.6f} h")
+    print(f"    F2 replay denominator SHA256: {_replay_denom_sha256_actual[:16]}...")
 else:
     B_cab_hist, _ = sweep_cab_budget_fast(cohort_hist_records, cab_p99_W)
     print(f"    B_cab_hist (F1): {B_cab_hist:.2f} h")
