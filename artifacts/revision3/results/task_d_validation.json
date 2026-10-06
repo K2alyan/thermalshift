@@ -1,0 +1,84 @@
+{
+  "provenance": {
+    "plan_commit": "c674209",
+    "r3_evidence_commit": "a80d51f",
+    "script_sha256": "0269f981b11fd4aa475461146ad0b62c03a3b516e6d88e7c54039d041e675adb",
+    "metadata_source_path": "C:\\Users\\kalya\\OneDrive\\Documents\\frontier-job-centric-telemetry-dataset\\frontier-completed-job-info.parquet",
+    "python_version": "3.10.11",
+    "numpy_version": "1.25.2",
+    "pandas_version": "2.0.3",
+    "support_definition_version": "v1",
+    "weighted_quantile_convention": "Sort state intervals by power value; find smallest power P such that cumulative duration >= q * total_support_duration. Zero-power intervals (idle observed state) are included. Weights are duration_s of each interval."
+  },
+  "n_checks": 13,
+  "n_pass": 13,
+  "n_fail": 0,
+  "overall": "PASS",
+  "checks": [
+    {
+      "check": "n_cabinets == 77",
+      "status": "PASS",
+      "detail": "got 77"
+    },
+    {
+      "check": "F1 reproduced within 1e-6",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "No negative-duration state intervals",
+      "status": "PASS",
+      "detail": "0 violations"
+    },
+    {
+      "check": "No reconstructed power < -1e-9",
+      "status": "PASS",
+      "detail": "0 violations"
+    },
+    {
+      "check": "State duration sums match calendar support (±1s)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "No unsupported gap contributes to state intervals",
+      "status": "PASS",
+      "detail": "guaranteed by midpoint test in reconstruct_cabinet"
+    },
+    {
+      "check": "All Q_F2 values > 0",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Toy weighted-quantile example (P99=20, P50=0)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "F2 p99 lies within [obs_min, obs_max] for all cabinets",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "F2 exceedance fraction in [0,1] for all cabinets",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "F3 uses post-event states (structural, by construction)",
+      "status": "PASS",
+      "detail": "states come from post-event power values in reconstruct_cabinet"
+    },
+    {
+      "check": "F3 values are finite for all cabinets",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "No scheduling-policy function called",
+      "status": "PASS",
+      "detail": "code inspection assertion — no r2_selectors / gate_f imports"
+    }
+  ]
+}
