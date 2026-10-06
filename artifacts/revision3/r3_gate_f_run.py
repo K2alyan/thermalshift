@@ -37,6 +37,7 @@ from collections import defaultdict
 
 # ── Import new Phase C selectors ──────────────────────────────────────────────
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "revision2"))
 from r2_selectors import (
     select_random_spread,
     build_global_placebo_fa,    select_fp_global_placebo,
