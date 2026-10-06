@@ -35,10 +35,20 @@ No incident produced or exposed any F2/F3 corrected-reference result.
 
 ---
 
+---
+
+## Incident 4 — Equivalence FAIL: policy seed schedule mismatch (runner 4913388)
+
+**Runner commit:** 4913388 (SHA256: 022d12c54c7f0738c954a11fc7dd15b73622b312bf852c40c5b2ccb3e17ade37)
+**Problem:** Runner 4913388 completed all 25 R3-0 scenarios and failed the frozen equivalence checker with 2,574 failures. full_fp reproduced exactly (0 failures); full_random did not reproduce (2,574 failures). Root cause: `_COMPAT_POLICY_ORDER` defaulted to `list(GATE_F_POLICIES)` instead of `list(CHALLENGE_POLICY_IDS)`. With `GATE_F_RESTRICT_POLICIES=full_fp,full_random`, `GATE_F_POLICIES` was `['full_fp','full_random']`, causing policy seeds to be drawn in that order rather than the canonical r2 order `['full_random','full_fp',...]`. This swapped the RNG streams assigned to full_fp and full_random. full_fp is deterministic with respect to its policy seed and passed; full_random is stochastic and received the wrong seed, producing divergent simulation outputs. No corrected-reference analysis was executed.
+**Scenarios completed:** all 25 (sc30–sc54)
+**Equivalence result:** FAIL (18,000 passed / 2,574 failed)
+**Raw output SHA256:** 76aab0ab33136b226fd2b19d6613d29183509e826f98ce813ff359fc98057af9
+**Archived at:** `failed_equivalence_seed_schedule/`
+**Fix:** `_COMPAT_POLICY_ORDER` changed to default to `list(CHALLENGE_POLICY_IDS)` — one line. Committed as runner bfb658b.
+
+---
+
 ## Resolution
 
-All three incidents resolved by:
-1. Terminating the affected run
-2. Archiving partial evidence under clearly-labelled invalidated directories
-3. Writing a corrected pre-execution manifest (R3_0_EXECUTION_MANIFEST_V2.json) identifying runner 4913388 with static preflight PASS, 25/25 seed check, and all invalidated-run disclosures
-4. Running a valid R3-0 from scratch with runner 4913388 and manifest V2 committed before launch
+All four incidents resolved. Corrected runner bfb658b committed. Provenance manifest V3 frozen before full rerun.

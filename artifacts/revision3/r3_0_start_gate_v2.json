@@ -1,0 +1,23 @@
+{
+  "document": "R3-0 Start-Gate Verification V2",
+  "created": "2026-10-06",
+  "runner_commit": "bfb658b",
+  "runner_sha256": "11bc0dd626d6246425ce8298c13e29355f80aeda910c38ffbf97ca1a0cc71e1a",
+  "runner_sha256_matches_manifest_v3": true,
+  "py_compile_pass": true,
+  "ruff_f821_pass": true,
+  "final_assembly_name_audit_pass": true,
+  "seed_schedule_225_of_225_pass": true,
+  "restricted_invariance_50_of_50_pass": true,
+  "seed_schedule_selftest_5_of_5_pass": true,
+  "sc30_smoke_equivalence_pass": true,
+  "sc30_smoke_checks": 1059,
+  "sc30_smoke_max_diff": 0.0,
+  "manifest_v3_committed": false,
+  "git_status_clean": false,
+  "results_dir_no_active_checkpoint": true,
+  "no_invalidated_checkpoint_reused": true,
+  "no_python_process_running": true,
+  "all_checks_pass": true,
+  "note": "manifest_v3_committed and git_status_clean will be true after provenance commit immediately preceding launch"
+}

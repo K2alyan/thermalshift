@@ -1,0 +1,22 @@
+{
+  "canonical_225_check": {
+    "check": "canonical_225",
+    "n_total": 225,
+    "n_pass": 225,
+    "n_fail": 0,
+    "pass": true,
+    "failures": []
+  },
+  "restricted_invariance_50_check": {
+    "check": "restricted_invariance_50",
+    "n_total": 50,
+    "n_pass": 50,
+    "n_fail": 0,
+    "pass": true,
+    "failures": []
+  },
+  "self_tests_n_pass": 5,
+  "self_tests_n_total": 5,
+  "all_self_tests_pass": true,
+  "overall_pass": true
+}

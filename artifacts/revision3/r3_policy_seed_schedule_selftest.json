@@ -1,0 +1,47 @@
+{
+  "self_tests": [
+    {
+      "label": "Swap full_random/full_fp draw order",
+      "expect_pass": false,
+      "actual_pass": false,
+      "n_failures_detected": 50,
+      "self_test_pass": true,
+      "first_failure": "pol_seed[full_random] sc30: r2=1310625525 r3=1160149723"
+    },
+    {
+      "label": "Generate seeds for only full_fp,full_random (the bug)",
+      "expect_pass": false,
+      "actual_pass": false,
+      "n_failures_detected": 50,
+      "self_test_pass": true,
+      "first_failure": "pol_seed[full_random] sc30: r2=1310625525 r3=1160149723"
+    },
+    {
+      "label": "Drop full_random from canonical list",
+      "expect_pass": false,
+      "actual_pass": false,
+      "n_failures_detected": 150,
+      "self_test_pass": true,
+      "first_failure": "pol_seed[full_fp] sc30: r2=1160149723 r3=1310625525"
+    },
+    {
+      "label": "Wrong CHALLENGE_SEED (+1)",
+      "expect_pass": false,
+      "actual_pass": false,
+      "n_failures_detected": 225,
+      "self_test_pass": true,
+      "first_failure": "scen_seed sc30: r2=1520047186 r3=900034743"
+    },
+    {
+      "label": "Manually alter sc30 full_random seed (XOR 1)",
+      "expect_pass": false,
+      "actual_pass": false,
+      "n_failures_detected": 1,
+      "self_test_pass": true,
+      "first_failure": "pol_seed[full_random] sc30: r2=1310625525 r3=1310625524"
+    }
+  ],
+  "n_pass": 5,
+  "n_total": 5,
+  "all_pass": true
+}
