@@ -1,0 +1,19 @@
+{
+  "n_blocks": 106,
+  "total_jobs_crossing_any_start": 526,
+  "total_jobs_crossing_any_end": 5616,
+  "crossing_start_per_block_median": 4.0,
+  "crossing_start_per_block_p90": 11.0,
+  "crossing_start_per_block_max": 17.0,
+  "crossing_end_per_block_median": 40.5,
+  "crossing_end_per_block_p90": 113.5,
+  "crossing_end_per_block_max": 256.0,
+  "event_builder_verification": {
+    "clipping_logic_found": true,
+    "clips_crossing_start_jobs": true,
+    "clips_crossing_end_jobs": true,
+    "n_crossing_examples_verified": 2,
+    "result": "PASS",
+    "notes": "task_d_f2_reference.py clips job intervals to block boundaries using vectorized pandas .clip(): clip_starts = sub['start'].clip(lower=blk_start, upper=blk_end), clip_ends = sub['end'].clip(lower=blk_start, upper=blk_end). Only intervals with duration_s > 0 are retained. The prior 'zero crossing' report was based on a post-clipping check \u2014 clipped intervals cannot extend beyond block boundaries by construction, so that check always returns zero. The unclipped pre-clip crossing counts above are the correct pre-clipping figures."
+  }
+}
