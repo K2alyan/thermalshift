@@ -109,6 +109,16 @@ else:
 GATE_F_POLICIES          = CHALLENGE_POLICY_IDS
 GATE_F_REQUIRE_CLEAN_GIT = int(os.environ.get("GATE_F_REQUIRE_CLEAN_GIT", "0"))
 
+# ── Cabinet reference mode (R3 only) ──────────────────────────────────────────
+CABINET_REFERENCE_MODE = os.environ.get(
+    "R3_CABINET_REFERENCE_MODE", "legacy_job_contribution_p99")
+if CABINET_REFERENCE_MODE != "legacy_job_contribution_p99":
+    raise NotImplementedError(
+        f"Cabinet reference mode {CABINET_REFERENCE_MODE!r} not implemented. "
+        "F2/F3 require Task D support audit and corrected thresholds. "
+        "Only F1 (legacy_job_contribution_p99) is available in r3_gate_f_run.py."
+    )
+
 # ── Compat mode overrides (r1↔r2 equivalence; plan Amendment 4 §G1) ──────────
 _COMPAT_SEED_ENV = os.environ.get("GATE_F_COMPAT_SEED", "")
 _is_compat       = bool(_COMPAT_SEED_ENV)
