@@ -56,9 +56,9 @@ The A/I/B counts are identical under both estimands because FP's C_lower exceeds
 | FP right_censored | 0/25 | 0/25 |
 | Random right_censored | 0/25 | 0/25 |
 
-The 9 Random left_boundary scenarios are identical under both cabinet references. In all 9, B_cab_ratio < 1.0 under both references. Of the 9: 8 have B_ratio > 1.0 (cumulative thermal exceedance budget); 4 of those 8 also have S_ratio > 1.0 (severity-weighted thermal exposure budget, deg-C x node-hours above threshold): sc41, sc51, sc52, sc54. sc51 is the only scenario where S_ratio alone causes infeasibility (B_ratio = 0.987 < 1.0). The cabinet reference does not affect left_boundary status.
+Among the nine Random left-boundary scenarios, eight have B_ratio > 1.0 (cumulative thermal exceedance budget). Four of nine have S_ratio > 1.0 (severity-weighted thermal exposure budget, deg-C x node-hours above threshold): sc41, sc51, sc52, and sc54. Three of those four also have B_ratio > 1.0; sc51 is the only scenario in which S_ratio alone causes baseline infeasibility. B_cab_ratio remains below 1.0 in all nine.
 
-For these 9 scenarios, the universal delta formulas apply as normal: FP has C_lower > 0 in all 9 (n_left_boundary_fp = 0), so delta_lo = C_lower(FP) - C_upper(Random) = C_lower(FP) - 0 > 0 in each, yielding definite A. All 25 scenarios are therefore A under the conservative estimand.
+For these 9 scenarios, the universal delta formulas apply without special-casing: FP has C_lower > 0 in all 9 (n_left_boundary_fp = 0), so delta_lo = C_lower(FP) - C_upper(Random) = C_lower(FP) - 0 > 0 in each, yielding definite A. All 25 scenarios are therefore A under the conservative estimand.
 
 ---
 

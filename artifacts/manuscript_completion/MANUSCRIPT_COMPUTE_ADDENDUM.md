@@ -1,8 +1,8 @@
 # Manuscript Completion Compute Addendum
 
-**Version:** 1.1
+**Version:** 1.2
 **Date authored:** 2026-10-06
-**Amendment date:** 2026-10-06
+**Amendment date:** 2026-10-07
 **Status:** FROZEN BEFORE ANY NEW SIMULATION — commit before executing C1, C2, C3, C4, or C5
 
 **Governance:** This document must be committed at its current state before any new simulation run begins. If code must change after this freeze, stop, amend this document explicitly, commit the amendment, rerun all affected gates, and wait for explicit re-authorization.
@@ -25,7 +25,15 @@ may proceed if any SHA256 does not match.
 | Round-3 plan | `artifacts/revision3/third_review_plan.json` | `7a194fad3dde6a739189f8bf5957279601fc0ac793692e521c2793dc3a7f8550` |
 | r3 runner (F2 two-policy run) | `artifacts/revision3/r3_gate_f_run.py` | `3bc8bcb07defd342d925e3eed2e5258be5424a7d596201c0246ba41d0613a6e1` |
 | r2 runner commit | — | git commit `5733b73bd715157f479821d969aac99811eee0d7` |
-| r1 runner commit | — | git commit `709c78a0df967f63a590ed4740ea3c3c7796136c` |
+| Exp 1 unr result (sc5-29) | `artifacts/revision1/results/gate_f_sc5-29_unr.json` | `3a119505e5f17b2e7d9abea1f640f5c2ed38a3eed1825e3fdd8bc0c6567f6356` |
+| Exp 1 r=1.0 result (sc5-29) | `artifacts/revision1/results/gate_f_sc5-29_1p0.json` | `b409fe8504ef4822a51ca28ea1936d686c67b2aaa3328e94d2c82e80a2d4b535` |
+
+**r1 runner provenance (C1):**
+- Scientific freeze commit: `e2df32a883fff8f26d93511483dfdae63fe0b730` — SHA256 of `r1_gate_f_run.py` at this commit: `ce03becd7d8436768cde3d2090bf88dd99fe20d5777ecf57cb7f7f77941173eb`
+- Checkpoint-enhanced commit: `709c78a0df967f63a590ed4740ea3c3c7796136c` — SHA256 of `r1_gate_f_run.py` at this commit: `50bbcb3be69519fc66dcf3bcae15909102177b52dd80da4ebdfb64fbbaa123f2`
+- Diff: the 709c78a runner adds ONLY checkpoint/resume infrastructure (~40 lines: checkpoint load on startup, skip-if-completed per scenario, write-after-each-scenario, delete-on-completion). Zero changes to scenario seeds, workload draws, policy logic, thermal model, hash function, or any scientific computation.
+- The unr and 1p0 runs were executed at e2df32a. The 5-ratio merged run was executed at 709c78a.
+- Conclusion: runner bytes differ, but the difference is operational only. C1 runner may be derived from 709c78a bytes (operational improvement retained); provenance must record e2df32a as the scientific freeze.
 
 **Replay denominator key values:**
 - `B_cab_hist_F2_replay_h` = 871.3691666666647 h (scheduling denominator for corrected reference)
@@ -78,7 +86,8 @@ denominator, keeping all other parameters identical.
 ### Scenarios
 **Exactly sc5-sc29** (25 scenarios). Same scenario seeds as frozen revision1 run:
 sourced from `artifacts/revision1/results/gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json`
-`scenario_results[*].scen_seed` and `wl_seed`. Master SCENARIO_SEED = 42.
+`scenario_results[*].scen_seed` and `wl_seed` (the 5-ratio file). Confirm that
+the same seeds appear in the unr.json and 1p0.json files. Master SCENARIO_SEED = 42.
 
 ### Policies (exact frozen Experiment 1 set)
 Source: `gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json` `gate_f_policies` field.
@@ -91,12 +100,21 @@ Source: `gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json` `gate_f_policies` field.
 Run all four. Do not add or remove any policy. Do not add placebos or `position_template`
 (those are Experiment 2 constructs).
 
-### Ratios (exact frozen Experiment 1 set)
-Source: `gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json` `gate_f_ratios` field.
+### Ratios (exact frozen Experiment 1 set — seven ratios)
+Source: `gate_f_heldout_analysis.json` `ratios` field (authoritative frozen design).
 
-1.25, 1.5, 2.0, 4.0, 8.0
+1.0, 1.25, 1.5, 2.0, 4.0, 8.0, unrestricted
 
-Run all five ratios. No selective subset.
+Run ALL SEVEN ratios. Do not omit r=1.0 or unrestricted.
+- r=1.0 is the hard no-choice negative control (no synthetic workload admitted).
+- unrestricted reproduces the M4 endpoint under the corrected reference (baseline
+  equivalent of the main capacity replay). Historical execution: `gate_f_sc5-29_unr.json`.
+- r=1.0 historical execution: `gate_f_sc5-29_1p0.json`.
+
+Note: the merged 5-ratio file (`gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json`) does not
+list 1.0 or unrestricted in its `gate_f_ratios` field because those were run as
+separate executions. The authoritative full-design artifact is `gate_f_heldout_analysis.json`
+which lists all seven.
 
 ### Cabinet Reference
 - Mode: `corrected_timeweighted_total_p99_local`
@@ -110,8 +128,10 @@ Run all five ratios. No selective subset.
 Create a NEW runner file:
 `artifacts/manuscript_completion/runners/c1_gate_f_run.py`
 
-Base it on the FROZEN Experiment 1 runner at git commit
-`709c78a0df967f63a590ed4740ea3c3c7796136c` (`artifacts/revision1/analysis/r1_gate_f_run.py`).
+Base it on `artifacts/revision1/analysis/r1_gate_f_run.py` at commit
+`709c78a0df967f63a590ed4740ea3c3c7796136c`.
+Scientific freeze commit is `e2df32a883fff8f26d93511483dfdae63fe0b730`; 709c78a adds
+checkpoint/resume infrastructure only (see Section 0 for full diff characterization).
 Do NOT modify the historical runner file.
 
 **Permitted patches only:**
@@ -145,23 +165,40 @@ Freeze SHA256 of `c1_gate_f_run.py` before execution. Record in output file head
    ONLY B_cab_ratio (and capacity_unlock_pct, crossing_lambda, feasibility status) may
    differ. If any invariant field mismatches, STOP before running the 25-scenario run.
 
-### Primary Required Output
-- A/I/B, median delta_lo, bootstrap CI for FP vs Random at r=1.25
-- A/I/B, median delta_lo, bootstrap CI for Loc vs Random at r=1.25
-- A/I/B, median delta_lo, bootstrap CI for FP vs Loc at r=1.25 (if Loc present)
-- Absolute capacity (C_lower, C_upper median and IQR) for each policy
+### Frozen Comparison Family (five pairs, all seven ratios)
+Source: `gate_f_heldout_analysis.json` `comparisons_frozen` field.
+
+1. FP_vs_Random
+2. Loc_vs_Random
+3. FPSpread_vs_Random
+4. FPSpread_vs_FP
+5. FPSpread_vs_Loc
+
+Report each comparison at EVERY ratio (7 ratios × 5 pairs = 35 cells).
+Use the same reporting structure as the frozen analysis:
+- A/I/B counts (n_definitely_A, n_indistinguishable, n_definitely_B)
+- Median delta_lo and delta_hi
+- bootstrap 95% CI on delta_lo and delta_hi (seed=9999, n=5000)
+
+**No Holm-Bonferroni correction for C1.** The frozen Experiment 1 analysis did not
+specify a Holm family; adding one post-exposure would invent a new inferential framework.
+Report bootstrap CIs only. Exploratory sign-test p-values may be listed separately,
+labeled clearly as "exploratory, post-hoc" and not used for any primary claim.
+
+### Additional Required Output
+- Absolute capacity (C_lower, C_upper median and IQR) for each policy at each ratio
 - First-binding constraint counts for each policy
-- Left-boundary and right-censored counts for each policy
+- Left-boundary and right-censored counts for each policy at each ratio
+- Seven-ratio, five-curve structure mirroring the frozen Experiment 1 analysis output
 
 ### Output File
-`artifacts/manuscript_completion/results/gate_f_sc5-29_1p25_r_correctedref.json`
-(include all preferred ratios in filename if run beyond r=1.25)
+`artifacts/manuscript_completion/results/gate_f_sc5-29_correctedref_all7r.json`
 
 Do NOT overwrite any frozen revision1 result files.
 
 ### Label
 "Experiment 1 (choice-ratio) under corrected concurrent-load cabinet reference.
-Reference-sensitivity rerun. Post-exposure."
+Reference-sensitivity rerun. Post-exposure. 4 policies, 7 ratios."
 
 ---
 
@@ -448,11 +485,30 @@ Determine whether cabinets 2600, 2601, 2602 (commissioned 2024-07-18 through
 2024-11-22) disproportionately drive the FP capacity advantage under the corrected
 reference.
 
-**No new simulation required for the initial diagnostic.** Extract from existing
-corrected-reference C2 output (or the existing F2 two-policy result if C2 is not yet
-complete).
+**Data availability assessment (verified 2026-10-07):**
 
-### Required Metrics (per scenario, from existing outputs)
+The accepted corrected-reference two-policy result (`gate_f_sc30-54_1p25_r3f2local.json`)
+serializes AGGREGATE lambda-row quantities only. Per-lambda-row fields include:
+`syn_node_hours`, `n_syn_admit`, `mean_F_syn`, `cab_span_median`, and aggregate
+selector-eligible-count percentiles. There are NO per-cabinet selection counts,
+per-cabinet node-hours, or event-level placement records.
+
+**C4 per-scenario metrics CANNOT be extracted from the existing two-policy raw result.**
+C4 must wait for C2. Do not attempt C4 from the current two-policy result.
+
+If C2 serializes per-cabinet selection counts (required; runner must emit cabinet-level
+accounting for this to be possible), C4 can proceed after C2 completes. If C2 does NOT
+serialize per-cabinet data, a separately governed diagnostic replay will be required.
+
+**C2 runner requirement (added):** The C2 runner must serialize, for each scenario and
+policy around the capacity-crossing lambda, a per-cabinet breakdown of:
+- Selected synthetic node-hours by cabinet ID
+- Selection event count by cabinet ID
+
+Record this as a `cabinet_accounting` sub-field in each lambda row. This is the only
+way to enable C4 from C2 output.
+
+### Required Metrics (from C2 output, if per-cabinet data serialized)
 
 For FP and Random at r=1.25 under corrected reference, around the capacity crossing:
 - Fraction of selected synthetic cohort node-hours from cabinets 2600, 2601, 2602
@@ -504,25 +560,49 @@ half). Record this threshold before examining results.
 ### Fingerprint
 Use the frozen pre-2025 fingerprint FA_2024 unchanged. No refit.
 
+### Outcome Construction (must match primary prospective measurement exactly)
+
+For each qualifying 2025 node-job observation (i, j):
+
+    DeltaT_p95_ij = T_p95_ij - T_p95_j
+
+where T_p95_ij is node i's time-wise T_p95 from available GCD channels in job j,
+and T_p95_j is the job-level mean T_p95 across all qualifying nodes in job j.
+
+For each node within each calendar half, using only observations in that half:
+
+    Y_i_half = MEDIAN_j( DeltaT_p95_ij )
+
+Use the **median** across qualifying job-level values. Do NOT use the arithmetic mean.
+
+This construction matches the primary prospective validation in the manuscript exactly.
+
 ### Eligible Nodes and Observations
-- Use existing prospective 2025 node-job observations (Y_i: actual thermal outcome
-  for node i in job, expressed consistently with the fingerprint outcome definition)
-- Partition observations strictly by job start time relative to 2025-07-01 00:00:00 UTC
+- Use existing prospective 2025 node-job observations
+- Partition strictly by job start time relative to 2025-07-01 00:00:00 UTC
 - Early-2025 half: job start < 2025-07-01 00:00:00 UTC
 - Late-2025 half: job start >= 2025-07-01 00:00:00 UTC
-- Apply the frozen minimum support rule to each half independently
-- Compute per-node Y_i as the mean outcome across qualifying observations in that half
+- BEFORE reading any Y values: freeze and commit minimum jobs-per-node threshold (one
+  value applies to both halves)
+- Apply the frozen support rule to each half independently
 
 ### Required Outputs (both halves independently; no pooling before reporting)
 For each half separately:
 - N eligible nodes (meeting minimum support threshold)
-- Pearson r(FA_2024, Y_i) across eligible nodes
-- Spearman rho(FA_2024, Y_i) across eligible nodes
-- No-refit R²: var explained by FA_2024 using the frozen thermal model coefficients
-  (no new regression — use existing frozen model from Phase 3B)
+- Pearson r(FA_2024, Y_i_half) across eligible nodes
+- Spearman rho(FA_2024, Y_i_half) across eligible nodes
+- Frozen no-refit R²:
 
-Additionally:
-- For nodes present in BOTH halves: early-vs-late Y_i agreement (Pearson r, Spearman rho)
+      R2_frozen = 1 - sum_i[(Y_i - F_i_2024)^2] / sum_i[(Y_i - mean(Y))^2]
+
+  where the sum is over eligible nodes in that half, Y_i = Y_i_half, and F_i_2024
+  is the frozen pre-2025 fingerprint. Do NOT fit a slope or intercept. Do NOT use
+  regression coefficients from any existing model. This is a direct no-refit prediction.
+
+Additionally, for nodes present in BOTH halves:
+- Pearson r(Y_i_early, Y_i_late)
+- Spearman rho(Y_i_early, Y_i_late)
+- Median absolute difference |Y_i_early - Y_i_late| (descriptive only)
 
 ### Output File
 `artifacts/manuscript_completion/c5_fingerprint_calendar_stability.json`
@@ -536,8 +616,18 @@ Additionally:
 Holm-Bonferroni correction. Report raw and adjusted p-values for all sign tests.
 
 ### C1 comparison family
-3 comparisons: FP vs Random, Loc vs Random, FP vs Loc.
-Holm-Bonferroni correction over this family.
+Five pre-specified comparison pairs (from frozen `gate_f_heldout_analysis.json`
+`comparisons_frozen` field), reported at all seven ratios:
+1. FP_vs_Random
+2. Loc_vs_Random
+3. FPSpread_vs_Random
+4. FPSpread_vs_FP
+5. FPSpread_vs_Loc
+
+No Holm-Bonferroni correction. The frozen Experiment 1 design did not specify a
+Holm family; adding one post-exposure would invent a new inferential procedure.
+Report paired bootstrap CIs at each ratio. Exploratory sign-test p-values may be
+included as clearly labeled supplementary information.
 
 ### C3 interpretation
 Label all results "exploratory threshold sensitivity." Do not select a "robust range"
@@ -598,7 +688,7 @@ If any preflight fails: STOP. Report before restarting.
 
 | Run | Scenarios | Policies | Ratios | Estimate |
 |---|---|---|---|---|
-| C1 (Exp 1 corrected ref) | 25 (sc5-29) | 4 (frozen set) | 5 (frozen set) | 5-9 hours |
+| C1 (Exp 1 corrected ref) | 25 (sc5-29) | 4 (frozen set) | 7 (frozen set) | 8-14 hours |
 | C2 (Exp 2 corrected ref, 7-pol) | 25 (sc30-54) | 7 (all mandatory) | 1 | 8-14 hours |
 | C3 (threshold sensitivity) | 25 (sc30-54) | 2 | P90 + P99 (P95 reused) | 4-6 hours |
 | C4 (late-cabinet diagnostic) | 0 (from existing) | — | — | < 1 hour |
@@ -608,16 +698,20 @@ Estimates based on F2 two-policy sc30-54 elapsed time of ~9,562 seconds (~2.7 ho
 C2 adds 5 additional policies at r=1.25 only. C3 runs two 25-scenario runs (P90, P99);
 P95 center point reused from accepted corrected-reference result.
 
-**Total mandatory (C1+C2+C3+C4):** approximately 17-30 hours wall time.
+**Total mandatory (C1+C2+C3, C4 from C2 output):** approximately 20-34 hours wall time.
+
+Note: C1 increases from 5 to 7 ratios (+~3-5h). C4 now requires C2 to be complete
+first (no longer available from existing two-policy result).
 
 ---
 
 ## Execution Order
 
 Authorize and execute in this order:
-1. C4 (no simulation — extract from existing F2 output; present diagnostic)
-2. C1 (corrected reference for Experiment 1; verify runner first)
-3. C2 (corrected reference for Experiment 2, seven policies)
+1. C1 (corrected reference for Experiment 1; verify runner first)
+2. C2 (corrected reference for Experiment 2, seven policies; must emit per-cabinet
+   accounting for C4 to be possible from its output)
+3. C4 (diagnostic from C2 output — requires C2 to complete first)
 4. C3 (threshold sensitivity)
 5. C5 only if explicitly requested
 
@@ -710,7 +804,70 @@ Updated stopping rule to read "No exclusion simulation is authorized."
 from realized selection data alone. The counterfactual requires a new simulation, which
 is not authorized.
 
-### A11 — C5: rewritten as calendar measurement robustness
+### A11 — C5: rewritten as calendar measurement robustness (v1.1)
+
+---
+
+## Amendment Record (v1.1 → v1.2)
+
+**Amendment date:** 2026-10-07
+
+### B1 — C1 frozen ratios restored to seven
+**Change:** Added r=1.0 and r=unrestricted to C1 ratio set. Source changed from
+`gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json gate_f_ratios` to `gate_f_heldout_analysis.json
+ratios` (authoritative). Noted that unr and 1p0 were separate historical executions.
+Added unr.json (SHA `3a119505...`) and 1p0.json (SHA `b409fe85...`) to Section 0 frozen
+input table.
+**Why:** The v1.1 ratio set was extracted from the merged 5-ratio file, which omits the
+r=1.0 and unrestricted endpoints run separately. Dropping unrestricted recreates the
+selective-reporting problem the corrected-reference rerun is meant to eliminate — the
+original reviewer explicitly noted Location-only matched/exceeded FP at r=8 and
+unrestricted.
+
+### B2 — C1 comparison family restored to five pairs; Holm removed
+**Change:** Replaced the invented 3-comparison Holm family with the exact five
+comparison pairs from `gate_f_heldout_analysis.json comparisons_frozen`:
+FP_vs_Random, Loc_vs_Random, FPSpread_vs_Random, FPSpread_vs_FP, FPSpread_vs_Loc.
+Removed Holm-Bonferroni specification for C1. Report bootstrap CIs per the frozen design.
+**Why:** The original Experiment 1 design did not specify a Holm family. Inventing one
+post-exposure would create a new inferential framework not present in the published design.
+
+### B3 — C1 runner provenance: scientific freeze is e2df32a; 709c78a is checkpoint addition
+**Change:** Documented that runner bytes differ between e2df32a (SHA ce03becd...) and
+709c78a (SHA 50bbcb3b...). Diff is checkpoint/resume infrastructure only (~40 lines).
+Scientific freeze recorded as e2df32a. C1 runner may use 709c78a bytes (checkpoint
+improvement included), but provenance must name e2df32a as the scientific freeze.
+The unr.json and 1p0.json results were produced at e2df32a; the merged 5-ratio result
+at 709c78a.
+**Why:** Two commits record different runner bytes. The addendum must explicitly state
+which is the scientific freeze and whether the difference is scientific or operational.
+
+### B4 — C5 outcome construction corrected to median of DeltaT_p95_ij
+**Change:** Replaced "mean outcome" with: DeltaT_p95_ij = T_p95_ij - T_p95_j; Y_i_half
+= MEDIAN_j(DeltaT_p95_ij). Replaced "using existing frozen thermal model coefficients"
+with the exact no-refit R² formula: 1 - sum[(Y_i - F_i_2024)^2] / sum[(Y_i - mean(Y))^2].
+**Why:** The existing prospective measurement uses the job-mean-subtracted median, not the
+arithmetic mean. The no-refit R² is a direct comparison of FA_2024 to Y, not a model
+prediction. Using regression coefficients would constitute a partial refit.
+
+### B5 — Left-boundary prose corrected: sc51 is S-only, not one of the eight
+**Change:** Corrected wording in CORRECTED_REFERENCE_SAME_ESTIMAND.md to:
+"eight of nine have B_ratio > 1.0; four of nine have S_ratio > 1.0 (sc41, sc51, sc52,
+sc54); three of those four also have B_ratio > 1.0; sc51 is the only S-only case."
+**Why:** The v1.1 wording said "4 of those 8 also have S_ratio > 1" which implies sc51
+is in the group of eight B_ratio > 1. That is false. sc51 has B_ratio < 1 and is the
+only S-only infeasible scenario.
+
+### B6 — C4 data availability: per-cabinet data not in existing result; must wait for C2
+**Change:** Replaced "extract from existing two-policy result" with explicit determination
+that the accepted `gate_f_sc30-54_1p25_r3f2local.json` contains only aggregate lambda-row
+quantities — no per-cabinet node-hours or event-touch counts. C4 must wait for C2.
+Added requirement that C2 runner must emit `cabinet_accounting` per-cabinet data.
+Updated execution order accordingly.
+**Why:** Inspection of the raw JSON confirmed lambda rows contain only aggregate fields
+(`syn_node_hours`, `n_syn_admit`, `mean_F_syn`, `cab_span_median`, percentile counts).
+No per-cabinet breakdown is serialized. The original C4 premise ("no simulation required,
+extract from existing output") was incorrect.
 **Change:** Replaced scheduling-replay design (sc55-79 scenarios) with prospective 2025
 measurement robustness analysis. Fixed split at 2025-07-01 00:00:00 UTC. Frozen FA_2024
 fingerprint, no refit. Reports Pearson r, Spearman rho, no-refit R² for each half separately.
