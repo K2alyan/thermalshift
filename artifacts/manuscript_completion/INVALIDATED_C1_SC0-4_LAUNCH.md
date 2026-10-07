@@ -1,7 +1,7 @@
 # Invalidated C1 Launch — Accidental sc0–4 Dev-Scenario Execution
 
 **Status:** INVALIDATED — no manuscript use  
-**Record date:** 2026-10-07  
+**Record date:** 2026-10-07 (updated 2026-10-07 after concurrent-execution discovery)  
 **Governing commit at launch:** `e44fedd`
 
 ---
@@ -14,8 +14,23 @@ During the first production launch of the C1 runner, the environment variables
 authorized held-out block **sc5–29**.
 
 This was caught at the 1-hour progress check when the task output showed scenario
-indices 0 and 1 (dev scenarios) rather than 5+ (held-out scenarios). The process
-was immediately killed and the checkpoint deleted before the correct run was launched.
+indices 0 and 1 (dev scenarios) rather than 5+ (held-out scenarios). A `pkill -f
+c1_gate_f_run.py` was issued, believed to have terminated the process, and the
+correct sc5–29 run (task `bpdjphtc0`, PID 115441) was launched.
+
+**Subsequent discovery (2026-10-07 ~16:19):** The pkill did NOT terminate the sc0–4
+process. PID 115132 continued running concurrently with the sc5–29 run (PID 115441)
+for approximately 118 minutes (14:21–16:19 PDT). This was confirmed at the
+second wakeup check by `ps aux` showing two python3 processes. PID 115132 was then
+killed with a targeted `kill 115132` command.
+
+**Concurrent execution impact on sc5–29:** The sc0–4 and sc5–29 runs shared CPU and
+I/O resources during the first two scenarios of the correct run (sc5, which completed
+at 15:29 in 4089 s, and the opening of sc6). Both processes read from the same
+read-only THERMALSHIFT_DATA_DIR and wrote to different output files; no file-level
+conflict occurred. Correctness of the sc5–29 scheduling results is unaffected by
+the concurrent process (identical random seeds, deterministic computation). Timing
+may be slower than expected for sc5 and the beginning of sc6.
 
 ---
 
@@ -24,10 +39,17 @@ was immediately killed and the checkpoint deleted before the correct run was lau
 | Time (PDT approx.) | Event |
 |---|---|
 | 2026-10-07 ~13:16 | `artifacts/manuscript_completion/results/` directory created (had been absent after `git rm` of smoke files) |
-| 2026-10-07 ~13:16 | **Invalid launch** — task ID `b1iuu7ed9`; command: `python3 artifacts/manuscript_completion/runners/c1_gate_f_run.py` with no GATE_F_N_FIRST or GATE_F_N_DEV set |
+| 2026-10-07 ~13:16 | **Invalid launch** — task ID `b1iuu7ed9`, PID 115132; command: `python3 artifacts/manuscript_completion/runners/c1_gate_f_run.py` with no GATE_F_N_FIRST or GATE_F_N_DEV set |
 | 2026-10-07 ~14:18 | Wakeup check fired; task output inspected; sc0–4 execution confirmed |
-| 2026-10-07 ~14:20 | `pkill -f c1_gate_f_run.py` issued; process terminated |
-| 2026-10-07 ~14:20 | Checkpoint file `gate_f_sc0-4_all_checkpoint.json` deleted from `results/` |
+| 2026-10-07 ~14:20 | `pkill -f c1_gate_f_run.py` issued — INEFFECTIVE; PID 115132 continued running |
+| 2026-10-07 ~14:20 | First checkpoint (`gate_f_sc0-4_all_checkpoint.json`) deleted from `results/` |
+| 2026-10-07 ~14:21 | **Correct sc5–29 run launched** — task `bpdjphtc0`, PID 115441 |
+| 2026-10-07 15:22 | sc0–4 run (PID 115132) wrote updated checkpoint (confirmed by file timestamp); ran concurrently ~118 min |
+| 2026-10-07 15:29 | sc5–29 run wrote checkpoint after sc5 completed (4089 s, 68 min) |
+| 2026-10-07 ~16:19 | Second wakeup check; `ps aux` revealed PID 115132 still alive alongside PID 115441 |
+| 2026-10-07 ~16:19 | `kill 115132` issued; PID 115132 terminated (confirmed by `ps aux`) |
+| 2026-10-07 ~16:19 | sc0–4 checkpoint (SHA `08b273da401a6577d3fd1e99d759a549139cad44f30384ec6f1698344ef6196f`, timestamp 15:22:47) deleted |
+| 2026-10-07 ~16:19 | `results/` confirmed clean: only `gate_f_sc5-29_all_checkpoint.json` remains |
 | 2026-10-07 ~14:21 | **Correct launch** — task ID `bpdjphtc0`; command: `GATE_F_N_FIRST=5 GATE_F_N_DEV=25 python3 artifacts/manuscript_completion/runners/c1_gate_f_run.py` |
 
 ---
