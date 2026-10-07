@@ -128,8 +128,12 @@ _restrict = os.environ.get("GATE_F_RESTRICT_POLICIES", "")
 if _restrict:
     GATE_F_POLICIES = [p.strip() for p in _restrict.split(",")]
 _COMPAT_POLICY_ORDER_ENV = os.environ.get("GATE_F_COMPAT_POLICY_ORDER", "")
+# Policy seeds must always be drawn for the full canonical CHALLENGE_POLICY_IDS list,
+# regardless of GATE_F_RESTRICT_POLICIES. Restriction controls execution, never RNG
+# allocation. Using list(GATE_F_POLICIES) here causes the seed-schedule bug where
+# the full_fp/full_random streams are swapped (same bug fixed in r3_gate_f_run.py).
 _COMPAT_POLICY_ORDER = (_COMPAT_POLICY_ORDER_ENV.split(",")
-                        if _COMPAT_POLICY_ORDER_ENV else list(GATE_F_POLICIES))
+                        if _COMPAT_POLICY_ORDER_ENV else list(CHALLENGE_POLICY_IDS))
 
 N_DEV    = int(os.environ.get("GATE_F_N_DEV",   str(N_SCENARIOS_TOTAL)))
 N_FIRST  = int(os.environ.get("GATE_F_N_FIRST", str(SCENARIO_FIRST) if not _is_compat else "0"))

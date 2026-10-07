@@ -1,0 +1,58 @@
+{
+  "description": "Gate 1b: C1 corrected-reference smoke vs r1 old-reference",
+  "c1_file": "gate_f_sc5-5_1p0_1p25_unr_c1.json",
+  "r1_files": {
+    "1.0": "gate_f_sc5-5_1p0.json",
+    "1.25": "gate_f_sc5-5_1p25.json",
+    "unrestricted": "gate_f_sc5-5_unr.json"
+  },
+  "comparison_method": "coarse-grid lambda_val matching (14 rows), max_abs_diff < 1e-9",
+  "non_cabinet_fields_checked": [
+    "B_primary_h",
+    "S_primary_Cdoth",
+    "B_secondary_h",
+    "syn_node_hours",
+    "n_syn_admit",
+    "n_drop_cap",
+    "n_drop_physical",
+    "n_drop_la",
+    "n_base_unserved",
+    "mean_F_syn"
+  ],
+  "scen_fields_checked": [
+    "scen_seed",
+    "wl_seed",
+    "B_ref_s",
+    "S_ref_s"
+  ],
+  "ratios_tested": [
+    "1.0",
+    "1.25",
+    "unrestricted"
+  ],
+  "policies_tested": [
+    "full_random",
+    "full_fp",
+    "full_loc",
+    "full_fp_spread"
+  ],
+  "coarse_rows_per_policy": 14,
+  "field_failures": 0,
+  "cabinet_field_differs_as_expected": {
+    "B_cab_ratio": true,
+    "note": "c1 uses corrected f2_local_scheduling_reference.json; values ~0.996 vs ~0.999 in r1"
+  },
+  "r1p0_negative_control": {
+    "description": "At r=1.0 all policies must produce identical crossings",
+    "crossing": {
+      "status": "exact_bracket",
+      "C_lower_pct": 0.8460330594563227,
+      "C_upper_pct": 1.146534112098707,
+      "first_binding_constraint": "S_ratio",
+      "right_censored": false
+    },
+    "all_policies_identical": true,
+    "pass": true
+  },
+  "overall_pass": true
+}

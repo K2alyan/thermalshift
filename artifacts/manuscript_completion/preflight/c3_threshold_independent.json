@@ -1,0 +1,28 @@
+{
+  "description": "Gate 3a: Independent threshold verification",
+  "cache_parquet": "C:\\Users\\kalya\\thermalops\\artifacts\\revision1\\results\\full_train_t95_distribution.parquet",
+  "audit_path": "C:\\Users\\kalya\\thermalops\\artifacts\\revision1\\results\\m4_threshold_audit.json",
+  "audit_sha256_frozen": "2ece0a19f63e3e147ae7c5f19765a2ebcd4144470c852004ef4426c2178adbcc",
+  "audit_sha256_actual": "2ece0a19f63e3e147ae7c5f19765a2ebcd4144470c852004ef4426c2178adbcc",
+  "audit_sha256_match": true,
+  "n_contributing_jobs_frozen": 3940,
+  "n_contributing_jobs_actual": 3940,
+  "n_contributing_jobs_match": true,
+  "n_node_job_pairs_frozen": 77627,
+  "n_node_job_pairs_actual": 77627,
+  "n_node_job_pairs_match": true,
+  "percentiles_computed": {
+    "P90": 61.875,
+    "P95": 63.625,
+    "P99": 66.6625
+  },
+  "percentiles_frozen": {
+    "P90": 61.875,
+    "P95": 63.625,
+    "P99": 66.6625
+  },
+  "P90_match": true,
+  "P95_match": true,
+  "P99_match": true,
+  "overall_pass": true
+}
