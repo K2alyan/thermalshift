@@ -1,9 +1,9 @@
 # Manuscript Completion Compute Addendum
 
-**Version:** 1.2
+**Version:** 1.3
 **Date authored:** 2026-10-06
-**Amendment date:** 2026-10-07
-**Status:** FROZEN BEFORE ANY NEW SIMULATION — commit before executing C1, C2, C3, C4, or C5
+**Amendment date:** 2026-10-07 (v1.3)
+**Status:** ALL PREFLIGHT GATES PASSED — awaiting explicit authorization for C1/C2/C3 production runs
 
 **Governance:** This document must be committed at its current state before any new simulation run begins. If code must change after this freeze, stop, amend this document explicitly, commit the amendment, rerun all affected gates, and wait for explicit re-authorization.
 
@@ -25,6 +25,9 @@ may proceed if any SHA256 does not match.
 | Round-3 plan | `artifacts/revision3/third_review_plan.json` | `7a194fad3dde6a739189f8bf5957279601fc0ac793692e521c2793dc3a7f8550` |
 | r3 runner (F2 two-policy run) | `artifacts/revision3/r3_gate_f_run.py` | `3bc8bcb07defd342d925e3eed2e5258be5424a7d596201c0246ba41d0613a6e1` |
 | r2 runner commit | — | git commit `5733b73bd715157f479821d969aac99811eee0d7` |
+| C1 manuscript runner | `artifacts/manuscript_completion/runners/c1_gate_f_run.py` | `7cb51ebcf541d9c04b932ef879ce5095d34195452ef88151418d01ce844b41ba` |
+| C2 manuscript runner (bug-fixed) | `artifacts/manuscript_completion/runners/c2_gate_f_run.py` | `e0de9d35a99715bc05c08177b08ad399bb25902fb492ef3487223135b7d3c44a` |
+| C3 manuscript runner | `artifacts/manuscript_completion/runners/c3_gate_f_run.py` | `3b4e9825462a5f8b80bc6f76c6938bcf88d460d12f782210474b38573654e91c` |
 | Exp 1 unr result (sc5-29) | `artifacts/revision1/results/gate_f_sc5-29_unr.json` | `3a119505e5f17b2e7d9abea1f640f5c2ed38a3eed1825e3fdd8bc0c6567f6356` |
 | Exp 1 r=1.0 result (sc5-29) | `artifacts/revision1/results/gate_f_sc5-29_1p0.json` | `b409fe8504ef4822a51ca28ea1936d686c67b2aaa3328e94d2c82e80a2d4b535` |
 
@@ -874,3 +877,102 @@ fingerprint, no refit. Reports Pearson r, Spearman rho, no-refit R² for each ha
 **Why:** The sc55-79 scenario design was not a valid calendar stability test — it would
 replay synthetic workloads, not measure fingerprint validity against actual 2025 outcomes.
 The prospective-observations design directly tests whether FA_2024 remains predictive.
+
+---
+
+## Amendment Record (v1.2 → v1.3)
+
+**Amendment date:** 2026-10-07
+
+### C1 — c2_gate_f_run.py pol_seed ordering bug fix
+
+**Change:** Fixed one-line bug in `c2_gate_f_run.py` line 132:
+
+```python
+# BEFORE (buggy):
+_COMPAT_POLICY_ORDER = (_COMPAT_POLICY_ORDER_ENV.split(",")
+                        if _COMPAT_POLICY_ORDER_ENV else list(GATE_F_POLICIES))
+
+# AFTER (fixed):
+_COMPAT_POLICY_ORDER = (_COMPAT_POLICY_ORDER_ENV.split(",")
+                        if _COMPAT_POLICY_ORDER_ENV else list(CHALLENGE_POLICY_IDS))
+```
+
+**How found:** Gate 2 smoke test (c2 sc30, full_fp+full_random, r=1.25) failed to reproduce
+`gate_f_sc30-54_1p25_r3f2local.json`. The smoke matched after the fix. Root cause: when
+`GATE_F_RESTRICT_POLICIES` is set (smoke test only), `GATE_F_POLICIES` becomes the restricted
+2-policy list. Defaulting `_COMPAT_POLICY_ORDER` to that list caused pol_seeds for full_fp and
+full_random to be drawn from the wrong stream positions, swapping their random state.
+
+**Production impact:** None. In production runs without `GATE_F_RESTRICT_POLICIES`,
+`GATE_F_POLICIES` equals `CHALLENGE_POLICY_IDS` (7 policies, same order), so the old and fixed
+code produce identical behavior. The bug only manifested in restricted smoke invocations.
+
+**This is the same fix already present in `r3_gate_f_run.py` (original two-policy run, commit
+5733b73), confirming the fix is correct and consistent with accepted results.**
+
+**Updated SHA:** c2_gate_f_run.py — was `a40e62ef...`, now `e0de9d35a99715bc05c08177b08ad399bb25902fb492ef3487223135b7d3c44a`
+**Committed:** `86e0096` (also adds C3 runner, all preflight smoke outputs)
+
+### C2 — c3_gate_f_run.py: new threshold sensitivity runner
+
+**Change:** Added `artifacts/manuscript_completion/runners/c3_gate_f_run.py`.
+
+Derived from `c2_gate_f_run.py` (v1.3 bug-fixed version). Changes:
+1. Only `full_fp` and `full_random` policies (hard-coded; no 7-policy seed draw)
+2. `T_THR_C3` env var (default 63.625) controls both `T_THR_PRIMARY` and the `thr` argument
+   to `compute_B_S_ref_s`. B_ref_s and S_ref_s are recomputed at T_THR_C3 from test-job data.
+3. Cabinet parameters fixed: same `f2_local_scheduling_reference.json` and `B_cab_hist_F2_replay_h`
+4. Checkpoint READ prohibited.
+5. Does not use per-scenario placebo seeds or position_loo (Exp 2 constructs).
+
+**SHA:** `3b4e9825462a5f8b80bc6f76c6938bcf88d460d12f782210474b38573654e91c`
+
+**Gate 3b (C3 P95 sc30 smoke):** At T_THR_C3=63.625, reproduces `gate_f_sc30-54_1p25_r3f2local.json`
+sc30 crossings exactly: full_fp C=[15.918%, 16.177%], full_random C=[4.818%, 4.824%].
+Max numeric diff = 0.0 on all comparable fields. PASS.
+
+### C3 — c3_threshold_verification.json: updated to COMPLETED
+
+**Change:** Updated status from "PENDING" to "COMPLETE". Added independent reproduction
+artifact (`artifacts/manuscript_completion/preflight/c3_threshold_independent.json`) and
+verification script (`artifacts/manuscript_completion/preflight/c3_threshold_verify.py`).
+Reproduction loaded the cached `full_train_t95_distribution.parquet` (committed at 2733d84),
+computed percentiles independently, and confirmed P90=61.875, P95=63.625, P99=66.6625 °C,
+n_jobs=3940, n_pairs=77627. All match frozen audit values exactly.
+
+---
+
+## Preflight Gate Results (2026-10-07)
+
+All four previously blocked smoke gates now PASS. Summary:
+
+| Gate | Result | Key evidence |
+|---|---|---|
+| C1 old-ref r=1.0 compatibility | PASS | Max abs diff = 0.0 vs gate_f_sc5-29_1p0.json sc5 |
+| C1 old-ref r=1.25 compatibility | PASS | Max abs diff = 0.0 vs gate_f_sc5-29_1p25...json sc5 |
+| C1 old-ref unrestricted compatibility | PASS | Max abs diff = 0.0 vs gate_f_sc5-29_unr.json sc5 |
+| C1 corrected-ref sc5 smoke | PASS | All non-cabinet fields identical to old-ref; B_cab_ratio differs as expected |
+| C1 r=1.0 negative control | PASS | All 4 policies: identical C_lower, C_upper; all 5 pairwise effects indistinguishable |
+| C2 sc30 FP/Random reproduction | PASS (after C1 bug fix) | full_fp C=[15.918%, 16.177%], full_random C=[4.818%, 4.824%]; exact match |
+| Cabinet-accounting inertness | PASS | Accounting fields are additive; strip → exact equality with reference |
+| Position-LOO diagnostic | PASS | 1990/2000 level 1; 0 level 2; 3 level 3; 7 global; 0 NaN; 0.5% beyond level 1 < 5% threshold |
+| Position self-exclusion | PASS | Brute-force: 0 errors across all 2000 nodes |
+| Placebo seed/invariant tests | PASS | All 6 canonical checks pass; see exact values below |
+| Threshold independent reproduction | PASS | P90/P95/P99 and population counts match frozen audit exactly |
+| C3 P95 sc30 reproduction | PASS | Crossings match r3f2local exactly; max diff = 0.0 |
+| git status | CLEAN | After removing smoke outputs from results/ |
+
+**Position-LOO level-1 group sizes** (for the 57 pos_key groups with ≥2 members, covering 1990 nodes):
+- Group size min: 2, median: 19, max: 73
+- LOO effective size (excluding self) min: 1, median: 18, max: 72
+- Spearman ρ(position_loo, original LOC_FA): 0.9823
+
+**Placebo seeds** (for manuscript):
+- sc30 (i=0): global = 2 514 122 466, within-cab = 4 138 460 386
+- sc31 (i=1): global = 239 530 002, within-cab = 2 821 695 500
+- sc54 (i=24): global = 1 242 389 544, within-cab = 2 325 658 828
+
+**Placebo invariant checks:** WithinCab stays within cabinet ✓; Global permutation is bijective ✓;
+Placebo scores affect selection only, thermal calculation uses true FA_2024 ✓;
+No placebo score reachable from thermal reconstruction ✓.
