@@ -56,7 +56,9 @@ The A/I/B counts are identical under both estimands because FP's C_lower exceeds
 | FP right_censored | 0/25 | 0/25 |
 | Random right_censored | 0/25 | 0/25 |
 
-The 9 Random left_boundary scenarios are identical under both cabinet references. In all 9, B_cab_ratio < 1.0 under both references; infeasibility is driven by thermal B_ratio > 1.0 (8 scenarios) or severity-weighted S_ratio > 1.0 (1 scenario: sc51). The cabinet reference does not affect left_boundary status.
+The 9 Random left_boundary scenarios are identical under both cabinet references. In all 9, B_cab_ratio < 1.0 under both references. Of the 9: 8 have B_ratio > 1.0 (cumulative thermal exceedance budget); 4 of those 8 also have S_ratio > 1.0 (severity-weighted thermal exposure budget, deg-C x node-hours above threshold): sc41, sc51, sc52, sc54. sc51 is the only scenario where S_ratio alone causes infeasibility (B_ratio = 0.987 < 1.0). The cabinet reference does not affect left_boundary status.
+
+For these 9 scenarios, the universal delta formulas apply as normal: FP has C_lower > 0 in all 9 (n_left_boundary_fp = 0), so delta_lo = C_lower(FP) - C_upper(Random) = C_lower(FP) - 0 > 0 in each, yielding definite A. All 25 scenarios are therefore A under the conservative estimand.
 
 ---
 
@@ -65,11 +67,11 @@ The 9 Random left_boundary scenarios are identical under both cabinet references
 - **Job-contribution reference raw result:** `artifacts/revision3/results/gate_f_sc30-54_1p25_r3legacy.json`
 - **SHA256:** `0f2736058fca95117d5a03cb43e08eab93145c3d5ea7c82054ecc4cb08ddea97`
 - **Analysis:** `artifacts/revision2/challenge_analysis.json`
-- **Analysis SHA256:** `3a8bbd0aba95209e8d388cdc6f0a8a78e80e6e6ad1b87baa1f62cd6b52c5b2e8`
+- **Analysis SHA256:** `3a8bbd0aba95209e8d383bb94f9b57b93df98a37d8cfa7423d8db0db115edac4`
 - **Runner commit:** `5733b73bd715157f479821d969aac99811eee0d7`
 
 ---
 
 ## Manuscript Wording (defensible)
 
-Under the corrected concurrent-load cabinet reference and replay-matched historical denominator, fingerprint-guided placement (FP) outperforms random placement in all 25 scenarios (25/0/0), with a median conservative paired lower-bound advantage of +12.5 percentage points (bootstrap 95% CI [+11.1, +19.0] pp, 5,000 draws, seed 9999). The result is consistent in direction with the frozen job-contribution reference result (22/1/2, +6.7 pp, CI [+3.9, +8.7] pp) and larger in magnitude.
+Under the corrected concurrent-load cabinet reference and replay-matched historical denominator, fingerprint-guided placement (FP) outperforms random placement in all 25 scenarios (25/0/0), with a median conservative paired lower-bound advantage of +12.48 percentage points (bootstrap 95% CI [+11.09, +19.04] pp, 5,000 draws, seed 9999). The result is consistent in direction with the frozen job-contribution reference result (22/1/2, +6.71 pp, CI [+3.92, +8.72] pp) and larger in magnitude.

@@ -47,7 +47,7 @@
 
   "comparison_with_frozen_challenge_F1": {
     "frozen_challenge_source": "artifacts/revision2/challenge_analysis.json",
-    "frozen_challenge_sha256": "3a8bbd0aba95209e8d388cdc6f0a8a78e80e6e6ad1b87baa1f62cd6b52c5b2e8",
+    "frozen_challenge_sha256": "3a8bbd0aba95209e8d383bb94f9b57b93df98a37d8cfa7423d8db0db115edac4",
     "frozen_challenge_F1_A_I_B": [22, 1, 2],
     "frozen_challenge_F1_median_delta_lo_pp": 6.7063,
     "frozen_challenge_F1_CI_95_pp": [3.9197, 8.7249],

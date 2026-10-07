@@ -1,7 +1,8 @@
 # Manuscript Completion Compute Addendum
 
-**Version:** 1.0
+**Version:** 1.1
 **Date authored:** 2026-10-06
+**Amendment date:** 2026-10-06
 **Status:** FROZEN BEFORE ANY NEW SIMULATION — commit before executing C1, C2, C3, C4, or C5
 
 **Governance:** This document must be committed at its current state before any new simulation run begins. If code must change after this freeze, stop, amend this document explicitly, commit the amendment, rerun all affected gates, and wait for explicit re-authorization.
@@ -48,12 +49,15 @@ may proceed if any SHA256 does not match.
       "I" otherwise         (intervals overlap; indistinguishable)
 
 **Left-boundary rule:**
-- `status == "left_boundary"` (C_lower = 0, C_upper = 0): policy cannot schedule any
-  synthetic workload at this ratio. Include as [0, 0]. Count as `n_base_infeasible`.
-  Exclude from bracket-width summaries. delta_lo = 0 - 0 = 0 (indistinguishable unless
-  the other policy also has C_lower = 0).
-- `status == "exact_bracket", C_lower = 0, C_upper > 0`: include in delta_lo as
-  0 - C_upper_B (correctly negative or zero). Count as `n_floor_at_zero`.
+- `status == "left_boundary"` (C_lower = 0, C_upper = 0): represent as interval [0, 0].
+  Count as `n_base_infeasible`. Exclude from bracket-width summaries.
+  Apply the universal delta formulas without special-casing:
+    - A=[0,0], B=[x,y] with x>0: delta_hi = 0-x < 0 → definite B
+    - A=[x,y] with x>0, B=[0,0]: delta_lo = x-0 > 0 → definite A
+    - A=[0,0], B=[0,0]: delta_lo=0, delta_hi=0 → indistinguishable
+  Do NOT default to indistinguishable whenever a left_boundary is present.
+- `status == "exact_bracket", C_lower = 0, C_upper > 0`: represent as [0, C_upper].
+  Count as `n_floor_at_zero`. Apply universal delta formulas as-is.
 
 **Bootstrap configuration (all runs):** 5,000 draws, seed 9999, percentile method,
 95% CI. Paired bootstrap over scenarios for median delta_lo.
@@ -76,22 +80,23 @@ denominator, keeping all other parameters identical.
 sourced from `artifacts/revision1/results/gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json`
 `scenario_results[*].scen_seed` and `wl_seed`. Master SCENARIO_SEED = 42.
 
-### Policies
-Mandatory:
-- `full_fp`
-- `full_random`
-- `full_loc` (location-only: mean FA_2024 over nodes sharing the same structural
-  position key `chassis + '_' + slot + '_' + board + '_' + node_pos`)
+### Policies (exact frozen Experiment 1 set)
+Source: `gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json` `gate_f_policies` field.
 
-Preferred (include if the frozen Experiment 1 runner already supports without modification):
-- `full_fp_spread`
+1. `full_random`
+2. `full_fp`
+3. `full_loc`
+4. `full_fp_spread`
 
-Do NOT add policies not in the frozen Experiment 1 runner. Do NOT add placebos or
-position_template — those are Experiment 2 constructs.
+Run all four. Do not add or remove any policy. Do not add placebos or `position_template`
+(those are Experiment 2 constructs).
 
-### Ratios
-Mandatory: r = 1.25
-Preferred (include if marginal compute is negligible): r = 1.5, 2.0, 4.0, 8.0
+### Ratios (exact frozen Experiment 1 set)
+Source: `gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json` `gate_f_ratios` field.
+
+1.25, 1.5, 2.0, 4.0, 8.0
+
+Run all five ratios. No selective subset.
 
 ### Cabinet Reference
 - Mode: `corrected_timeweighted_total_p99_local`
@@ -102,23 +107,43 @@ Preferred (include if marginal compute is negligible): r = 1.5, 2.0, 4.0, 8.0
   SHA256: `b0594373af48fe6bb840ddc32c5628d7c3c26384e11c42fd58f4b9b27555ce48`
 
 ### Runner
-**TO BE DETERMINED BEFORE IMPLEMENTATION.** Options:
-(a) Modify `r1_gate_f_run.py` (709c78a) to support `corrected_timeweighted_total_p99_local`
-    mode, loading from `f2_local_scheduling_reference.json` and `f2_replay_denominator.json`.
-(b) Modify `r3_gate_f_run.py` (4fa1b50) to support sc5-sc29 scenarios and
-    `full_loc` policy.
+Create a NEW runner file:
+`artifacts/manuscript_completion/runners/c1_gate_f_run.py`
 
-Freeze runner SHA256 before execution. Record in output file header.
+Base it on the FROZEN Experiment 1 runner at git commit
+`709c78a0df967f63a590ed4740ea3c3c7796136c` (`artifacts/revision1/analysis/r1_gate_f_run.py`).
+Do NOT modify the historical runner file.
+
+**Permitted patches only:**
+1. Load cabinet thresholds from `f2_local_scheduling_reference.json` (corrected reference)
+   instead of the original job-contribution envelope source.
+2. Load `B_cab_hist_F2_replay_h` = 871.3691666666647 h from `f2_replay_denominator.json`
+   as the cabinet historical denominator instead of the original F1 value.
+3. Update default output path to
+   `artifacts/manuscript_completion/results/gate_f_sc5-29_correctedref_*.json`.
+
+**Everything else is preserved unchanged:**
+scenario seeds, workload draws, candidate exposure logic, all four policy logics
+(full_random, full_fp, full_loc, full_fp_spread), utilization rules, thermal model
+(B_ref_s, S_ref_s computation), all non-cabinet accounting.
+
+Do NOT combine C1 and C2 in the same runner.
+
+Freeze SHA256 of `c1_gate_f_run.py` before execution. Record in output file header.
 
 **Preflight gates (all required before launch):**
 1. `py_compile` clean on runner
 2. `ruff --select F821` clean on runner
 3. SHA256 of F2 cabinet reference matches frozen value
 4. SHA256 of replay denominator matches frozen value
-5. sc5 smoke: run scenario sc5, full_fp, r=1.25 — compare C_lower/C_upper against
-   revision1 frozen result to confirm difference is entirely attributable to cabinet
-   reference (not seed/workload change). Accept if thermal ratios (B_primary_ratio,
-   S_primary_ratio) are identical and only B_cab_ratio differs.
+5. sc5 smoke: run scenario sc5 across all four policies at r=1.25. For every row where
+   policy and lambda_val match a row in the frozen Experiment 1 result file, require
+   exact equality (max abs diff <= 1e-9) for ALL fields that are invariant to the cabinet
+   reference: scen_seed, wl_seed, B_ref_s, S_ref_s, B_primary_h, S_primary_Cdoth,
+   B_secondary_h, syn_node_hours, n_syn_admit, n_drop_*, n_base_unserved, workload
+   identifiers if serialized, and utilization quantities.
+   ONLY B_cab_ratio (and capacity_unlock_pct, crossing_lambda, feasibility status) may
+   differ. If any invariant field mismatches, STOP before running the 25-scenario run.
 
 ### Primary Required Output
 - A/I/B, median delta_lo, bootstrap CI for FP vs Random at r=1.25
@@ -158,15 +183,15 @@ and `wl_seed`. Challenge seed: 2042.
 ### Ratio
 **r = 1.25 only** (mandatory).
 
-### Policies (7)
-Mandatory:
+### Policies (7 — all mandatory)
+All seven policies are mandatory. The Holm multiplicity family is fixed at 8 comparisons
+regardless of results.
+
 1. `full_fp`
 2. `full_random`
 3. `fp_withincab_placebo` — within-cabinet fingerprint permutation (see Placebo Seed section)
 4. `fp_global_placebo` — global fingerprint permutation (see Placebo Seed section)
 5. `position_loo` — leave-one-out position score (see Position LOO section)
-
-Preferred (include if marginal compute is reasonable):
 6. `full_fp_spread`
 7. `random_spread`
 
@@ -201,12 +226,18 @@ FA_2024. Apply this BEFORE the LOO exclusion.
 
 **Score normalization:** None. Use raw LOO mean FA_2024 as the selection score.
 
-**Validation requirement (before scheduling run):**
-- Compute Spearman rank correlation between position_loo scores and original
-  position_template scores across all 2,000 fp nodes.
-- Report count of nodes at each fallback level.
-- Report. Do not gate on any threshold — proceed regardless. The validation is a
-  diagnostic, not a pass/fail gate.
+**Pre-scheduling diagnostic (required before ANY C2 scenario is run):**
+
+Compute position_loo scores for all fp nodes WITHOUT scheduling. Report:
+- N nodes assigned at each fallback level (1, 2, 3, 4/global)
+- N nodes with NaN FA_2024 (if any, report and STOP before C2 execution)
+- Spearman rank correlation between position_loo scores and original
+  position_template scores across all 2,000 fp nodes (using only finite values)
+
+Stop condition: If a material number of nodes require fallback beyond level 1 (same
+exact position group), STOP and report to user before scheduling. Do not use this
+diagnostic to change the fallback hierarchy — hierarchy is frozen here. The user
+must rule on whether to proceed before any scheduling result is accepted.
 
 ### Placebo Seeds (per-scenario, deterministic)
 
@@ -248,9 +279,23 @@ Same as C1 (corrected concurrent-load):
   SHA256 = `b0594373af48fe6bb840ddc32c5628d7c3c26384e11c42fd58f4b9b27555ce48`
 
 ### Runner
-Freeze SHA256 before execution. Must be based on `r3_gate_f_run.py` or a new runner
-extending it to support all 7 policies and the position_loo and per-scenario placebo
-logic. Record runner SHA256 in output file header.
+Create a NEW runner file:
+`artifacts/manuscript_completion/runners/c2_gate_f_run.py`
+
+Base it on the FROZEN Experiment 2 challenge runner at git commit
+`5733b73bd715157f479821d969aac99811eee0d7` (`artifacts/revision2/r2_gate_f_run.py`).
+Do NOT modify the historical runner file.
+
+**Port into the new runner:**
+1. Corrected concurrent-load cabinet reference (`f2_local_scheduling_reference.json`)
+   and replay-matched denominator (`B_cab_hist_F2_replay_h` = 871.3691666666647 h)
+2. Per-scenario placebo seeds (SeedSequence derivation from R3_ROOT as specified above)
+3. New `position_loo` policy with 4-level LOO fallback (as specified above)
+4. Output path `artifacts/manuscript_completion/results/gate_f_sc30-54_1p25_correctedref_7pol.json`
+
+Do NOT combine C1 and C2 in the same runner.
+
+Freeze SHA256 of `c2_gate_f_run.py` before execution. Record in output file header.
 
 **Preflight gates (all required before launch):**
 1. `py_compile` and `ruff --select F821` clean
@@ -258,8 +303,11 @@ logic. Record runner SHA256 in output file header.
 3. Position LOO self-inclusion unit test passes (for every fp node, its own FA_2024
    is excluded from its LOO computation)
 4. Placebo thermal-invariant unit test passes
-5. sc30 smoke: FP and Random results must match the frozen
-   `gate_f_sc30-54_1p25_r3f2local.json` sc30 values exactly (max abs diff <= 1e-9)
+5. sc30 smoke: for full_fp and full_random at sc30, ALL scientific fields that are
+   invariant to policy logic must match the frozen `gate_f_sc30-54_1p25_r3f2local.json`
+   sc30 rows exactly (max abs diff <= 1e-9), including scen_seed, wl_seed, B_ref_s,
+   S_ref_s, B_primary_h, S_primary_Cdoth, B_secondary_h, B_cab_ratio, capacity_unlock_pct,
+   and C_lower/C_upper. If any mismatches, STOP before the 25-scenario run.
 6. Seed canonical check: reproduce placebo_global_seed for i=0 (sc30) using derivation
    above; expected value = **2514122466**. Reproduce placebo_withincab_seed for i=0;
    expected value = **4138460386**. Abort if either mismatches.
@@ -281,8 +329,8 @@ Spread (if spread policies run):
 Additional:
 8. FPSpread_vs_PositionLOO (if spread policies run)
 
-**Multiplicity family:** All 8 comparisons (or 4 mandatory comparisons if spread
-policies not executed). Holm-Bonferroni correction over the family.
+**Multiplicity family:** Fixed at 8 comparisons. All seven policies are mandatory,
+so all eight comparisons are required. Holm-Bonferroni correction over the family.
 
 For each comparison report:
 - A/I/B counts
@@ -336,17 +384,47 @@ Population: 3,940 contributing pre-2025 jobs (full population, not 462-job subse
 **STOP AND REPORT if the artifact returns different values.** Do not silently substitute.
 
 ### Denominator Recomputation Rule (mandatory)
-At EACH threshold T_thr, recompute:
-- `B_ref_s` (historical node-level thermal exceedance-hours) using that T_thr
-- `S_ref_s` (historical node-level severity-weighted thermal exposure) using that T_thr
-- `B_cab_hist` (historical cabinet exceedance) using the corrected concurrent-load
-  reference thresholds AND that T_thr for the node-level thermal budget
+T_thr governs NODE-LEVEL thermal budgets only. At each threshold recompute:
+- `B_ref_s` — historical node-level thermal exceedance-hours, using that T_thr
+- `S_ref_s` — historical node-level severity-weighted thermal exposure, using that T_thr
 
-Do NOT reuse the primary T_p95 denominators while changing only T_thr. All thermal
-budget denominators must be recomputed at each threshold.
+Hold fixed across all three threshold runs:
+- Cabinet Q_c thresholds from `f2_local_scheduling_reference.json`
+- `B_cab_hist_F2_replay_h` = 871.3691666666647 h
+- Cabinet topology and reference support window
 
-Cabinet reference (Q_c thresholds) remains the corrected concurrent-load reference
-(`f2_local_scheduling_reference.json`) for all three threshold runs.
+These are electrical cabinet quantities. They do NOT depend on node thermal T_thr.
+
+### P95 Center Point (existing result — no new simulation)
+The accepted corrected-reference P95 result is:
+`artifacts/revision3/results/gate_f_sc30-54_1p25_r3f2local.json`
+SHA256: `5982264fcf719cc4746b23ae6ef0aaf9e22a9700e4b6ef3e19e49a98b5460dca`
+
+Do NOT rerun the full 25-scenario P95 experiment. Use this file as the P95 center point.
+
+**Before running P90 or P99:** verify that the new C3 runner reproduces sc30 at P95
+exactly (max abs diff <= 1e-9 on all comparable scientific fields vs the accepted
+P95 result). If the sc30 reproduction fails at P95, STOP — do not proceed to P90/P99.
+
+**Full 25-scenario runs:** P90 only and P99 only. Two new runs total.
+
+### Threshold Verification Artifact (required before C3 implementation)
+The threshold values 61.875 / 63.625 / 66.6625 °C are stored in:
+- `artifacts/revision1/results/m4_threshold_audit.json`
+- SHA256: `2ece0a19f63e3e147ae7c5f19765a2ebcd4144470c852004ef4426c2178adbcc`
+- Git commit: `2733d84`
+- Source: `r1_m4_threshold_audit.py` on full population of 3,940 contributing pre-2025
+  jobs (77,627 node-job pairs), timestamp 2026-09-29T16:30:03Z
+
+Before C3 implementation, independently reproduce these three percentile values from
+the canonical frozen pre-2025 calibration population using a NEW verification script.
+Create and commit a dedicated threshold-verification artifact:
+`artifacts/manuscript_completion/c3_threshold_verification.json`
+
+This artifact must contain: source population definition, N jobs, N node-job pairs,
+exact percentile method, reproduced P90/P95/P99 values, SHA256 of m4_threshold_audit.json.
+
+If independently reproduced values differ from 61.875 / 63.625 / 66.6625 °C: STOP.
 
 ### Output
 For each T_thr: A/I/B, median delta_lo, bootstrap CI, absolute capacity, first-binding
@@ -383,9 +461,6 @@ For FP and Random at r=1.25 under corrected reference, around the capacity cross
 - Expected share under neutral allocation (3.9%)
 - Enrichment ratio: (observed share) / (expected share)
 - Distribution of enrichment across 25 scenarios
-- Whether those cabinets are disproportionately responsible for FP's capacity gain
-  (defined as: does removing them from the eligible set change the sign of delta_lo
-  for any scenario? — answer from data, not from new simulation)
 
 Additionally, from existing fingerprint data:
 - FA_2024 mean/median/IQR for cabinets 2600, 2601, 2602 vs early cohort (74 cabinets)
@@ -396,9 +471,8 @@ Additionally, from existing fingerprint data:
 ### Stopping Rule
 After producing diagnostics: **STOP and present to user.**
 
-Do not run any exclusion rerun. The methodological decision (whether to exclude late
-cabinets, and if so whether to recompute reference denominators for the reduced cohort
-or hold them fixed) must be made explicitly before any exclusion run.
+No exclusion simulation is authorized. C4 is diagnostic only. Do not proceed to any
+late-cabinet exclusion run until explicitly authorized after reviewing the diagnostic.
 
 ### Output File
 `artifacts/manuscript_completion/late_cabinet_leverage_diagnostic.json`
@@ -406,27 +480,59 @@ or hold them fixed) must be made explicitly before any exclusion run.
 
 ---
 
-## C5 — Calendar Stability (Optional)
+## C5 — Measurement Robustness: Calendar Stability of Fingerprint Predictions (Optional)
 
 ### Status
 Do not block C1-C4. Only run if explicitly requested after C1-C4 are reviewed.
 
-### If run: parameters
-- Split boundary: median `start_time` of the 2,637 frozen base-cohort test-set jobs.
-  Compute and record the exact timestamp BEFORE any run.
-- New scenarios: sc55-sc79 (seeds from `third_review_plan.json placebo_and_seed_plan`)
-- Use corrected concurrent-load cabinet reference
-- Policies: `full_fp`, `full_random`
-- Ratio: r=1.25
-- Minimum per-node support for inclusion: to be defined before looking at results
-- Report each half separately; no pooling before reporting both
+### Purpose
+Verify that the frozen pre-2025 fingerprint (FA_2024) retains predictive validity
+for thermal outcomes in prospective 2025 node-job observations. This is a PREDICTIVE
+VALIDITY CHECK on the fingerprint itself — not a new scheduling experiment.
+
+### What this is NOT
+- Not a new scheduling simulation
+- Not a new scenario replay
+- Not a fingerprint refit or update
+
+### Fixed Split
+**2025-07-01 00:00:00 UTC** (hard-coded; do not derive from data centroids).
+Before looking at any outcome Y values, freeze and commit a minimum per-node support
+rule (minimum number of 2025 observations required for a node to be included in each
+half). Record this threshold before examining results.
+
+### Fingerprint
+Use the frozen pre-2025 fingerprint FA_2024 unchanged. No refit.
+
+### Eligible Nodes and Observations
+- Use existing prospective 2025 node-job observations (Y_i: actual thermal outcome
+  for node i in job, expressed consistently with the fingerprint outcome definition)
+- Partition observations strictly by job start time relative to 2025-07-01 00:00:00 UTC
+- Early-2025 half: job start < 2025-07-01 00:00:00 UTC
+- Late-2025 half: job start >= 2025-07-01 00:00:00 UTC
+- Apply the frozen minimum support rule to each half independently
+- Compute per-node Y_i as the mean outcome across qualifying observations in that half
+
+### Required Outputs (both halves independently; no pooling before reporting)
+For each half separately:
+- N eligible nodes (meeting minimum support threshold)
+- Pearson r(FA_2024, Y_i) across eligible nodes
+- Spearman rho(FA_2024, Y_i) across eligible nodes
+- No-refit R²: var explained by FA_2024 using the frozen thermal model coefficients
+  (no new regression — use existing frozen model from Phase 3B)
+
+Additionally:
+- For nodes present in BOTH halves: early-vs-late Y_i agreement (Pearson r, Spearman rho)
+
+### Output File
+`artifacts/manuscript_completion/c5_fingerprint_calendar_stability.json`
 
 ---
 
 ## Multiplicity and Interpretation Rules
 
 ### Primary comparison family (C2)
-8 pre-specified comparisons (or 4 mandatory if spread policies absent).
+8 pre-specified comparisons (all seven policies mandatory, Holm family size = 8).
 Holm-Bonferroni correction. Report raw and adjusted p-values for all sign tests.
 
 ### C1 comparison family
@@ -492,16 +598,17 @@ If any preflight fails: STOP. Report before restarting.
 
 | Run | Scenarios | Policies | Ratios | Estimate |
 |---|---|---|---|---|
-| C1 (Exp 1 corrected ref) | 25 (sc5-29) | 3-4 | 1-5 | 4-8 hours |
-| C2 (Exp 2 corrected ref, 7-pol) | 25 (sc30-54) | 5-7 | 1 | 8-14 hours |
-| C3 (threshold sensitivity) | 25 (sc30-54) | 2 | 1 per threshold (x3) | 6-9 hours |
+| C1 (Exp 1 corrected ref) | 25 (sc5-29) | 4 (frozen set) | 5 (frozen set) | 5-9 hours |
+| C2 (Exp 2 corrected ref, 7-pol) | 25 (sc30-54) | 7 (all mandatory) | 1 | 8-14 hours |
+| C3 (threshold sensitivity) | 25 (sc30-54) | 2 | P90 + P99 (P95 reused) | 4-6 hours |
 | C4 (late-cabinet diagnostic) | 0 (from existing) | — | — | < 1 hour |
-| C5 (optional) | 25 (sc55-79) | 2 | 1 | 3-5 hours |
+| C5 (optional) | 0 (prospective obs) | — | — | < 2 hours |
 
 Estimates based on F2 two-policy sc30-54 elapsed time of ~9,562 seconds (~2.7 hours).
-C2 adds 5+ policies at r=1.25 only; C3 runs 3x the F2 setup with recalculated denominators.
+C2 adds 5 additional policies at r=1.25 only. C3 runs two 25-scenario runs (P90, P99);
+P95 center point reused from accepted corrected-reference result.
 
-**Total mandatory (C1+C2+C3+C4):** approximately 18-32 hours wall time.
+**Total mandatory (C1+C2+C3+C4):** approximately 17-30 hours wall time.
 
 ---
 
@@ -515,3 +622,98 @@ Authorize and execute in this order:
 5. C5 only if explicitly requested
 
 **DO NOT start C1, C2, C3, or C5 until explicitly authorized after reviewing this addendum.**
+
+---
+
+## Amendment Record (v1.0 → v1.1)
+
+**Amendment date:** 2026-10-06
+
+### A1 — challenge_analysis.json SHA canonicalization
+**Change:** Corrected wrong SHA (`3a8bbd0...e8d388cdc...`) to canonical (`3a8bbd0...e8d383bb9...`)
+in `corrected_reference_same_estimand.json` and `CORRECTED_REFERENCE_SAME_ESTIMAND.md`.
+**Why:** Wrong SHA was introduced during Phase 1A draft; the addendum's artifact table
+already carried the correct value. All revision2 audit files agree on the canonical SHA.
+The file bytes are unchanged — committed at `f1c78a3`.
+
+### A2 — Left-boundary rule: universal delta formulas
+**Change:** Removed erroneous special-case "delta_lo = 0 (indistinguishable unless...)"
+for left_boundary policies. Replaced with explicit application of universal formulas to
+[0,0] × [x,y] and [x,y] × [0,0] cases, showing definite B and definite A outcomes.
+**Why:** A=[0,0] vs B=[x,y] with x>0 yields delta_hi = -x < 0 (definite B), not
+indistinguishable. The previous language was incorrect and inconsistent with the accepted
+frozen challenge_analysis.json estimand. The corrected_reference_same_estimand.json
+computation was verified to have used the correct universal formula (result 25/0/0 is
+consistent with universal formula; wrong formula would yield 16/9/0).
+
+### A3 — C1 runner: separate runner from frozen r1; exact policy and ratio set
+**Change:** Replaced "TO BE DETERMINED" runner options with definitive ruling: create
+`c1_gate_f_run.py` derived from frozen `r1_gate_f_run.py` at commit `709c78a`. Replace
+"mandatory/preferred" policy and ratio language with exact frozen Experiment 1 sets:
+policies = {full_random, full_fp, full_loc, full_fp_spread}; ratios = {1.25, 1.5, 2.0,
+4.0, 8.0}. C1 and C2 must use separate runners.
+**Why:** The frozen Experiment 1 artifact records these exact four policies and five ratios.
+Using a subset or different base runner would invalidate invariant-field comparison.
+
+### A4 — C1 smoke test: require exact invariant-field equality
+**Change:** Strengthened sc5 smoke from "accept if thermal ratios are identical" to
+require max abs diff <= 1e-9 on ALL non-cabinet invariant fields (B_ref_s, S_ref_s,
+B_primary_h, S_primary_Cdoth, B_secondary_h, syn_node_hours, n_drop_*, workload IDs,
+utilization quantities). Only B_cab_ratio and downstream feasibility/crossing fields
+may differ.
+**Why:** Cabinet-reference change should not perturb any upstream quantity. Weak smoke
+test could miss silent accidental divergence in workload draws or thermal accounting.
+
+### A5 — C2 spread policies: all 7 mandatory; Holm family fixed at 8
+**Change:** Removed "preferred (include if marginal compute is reasonable)" qualifier
+for full_fp_spread and random_spread. All seven policies are mandatory. Holm family
+size is fixed at 8.
+**Why:** Holm family size cannot be determined post-execution. Pre-specifying all 8
+comparisons before launch is required for valid multiplicity correction.
+
+### A6 — C2 runner: derived from frozen r2, not r3
+**Change:** Specified `c2_gate_f_run.py` derived from frozen r2 challenge runner at
+commit `5733b73b`. Do not modify the historical runner; do not use r3 as base.
+**Why:** C2 must extend Experiment 2 science, not a two-policy sensitivity runner.
+Deriving from r2 ensures the frozen scenario logic, policy implementations, and
+accounting are preserved.
+
+### A7 — C2 position LOO diagnostic: stop-and-report on material fallback or NaN
+**Change:** Added explicit stop condition if NaN FA_2024 values exist or if a material
+number of nodes require fallback beyond level 1. Diagnostic must be run without
+scheduling; hierarchy is frozen and cannot be changed by diagnostic findings without
+explicit user ruling.
+**Why:** If the position group structure is sparse, the LOO hierarchy may silently fall
+back to global means for many nodes, potentially eliminating the within-chassis signal
+the comparison is designed to test.
+
+### A8 — C3 denominator: cabinet reference quantities are independent of T_thr
+**Change:** Corrected "recompute B_cab_hist" at each T_thr to: hold cabinet Q_c
+thresholds and B_cab_hist_F2_replay_h fixed across all threshold runs. Only B_ref_s
+and S_ref_s are recomputed per T_thr.
+**Why:** B_cab_hist is an electrical cabinet measurement. It does not depend on the
+node thermal exceedance threshold. Recomputing it per T_thr would be incorrect.
+
+### A9 — C3 run strategy: P95 reused; only P90 and P99 get new full runs
+**Change:** Added P95 center-point rule (reuse accepted `gate_f_sc30-54_1p25_r3f2local.json`).
+New runner must reproduce sc30 at P95 exactly before P90/P99 runs. Full 25-scenario
+runs only for P90 and P99. Added threshold-verification artifact requirement
+(`c3_threshold_verification.json`) to be committed before C3 implementation.
+**Why:** Eliminates one redundant 25-scenario run (~2-3 hours). Threshold values are
+stored in tracked `m4_threshold_audit.json` (SHA `2ece0a19...`, commit `2733d84`) but
+independent verification is required before scientific use.
+
+### A10 — C4: remove counterfactual; diagnostic only
+**Change:** Removed bullet "does removing late cabinets change the sign of delta_lo."
+Updated stopping rule to read "No exclusion simulation is authorized."
+**Why:** Whether removing late cabinets reverses the FP advantage cannot be identified
+from realized selection data alone. The counterfactual requires a new simulation, which
+is not authorized.
+
+### A11 — C5: rewritten as calendar measurement robustness
+**Change:** Replaced scheduling-replay design (sc55-79 scenarios) with prospective 2025
+measurement robustness analysis. Fixed split at 2025-07-01 00:00:00 UTC. Frozen FA_2024
+fingerprint, no refit. Reports Pearson r, Spearman rho, no-refit R² for each half separately.
+**Why:** The sc55-79 scenario design was not a valid calendar stability test — it would
+replay synthetic workloads, not measure fingerprint validity against actual 2025 outcomes.
+The prospective-observations design directly tests whether FA_2024 remains predictive.
