@@ -31,6 +31,8 @@ Bootstrap: 5000 draws, seed=9999.
 
 ## Capacity Summary
 
+C_lower_pct = lower bound of the synthetic-capacity interval at the first-binding crossing, expressed as % of baseline node-hours. This is an absolute policy capacity measure, not delta_lo. delta_lo = FP C_lower − Random C_lower per scenario; median delta_lo = +12.76 pp is kept separate.
+
 | Policy | F2 median C_lower | F2 IQR | F1 median C_lower | F1 IQR |
 |---|---|---|---|---|
 | full_fp | 15.35% | [12.23%, 22.83%] | 7.33% | [4.90%, 9.36%] |
@@ -43,11 +45,11 @@ Bootstrap: 5000 draws, seed=9999.
 | | F2 | F1 |
 |---|---|---|
 | FP left_boundary | 0 / 25 | 0 / 25 |
-| Random left_boundary | **9 / 25** | 6 / 25 |
+| Random left_boundary | **9 / 25** | **9 / 25** |
 | FP right_censored | 0 / 25 | 0 / 25 |
 | Random right_censored | 0 / 25 | 0 / 25 |
 
-In all 9 F2 left_boundary Random scenarios, B_cab_ratio < 1.0 at lambda=1.0 — the cabinet constraint is not binding. The thermal constraint (B_ratio) is infeasible at the baseline counterfactual placement, because Random selects nodes that are thermally hotter than what FP would choose. FP avoids this in all 25 scenarios.
+The 9 Random left_boundary scenarios are identical in F1 and F2 (absolute scenarios sc36, sc38, sc41, sc44, sc45, sc47, sc51, sc52, sc54). In all 9 cases under both references, B_cab_ratio < 1.0 at lambda=1.0 — the cabinet constraint is not binding. Infeasibility is driven by B_ratio > 1.0 (thermal constraint exceeds budget, 8 scenarios) or S_ratio > 1.0 (space constraint, 1 scenario: sc51). The B_ratio and S_ratio values at lambda=1.0 are identical between F1 and F2 for all 9 scenarios; the F2 correction does not change their left_boundary status.
 
 ---
 
@@ -58,7 +60,7 @@ In all 9 F2 left_boundary Random scenarios, B_cab_ratio < 1.0 at lambda=1.0 — 
 | full_fp | B_ratio: 25/25 | B_cab_ratio: 23/25, B_ratio: 2/25 |
 | full_random | B_ratio: 22/25, S_ratio: 3/25 | B_ratio: 19/25, B_cab_ratio: 4/25, S_ratio: 2/25 |
 
-**Key structural shift:** Under F1, the cabinet budget constraint was first-binding for FP in 23/25 scenarios, capping achievable capacity. Under F2, the higher cabinet threshold relaxes the cabinet constraint entirely — the thermal budget (B_ratio) becomes the sole binding constraint. This exposes FP's full thermal advantage: FP selects thermally cooler nodes, which allows higher unlocked capacity (median 15.35% vs 7.33% under F1) before the thermal budget binds.
+**Key structural shift:** Under F1, the cabinet budget constraint was first-binding for FP in 23/25 scenarios, capping achievable capacity. Under the corrected F2 cabinet reference and replay-matched historical denominator, cabinet power is no longer the first-binding constraint for FP in any of the 25 scenarios; the thermal budget (B_ratio) binds first in all 25. The transition is 23/25 B_cab_ratio → B_ratio, 2/25 B_ratio → B_ratio (sc36 and sc38 were already thermal-constrained under F1). This allows higher unlocked capacity (FP median C_lower 15.35% under F2 vs 7.33% under F1).
 
 ---
 
@@ -71,9 +73,9 @@ Both experiments support FP over Random at r=1.25 (directional agreement = YES).
 - CI lower bound: +11.10 pp vs +4.07 pp (shift: +7.03 pp)
 - CI entirely above zero in both cases
 
-The stronger F2 result is structurally explained: the corrected concurrent-load P99 threshold (~2.3× higher than the event-weighted F1 threshold) relaxes the cabinet constraint that previously capped FP's capacity expansion. The thermal constraint, where FP has its principal advantage, now drives the result throughout. Under F1, the cabinet constraint was partially masking the thermal signal for FP.
+Under the corrected F2 cabinet reference and replay-matched historical denominator, cabinet power is no longer the first-binding constraint for FP in any of the 25 scenarios; B_ratio (thermal) binds first in all 25. Under F1, 23/25 FP scenarios were cabinet-constrained, capping achievable capacity. The 23 scenarios that transition from B_cab_ratio → B_ratio account for the increase in FP median C_lower from 7.33% to 15.35%.
 
-Random's left_boundary count increases from 6 to 9 under F2, consistent with the same mechanism: the changed denominator structure shifts which constraint binds first for Random's thermally suboptimal placements.
+Random left_boundary: 9/25 in both F1 and F2, identical set of scenarios. The cabinet constraint is not binding for Random in any of these cases under either reference; infeasibility is driven entirely by B_ratio > 1.0 (8 scenarios) or S_ratio > 1.0 (1 scenario) at lambda=1.0, which are unchanged between F1 and F2.
 
 ---
 
@@ -85,7 +87,7 @@ Rule: CI entirely above zero → SUPPORTS_FP; CI includes zero → INCONCLUSIVE.
 - F1: CI = [+4.07, +8.82] pp → **SUPPORTS_FP**
 - Agreement: **YES**
 
-**Conclusion:** The corrected time-weighted total P99 local-date cabinet reference (F2) is consistent in direction with the frozen F1 legacy reference. The original ThermalShift conclusion — that fingerprint-guided placement (FP) unlocks more feasible additional capacity than random placement at r=1.25 — is replicated and strengthened under the corrected threshold definition. The correction does not reverse or attenuate the original finding.
+**Conclusion:** The corrected local-date F2 cabinet reference (time-weighted P99 with replay-matched historical denominator) is consistent in direction with the frozen F1 legacy reference. The original ThermalShift conclusion — that fingerprint-guided placement (FP) unlocks more feasible additional capacity than random placement at r=1.25 — is replicated and strengthened under the corrected cabinet reference definition. The correction does not reverse or attenuate the original finding.
 
 ---
 

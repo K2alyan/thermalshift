@@ -52,7 +52,7 @@
     "result_file": "artifacts/revision3/results/gate_f_sc30-54_1p25_r3legacy.json",
     "result_sha256": "0f2736058fca95117d5a03cb43e08eab93145c3d5ea7c82054ecc4cb08ddea97",
     "A_I_B": [22, 0, 3],
-    "n_left_boundary_random": 6,
+    "n_left_boundary_random": 9,
     "median_delta_lo_pp": 6.7799,
     "bootstrap_CI_95_pp": [4.0679, 8.8238],
     "interpretation": "SUPPORTS_FP",
@@ -68,9 +68,9 @@
     "delta_lo_median_shift_pp": 5.9767,
     "CI_lower_shift_pp": 7.0330,
     "f2_A_count_vs_f1": "25 vs 22",
-    "first_binding_shift": "F1 cabinet-budget dominated (23/25 FP); F2 thermal-budget dominated (25/25 FP). Higher F2 threshold relaxes cabinet constraint, exposing full thermal signal.",
-    "left_boundary_random_shift": "9/25 under F2 vs 6/25 under F1. Random node selection thermally infeasible at baseline in more scenarios under F2 denominator structure.",
-    "cabinet_constraint_f1_vs_f2": "Under F1, B_cab_ratio was first-binding for FP 23/25 times, capping capacity. Under F2, B_ratio (thermal) is always first-binding for FP, allowing higher unlocked capacity (median 15.4% vs 7.3%)."
+    "first_binding_shift": "F1 cabinet-budget dominated (23/25 FP); F2 thermal-budget dominated (25/25 FP). Under the corrected F2 cabinet reference and replay-matched historical denominator, cabinet power is no longer the first-binding constraint for FP in any of the 25 scenarios; B_ratio (thermal) binds first in all 25.",
+    "left_boundary_random_count": "9/25 under F2 and 9/25 under F1; identical set of 9 scenarios (array_i 6,8,11,14,15,17,21,22,24). Left-boundary status is driven by B_ratio>1 at lambda=1 (8 scenarios) or S_ratio>1 (1 scenario) and is unchanged by the F2 correction. B_cab_ratio<1 in all 9 under both references.",
+    "cabinet_constraint_f1_vs_f2": "Under F1, B_cab_ratio was first-binding for FP 23/25 times, capping capacity. Under the corrected F2 cabinet reference and replay-matched historical denominator, B_ratio (thermal) is first-binding for FP in all 25 scenarios, allowing higher unlocked capacity (median 15.4% vs 7.3%)."
   },
 
   "frozen_interpretation": {
@@ -80,6 +80,6 @@
     "f1_CI": [4.0679, 8.8238],
     "f1_result": "SUPPORTS_FP",
     "agreement": true,
-    "conclusion": "The corrected time-weighted total P99 local-date cabinet reference (F2) produces a result consistent in direction with the frozen F1 legacy reference. Both support FP over Random at r=1.25. The F2 result is stronger in magnitude, driven by relaxation of the cabinet budget constraint under higher F2 thresholds, which exposes the full thermal signal."
+    "conclusion": "The corrected local-date F2 cabinet reference (time-weighted P99 with replay-matched historical denominator) produces a result consistent in direction with the frozen F1 legacy reference. Both support FP over Random at r=1.25. The F2 result is stronger in magnitude. Under the corrected F2 cabinet reference, B_ratio (thermal) is the first-binding constraint for FP in all 25 scenarios, whereas under F1 the cabinet constraint was first-binding in 23/25. The 9/25 Random left_boundary scenarios are identical in F1 and F2 and are driven by thermal (B_ratio) or space (S_ratio) infeasibility, not the cabinet reference."
   }
 }
