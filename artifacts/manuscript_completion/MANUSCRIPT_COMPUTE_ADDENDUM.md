@@ -956,7 +956,7 @@ All four previously blocked smoke gates now PASS. Summary:
 | C1 r=1.0 negative control | PASS | All 4 policies: identical C_lower, C_upper; all 5 pairwise effects indistinguishable |
 | C2 sc30 FP/Random reproduction | PASS (after C1 bug fix) | full_fp C=[15.918%, 16.177%], full_random C=[4.818%, 4.824%]; exact match |
 | Cabinet-accounting inertness | PASS | Accounting fields are additive; strip → exact equality with reference |
-| Position-LOO diagnostic | PASS | 1990/2000 level 1; 0 level 2; 3 level 3; 7 global; 0 NaN; 0.5% beyond level 1 < 5% threshold |
+| Position-LOO diagnostic | STOP CONDITION TRIGGERED (7 global fallbacks) → HUMAN RULING: PROCEED WITH FROZEN SPECIFICATION | 7/2000 = 0.35% global; ρ=0.9823; ruling date 2026-10-07: frozen hierarchy unchanged |
 | Position self-exclusion | PASS | Brute-force: 0 errors across all 2000 nodes |
 | Placebo seed/invariant tests | PASS | All 6 canonical checks pass; see exact values below |
 | Threshold independent reproduction | PASS | P90/P95/P99 and population counts match frozen audit exactly |
@@ -976,3 +976,73 @@ All four previously blocked smoke gates now PASS. Summary:
 **Placebo invariant checks:** WithinCab stays within cabinet ✓; Global permutation is bijective ✓;
 Placebo scores affect selection only, thermal calculation uses true FA_2024 ✓;
 No placebo score reachable from thermal reconstruction ✓.
+
+---
+
+## Position-LOO Human Ruling (2026-10-07)
+
+**Stop condition triggered:** 7/2000 fp nodes (0.35%) require global fallback (level 4).
+Under the frozen addendum rule, global fallback triggers a stop-and-report for human ruling
+before any C2 scheduling result is accepted.
+
+**Ruling (authorized by k2alyan, 2026-10-07):**
+Proceed with the already-frozen Position-LOO hierarchy exactly as implemented.
+
+**Rationale:**
+- 1990/2000 nodes (99.5%) use the intended exact-position LOO group (level 1).
+- 0 NaN FA_2024 values; 0 level-2 fallbacks; 3 level-3 (slot); 7 level-4 (global).
+- 7/2000 = 0.35% global fallback is not a material fraction under any plausible threshold.
+- Spearman ρ(position_loo, LOC_FA) = 0.9823: the LOO template remains extremely close
+  to the original structural template. The comparison signal is preserved.
+- Changing the hierarchy now would create greater methodological risk than leaving
+  the seven pre-specified fallback nodes intact with global scores.
+
+**What is NOT authorized:**
+- Modifying the fallback logic.
+- Removing the seven nodes.
+- Inventing a new fallback.
+- Tuning the structural comparator.
+- Re-running the diagnostic to select a different rule.
+
+**This ruling is final for all C2 and C3 production runs.**
+The seven nodes with global fallback receive their LOO score from the global cohort mean
+(excluding themselves), exactly as the frozen hierarchy specifies.
+
+---
+
+## Production Authorization (2026-10-07)
+
+**Authorized by:** k2alyan  
+**Authorization date:** 2026-10-07  
+**Governing commit:** `999c113` (addendum v1.3, all preflight gates recorded)
+
+**Authorized runs in order:**
+
+| Run | Authorized | Notes |
+|---|---|---|
+| C1 (sc5-29, 4 policies, 7 ratios) | YES | After SHA verification and clean git state |
+| C2 (sc30-54, 7 policies, r=1.25) | YES, after C1 | Requires C1 to complete and be committed first |
+| C4 (late-cabinet diagnostic from C2) | YES, after C2 | From C2 cabinet_accounting output only |
+| C3 P90 (sc30-54, full_fp+full_random) | YES, after C2/C4 | P95 reused; only P90 and P99 new runs |
+| C3 P99 (sc30-54, full_fp+full_random) | YES, after C2/C4 | Independent of P90 result |
+| C5 (calendar stability) | NOT YET | Awaits C1-C4 completion and review |
+
+**Frozen runner SHAs (must match before each run):**
+- C1: `7cb51ebcf541d9c04b932ef879ce5095d34195452ef88151418d01ce844b41ba`
+- C2: `e0de9d35a99715bc05c08177b08ad399bb25902fb492ef3487223135b7d3c44a`
+- C3: `3b4e9825462a5f8b80bc6f76c6938bcf88d460d12f782210474b38573654e91c`
+
+**Mandatory pre-run protocol (every run):**
+1. Verify exact runner SHA against authorized value above.
+2. Verify all frozen input artifact SHAs (corrected cabinet ref, replay denominator, r3f2local, m4_threshold_audit).
+3. `git status --porcelain --untracked-files=all` must return empty.
+4. Print git HEAD and THERMALSHIFT_DATA_DIR.
+5. Confirm no production output file already exists at the target path.
+6. Confirm no manuscript-completion checkpoint is being reloaded.
+
+**Stop conditions during production runs:**
+- Any input SHA mismatch: STOP.
+- C1 r=1.0 negative control fails (any policy pair non-indistinguishable): STOP and invalidate C1.
+- Any run interrupted: mark partial output invalid, do not silently resume, report before restarting.
+- C4 shows pipeline/integrity problem: STOP and report before continuing to C3.
+- Do not inspect partial scientific results to make design decisions.
