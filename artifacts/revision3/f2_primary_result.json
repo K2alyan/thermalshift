@@ -69,7 +69,7 @@
     "CI_lower_shift_pp": 7.0330,
     "f2_A_count_vs_f1": "25 vs 22",
     "first_binding_shift": "F1 cabinet-budget dominated (23/25 FP); F2 thermal-budget dominated (25/25 FP). Under the corrected F2 cabinet reference and replay-matched historical denominator, cabinet power is no longer the first-binding constraint for FP in any of the 25 scenarios; B_ratio (thermal) binds first in all 25.",
-    "left_boundary_random_count": "9/25 under F2 and 9/25 under F1; identical set of 9 scenarios (array_i 6,8,11,14,15,17,21,22,24). Left-boundary status is driven by B_ratio>1 at lambda=1 (8 scenarios) or S_ratio>1 (1 scenario) and is unchanged by the F2 correction. B_cab_ratio<1 in all 9 under both references.",
+    "left_boundary_random_count": "9/25 under F2 and 9/25 under F1; identical set of 9 scenarios (array_i 6,8,11,14,15,17,21,22,24). Eight of nine have B_ratio>1 at lambda=1 (cumulative thermal exceedance budget). Four also have S_ratio>1 (severity-weighted thermal exposure budget, deg-C x node-hours above threshold): sc41,sc51,sc52,sc54. sc51 is the only case where S_ratio alone makes the baseline infeasible (B_ratio=0.987<1). All nine are infeasible due to thermal B and/or severity-weighted S budgets; B_cab_ratio<1 in all 9 under both references. Left-boundary status is unchanged by the F2 correction.",
     "cabinet_constraint_f1_vs_f2": "Under F1, B_cab_ratio was first-binding for FP 23/25 times, capping capacity. Under the corrected F2 cabinet reference and replay-matched historical denominator, B_ratio (thermal) is first-binding for FP in all 25 scenarios, allowing higher unlocked capacity (median 15.4% vs 7.3%)."
   },
 

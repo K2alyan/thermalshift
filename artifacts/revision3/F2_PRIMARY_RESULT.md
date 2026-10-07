@@ -49,7 +49,7 @@ C_lower_pct = lower bound of the synthetic-capacity interval at the first-bindin
 | FP right_censored | 0 / 25 | 0 / 25 |
 | Random right_censored | 0 / 25 | 0 / 25 |
 
-The 9 Random left_boundary scenarios are identical in F1 and F2 (absolute scenarios sc36, sc38, sc41, sc44, sc45, sc47, sc51, sc52, sc54). In all 9 cases under both references, B_cab_ratio < 1.0 at lambda=1.0 — the cabinet constraint is not binding. Infeasibility is driven by B_ratio > 1.0 (thermal constraint exceeds budget, 8 scenarios) or S_ratio > 1.0 (space constraint, 1 scenario: sc51). The B_ratio and S_ratio values at lambda=1.0 are identical between F1 and F2 for all 9 scenarios; the F2 correction does not change their left_boundary status.
+The 9 Random left_boundary scenarios are identical in F1 and F2 (absolute scenarios sc36, sc38, sc41, sc44, sc45, sc47, sc51, sc52, sc54). In all 9 cases under both references, B_cab_ratio < 1.0 at lambda=1.0 — the cabinet constraint is not binding. Eight of the nine have B_ratio > 1.0 at lambda=1.0 (cumulative thermal exceedance budget exceeded). Four also have S_ratio > 1.0 (severity-weighted thermal exposure budget, degree-C × node-hours above threshold): sc41, sc51, sc52, sc54. sc51 is the only case where S_ratio alone makes the baseline infeasible (B_ratio = 0.987 < 1.0). All nine are therefore infeasible because of the thermal B and/or severity-weighted S budgets; B_cab_ratio remains below 1.0 under both F1 and F2. The B_ratio and S_ratio values at lambda=1.0 are identical between F1 and F2 for all 9 scenarios; the F2 correction does not change their left_boundary status.
 
 ---
 
@@ -75,7 +75,7 @@ Both experiments support FP over Random at r=1.25 (directional agreement = YES).
 
 Under the corrected F2 cabinet reference and replay-matched historical denominator, cabinet power is no longer the first-binding constraint for FP in any of the 25 scenarios; B_ratio (thermal) binds first in all 25. Under F1, 23/25 FP scenarios were cabinet-constrained, capping achievable capacity. The 23 scenarios that transition from B_cab_ratio → B_ratio account for the increase in FP median C_lower from 7.33% to 15.35%.
 
-Random left_boundary: 9/25 in both F1 and F2, identical set of scenarios. The cabinet constraint is not binding for Random in any of these cases under either reference; infeasibility is driven entirely by B_ratio > 1.0 (8 scenarios) or S_ratio > 1.0 (1 scenario) at lambda=1.0, which are unchanged between F1 and F2.
+Random left_boundary: 9/25 in both F1 and F2, identical set of scenarios. The cabinet constraint is not binding for Random in any of these cases under either reference. Eight of the nine have B_ratio > 1.0 at lambda=1.0; four also have S_ratio > 1.0 (severity-weighted thermal exposure budget); sc51 is the only scenario where S_ratio alone makes the baseline infeasible. All nine are infeasible because of thermal B and/or severity-weighted S budgets, unchanged between F1 and F2.
 
 ---
 
