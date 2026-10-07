@@ -1,0 +1,20 @@
+{
+  "description": "C3 thermal threshold verification — pre-run artifact",
+  "date": "2026-10-07",
+  "source_artifact": "artifacts/revision1/results/m4_threshold_audit.json",
+  "source_sha256": "2ece0a19f63e3e147ae7c5f19765a2ebcd4144470c852004ef4426c2178adbcc",
+  "source_git_commit": "2733d84",
+  "source_script": "r1_m4_threshold_audit.py",
+  "population": "full pre-2025 contributing jobs",
+  "n_contributing_jobs": 3940,
+  "n_node_job_pairs": 77627,
+  "percentile_method": "numpy.percentile on per-job T_p95_C values of contributing jobs",
+  "verified_values_C": {
+    "p90": 61.875,
+    "p95": 63.625,
+    "p99": 66.6625
+  },
+  "independent_reproduction_status": "PENDING — requires THERMALSHIFT_DATA_DIR to run r1_m4_threshold_audit.py independently",
+  "current_verification": "SHA256 of source artifact matches tracked value",
+  "note": "Full independent reproduction required before C3 execution begins"
+}
