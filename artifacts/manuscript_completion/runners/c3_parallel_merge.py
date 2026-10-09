@@ -48,7 +48,7 @@ def verify_runner_sha():
     print(f"[OK] Runner SHA256 verified: {_RUNNER_SHA256[:16]}...")
 
 
-def load_and_validate(file_paths, n_first, n_dev, thr):
+def load_and_validate(file_paths, n_first, n_dev, thr, allow_commit_mismatch=False, mismatch_reason=""):
     errors = []
     results = []
     seen_indices = {}
@@ -174,10 +174,18 @@ def load_and_validate(file_paths, n_first, n_dev, thr):
 
     unique_commits = set(git_commits.values())
     if len(unique_commits) > 1:
-        _fail(
-            f"Workers have differing git_commit_full values: "
-            f"{sorted(unique_commits)}"
-        )
+        if allow_commit_mismatch and mismatch_reason:
+            print(
+                f"[WARN] Workers span multiple git commits: {sorted(unique_commits)}\n"
+                f"  Allowed by --allow-commit-mismatch. Reason: {mismatch_reason}"
+            )
+        else:
+            _fail(
+                f"Workers have differing git_commit_full values: "
+                f"{sorted(unique_commits)}\n"
+                f"  To override with documented reason use "
+                f"--allow-commit-mismatch --mismatch-reason '<reason>'"
+            )
 
     present = set(seen_indices.keys())
     missing = expected_range - present
@@ -196,7 +204,8 @@ def load_and_validate(file_paths, n_first, n_dev, thr):
     return sorted_results, base_meta
 
 
-def write_merged(out_path, sorted_results, base_meta, n_first, n_dev, file_paths, thr, dry_run):
+def write_merged(out_path, sorted_results, base_meta, n_first, n_dev, file_paths, thr, dry_run,
+                 allow_commit_mismatch=False, mismatch_reason=""):
     merged = dict(base_meta)
     merged["n_first"] = n_first
     merged["n_dev"] = n_dev
@@ -207,6 +216,15 @@ def write_merged(out_path, sorted_results, base_meta, n_first, n_dev, file_paths
         "merged_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "T_THR_C3": thr,
     }
+    if allow_commit_mismatch and mismatch_reason:
+        merged["parallel_merge"]["commit_mismatch_exception"] = {
+            "allowed": True,
+            "reason": mismatch_reason,
+            "commits": sorted(set(
+                json.loads(open(p).read()).get("git_commit_full", "unknown")
+                for p in file_paths
+            )),
+        }
 
     if dry_run:
         print(f"[DRY-RUN] Would write merged output to: {out_path}")
@@ -272,6 +290,19 @@ def parse_args():
         default=False,
         help="Validate inputs and print what would be written, without writing.",
     )
+    parser.add_argument(
+        "--allow-commit-mismatch",
+        action="store_true",
+        default=False,
+        help="Allow workers from different git commits. Requires --mismatch-reason.",
+    )
+    parser.add_argument(
+        "--mismatch-reason",
+        type=str,
+        default="",
+        metavar="REASON",
+        help="Required with --allow-commit-mismatch: document why mismatch is safe.",
+    )
 
     return parser.parse_args()
 
@@ -301,10 +332,15 @@ def main():
     print(f"  Input files: {len(file_paths)}")
     print(f"  Output: {args.out}")
 
+    if args.allow_commit_mismatch and not args.mismatch_reason:
+        _fail("--allow-commit-mismatch requires --mismatch-reason to be set.")
+
     verify_runner_sha()
 
     sorted_results, base_meta = load_and_validate(
-        file_paths, args.n_first, args.n_dev, args.thr
+        file_paths, args.n_first, args.n_dev, args.thr,
+        allow_commit_mismatch=args.allow_commit_mismatch,
+        mismatch_reason=args.mismatch_reason,
     )
 
     write_merged(
@@ -316,6 +352,8 @@ def main():
         file_paths,
         args.thr,
         args.dry_run,
+        allow_commit_mismatch=args.allow_commit_mismatch,
+        mismatch_reason=args.mismatch_reason,
     )
 
 
