@@ -32,7 +32,8 @@ _TOP_LEVEL_EXCLUDE = {
     "git_commit_short",
     "git_tracked_dirty",
     "parallel_merge",
-    "script",       # path string, not scientific
+    "script",           # path string, not scientific
+    "elapsed_total_s",  # operational timing
 }
 
 # Excluded within each scenario_result
@@ -62,6 +63,9 @@ def _is_close_enough(a, b) -> tuple[bool, float]:
         diff = abs(a - b)
         return diff == 0.0, diff
     if isinstance(a, (int, bool, str, type(None))):
+        return a == b, 0.0
+    if isinstance(a, (dict, list)):
+        # Use equality for nested containers; no numeric diff extracted
         return a == b, 0.0
     return False, float("inf")
 
