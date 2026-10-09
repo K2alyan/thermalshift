@@ -33,9 +33,9 @@ RESULTS   = REPO_ROOT / "artifacts" / "manuscript_completion" / "results"
 THRESHOLDS = {
     "P90": {
         "thr":    61.875,
-        "path":   RESULTS / "gate_f_sc30-54_1p25_t61p875_c3manuscript.json",
-        "sha":    "0cd2371a71d96c6e852c429e8fec17d4e0ab0e985dcd9b42003bcf6009bbe084",
-        "source": "c3_production",
+        "path":   RESULTS / "gate_f_sc30-54_1p25_t61p875_c3canonical.json",
+        "sha":    "a94f72084de1eb2633cddd6f22157803a29a230adb03907d6407256bcaad2181",
+        "source": "c3_canonical_provenance_repair",
     },
     "P95": {
         "thr":    63.625,

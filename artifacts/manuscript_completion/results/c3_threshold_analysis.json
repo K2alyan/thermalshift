@@ -1,8 +1,8 @@
 {
   "source": {
     "P90": {
-      "path": "gate_f_sc30-54_1p25_t61p875_c3manuscript.json",
-      "sha256": "0cd2371a71d96c6e852c429e8fec17d4e0ab0e985dcd9b42003bcf6009bbe084",
+      "path": "gate_f_sc30-54_1p25_t61p875_c3canonical.json",
+      "sha256": "a94f72084de1eb2633cddd6f22157803a29a230adb03907d6407256bcaad2181",
       "thr": 61.875
     },
     "P95": {
@@ -17,7 +17,7 @@
       "thr": 66.6625
     }
   },
-  "analysis_script_sha256": "deb6b23db2a4960a89afa9471e1647767d4bdb43b4fa81df927502c1c23d3bde",
+  "analysis_script_sha256": "497c2ede879c7b4640425c55447b1bd429e199e11b7c996055e3e05ef163cad4",
   "estimand": {
     "delta_lo": "C_lower_pct(FP) - C_upper_pct(Random)",
     "delta_hi": "C_upper_pct(FP) - C_lower_pct(Random)",

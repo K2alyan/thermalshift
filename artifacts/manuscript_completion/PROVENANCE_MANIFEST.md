@@ -92,7 +92,7 @@ C4 notes:
 | Artifact | SHA256 | Commit | Notes |
 |----------|--------|--------|-------|
 | `gate_f_sc30-54_1p25_t61p875_c3manuscript.json` (original P90) | `0cd2371a71d96c6e852c429e8fec17d4e0ab0e985dcd9b42003bcf6009bbe084` | 61c1d34 | Mixed-commit artifact: sc30-32 at 5f050eb, sc33-54 at 49da4c6; scientific runner SHA identical. |
-| `gate_f_sc30-54_1p25_t61p875_c3canonical.json` (canonical replay) | **[PENDING — filled after canonical replay completes]** | **[PENDING]** | Single-commit clean replay; equivalence gate must pass (max_abs_diff=0.0). |
+| `gate_f_sc30-54_1p25_t61p875_c3canonical.json` (canonical replay) | `a94f72084de1eb2633cddd6f22157803a29a230adb03907d6407256bcaad2181` | d6dd2b9 | Single-commit clean replay; all 25 workers at HEAD 3a7bd3c; equivalence gate PASS (max_abs_diff=0.0). |
 
 P90 provenance notes:
 - Original P90 was affected by a mid-run commit (P99 invalidation markdown note committed
@@ -128,7 +128,7 @@ P99 notes:
 | Artifact | SHA256 | Commit | Notes |
 |----------|--------|--------|-------|
 | `c3_threshold_analysis.json` (initial, original P90 SHA) | `54b2cfba2f29f34de8f862f698f83dbaea4927dbcf56b92d00657f010f4748ed` | 1c8b0ef | Uses original P90 SHA; superseded after canonical replay. |
-| `c3_threshold_analysis.json` (final, canonical P90 SHA) | **[PENDING]** | **[PENDING]** | To be committed after canonical replay + equivalence gate. |
+| `c3_threshold_analysis.json` (final, canonical P90 SHA) | `(see committed file)` | (this commit) | Canonical P90 SHA pinned; numerical results verified unchanged from initial run. |
 
 ---
 
