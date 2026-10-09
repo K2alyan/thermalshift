@@ -98,7 +98,7 @@ def sign_test_pvalue(n_A: int, n_B: int) -> float:
         return 1.0
     # two-sided: p = 2 * P(X <= min(n_A, n_B)) under Binomial(n, 0.5)
     k_min = min(n_A, n_B)
-    return float(scipy_stats.binom_test(k_min, n, 0.5, alternative="two-sided"))
+    return float(scipy_stats.binomtest(k_min, n, 0.5, alternative="two-sided").pvalue)
 
 
 def holm_adjust(pvalues: list[float]) -> list[float]:

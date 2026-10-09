@@ -263,7 +263,7 @@ def main():
     print(f"[OK] Written: {OUT_MD}")
 
     # 8. Console summary
-    print("\n── Cabinet 2600/2601/2602 Diagnostic Summary ──")
+    print("\n-- Cabinet 2600/2601/2602 Diagnostic Summary --")
     print(f"{'Cabinet':>8} {'Structural%':>12} {'FP share%':>10} {'Rnd share%':>11} {'FP/Rnd':>7} {'FP/Struct':>10}")
     for cab in TARGET_CABS:
         cr = per_cabinet[str(cab)]
