@@ -34,7 +34,7 @@ THRESHOLDS = {
     "P90": {
         "thr":    61.875,
         "path":   RESULTS / "gate_f_sc30-54_1p25_t61p875_c3manuscript.json",
-        "sha":    None,       # set after P90 raw commit
+        "sha":    "0cd2371a71d96c6e852c429e8fec17d4e0ab0e985dcd9b42003bcf6009bbe084",
         "source": "c3_production",
     },
     "P95": {
@@ -46,7 +46,7 @@ THRESHOLDS = {
     "P99": {
         "thr":    66.6625,
         "path":   RESULTS / "gate_f_sc30-54_1p25_t66p6625_c3manuscript.json",
-        "sha":    None,       # set after P99 raw commit
+        "sha":    "2fef4c49500e4f3c61bc2de63edf7ee7320be4d301a44544402e610eac6c5cbc",
         "source": "c3_production",
     },
 }
