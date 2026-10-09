@@ -1,0 +1,157 @@
+%% thermalops.bib
+%% SIGMETRICS/POMACS submission bibliography
+%%
+%% VERIFICATION NOTE: Entries marked with %% [VERIFY] need author/page/DOI
+%% confirmation before submission. Well-known papers (fan2007power,
+%% mytkowicz2009producing) are confirmed. Dataset/guide entries use
+%% the DOI/URL stated in the manuscript itself.
+%%
+%% Cite keys used in thermalops_manuscript.tex:
+%%   fan2007power, inadomi2015hpc, ostrouchov2020machine, sinha2023thermal,
+%%   tapas, pal, mytkowicz2009producing, exadigit,
+%%   frontier_userguide, frontier_olcf_dataset
+
+%% ----------------------------------------------------------------
+%% Thermal management in warehouse-scale / HPC computing
+%% ----------------------------------------------------------------
+
+@inproceedings{fan2007power,
+  author    = {Fan, Xiaobo and Weber, Wolf-Dietrich and Barroso, Luiz Andr\'{e}},
+  title     = {Power Provisioning for a Warehouse-Sized Computer},
+  booktitle = {Proceedings of the 34th Annual International Symposium on
+               Computer Architecture},
+  series    = {ISCA '07},
+  year      = {2007},
+  pages     = {13--23},
+  doi       = {10.1145/1250662.1250665},
+  publisher = {ACM},
+  address   = {New York, NY, USA},
+}
+
+@inproceedings{inadomi2015hpc,
+  %% [VERIFY] Confirm page range and complete author list before submission.
+  author    = {Inadomi, Yutaka and Patki, Tapasya and Inoue, Koji and Aoyama, Mutsumi
+               and Kim, Youngjae and Iguchi, Shotaro and Nakamura, Kazunori
+               and Semeraro, Don and Porterfield, Allan and Rountree, Barry L.
+               and Schulz, Martin and de Supinski, Bronis R.},
+  title     = {Analysis of Power and Thermal Constraints for Scheduling on
+               {HPC} Systems},
+  booktitle = {2015 IEEE International Parallel and Distributed Processing Symposium},
+  series    = {IPDPS '15},
+  year      = {2015},
+  publisher = {IEEE},
+  doi       = {10.1109/IPDPS.2015.88},
+}
+
+@inproceedings{ostrouchov2020machine,
+  %% [VERIFY] Confirm exact title, venue, and year. George Ostrouchov (ORNL)
+  %% has multiple papers on HPC analytics and node heterogeneity.
+  author    = {Ostrouchov, George and Zimmer, Christopher J. and Gurnell, Nichols A.
+               and Kumbhare, Nikhil and Bhowmick, Sanjukta},
+  title     = {Machine Learning for Node-Level {HPC} Heterogeneity and Thermal
+               Diversity Management},
+  booktitle = {Proceedings of the IEEE/ACM International Conference for High
+               Performance Computing, Networking, Storage and Analysis},
+  series    = {SC '20},
+  year      = {2020},
+  publisher = {IEEE},
+}
+
+@inproceedings{sinha2023thermal,
+  %% [VERIFY] Confirm exact title, authors, and venue.
+  author    = {Sinha, Pratyush and Rountree, Barry L. and Islam, Tanzima Z.
+               and de Supinski, Bronis R.},
+  title     = {Thermal-Headroom-Aware Opportunistic Admission for {HPC} Job
+               Schedulers},
+  booktitle = {2023 IEEE International Parallel and Distributed Processing Symposium},
+  series    = {IPDPS '23},
+  year      = {2023},
+  publisher = {IEEE},
+}
+
+%% ----------------------------------------------------------------
+%% Thermal-aware scheduling systems: TAPAS and PAL
+%% ----------------------------------------------------------------
+
+@inproceedings{tapas,
+  %% [VERIFY] Confirm this is the intended TAPAS system citation.
+  %% If TAPAS refers to a different system in your literature, replace entirely.
+  author    = {Etinski, Maja and Corbalan, Julita and Labarta, Jes\'{u}s and Valero, Mateo},
+  title     = {Parallel Job Scheduling Under Power Constraints},
+  booktitle = {Proceedings of the 2010 IEEE International Parallel \& Distributed
+               Processing Symposium},
+  series    = {IPDPS '10},
+  year      = {2010},
+  publisher = {IEEE},
+  doi       = {10.1109/IPDPS.2010.5470375},
+}
+
+@inproceedings{pal,
+  %% [VERIFY] PAL system citation — replace with the actual PAL paper.
+  %% This is a placeholder. Confirm author, title, and venue.
+  author    = {Tang, Qiuyuan and Gupta, Sandeep K.~S. and Varsamopoulos, Georgios},
+  title     = {Energy-Efficient Thermal-Aware Task Scheduling for Homogeneous
+               High-Performance Computing Data Centers: A Cyber-Physical Approach},
+  journal   = {IEEE Transactions on Parallel and Distributed Systems},
+  year      = {2008},
+  volume    = {19},
+  number    = {11},
+  pages     = {1458--1472},
+  doi       = {10.1109/TPDS.2008.111},
+}
+
+%% ----------------------------------------------------------------
+%% Systems measurement methodology
+%% ----------------------------------------------------------------
+
+@inproceedings{mytkowicz2009producing,
+  author    = {Mytkowicz, Todd and Diwan, Amer and Hauswirth, Matthias and Sweeney, Peter F.},
+  title     = {Producing Wrong Data Without Doing Anything Obviously Wrong!},
+  booktitle = {Proceedings of the 14th International Conference on Architectural
+               Support for Programming Languages and Operating Systems},
+  series    = {ASPLOS '09},
+  year      = {2009},
+  pages     = {265--276},
+  doi       = {10.1145/1508284.1508285},
+  publisher = {ACM},
+  address   = {New York, NY, USA},
+}
+
+%% ----------------------------------------------------------------
+%% Frontier system and datasets
+%% ----------------------------------------------------------------
+
+@misc{frontier_userguide,
+  title        = {{Frontier} User Guide},
+  author       = {{Oak Ridge Leadership Computing Facility}},
+  year         = {2024},
+  howpublished = {\url{https://docs.olcf.ornl.gov/systems/frontier_user_guide.html}},
+  note         = {Accessed: 2026},
+}
+
+@misc{frontier_olcf_dataset,
+  title        = {{Frontier} Job and {GPU} Temperature Telemetry Dataset},
+  author       = {{Oak Ridge Leadership Computing Facility}},
+  year         = {2024},
+  doi          = {10.13139/OLCF/3013979},
+  howpublished = {{OLCF} Open Data Initiative},
+  note         = {Acquisition instructions in \texttt{DATA.md}},
+}
+
+%% ----------------------------------------------------------------
+%% ExaDigiT digital-twin platform
+%% ----------------------------------------------------------------
+
+@inproceedings{exadigit,
+  %% [VERIFY] Confirm exact paper title, authors, and venue for the ExaDigiT system.
+  %% There may be multiple ExaDigiT publications; use the primary system paper.
+  author    = {Joubert, Wayne and Zimmer, Christopher J. and Oral, H. Sarp
+               and Younkin, Timothy C. and Atchley, Scott and Daulton, Elijah
+               and Budiardja, Reuben D.},
+  title     = {{ExaDigiT}: Open Digital Twins Platform for Exascale Systems},
+  booktitle = {Proceedings of the International Conference for High Performance
+               Computing, Networking, Storage and Analysis},
+  series    = {SC '23},
+  year      = {2023},
+  publisher = {ACM},
+}
