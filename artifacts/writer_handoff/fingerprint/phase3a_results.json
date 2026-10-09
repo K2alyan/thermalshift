@@ -1,0 +1,189 @@
+{
+  "fingerprint_freeze": {
+    "n_train_jobs": 3945,
+    "n_test_jobs": 2637,
+    "n_fp_nodes": 2000,
+    "n_test_nodes": 2000,
+    "n_node_job_obs": 64545,
+    "fp_range_C": [
+      -4.152,
+      3.457
+    ],
+    "fp_median_train_jobs_per_node": 38.0,
+    "median_obs_per_node_test": 31.0,
+    "median_nodes_per_job_test": 10.0
+  },
+  "direct_prospective_test": {
+    "label": "FA2024_vs_dTp95",
+    "n_obs": 64545,
+    "pearson_r": 0.4547,
+    "spearman_r": 0.6489,
+    "mae_C": 1.0193,
+    "rmse_C": 1.952,
+    "sign_agreement": 0.7703,
+    "calib_slope": 0.9726,
+    "calib_intercept": 0.0248,
+    "r2": 0.2067,
+    "pearson_r_ci_twoway": [
+      0.4193,
+      0.5023
+    ]
+  },
+  "node_level_companion": {
+    "label": "node_level",
+    "n_obs": 2000,
+    "pearson_r": 0.9259,
+    "spearman_r": 0.9358,
+    "mae_C": 0.2645,
+    "rmse_C": 0.3946,
+    "sign_agreement": 0.907,
+    "calib_slope": 0.9079,
+    "calib_intercept": 0.0108,
+    "r2": 0.8572
+  },
+  "incremental_model": {
+    "n_obs": 64545,
+    "M0": {
+      "mae_C": 1.0708,
+      "rmse_C": 1.4779,
+      "r2": 0.5451
+    },
+    "M1": {
+      "mae_C": 0.7183,
+      "rmse_C": 1.1064,
+      "r2": 0.745,
+      "FA_coefficient": 0.9566
+    },
+    "delta_MAE_C": 0.3525,
+    "delta_RMSE_C": 0.3715,
+    "delta_R2": 0.2
+  },
+  "robustness": {
+    "FC_2024": {
+      "label": "FC_2024",
+      "n_obs": 62557,
+      "pearson_r": 0.456,
+      "spearman_r": 0.6486,
+      "mae_C": 1.0174,
+      "rmse_C": 1.9482,
+      "sign_agreement": 0.7696,
+      "calib_slope": 0.9731,
+      "calib_intercept": 0.0062,
+      "r2": 0.208
+    },
+    "high_power": {
+      "label": "high_power",
+      "n_obs": 32273,
+      "pearson_r": 0.482,
+      "spearman_r": 0.6345,
+      "mae_C": 1.1582,
+      "rmse_C": 2.0812,
+      "sign_agreement": 0.7636,
+      "calib_slope": 1.1118,
+      "calib_intercept": 0.0311,
+      "r2": 0.2323
+    },
+    "low_power": {
+      "label": "low_power",
+      "n_obs": 32272,
+      "pearson_r": 0.4253,
+      "spearman_r": 0.673,
+      "mae_C": 0.8803,
+      "rmse_C": 1.8135,
+      "sign_agreement": 0.7769,
+      "calib_slope": 0.8312,
+      "calib_intercept": 0.019,
+      "r2": 0.1809
+    },
+    "confidence_Q1": {
+      "label": "confidence_Q1",
+      "n_obs": 16443,
+      "pearson_r": 0.5053,
+      "spearman_r": 0.6717,
+      "mae_C": 1.0499,
+      "rmse_C": 1.9441,
+      "sign_agreement": 0.7796,
+      "calib_slope": 0.9854,
+      "calib_intercept": 0.0644,
+      "r2": 0.2553
+    },
+    "confidence_Q2": {
+      "label": "confidence_Q2",
+      "n_obs": 17727,
+      "pearson_r": 0.4737,
+      "spearman_r": 0.6596,
+      "mae_C": 0.9482,
+      "rmse_C": 1.8057,
+      "sign_agreement": 0.7682,
+      "calib_slope": 0.95,
+      "calib_intercept": 0.0493,
+      "r2": 0.2244
+    },
+    "confidence_Q3": {
+      "label": "confidence_Q3",
+      "n_obs": 15299,
+      "pearson_r": 0.4378,
+      "spearman_r": 0.6388,
+      "mae_C": 0.9573,
+      "rmse_C": 1.8303,
+      "sign_agreement": 0.7697,
+      "calib_slope": 0.9912,
+      "calib_intercept": 0.0312,
+      "r2": 0.1917
+    },
+    "confidence_Q4": {
+      "label": "confidence_Q4",
+      "n_obs": 15076,
+      "pearson_r": 0.3948,
+      "spearman_r": 0.6211,
+      "mae_C": 1.1324,
+      "rmse_C": 2.2263,
+      "sign_agreement": 0.7631,
+      "calib_slope": 0.9757,
+      "calib_intercept": -0.0506,
+      "r2": 0.1559
+    },
+    "T_hot_die_p95": {
+      "label": "T_hot_die_p95",
+      "n_obs": 64545,
+      "pearson_r": 0.3959,
+      "spearman_r": 0.4821,
+      "mae_C": 1.763,
+      "rmse_C": 2.7385,
+      "sign_agreement": 0.6726,
+      "calib_slope": 1.1506,
+      "calib_intercept": 0.0293,
+      "r2": 0.1567
+    },
+    "T_mean": {
+      "label": "T_mean",
+      "n_obs": 64545,
+      "pearson_r": 0.5211,
+      "spearman_r": 0.7101,
+      "mae_C": 0.8113,
+      "rmse_C": 1.5718,
+      "sign_agreement": 0.7985,
+      "calib_slope": 0.9358,
+      "calib_intercept": 0.0238,
+      "r2": 0.2715
+    },
+    "T_max": {
+      "label": "T_max",
+      "n_obs": 64545,
+      "pearson_r": 0.4368,
+      "spearman_r": 0.6167,
+      "mae_C": 1.1072,
+      "rmse_C": 2.0544,
+      "sign_agreement": 0.7533,
+      "calib_slope": 0.9736,
+      "calib_intercept": 0.0248,
+      "r2": 0.1908
+    }
+  },
+  "sensor_bias_test": {
+    "n_nodes": 2000,
+    "pearson_r": 0.353,
+    "spearman_r": 0.3256,
+    "mae_C": 1.1443
+  }
+}

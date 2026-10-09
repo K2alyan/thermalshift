@@ -1,0 +1,45 @@
+{
+  "source": "artifacts/revision1/results/m1_location_identity.json",
+  "audit_date": "2026-10-02",
+  "prospective_r2": {
+    "individual_F_frozen_r2": null,
+    "pearson_r": null,
+    "location_only_r2": null,
+    "location_plus_F_ols_r2": 0.8574738506444994,
+    "note": "individual_F_frozen_r2 = prospective R2 using FA_2024 alone. location_plus_F_ols_r2 is the joint OLS model including location dummies. The README previously (incorrectly) cited 0.857 as the individual-FA R2; 0.857 is the joint location+F value."
+  },
+  "sensitivity_to_beta": {
+    "note": "Beta-sensitivity runs are preregistered in Phase E2 of the challenge plan.",
+    "BETA_F_FROZEN": 1.12484352,
+    "BETA_F_PROSPECTIVE": 0.96,
+    "source": "BETA_F_PROSPECTIVE derived from M1 calibrated_ols prospective slope if available"
+  },
+  "restricted_channel_fa_on_2025": {
+    "pearson_r": 0.9154671512099466,
+    "r2_frozen": 0.7900363029564,
+    "mae": 0.3274259188725178,
+    "rmse": 0.4608942132439784
+  },
+  "unrestricted_fa_on_2025_same_nodes": {
+    "pearson_r": 0.9276396662437985,
+    "r2_frozen": 0.8515817064562443,
+    "mae": 0.2620319628673891,
+    "rmse": 0.3875010349113574
+  },
+  "power_adjusted_fa_on_2025": {
+    "pearson_r": 0.9276396662437985,
+    "r2_frozen": 0.8515817064562443
+  },
+  "verdict": "RESOLVED IN FAVOUR OF NODE-SPECIFIC SIGNAL",
+  "verdict_note": "Location group means (cabinet/chassis LOO) predict Y_2025 with frozen R2=0.058. Repeated-position model (cross-cabinet) predicts with frozen R2=0.078. Individual F_2024 predicts Y_2025 with frozen R2=0.848. Difference in frozen predictive R2 (F minus location-only, not a partial R2) = 0.790. Within-chassis permutation p < 1/2001 (~0.0005). These results support a persistent node-slot thermal fingerprint that is not reducible to cabinet or chassis location effects. Whether the fingerprint follows the physical hardware or the permanent rack slot cannot be resolved because hostname and xname are in 1:1 correspondence throughout.",
+  "key_stats": {
+    "r2_frozen_location_only": 0.05846979220614623,
+    "r2_frozen_repeated_position": 0.07755770034225029,
+    "r2_frozen_individual_F": 0.8482261482495985,
+    "difference_in_frozen_predictive_R2": 0.7897563560434523,
+    "within_chassis_permutation": "p < 1/2001 (~0.0005)",
+    "individual_F_pearson_r": 0.9258770969716581,
+    "combined_location_pearson_r": 0.3165029329911154,
+    "topology_artifact_note": "board_level_variance_decomp_R2=1.0 is structural (each fp node is uniquely identified at the board level in Frontier's xname hierarchy). Primary evidence for node-specific signal is prediction-based (M1.3)."
+  }
+}

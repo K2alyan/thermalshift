@@ -1,0 +1,120 @@
+{
+  "audit_script": "artifacts/revision2/run_b1_loo_beta_v2.py",
+  "audit_date": "2026-10-03",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md \u00a7B1-B3 (Amendment 3)",
+  "supersedes": "run_b1_loo_beta.py (commit 2814bb6)",
+  "correction_note": "Corrects two errors: (1) estimand changed from pooled FE slope to median of per-job LOO betas (matching BETA_F_FROZEN estimand); (2) LOO r_ij uses flat GCD mean (node_scalar_mean), not T_p95 deviation.",
+  "training_data": {
+    "source": "m3_train_betas.parquet",
+    "n_jobs_attempted": 462,
+    "n_jobs_loaded": 462,
+    "n_jobs_failed": 0,
+    "n_jobs_with_loo_beta": 462,
+    "n_excluded_n1_nodes": 0
+  },
+  "hard_assertion_beta_repro": {
+    "n_jobs_checked": 462,
+    "max_diff": 0.0,
+    "median_diff": 0.0,
+    "n_within_tol": 462,
+    "tol_per_job": 0.02,
+    "median_repro": 1.12484352,
+    "BETA_F_FROZEN": 1.12484352,
+    "median_tol": 0.001,
+    "assertion_passed": true
+  },
+  "rij_fa_consistency": {
+    "n_nodes": 1996,
+    "pearson_corr": 0.955737,
+    "note": "Pearson corr between mean(r_ij over qualifying 462 jobs) and FA_2024. Expected <1 since qualifying jobs are a subset of all n_i training jobs."
+  },
+  "B1_primary_v2": {
+    "estimand": "median(beta_j_CF) over qualifying jobs",
+    "PRIMARY_BETA_CHALLENGE": 1.11416358,
+    "bootstrap_CI_95_lo": 1.06587054,
+    "bootstrap_CI_95_hi": 1.16910447,
+    "bootstrap_n": 5000,
+    "bootstrap_seed": 9999,
+    "bootstrap_unit": "per-job LOO beta (not individual observation)"
+  },
+  "B3_primary_beta": {
+    "PRIMARY_BETA_CHALLENGE": 1.11416358,
+    "BETA_F_FROZEN": 1.12484352,
+    "pct_difference_from_frozen": -0.9495,
+    "interpretation": "Within +-2% (-0.9%): LOO correction made negligible difference",
+    "BETA_F_CF_P5": 1.06587054,
+    "BETA_F_CF_P95": 1.16910447
+  },
+  "B1_secondary_FE_beta": {
+    "note": "Pooled fixed-effects slope from superseded run_b1_loo_beta.py. This is sum_j(c_xy) / sum_j(c_xx), a different estimand from BETA_F_FROZEN. Reported as secondary diagnostic only \u2014 NOT used as primary beta.",
+    "value": 1.08293343,
+    "source_commit": "2814bb6"
+  },
+  "per_job_beta_distribution": {
+    "n_jobs": 462,
+    "mean": 1.150543,
+    "std": 0.447727,
+    "min": -0.48186,
+    "P5": 0.662671,
+    "P25": 0.868615,
+    "median": 1.114164,
+    "P75": 1.364514,
+    "P95": 1.723918,
+    "max": 5.983859
+  },
+  "quarter_wise_breakdown": {
+    "Q1_2024": {
+      "n_jobs": 94,
+      "median": 1.17351,
+      "mean": 1.172324,
+      "std": 0.295583
+    },
+    "Q2_2024": {
+      "n_jobs": 123,
+      "median": 1.171037,
+      "mean": 1.166162,
+      "std": 0.354063
+    },
+    "Q3_2024": {
+      "n_jobs": 113,
+      "median": 1.080456,
+      "mean": 1.175033,
+      "std": 0.59569
+    },
+    "Q4_2024": {
+      "n_jobs": 132,
+      "median": 1.006488,
+      "mean": 1.099514,
+      "std": 0.463815
+    }
+  },
+  "B2a_jackknife": {
+    "note": "Jackknife not recomputed for v2; refer to run_b1_loo_beta.py for FE-slope jackknife."
+  },
+  "B2b_quarter_wise": {
+    "Q1_2024": {
+      "n_jobs": 94,
+      "median": 1.17351,
+      "mean": 1.172324,
+      "std": 0.295583
+    },
+    "Q2_2024": {
+      "n_jobs": 123,
+      "median": 1.171037,
+      "mean": 1.166162,
+      "std": 0.354063
+    },
+    "Q3_2024": {
+      "n_jobs": 113,
+      "median": 1.080456,
+      "mean": 1.175033,
+      "std": 0.59569
+    },
+    "Q4_2024": {
+      "n_jobs": 132,
+      "median": 1.006488,
+      "mean": 1.099514,
+      "std": 0.463815
+    }
+  }
+}

@@ -1,0 +1,789 @@
+%% thermalops_manuscript.tex
+%% SIGMETRICS/POMACS 2027 submission — double-anonymous review
+%% ACM single-column format
+\documentclass[acmsmall,screen,review,anonymous]{acmart}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{microtype}
+\usepackage{xspace}
+\usepackage{amsmath}
+\usepackage{siunitx}
+
+%% Suppress ACM copyright/ISBN blocks for review
+\setcopyright{none}
+\acmDOI{}
+\acmISBN{}
+\acmConference[SIGMETRICS '27]{ACM SIGMETRICS}{2027}{ACM}
+\acmYear{2027}
+
+%% ----------------------------------------------------------------
+%% Shorthand macros
+%% ----------------------------------------------------------------
+\newcommand{\Frontier}{\textsc{Frontier}\xspace}
+\newcommand{\dlo}{\ensuremath{\Delta_{\mathrm{lo}}}\xspace}
+\newcommand{\dhi}{\ensuremath{\Delta_{\mathrm{hi}}}\xspace}
+\newcommand{\Bref}{\ensuremath{B_{\mathrm{ref}}}\xspace}
+\newcommand{\Sref}{\ensuremath{S_{\mathrm{ref}}}\xspace}
+\newcommand{\Cl}{\ensuremath{C_L}\xspace}
+\newcommand{\Cu}{\ensuremath{C_U}\xspace}
+\newcommand{\pp}{\,pp\xspace}
+\newcommand{\eg}{\textit{e.g.},\xspace}
+\newcommand{\ie}{\textit{i.e.},\xspace}
+\newcommand{\cf}{\textit{cf.}\xspace}
+
+%% ----------------------------------------------------------------
+\begin{document}
+
+\title{Persistent Node-Level Thermal Fingerprints on Frontier:\\
+       Measurement and Constraint-Aware Replay}
+
+\begin{abstract}
+GPU supercomputers exhibit persistent node-level thermal heterogeneity: nodes that run
+warm during one workload tend to run warm in subsequent workloads, independent of job
+composition.  We characterize this property---which we call a \emph{thermal
+fingerprint}---across 2,637 production workloads on the 9,856-node \Frontier system.
+Fingerprints learned from 2024 training telemetry prospectively predict each node's mean
+relative thermal position in 2025 workloads with Pearson $r = 0.926$, Spearman
+$\rho = 0.936$, and direct no-refit $R^2 = 0.848$ at the node level.
+
+We then quantify the scheduling-capacity advantage of fingerprint-aware placement through
+a preregistered held-out constraint-aware replay study.  All comparison hypotheses,
+estimators, and analysis rules are frozen at a fixed commit before any scenario executes.
+A 25-scenario held-out set evaluates eight comparisons under a factorial placebo structure.
+Under a concurrent-load cabinet reference at the preregistered 1.25$\times$ choice ratio,
+fingerprint-guided placement yields a median conservative bracket separation of
+$+12.48\pp$ versus random placement (bootstrap 95\% CI $[+11.09,\;+19.04]\pp$; 25/25
+scenarios; Holm-adjusted $p = 4.77 \times 10^{-7}$).  The advantage survives three
+independent controls: a within-cabinet permutation placebo ($+10.88\pp$; 24/25), a global
+permutation placebo ($+12.31\pp$; 25/25), and a leave-one-out structural-position template
+($+13.95\pp$; 25/25), collectively indicating that individual node identity contributes
+beyond cabinet membership and fixed rack geometry.  Random thermal spreading provides no
+statistically distinguishable benefit over random placement.  The direction of the
+fingerprint advantage is preserved under thermal threshold definitions at \SI{61.875}{\celsius},
+\SI{63.625}{\celsius}, and \SI{66.6625}{\celsius}.  Results are bounded by the replay
+model's scope and cannot be extrapolated to realized production throughput gains.
+\end{abstract}
+
+%%
+\keywords{thermal fingerprinting, GPU supercomputers, scheduling, constraint-aware replay,
+          HPC measurement, reproducibility}
+
+\maketitle
+
+%% ================================================================
+\section{Introduction}
+\label{sec:intro}
+%% ================================================================
+
+Modern GPU supercomputers are thermally heterogeneous at the node level.  Two nodes
+allocated to the same job at the same time can exhibit systematically different thermal
+behaviors even when running identical workloads, and this heterogeneity is not random
+noise: it is \emph{persistent}.  A node that ran warm in 2024 tends to run warm in 2025.
+This property---which we term a \emph{thermal fingerprint}---is stable enough to
+characterize from historical telemetry and potentially exploit in placement decisions.
+
+Despite its operational relevance, node-level thermal fingerprinting at production scale
+remains undercharacterized.  Prior thermal-aware scheduling work~\cite{fan2007power,
+inadomi2015hpc,ostrouchov2020machine,sinha2023thermal} has addressed temperature-aware
+placement or workload diversification, but has not measured or exploited \emph{per-node
+persistent fingerprints} learned prospectively from historical telemetry at the scale of
+a leadership-class supercomputer.
+
+This paper asks two questions.  First, how stable and predictive are node-level thermal
+fingerprints on a leadership-class GPU supercomputer?  Second, if such fingerprints exist,
+can a thermal-fingerprint-aware placement policy exploit them to increase scheduling
+capacity yield under realistic thermal operating constraints?
+
+To answer these questions we use the \Frontier system~\cite{frontier_userguide}---a
+9,856-node, 9.2 exaflop GPU supercomputer---and its publicly available
+telemetry~\cite{frontier_olcf_dataset}.  We measure node-level thermal fingerprints from
+3,945 training jobs spanning 2024 and evaluate their prospective predictive accuracy on
+2,637 test jobs in 2025.  We then design and execute a preregistered held-out replay
+study that evaluates eight scheduling policies under a constraint-aware simulation that
+replays the full base workload before measuring incremental placement capacity.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item \textbf{Large-scale fingerprint characterization.}  We characterize persistent
+    node-level thermal heterogeneity across a 2,000-node cohort spanning 77 cabinets of
+    \Frontier over two calendar years.  Fingerprints computed from 2024 telemetry
+    prospectively predict 2025 thermal positions at the node level with Pearson $r = 0.926$,
+    Spearman $\rho = 0.936$, and direct no-refit $R^2 = 0.848$---without any intercept or
+    slope adjustment.
+
+  \item \textbf{Validated constraint-aware replay model.}  A stateful replay model
+    reconstructs cabinet-level thermal budgets from raw telemetry and replays the full
+    historical base workload before measuring incremental placement capacity yield under
+    thermal operating constraints.  Cabinet power estimation MAE is \SI{0.37}{\kilo\watt}
+    (0.8\% of the P99 spread across cabinets).
+
+  \item \textbf{Preregistered factorial challenge design.}  All hypotheses, the estimator,
+    bootstrap parameters, and interpretation rules are frozen at a fixed commit before
+    execution.  A 16-condition preflight gate---including simulation equivalence at
+    $10^{-9}$ tolerance, regression tests, and seed-index verification---must pass before
+    any scenario runs.
+
+  \item \textbf{Node-specificity placebo structure.}  Eight preregistered comparisons
+    isolate the contribution of individual node identity from cabinet membership
+    (within-cabinet permutation placebo), arbitrary global ranking (global permutation
+    placebo), spreading mechanics (FP-guided spreading vs.\ random spreading), and a
+    leave-one-out structural position template.
+
+  \item \textbf{Thermal threshold sensitivity.}  A post-exposure sensitivity analysis
+    evaluates the FP-vs-Random direction under three threshold definitions (P90, P95,
+    P99).  The advantage sign is preserved at all three, providing directional robustness
+    evidence.
+\end{enumerate}
+
+\paragraph{Paper organization.}
+Section~\ref{sec:background} surveys related work.
+Section~\ref{sec:fingerprint} characterizes the thermal fingerprint.
+Section~\ref{sec:model} describes the replay model.
+Section~\ref{sec:protocol} describes the preregistered challenge protocol.
+Section~\ref{sec:results} presents the primary results.
+Section~\ref{sec:robustness} presents robustness and sensitivity analyses.
+Section~\ref{sec:discussion} discusses limitations and scope.
+Section~\ref{sec:conclusion} concludes.
+
+%% ================================================================
+\section{Background and Related Work}
+\label{sec:background}
+%% ================================================================
+
+\paragraph{Thermal management in HPC.}
+Fan, Weber, and Barroso~\cite{fan2007power} documented the importance of power and
+cooling efficiency in warehouse-scale computing.  Thermal-aware job scheduling has been
+studied in the context of rack-level temperature constraints~\cite{inadomi2015hpc},
+workload diversification to reduce hotspot formation~\cite{ostrouchov2020machine}, and
+opportunistic admission based on real-time thermal headroom~\cite{sinha2023thermal}.
+These approaches rely on \emph{reactive} measurements of current thermal state rather than
+\emph{prospective} node-level fingerprints learned from historical telemetry.
+
+\paragraph{Node-level heterogeneity.}
+Hardware heterogeneity within nominally identical node classes is well documented in
+HPC~\cite{ostrouchov2020machine}.  At the node level, persistent thermal differences can
+arise from manufacturing variation, placement within the cooling circuit, BIOS
+configuration, and local airflow patterns.  Because system hostnames and physical
+locations are fixed (\ie a 1:1 mapping exists between hostname and hardware slot),
+persistent thermal fingerprints may reflect node-specific hardware characteristics,
+fixed slot-level cooling properties, or both; the two cannot be disentangled from
+telemetry alone (Section~\ref{sec:discussion}).
+
+\paragraph{Thermal-aware scheduling systems.}
+TAPAS~\cite{tapas} and PAL~\cite{pal} integrate thermal feedback into admission or
+placement decisions.  These systems operate on real-time thermal signals; in contrast,
+our approach uses a fingerprint computed offline from historical telemetry, which is
+available at scheduling time without instrumentation overhead.
+
+\paragraph{Preregistered experimental design in systems research.}
+Preregistration---specifying hypotheses, analysis rules, and estimators before collecting
+outcome data---is well established in behavioral and clinical research.  Its adoption in
+systems measurement is more recent~\cite{mytkowicz2009producing}.  We implement a strict
+variant: the scientific runner, all comparison definitions, the estimator, bootstrap seed,
+and interpretation rules are all committed to a version-controlled repository at a fixed
+commit before any scenario is executed.  This design separates specification from
+execution and provides verifiable, machine-checkable provenance for all results.
+
+\paragraph{Existing Frontier measurement literature.}
+ExaDigiT~\cite{exadigit} provides a digital-twin simulation capability for Frontier.
+Our replay model is independent: it uses the publicly available job telemetry dataset
+from OLCF~\cite{frontier_olcf_dataset} and does not rely on the ExaDigiT infrastructure.
+
+%% ================================================================
+\section{Thermal Fingerprint Characterization}
+\label{sec:fingerprint}
+%% ================================================================
+
+\subsection{System and Telemetry}
+
+\Frontier is a 9,856-node AMD-GPU-based supercomputer at Oak Ridge National Laboratory
+with a peak performance of 9.2 exaflops (FP64).  Nodes are organized in 77 cabinets
+with dedicated liquid cooling per cabinet.  The per-node thermal metric we use is the
+job-relative departure from the node's expected thermal behavior: for job $j$ and
+node $n$, the fingerprint target is the \emph{median} job-relative
+$\Delta T_{\mathrm{p95}}$, defined as the node's p95 GPU temperature minus the job-wide
+p95 GPU temperature, aggregated across all measurements within the job.
+
+We use the publicly available \Frontier job metadata and per-node GPU temperature
+telemetry~\cite{frontier_olcf_dataset}.  The training set consists of 3,945 jobs
+completed in 2024; the held-out test set consists of 2,637 jobs completed in 2025.
+No information from the 2025 test set is used to compute fingerprint scores.
+
+\subsection{Fingerprint Definition and Temporal Stability}
+
+The \emph{thermal fingerprint} of node $n$ is the median job-relative $\Delta T_{\mathrm{p95}}$
+computed over all 2024 jobs for which node $n$ participated.  We evaluate two
+2024 cohorts---\textbf{FA} ($n=1,976$ nodes) and \textbf{FC} ($n=1,466$ nodes)---and
+the combined prospective test.
+
+At the node level, across 64,545 node-job observations in 2025, fingerprints computed
+from 2024 telemetry predict 2025 job-relative $\Delta T_{\mathrm{p95}}$ with:
+\begin{itemize}
+  \item Node-level Pearson $r = 0.926$ ($p < 10^{-300}$)
+  \item Node-level Spearman $\rho = 0.936$
+  \item Direct no-refit $R^2 = 0.848$ (no slope or intercept adjustment applied)
+\end{itemize}
+Node-level sign agreement (fingerprint and 2025 deviation share the same sign) is
+$90.7\%$.  The median absolute prediction error at the node level is \SI{0.26}{\celsius}.
+
+\paragraph{Why node-level metrics.}
+Job-level correlations ($r \approx 0.45$, $R^2 \approx 0.21$) are lower because a
+single job may span nodes with varying fingerprints, diluting the signal.  The
+node-level summary---using each node's mean 2025 position across all its test
+jobs---is the appropriate target for a placement policy that selects specific nodes.
+
+\paragraph{Robustness.}
+The predictive relationship holds across power-quartile strata, across both 2024 cohorts
+(FA and FC), and for both p95 temperature and mean temperature as alternative targets
+(Supplemental material).  Null-permutation testing ($n=1,000$ permutations) confirms
+the observed ICC for both cohorts exceeds the 99th percentile of the null distribution
+($p_{\mathrm{perm}} < 0.001$).
+
+% [FIGURE 1: Node-level fingerprint distribution and temporal stability scatter plot.
+%  Two panels: (A) histogram of 2024 fingerprint scores (FA + FC cohorts);
+%  (B) scatter of 2024 fingerprint score vs. 2025 mean node-relative dT_p95,
+%  with r, rho, R^2 annotated.  Source: phase3a_fingerprint_2024.parquet,
+%  phase3a_test_set.parquet.]
+
+\subsection{Causal Caveat}
+
+Because \Frontier assigns a 1:1 mapping between hostname and physical chassis slot,
+persistent thermal heterogeneity could reflect node-specific hardware characteristics
+(\eg GPU manufacturing variation, thermal paste application) or fixed slot-level
+cooling properties (\eg position in the hydraulic cooling circuit), or both.  Telemetry
+alone cannot distinguish these; we use the fingerprint as a predictive score without
+claiming to identify its physical origin.
+
+%% ================================================================
+\section{Constraint-Aware Replay Model}
+\label{sec:model}
+%% ================================================================
+
+\subsection{Model Overview}
+
+The replay model measures the incremental scheduling capacity yield of a placement
+policy under realistic thermal operating constraints.  It proceeds in two phases:
+
+\begin{enumerate}
+  \item \textbf{Base workload replay.}  The full historical base workload (all background
+    jobs in scenario $s$) is replayed in original order and timing, producing a reference
+    thermal state for each cabinet.
+
+  \item \textbf{Incremental probe.}  A synthetic incremental workload is then placed
+    at varying load factors $\lambda$.  For each $\lambda$, the model evaluates whether
+    the cabinet's thermal operating envelope is exceeded.  The fraction of incremental
+    load that can be absorbed before envelope exceedance defines the capacity yield $C(\lambda)$.
+    A binary search over $\lambda$ identifies the crossing interval $[C_L, C_U]$.
+\end{enumerate}
+
+\subsection{Cabinet Thermal Reference}
+
+We use a \emph{concurrent-load cabinet reference}: the reference thermal state for a
+cabinet is derived from the concurrently scheduled jobs that actually ran alongside
+the evaluated workload, not from the evaluated workload itself.  This avoids a
+circularity in the original job-contribution reference (\cf Section~\ref{sec:hier}),
+where the job being evaluated partially defined the reference it was measured against.
+
+The thermal exposure metrics are:
+\begin{align}
+  B_{\mathrm{ref},s} &= \text{fraction of time at which cabinet thermal load exceeds threshold } T \\
+  S_{\mathrm{ref},s} &= \text{mean thermal load during exceeding intervals}
+\end{align}
+Both are computed from concurrently scheduled jobs only, holding fixed the threshold $T$
+(Section~\ref{sec:robustness} evaluates three threshold definitions).
+
+\subsection{Model Validation}
+
+Cabinet power estimation MAE is \SI{0.37}{\kilo\watt}, representing 0.8\% of the P99
+spread of cabinet-level power across the deployment.  Spearman correlation between
+modeled and actual cabinet thermal burden exceeds 0.97 across validation scenarios.
+
+% [FIGURE 2: Capacity yield crossing illustration.
+%  Panel (A): lambda sweep showing C(lambda) for one scenario/policy pair,
+%  with C_L and C_U annotated.  Panel (B): delta_lo = C_L(FP) - C_U(Random)
+%  illustrated for one scenario, showing verdict A.]
+
+\subsection{Conservative Interval Comparison Estimand}
+
+For policies $A$ and $B$ and scenario $s$, define:
+\begin{equation}
+  \dlo(A,B) = C_L(A) - C_U(B), \quad
+  \dhi(A,B) = C_U(A) - C_L(B).
+\end{equation}
+The scenario verdict is:
+\begin{itemize}
+  \item \textbf{A} if $\dlo > 0$ ($A$'s lower bound exceeds $B$'s upper bound);
+  \item \textbf{B} if $\dhi < 0$ ($B$'s lower bound exceeds $A$'s upper bound);
+  \item \textbf{I} (indeterminate) otherwise.
+\end{itemize}
+The conservative bracket ensures that \textbf{A} verdicts reflect a genuine non-overlapping
+advantage: no assignment of values within each interval would yield a different conclusion.
+
+%% ================================================================
+\section{Preregistered Challenge Protocol}
+\label{sec:protocol}
+%% ================================================================
+
+\subsection{Preregistration and Freeze}
+
+The scientific runner (SHA256-verified), all comparison definitions, the estimator,
+bootstrap seed and draw count, and interpretation rules are committed to a version-controlled
+repository at a fixed commit before any scenario is executed.  The 25 held-out scenarios
+(sc30--sc54) are not touched until the preregistration commit is recorded.
+
+\subsection{Preflight Gate}
+
+Execution requires passing 16 preflight conditions, including:
+simulation equivalence at $10^{-9}$ tolerance; bootstrap regression test (seed 9999,
+5000 draws, expected CI within tolerance); seed-index correctness for all scenarios;
+SHA256 verification of reference files; and clean git tracked state.  The gate must
+pass in full before scenario dispatch begins.
+
+\subsection{Policies and Placebo Structure}
+
+Seven policies are evaluated at choice ratio $r = 1.25$:
+
+\begin{description}
+  \item[\textbf{FP}] Full fingerprint selection: among $\lfloor r \cdot k \rfloor$
+    candidate nodes, select those with the lowest (coolest) fingerprint scores.
+  \item[\textbf{Random}] Uniform random selection from candidates (no fingerprint
+    information).
+  \item[\textbf{Location}] Leave-one-out structural position comparator.
+    For each job in the held-out set, a score is constructed from all \emph{other}
+    jobs sharing the same physical position, excluding the evaluated job itself.
+    The fallback hierarchy applies level-1 (exact-position LOO, 1,990/2,000 nodes),
+    level-3 (adjacent-level LOO, 3 nodes), and global fallback (7 nodes) as needed;
+    no node receives a NaN score.  The resulting template correlates with the
+    ground-truth structural template at Spearman $\rho = 0.9823$.
+  \item[\textbf{FP-Spread}] Fingerprint-guided spreading: spread candidates across
+    fingerprint-score quantiles to maintain thermal diversity while still using
+    fingerprint information.
+  \item[\textbf{Rand-Spread}] Random spreading: spread candidates by random
+    assignment; no fingerprint information.
+  \item[\textbf{FP-Global-Placebo}] Global fingerprint permutation: fingerprint
+    scores randomly permuted across the entire node population before selection.
+  \item[\textbf{FP-WithinCab-Placebo}] Within-cabinet fingerprint permutation:
+    scores permuted within each cabinet, preserving cabinet-level structure.
+\end{description}
+
+\paragraph{Placebo invariant.}
+In all placebo conditions, the thermal reconstruction after placement always uses
+each selected node's \emph{true frozen fingerprint score}, not the permuted score.
+The placebo score affects only which nodes are selected; thermal accounting uses
+ground-truth node properties.
+
+\subsection{Bootstrap and Sign Test}
+
+For each comparison, we compute:
+\begin{itemize}
+  \item Median $\dlo(A,B)$ and $\dhi(A,B)$ across the 25 scenarios;
+  \item Bootstrap 95\% CI (5,000 paired scenario draws, seed 9999, percentile method);
+  \item Sign test $p$-value on decisive (A or B) scenarios using a two-sided exact
+    binomial test under the null hypothesis of equal probability;
+  \item Holm--Bonferroni adjustment across all eight comparisons, $\alpha = 0.05$.
+\end{itemize}
+
+\paragraph{Bootstrap scope.}
+The 25 replay scenarios draw from the same underlying 2,637-job 2025 base workload.
+Bootstrap intervals therefore characterize variation across the defined replay scenarios
+conditional on that historical workload, not across independently sampled years or
+production deployments.
+
+\subsection{Experimental Hierarchy}
+\label{sec:hier}
+
+\paragraph{Original analyses.}
+An initial choice-ratio experiment (Experiment~1) and a node-specificity challenge
+(Experiment~2) were pre-specified sequentially under a \emph{job-contribution cabinet
+reference}, in which the evaluated job's own thermal behavior contributed to the cabinet
+reference against which it was measured.
+
+\paragraph{Reference correction.}
+A review of the reference construction identified a circularity: the evaluated job's
+scheduling period partially overlapped with the collection window for the reference.
+We corrected this by adopting the \emph{concurrent-load cabinet reference}
+(Section~\ref{sec:model}), which uses only jobs concurrently scheduled alongside the
+evaluated workload.
+
+\paragraph{Post-exposure analyses.}
+All corrected-reference analyses reported in this paper---the choice-ratio results
+(Section~\ref{sec:results}), node-specificity challenge (Section~\ref{sec:results}),
+threshold sensitivity (Section~\ref{sec:robustness}), and late-cabinet diagnostic
+(Section~\ref{sec:robustness})---were performed after the original results were already
+observed.  These analyses are post-exposure reference-sensitivity and robustness analyses;
+they are not retroactively preregistered primary experiments.  The original results are
+reported in Section~\ref{sec:original} for completeness.
+
+%% ================================================================
+\section{Primary Results}
+\label{sec:results}
+%% ================================================================
+
+\subsection{Original Results (Job-Contribution Reference)}
+\label{sec:original}
+
+Under the original job-contribution cabinet reference at $r = 1.25$, FP placement
+yielded a median $\dlo$ of $+6.71\pp$ versus random placement (22/25 scenarios;
+bootstrap 95\% CI $[+3.92,\;+8.72]\pp$).  The within-cabinet placebo separation
+was $+3.54\pp$ (20/25; CI $[+0.56,\;+4.44]\pp$).  FP-guided spreading outperformed
+direct FP at the highest choice ratios ($r \geq 8$, unrestricted), consistent with
+a constraint-regime where spreading is capacity-increasing when the cabinet envelope
+is not yet binding on individual node selection.
+
+These values are not the primary claims; they are reported for completeness and to
+document the effect of the reference correction.
+
+\subsection{Corrected-Reference Choice-Ratio Experiment (Experiment~1)}
+\label{sec:exp1}
+
+Under the concurrent-load cabinet reference, we evaluate all seven choice ratios:
+$r \in \{1.0, 1.25, 1.5, 2, 4, 8, \text{unrestricted}\}$.
+
+% [TABLE 1: Experiment 1 — verdict summaries (n_A/n_I/n_B) and median delta_lo
+%  for FP vs Random, FP vs Location, FP vs FP-Spread, FP-Spread vs Random
+%  across all seven choice ratios.  Source: c1_correctedref_analysis.json.]
+
+Key findings under the corrected reference:
+\begin{itemize}
+  \item FP placement beats Random at every ratio with actual choice ($r \geq 1.25$).
+    The $r = 1.0$ condition is a negative control (no candidate diversity) and
+    yields an indeterminate result as expected.
+  \item The Location comparator (structural position LOO) is a strong baseline and
+    must be held visible alongside FP; FP's numerical advantage over Location is more
+    modest than its advantage over Random.
+  \item Direct FP outperforms FP-guided spreading under the corrected reference
+    ($\dlo(\text{FP-Spread},\text{FP}) = -9.18\pp$; 0/0/25; Holm $p = 4.77\times10^{-7}$).
+    This reverses the high-choice-ratio FP-Spread advantage observed under the original
+    reference, because the concurrent-load reference changes the binding constraint
+    regime: spreading becomes capacity-reducing when the active constraint is thermal
+    incidence of the evaluated job rather than cabinet envelope headroom.
+\end{itemize}
+
+\paragraph{Interpreting the reference correction.}
+The change from the job-contribution to the concurrent-load reference does not simply
+``relax'' or ``tighten'' one constraint uniformly.  It changes \emph{which} constraint
+regime is active.  Under the job-contribution reference, the evaluated job's own thermal
+contribution inflated the apparent cabinet reference, making spreading appear beneficial
+by distributing that contribution across cabinets.  Under the concurrent-load reference,
+the cabinet load is externally determined; the dominant constraint becomes the ratio of
+the fingerprint-matched node's thermal exposure to the concurrent reference.  Numerical
+deltas therefore cannot be compared directly across the two reference definitions as
+evidence of a ``stronger'' or ``weaker'' effect; they reflect different physical regimes.
+
+\subsection{Corrected-Reference Node-Specificity Challenge (Experiment~2)}
+\label{sec:exp2}
+
+Table~\ref{tab:exp2} reports all eight comparisons at $r = 1.25$ under the corrected
+reference.  This is the most mechanistically informative experiment: the factorial
+placebo structure tests whether the fingerprint advantage can be attributed to
+cabinet membership, global ranking, spreading mechanics, or structural position,
+or whether individual node identity is required.
+
+\begin{table}[t]
+\caption{Node-specificity challenge results at $r = 1.25$ under the concurrent-load
+cabinet reference.  $\dlo$ and CI in percentage points.
+$p_\mathrm{Holm}$: Holm-adjusted sign-test $p$-value; 8 comparisons, $\alpha = 0.05$.}
+\label{tab:exp2}
+\begin{tabular}{lrrlrr}
+\toprule
+Comparison & $n_A/n_I/n_B$ & Med.\ $\dlo$ & 95\% CI & $p_\mathrm{Holm}$ & Sig. \\
+\midrule
+FP vs.\ Random       & 25/0/0  & $+12.48$ & $[+11.09,\;+19.04]$ & $4.77\!\times\!10^{-7}$ & Yes \\
+FP vs.\ WithinCab   & 24/1/0  & $+10.88$ & $[+5.96,\;+17.40]$  & $4.77\!\times\!10^{-7}$ & Yes \\
+FP vs.\ GlobalPlacebo & 25/0/0 & $+12.31$ & $[+10.88,\;+17.40]$ & $4.77\!\times\!10^{-7}$ & Yes \\
+FP vs.\ Location     & 25/0/0  & $+13.95$ & $[+12.23,\;+21.98]$ & $4.77\!\times\!10^{-7}$ & Yes \\
+FP-Spread vs.\ Rand-Spread & 23/2/0 & $+4.42$ & $[+2.14,\;+5.42]$ & $4.77\!\times\!10^{-7}$ & Yes \\
+FP-Spread vs.\ FP   & 0/0/25  & $-9.18$  & $[-17.91,\;-6.60]$  & $4.77\!\times\!10^{-7}$ & Yes \\
+Rand-Spread vs.\ Random & 5/14/6 & $-0.19$ & $[-0.58,\;0.00]$  & $1.000$                 & No  \\
+FP-Spread vs.\ Location & 24/1/0 & $+4.96$ & $[+2.26,\;+8.34]$  & $4.77\!\times\!10^{-7}$ & Yes \\
+\bottomrule
+\multicolumn{6}{l}{\footnotesize Bootstrap: 5,000 paired draws, seed 9999, percentile 95\% CI.} \\
+\multicolumn{6}{l}{\footnotesize Holm--Bonferroni: 8 comparisons, $\alpha = 0.05$.}
+\end{tabular}
+\end{table}
+
+% [FIGURE 3: Forest plot of 8 comparisons at r=1.25, corrected reference.
+%  x-axis: median delta_lo (pp), whiskers: 95% CI.
+%  Color: green=significant, grey=nonsignificant.
+%  Source: c2_correctedref_analysis.json.]
+
+\paragraph{Mechanistic interpretation.}
+The pattern in Table~\ref{tab:exp2} allows the following qualified statements, bounded
+to the replay model's scope:
+
+\begin{itemize}
+  \item \textbf{Cabinet membership does not explain the advantage} (FP vs.\ WithinCab:
+    24/1/0, $+10.88\pp$).  Permuting fingerprint scores within each cabinet---preserving
+    the cabinet-level score distribution---materially degrades performance, indicating
+    that individual node identity within the cabinet contributes beyond cabinet-level
+    composition.
+
+  \item \textbf{Generic global ranking does not explain the advantage} (FP vs.\
+    GlobalPlacebo: 25/0/0, $+12.31\pp$).  A globally permuted placebo---which retains
+    the same score distribution but destroys within-population rank order---provides no
+    benefit, ruling out ranking artifacts.
+
+  \item \textbf{Fixed rack position does not fully explain the advantage} (FP vs.\
+    Location: 25/0/0, $+13.95\pp$).  The structural leave-one-out position template
+    materially underperforms the thermal fingerprint, consistent with the fingerprint
+    capturing information beyond what historical position assignment alone explains.
+    However, because hostnames and slots are 1:1 mapped, this comparison cannot rule
+    out node-specific hardware heterogeneity as a contributor (Section~\ref{sec:discussion}).
+
+  \item \textbf{Random spreading provides no benefit} (Rand-Spread vs.\ Random:
+    5/14/6, Holm $p = 1.0$).  Thermal spreading without fingerprint information
+    yields an indeterminate result consistent with null effect.
+
+  \item \textbf{Fingerprint ranking helps even under spreading} (FP-Spread vs.\
+    Rand-Spread: 23/2/0, $+4.42\pp$).  Fingerprint information improves outcome even
+    when the spreading constraint is applied.
+
+  \item \textbf{Direct FP outperforms FP-guided spreading} (FP-Spread vs.\ FP:
+    0/0/25, $-9.18\pp$).  Concentration, not dispersion, is the optimal strategy under
+    the concurrent-load reference regime.
+\end{itemize}
+
+\paragraph{Left-boundary behavior.}
+Random placement frequently encounters left-boundary scenarios (no crossing found within
+the lambda sweep) under the corrected reference at $r = 1.25$.  This reflects that many
+scenarios have essentially zero incremental capacity under random placement when the
+concurrent cabinet load is already near the thermal operating envelope.  FP encounters
+zero left-boundary scenarios at $r = 1.25$.  This floor behavior makes the absolute
+median $\dlo$ values conservative estimates of the true separation: in left-boundary
+scenarios, Random's capacity is at most zero, while FP's is positive.
+
+% [FIGURE 4: Absolute capacity distributions for FP and Random at r=1.25.
+%  Violin or box plots of C_L per policy, with left-boundary count annotated.
+%  Source: c2_correctedref_analysis.json.]
+
+%% ================================================================
+\section{Robustness and Sensitivity}
+\label{sec:robustness}
+%% ================================================================
+
+\subsection{Thermal Threshold Sensitivity}
+\label{sec:thresh}
+
+The threshold $T$ used to define thermal incidence ($B_{\mathrm{ref}}$, $S_{\mathrm{ref}}$)
+is a parameter of the analysis.  We evaluate three threshold definitions drawn from
+the empirical distribution of node-level peak GPU temperatures on \Frontier:
+P90 = \SI{61.875}{\celsius},
+P95 = \SI{63.625}{\celsius} (the preregistered threshold), and
+P99 = \SI{66.6625}{\celsius}.
+
+\paragraph{Important: these are alternative exposure definitions, not nested constraints.}
+At each threshold, both $B_{\mathrm{ref},s}$ and $S_{\mathrm{ref},s}$ are recomputed
+independently.  A higher threshold does not simply ``relax'' the P95 constraint;
+it defines a different historical thermal exposure against which policies are evaluated.
+Do not interpret the magnitude progression as a monotonic dose-response to a loosening
+constraint.
+
+\begin{table}[t]
+\caption{Threshold sensitivity: FP vs.\ Random under three threshold definitions.
+$\dlo$ and CI in percentage points.  Random left-boundary counts (lb) shown.}
+\label{tab:thresh}
+\begin{tabular}{lrlrr}
+\toprule
+Threshold & $n_A/n_I/n_B$ & Med.\ $\dlo$ & 95\% CI & Random lb \\
+\midrule
+P90 (\SI{61.875}{\celsius}) & 24/1/0 & $+8.90$ & $[+4.95,\;+14.50]$ & 3/25 \\
+P95 (\SI{63.625}{\celsius}) & 25/0/0 & $+12.48$ & $[+11.09,\;+19.04]$ & 9/25 \\
+P99 (\SI{66.6625}{\celsius}) & 25/0/0 & $+21.33$ & $[+16.39,\;+25.36]$ & 19/25 \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize P95 result reuses the corrected-reference analysis from Section~\ref{sec:results}.} \\
+\multicolumn{5}{l}{\footnotesize P90 and P99 are post-exposure sensitivity probes. Bootstrap and seed identical to Table~\ref{tab:exp2}.}
+\end{tabular}
+\end{table}
+
+\paragraph{Primary conclusion.}
+The sign of the FP advantage is preserved under all three threshold definitions;
+the direction does not reverse at either endpoint (Table~\ref{tab:thresh}).
+The P99 magnitude ($+21.33\pp$) is substantially floor-limited: at P99, 19 of 25
+Random scenarios are left-boundary limited, meaning Random has near-zero incremental
+capacity.  The large P99 estimate reflects Random's floor behavior at the hottest
+threshold, not a larger true FP advantage.
+
+\paragraph{Binding constraint shift.}
+The first binding constraint for FP placement shifts between threshold definitions:
+at P90 and P95, all FP crossings are driven by the thermal-incidence ratio ($B_\mathrm{ratio}$:
+the ratio of actual incidence to $B_{\mathrm{ref},s}$ reaches the capacity boundary);
+at P99, 20 of 25 FP crossings are driven by the thermal-severity ratio ($S_\mathrm{ratio}$:
+the ratio of actual severity to $S_{\mathrm{ref},s}$ reaches the boundary first).
+Both are thermal constraints; the shift reflects the different exposure characterization
+at the hotter threshold.
+
+\subsection{Late-Cabinet Diagnostic}
+
+Three late-observed cabinets (installed partway through the data collection period)
+could in principle dominate the analysis if their thermal behavior differs systematically
+from earlier cabinets.  We audit node-hours, event-touches, and FP-vs-Random enrichment
+for these three cabinets specifically.  The diagnostic does not reveal that these cabinets
+dominate the result; their structural share of the held-out workload is proportional to
+their size in the active fleet.
+
+A limitation of the concurrent-load reference: jobs crossing collection-day boundaries
+may be incompletely observed in the concurrent scheduling window, so some apparent
+zero-load periods may reflect unavailable telemetry rather than true zero load.  We do
+not quantify a specific bias magnitude from this effect, but flag it as a potential
+source of underestimation for the reference load.
+
+%% ================================================================
+\section{Discussion and Limitations}
+\label{sec:discussion}
+%% ================================================================
+
+\paragraph{Replay-model scope.}
+All results are obtained from a constraint-aware replay model, not from live deployment
+on \Frontier.  The replay model measures incremental placement capacity yield under
+thermal constraints given the historically observed workload; it cannot be extrapolated
+to realized production throughput gains, which depend on queue dynamics, job arrival
+rates, user behavior, and system management policies not captured in the replay.
+
+\paragraph{Hardware-versus-fixed-slot causality.}
+Because hostnames and physical chassis slots are 1:1 mapped on \Frontier, persistent
+thermal heterogeneity could reflect node-specific hardware properties (\eg GPU die
+characteristics, thermal interface materials) or fixed slot-level cooling properties
+(\eg position in the hydraulic manifold).  The within-cabinet and position-LOO controls
+provide evidence that individual node identity contributes beyond cabinet membership and
+beyond the self-excluding structural position template, but they cannot resolve
+hardware-versus-slot causality.  An experiment with deliberate node migrations between
+slots would be required to separate these effects, which is outside the scope of this
+study.
+
+\paragraph{Bootstrap scope and independence.}
+The 25 replay scenarios draw from the same underlying 2,637-job historical base workload.
+Bootstrap intervals characterize variation across the defined replay scenarios conditional
+on that workload; they are not confidence intervals from independently sampled
+production systems or independently sampled years.
+
+\paragraph{Position-LOO construction.}
+The structural position template is constructed by a leave-one-out procedure excluding the
+evaluated job from its own position's history.  The fallback hierarchy applies when a
+node lacks sufficient self-excluding history: 1,990 of 2,000 nodes receive a level-1
+exact-position LOO score; 3 receive level-3 scores; 7 receive a global fallback score;
+no node receives a NaN score.  The seven global fallbacks were retained under an explicit
+pre-run protocol decision.  The template Spearman correlation with the ground-truth
+structural template is $\rho = 0.9823$.
+
+\paragraph{Experimental hierarchy and post-exposure analyses.}
+The corrected-reference analyses in Sections~\ref{sec:results} and~\ref{sec:robustness}
+were performed after the original results were observed.  The reference correction is
+methodologically motivated---the job-contribution reference has a structural circularity
+---but the corrected-reference analyses are not retroactively preregistered primary
+experiments.  We report the original results (Section~\ref{sec:original}) alongside
+the corrected-reference analyses and do not claim equivalence between the two.
+
+\paragraph{Generalizability.}
+The fingerprint characterization and replay study are specific to \Frontier's architecture,
+cooling infrastructure, and workload mix.  Whether persistent thermal fingerprints of
+comparable predictive accuracy and scheduling-capacity consequence exist on other GPU
+supercomputers is an empirical question that cannot be answered from this study.
+
+\paragraph{AI-assistance disclosure.}
+This research used generative AI tools (Claude Code, Anthropic) for brainstorming,
+methodological critique, code-generation assistance, analysis auditing, and
+drafting/editing.  All study-design, preregistration, analysis, and interpretation
+decisions were made and approved by the authors, who supervised or executed all
+analyses, independently verified numerical claims against frozen artifacts, and
+take full responsibility for all content.  AI tools participated in hypothesis and
+comparison brainstorming, not only prose and code; the authors retained final
+decision authority throughout.
+
+%% ================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%% ================================================================
+
+We have shown that GPU nodes on the \Frontier supercomputer exhibit persistent thermal
+fingerprints that are predictive across calendar years: fingerprints computed from 2024
+telemetry prospectively predict 2025 node-level thermal positions with Pearson $r = 0.926$
+and no-refit $R^2 = 0.848$.  A preregistered held-out constraint-aware replay study
+demonstrates that fingerprint-aware placement yields a median conservative bracket
+separation of $+12.48\pp$ over random placement (25/25 scenarios, Holm $p = 4.77\times10^{-7}$)
+under a concurrent-load cabinet reference at the preregistered choice ratio.
+
+Three independent controls---within-cabinet permutation, global permutation, and
+structural leave-one-out position template---all show that individual node identity
+contributes beyond cabinet membership and fixed rack geometry, within the scope of the
+replay model.  Random spreading provides no statistically distinguishable benefit.
+The direction of the FP advantage is preserved across three thermal threshold definitions;
+the P99 magnitude is floor-limited and should not be interpreted as a larger effect.
+
+Key open questions include: whether persistent fingerprints generalize to GPU
+supercomputers with different cooling architectures; how fingerprint stability degrades
+after hardware maintenance or node replacements; whether real-time deployment in a
+production scheduler can realize the predicted capacity advantage; and how fingerprint
+information should be weighted against competing placement objectives such as network
+locality and power draw.
+
+%% ================================================================
+%% References
+%% ================================================================
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{thermalops}
+
+%% ================================================================
+%% Appendix
+%% ================================================================
+
+\appendix
+
+\section{Preflight Conditions}
+
+The following 16 conditions must all pass before scenario dispatch:
+(1) Runner SHA256 matches frozen value;
+(2) reference file SHA256 matches frozen value;
+(3) denominator file SHA256 matches frozen value;
+(4) git repository is tracked-clean with no uncommitted changes;
+(5) \texttt{THERMALSHIFT\_DATA\_DIR} resolves to an existing parquet file;
+(6--16) scenario-level checks including seed correctness, no pre-existing output files,
+and simulation equivalence at $10^{-9}$ tolerance for one smoke-test scenario.
+
+\section{Position-LOO Fallback Hierarchy}
+
+\begin{description}
+  \item[Level 1 (exact-position LOO):] All jobs at the same rack position excluding
+    the evaluated job.  Applies to 1,990/2,000 nodes.
+  \item[Level 2 (adjacent-level LOO):] Jobs at adjacent rack-level positions.
+    No level-2 fallbacks were required.
+  \item[Level 3 (same-cabinet LOO):] Jobs in the same cabinet.  Applies to 3 nodes.
+  \item[Global fallback:] Fleet-wide average.  Applies to 7 nodes.
+\end{description}
+
+Seven global fallbacks were retained after an explicit pre-run ruling that their
+position history was insufficient for a reliable level-1 or level-3 estimate.
+The resulting template has Spearman $\rho = 0.9823$ correlation with the
+unconstrained structural template.
+
+\section{Binding Constraint Definitions}
+\label{app:constraints}
+
+\begin{description}
+  \item[$B_\mathrm{ratio}$:] Thermal-incidence-ratio constraint.  The ratio of actual
+    cabinet thermal incidence to $B_{\mathrm{ref},s}$ reaches the capacity boundary
+    before the severity ratio does.  This is a thermal constraint (incidence dimension).
+
+  \item[$S_\mathrm{ratio}$:] Thermal-severity-ratio constraint.  The ratio of actual
+    severity to $S_{\mathrm{ref},s}$ reaches the boundary first.  Also a thermal
+    constraint (severity dimension).
+\end{description}
+
+Both $B_\mathrm{ratio}$ and $S_\mathrm{ratio}$ are thermal constraints; the
+distinction is which exposure dimension binds first.  At P90 and P95, FP crossings
+are 100\% $B_\mathrm{ratio}$-driven.  At P99, 20/25 FP crossings shift to
+$S_\mathrm{ratio}$, consistent with the hotter threshold definition placing more
+weight on severity exposure before incidence saturates.
+
+\section{Reproducibility}
+
+All analysis scripts, frozen preregistration plans, result JSONs, and figure-generation
+scripts are released at \url{https://github.com/K2alyan/thermalshift}
+(archived: DOI 10.5281/zenodo.23020901).  Analysis plans are tied to specific commits
+with SHA256-verified runner binaries.  The repository does not mirror raw \Frontier
+telemetry; the underlying job metadata and per-node GPU temperature telemetry are
+available through the OLCF Open Data Initiative under its access terms
+(DOI: 10.13139/OLCF/3013979; acquisition instructions in \texttt{DATA.md}).
+
+\end{document}

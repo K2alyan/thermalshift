@@ -1,0 +1,42 @@
+{
+  "description": "Position-LOO pre-scheduling diagnostic for C2",
+  "n_fp_nodes": 2000,
+  "n_nan_fa_original": 0,
+  "n_nan_fa_filled": 0,
+  "loo_level_counts": {
+    "level1_same_pos_key": 1990,
+    "level2_same_board": 0,
+    "level3_same_slot": 3,
+    "level4_global": 7
+  },
+  "self_exclusion_check": {
+    "fast_formula_pass": true,
+    "brute_force_errors": 0,
+    "brute_force_pass": true
+  },
+  "spearman_loo_vs_loc_fa": {
+    "n_common_nodes": 2000,
+    "rho": 0.9823438551176822,
+    "pvalue": 0.0,
+    "scipy_available": true
+  },
+  "loo_distribution": {
+    "mean": -0.03520275980277118,
+    "std": 0.4554974783499356,
+    "p01": -1.002252835704644,
+    "p10": -0.5312446966794862,
+    "p50": -0.14822157049135098,
+    "p90": 0.4359950833083588,
+    "p99": 0.7247458675497227
+  },
+  "stop_condition_triggered": false,
+  "stop_conditions_checked": [
+    "self_exclusion_brute_force_errors == 0",
+    "level_counts sum == n_fp_nodes"
+  ],
+  "level_counts_sum_check": {
+    "expected": 2000,
+    "actual": 2000,
+    "pass": true
+  }
+}

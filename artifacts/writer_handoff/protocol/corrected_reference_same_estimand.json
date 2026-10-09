@@ -1,0 +1,59 @@
+{
+  "description": "F2 corrected concurrent-load cabinet reference result, re-expressed on the conservative interval-aware estimand used by the frozen Experiment 2 challenge",
+  "date": "2026-10-06",
+  "source_raw_file": "artifacts/revision3/results/gate_f_sc30-54_1p25_r3f2local.json",
+  "source_raw_sha256": "5982264fcf719cc4746b23ae6ef0aaf9e22a9700e4b6ef3e19e49a98b5460dca",
+  "cabinet_reference_mode": "corrected_timeweighted_total_p99_local",
+  "f2_reference_sha256": "71de8abcd92cb8b800aecb401f1dc2a4edbcada8a971e72afa6491778d290c34",
+  "f2_replay_denominator_sha256": "b0594373af48fe6bb840ddc32c5628d7c3c26384e11c42fd58f4b9b27555ce48",
+  "runner_git_commit": "4fa1b50d3c512d78292ab14e174dfb2ad667be1b",
+  "scenarios": "sc30-sc54 (n=25, held-out)",
+  "policies": ["full_fp", "full_random"],
+  "ratio": 1.25,
+
+  "estimand": {
+    "delta_lo": "C_lower(FP) - C_upper(Random)",
+    "delta_hi": "C_upper(FP) - C_lower(Random)",
+    "definitely_A": "delta_lo > 0",
+    "definitely_B": "delta_hi < 0",
+    "indistinguishable": "otherwise",
+    "note": "This is the SAME conservative interval-aware estimand used in the frozen Experiment 2 challenge (challenge_analysis.json). The f2_primary_result.json previously used the non-conservative C_lower(FP) - C_lower(Random) formula."
+  },
+
+  "result": {
+    "n_A": 25,
+    "n_I": 0,
+    "n_B": 0,
+    "median_delta_lo_pp": 12.4755,
+    "median_delta_hi_pp": 12.9394,
+    "bootstrap_seed": 9999,
+    "bootstrap_draws": 5000,
+    "bootstrap_CI_95_delta_lo_pp": [11.0948, 19.0385],
+    "interpretation": "SUPPORTS_FP",
+    "n_left_boundary_fp": 0,
+    "n_left_boundary_random": 9,
+    "n_right_censored_fp": 0,
+    "n_right_censored_random": 0
+  },
+
+  "comparison_with_non_conservative": {
+    "non_conservative_estimand": "C_lower(FP) - C_lower(Random)",
+    "non_conservative_median_delta_lo_pp": 12.7566,
+    "non_conservative_CI_95_pp": [11.1009, 19.3492],
+    "non_conservative_A_I_B": [25, 0, 0],
+    "difference_in_median_pp": 0.2811,
+    "note": "A/I/B counts are identical under both estimands because FP C_lower exceeds Random C_upper in all 25 scenarios. The difference in median is small (0.28 pp) because FP bracket widths are narrow (median ~0.19 pp) and Random C_lower vs C_upper spread is modest."
+  },
+
+  "comparison_with_frozen_challenge_F1": {
+    "frozen_challenge_source": "artifacts/revision2/challenge_analysis.json",
+    "frozen_challenge_sha256": "3a8bbd0aba95209e8d383bb94f9b57b93df98a37d8cfa7423d8db0db115edac4",
+    "frozen_challenge_F1_A_I_B": [22, 1, 2],
+    "frozen_challenge_F1_median_delta_lo_pp": 6.7063,
+    "frozen_challenge_F1_CI_95_pp": [3.9197, 8.7249],
+    "F2_vs_F1_directional_agreement": true,
+    "F2_median_delta_lo_shift_pp": 5.7692,
+    "F2_CI_lower_shift_pp": 7.1751,
+    "note": "Both F1 (job-contribution reference) and F2 (concurrent-load reference) support FP over Random at r=1.25. F2 result is stronger and uses the same conservative estimand as the frozen challenge."
+  }
+}

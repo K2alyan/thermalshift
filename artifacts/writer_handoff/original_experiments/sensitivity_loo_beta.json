@@ -1,0 +1,148 @@
+{
+  "script": "artifacts/revision2/analyze_sensitivity_e2.py",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md \u00a7E2 and \u00a7H7",
+  "comparison": "FP_vs_Random",
+  "ratio": "1.25",
+  "n_bootstrap": 5000,
+  "bootstrap_seed": 9999,
+  "beta_values_tested": [
+    {
+      "label": "primary",
+      "beta": 1.11416358,
+      "description": "PRIMARY_BETA_CHALLENGE (operating beta)"
+    },
+    {
+      "label": "beta_f_frozen",
+      "beta": 1.12484352,
+      "description": "BETA_F_FROZEN (original model estimate)"
+    },
+    {
+      "label": "prospective",
+      "beta": 0.96,
+      "description": "BETA_F_PROSPECTIVE (M1 slope)"
+    },
+    {
+      "label": "jackknife",
+      "beta": 1.08293397,
+      "description": "BETA_F_JACKKNIFE_MEAN (\u00a7B2a jackknife)"
+    },
+    {
+      "label": "cf_p5",
+      "beta": 1.06587054,
+      "description": "BETA_F_CF_P5 (5th pct cross-fit)"
+    },
+    {
+      "label": "cf_p95",
+      "beta": 1.16910447,
+      "description": "BETA_F_CF_P95 (95th pct cross-fit)"
+    }
+  ],
+  "BETA_F_JACKKNIFE_MEAN_source": "artifacts/revision2/beta_jackknife_recovery.json",
+  "h7_verdict": "STABLE",
+  "h7_text": "Sign stable across all 6 prespecified beta values. FP vs Random advantage is robust to beta calibration uncertainty.",
+  "sign_reversals": [],
+  "beta_results": {
+    "primary": {
+      "label": "primary",
+      "beta_value": 1.11416358,
+      "description": "PRIMARY_BETA_CHALLENGE (operating beta)",
+      "source_file": "gate_f_sc30-54_1p25_r2sensitivity_sc1p00_bprimary.json",
+      "source_sha256": "6dbe3579268e965efbff81b1b30858301ad8a270b7f73826f40e7204048b28b5",
+      "n_scenarios": 25,
+      "n_right_censored": 0,
+      "n_definitely_A": 22,
+      "n_indistinguishable": 1,
+      "n_definitely_B": 2,
+      "median_delta_lo": 6.706290619727605,
+      "bootstrap95_delta_lo": [
+        3.9196535626004456,
+        8.72485557161271
+      ]
+    },
+    "beta_f_frozen": {
+      "label": "beta_f_frozen",
+      "beta_value": 1.12484352,
+      "description": "BETA_F_FROZEN (original model estimate)",
+      "source_file": "gate_f_sc30-54_1p25_r2sensitivity_sc1p00_b1p12484352.json",
+      "source_sha256": "bc3d354395c7f44280b7193aaa7681fdc72abe59e3845b57b59286a9e121be95",
+      "n_scenarios": 25,
+      "n_right_censored": 0,
+      "n_definitely_A": 22,
+      "n_indistinguishable": 1,
+      "n_definitely_B": 2,
+      "median_delta_lo": 6.47703660183387,
+      "bootstrap95_delta_lo": [
+        3.9196535626004456,
+        8.72485557161271
+      ]
+    },
+    "prospective": {
+      "label": "prospective",
+      "beta_value": 0.96,
+      "description": "BETA_F_PROSPECTIVE (M1 slope)",
+      "source_file": "gate_f_sc30-54_1p25_r2sensitivity_sc1p00_b0p96.json",
+      "source_sha256": "6bda489e59eb49071ef7ed6cebf865a99a5744c60df4712f546046bbe461f99d",
+      "n_scenarios": 25,
+      "n_right_censored": 0,
+      "n_definitely_A": 22,
+      "n_indistinguishable": 1,
+      "n_definitely_B": 2,
+      "median_delta_lo": 6.667156481449826,
+      "bootstrap95_delta_lo": [
+        2.077448686946639,
+        7.038696519008424
+      ]
+    },
+    "jackknife": {
+      "label": "jackknife",
+      "beta_value": 1.08293397,
+      "description": "BETA_F_JACKKNIFE_MEAN (\u00a7B2a jackknife)",
+      "source_file": "gate_f_sc30-54_1p25_r2sensitivity_sc1p00_b1p08293397.json",
+      "source_sha256": "7cd8de3dc1a0853873742de89a82d3b29c11f7fbc60809dfcffeac7613df69a9",
+      "n_scenarios": 25,
+      "n_right_censored": 0,
+      "n_definitely_A": 22,
+      "n_indistinguishable": 1,
+      "n_definitely_B": 2,
+      "median_delta_lo": 5.586833260440204,
+      "bootstrap95_delta_lo": [
+        3.9196535626004456,
+        8.72485557161271
+      ]
+    },
+    "cf_p5": {
+      "label": "cf_p5",
+      "beta_value": 1.06587054,
+      "description": "BETA_F_CF_P5 (5th pct cross-fit)",
+      "source_file": "gate_f_sc30-54_1p25_r2sensitivity_sc1p00_b1p06587054.json",
+      "source_sha256": "34f6db0aa0e5d10a54df5eb6a5cc1bd799f2951f880f92038698ab581a10529a",
+      "n_scenarios": 25,
+      "n_right_censored": 0,
+      "n_definitely_A": 21,
+      "n_indistinguishable": 2,
+      "n_definitely_B": 2,
+      "median_delta_lo": 6.420816679093858,
+      "bootstrap95_delta_lo": [
+        3.2017337880309933,
+        8.72485557161271
+      ]
+    },
+    "cf_p95": {
+      "label": "cf_p95",
+      "beta_value": 1.16910447,
+      "description": "BETA_F_CF_P95 (95th pct cross-fit)",
+      "source_file": "gate_f_sc30-54_1p25_r2sensitivity_sc1p00_b1p16910447.json",
+      "source_sha256": "192082941707ec5a124375f56c4d4e53405a6ada170b3836224dffa9b61e28a5",
+      "n_scenarios": 25,
+      "n_right_censored": 0,
+      "n_definitely_A": 22,
+      "n_indistinguishable": 1,
+      "n_definitely_B": 2,
+      "median_delta_lo": 5.350338333911383,
+      "bootstrap95_delta_lo": [
+        2.159992369957213,
+        8.72485557161271
+      ]
+    }
+  }
+}
