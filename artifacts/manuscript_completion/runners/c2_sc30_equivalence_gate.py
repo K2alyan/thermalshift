@@ -168,8 +168,8 @@ def main():
         print(f"[GATE PASS] sc30 equivalence verified — all fields match within tol={_NUM_TOL}")
         print(f"  Policies compared: {_POLICIES}")
         print(f"  Ratio: r={_RATIO_KEY}")
-        print(f"  Crossing fields: exact str/bool/int, numeric diff ≤ {_NUM_TOL}")
-        print(f"  Lambda rows: historical-field projection, same tolerance")
+        print(f"  Crossing fields: exact str/bool/int, numeric diff <= {_NUM_TOL}")
+        print(f"  Lambda rows: historical-field projection, same tolerance (<= {_NUM_TOL})")
 
 
 if __name__ == "__main__":
