@@ -373,35 +373,52 @@ def write_markdown(result: dict) -> None:
     # Section 3: Binding constraints / mechanism
     A("## 3. Binding Constraints — Mechanism Check")
     A("")
+    A("**Constraint definitions:**  ")
+    A("- `B_ratio`: thermal-incidence constraint — the ratio (B_actual / B_ref_s) reaches "
+      "the capacity boundary before the severity ratio does.  ")
+    A("  B_ref_s is the historical thermal-incidence reference recomputed at each threshold.  ")
+    A("- `S_ratio`: thermal-severity constraint — the ratio (S_actual / S_ref_s) reaches "
+      "the capacity boundary first.  ")
+    A("  S_ref_s is the historical thermal-severity reference recomputed at each threshold.  ")
+    A("- `n_lb`: scenarios classified as left-boundary (no crossing found within lambda sweep).  ")
+    A("")
+    A("Note: B_ratio and S_ratio are both thermal constraints. "
+      "The distinction is incidence (B) vs severity (S) as the binding exposure dimension.")
+    A("")
     A("First binding constraint for full_fp (scenarios with a crossing only):")
     A("")
-    A("| Threshold | n_crossing | B_ratio | B_thermal | B_cab | Other | n_lb |")
-    A("|-----------|-----------|---------|-----------|-------|-------|------|")
+    A("| Threshold | n_crossing | B_ratio | S_ratio | n_lb |")
+    A("|-----------|-----------|---------|---------|------|")
     for label in ["P90", "P95", "P99"]:
         bc = result["thresholds"][label]["binding_constraints"][POL_A]
         cc = bc["counts"]
         n_cr = bc["n_crossing"]
         n_lb = bc["left_boundary"]
         b_r = cc.get("B_ratio", 0)
-        b_t = cc.get("B_thermal", 0)
-        b_c = cc.get("B_cab", 0)
-        other = n_cr - b_r - b_t - b_c
-        A(f"| {label} | {n_cr} | {b_r} | {b_t} | {b_c} | {other} | {n_lb} |")
+        s_r = cc.get("S_ratio", 0)
+        A(f"| {label} | {n_cr} | {b_r} | {s_r} | {n_lb} |")
     A("")
     A("First binding constraint for full_random:")
     A("")
-    A("| Threshold | n_crossing | B_ratio | B_thermal | B_cab | Other | n_lb |")
-    A("|-----------|-----------|---------|-----------|-------|-------|------|")
+    A("| Threshold | n_crossing | B_ratio | S_ratio | n_lb |")
+    A("|-----------|-----------|---------|---------|------|")
     for label in ["P90", "P95", "P99"]:
         bc = result["thresholds"][label]["binding_constraints"][POL_B]
         cc = bc["counts"]
         n_cr = bc["n_crossing"]
         n_lb = bc["left_boundary"]
         b_r = cc.get("B_ratio", 0)
-        b_t = cc.get("B_thermal", 0)
-        b_c = cc.get("B_cab", 0)
-        other = n_cr - b_r - b_t - b_c
-        A(f"| {label} | {n_cr} | {b_r} | {b_t} | {b_c} | {other} | {n_lb} |")
+        s_r = cc.get("S_ratio", 0)
+        A(f"| {label} | {n_cr} | {b_r} | {s_r} | {n_lb} |")
+    A("")
+    A("Mechanism interpretation:  ")
+    A("- At P90 and P95, FP crossings are driven entirely by B_ratio (thermal-incidence ratio).  ")
+    A("- At P99, FP shifts to predominantly S_ratio (thermal-severity ratio), "
+      "consistent with higher-threshold scenarios accumulating more severity exposure before "
+      "the incidence ratio binds.  ")
+    A("- Random is increasingly left-boundary limited as the threshold rises: "
+      "3/25 at P90, 9/25 at P95, 19/25 at P99. "
+      "At P99, most Random scenarios never reach a crossing within the lambda sweep.  ")
     A("")
     A("---")
     A("")
@@ -413,12 +430,15 @@ def write_markdown(result: dict) -> None:
         result["thresholds"][label]["n_A"] > result["thresholds"][label]["n_B"]
         for label in ["P90", "P95", "P99"]
     )
-    A(f"Direction consistent (FP majority) across all three thresholds: **{'YES' if dir_all else 'NO'}**  ")
+    A(f"Direction consistent (FP majority) across all three threshold definitions: "
+      f"**{'YES' if dir_all else 'NO'}**  ")
     A("")
     for label in ["P90", "P95", "P99"]:
         r = result["thresholds"][label]
+        rnd_lb = r["binding_constraints"][POL_B]["left_boundary"]
         A(f"- {label} ({THR_LABELS[label]} C): {r['verdict_summary']}  "
-          f"med delta_lo = {r['median_delta_lo_pp']:+.4f} pp")
+          f"med delta_lo = {r['median_delta_lo_pp']:+.4f} pp  "
+          f"(Random left-boundary: {rnd_lb}/25)")
     A("")
     A("---")
     A("")
@@ -426,13 +446,29 @@ def write_markdown(result: dict) -> None:
     # Section 5: Interpretation note
     A("## 5. Interpretation Note")
     A("")
-    A("This analysis is exploratory threshold sensitivity. It determines whether the FP advantage:")
-    A("- persists across threshold definitions;")
-    A("- changes magnitude as thermal budgets change;")
-    A("- disappears or reverses at either endpoint.")
+    A("This analysis is exploratory threshold sensitivity. The C3 result supports one "
+      "primary conclusion: **the sign of the FP advantage does not reverse across threshold "
+      "definitions.** That is the defensible C3 claim.")
     A("")
-    A("The primary preregistered evidence is the C2 corrected-reference result at P95 (T=63.625 C).")
-    A("P90 and P99 are post-hoc sensitivity probes reported equally without selective emphasis.")
+    A("**What these thresholds are not:**  ")
+    A("Each threshold (P90, P95, P99) involves recomputing both B_ref_s and S_ref_s from "
+      "the historical distribution at that threshold level. These are therefore three "
+      "alternative definitions of historical thermal exposure, not one nested capacity "
+      "constraint that is progressively relaxed. The estimated magnitude differs across "
+      "definitions; do not interpret the +8.90 -> +12.48 -> +21.33 pp progression as a "
+      "monotonic dose-response to a loosening constraint.")
+    A("")
+    A("**P99 floor limitation:**  ")
+    A("At P99 (T=66.6625 C), 19/25 Random scenarios are left-boundary limited — the Random "
+      "policy never reaches a crossing within the lambda sweep. The +21.33 pp estimate at "
+      "P99 is substantially floor-limited by Random's near-zero capacity, not solely by "
+      "increased FP advantage. The P99 result is useful for confirming directional "
+      "robustness; its magnitude should not be described as a larger effect.")
+    A("")
+    A("**Primary evidence:**  ")
+    A("The primary preregistered evidence is the C2 corrected-reference result at P95 "
+      "(T=63.625 C). P90 and P99 are post-hoc sensitivity probes reported equally without "
+      "selective emphasis.")
     A("")
 
     OUT_MD.write_text("\n".join(lines), encoding="utf-8")
