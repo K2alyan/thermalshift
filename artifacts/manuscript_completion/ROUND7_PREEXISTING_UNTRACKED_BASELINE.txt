@@ -1,0 +1,85 @@
+ROUND-7 PRE-EXISTING UNTRACKED BASELINE
+Generated: 2026-10-09
+Branch: revision1/major-revision-analyses
+HEAD at baseline: 49d67d1 (Amend Round 7 pre-execution freeze: singleton correction and descriptive analysis)
+
+====================================================================
+PORCELAIN STATUS
+====================================================================
+
+Command: git status --porcelain --untracked-files=all
+Output:  (empty — no output)
+
+The working tree is LITERALLY CLEAN at this baseline.
+There are no untracked files anywhere in the repository.
+
+====================================================================
+CLARIFICATION: SESSION-START SNAPSHOT VS CURRENT STATE
+====================================================================
+
+The conversation session-start gitStatus snapshot listed the following
+files as ?? (untracked):
+
+  artifacts/revision1/results/gate_f_sc0-4_1p0.json
+  artifacts/revision1/results/gate_f_sc5-29_1p0.json
+  artifacts/revision1/results/gate_f_sc5-29_unr.json
+  artifacts/revision1/results/m4_avail_manifest.json
+  artifacts/revision1/results/m4_avail_regression.json
+  artifacts/revision1/results/m4_avail_regression_informative2_8fcb016.json
+  artifacts/revision1/results/m4_avail_regression_informative_8fcb016.json
+  artifacts/revision1/results/m4_avail_transition.json
+  artifacts/revision1/results/m4_canonical_comparisons.json
+  artifacts/revision1/results/m4_checkpoint.json
+  artifacts/revision1/results/m4_checkpoint_v3_binsearch_diagnostic.json
+  artifacts/revision1/results/m4_checkpoint_v4_grid_diagnostic.json
+  artifacts/revision1/results/m4_interval_stats.json
+  artifacts/revision1/results/m4_mechanism_table.json
+  artifacts/revision1/results/m4_provenance_audit.json
+  artifacts/revision1/results/m4_selector_audit.json
+
+All of these files are now TRACKED commits. They were committed in:
+  commit 4a7f71d  "Add M4 analysis result artifacts (untracked since prior session)"
+  commit 301d269  "Gate F complete: H1/H2/H3 held-out runs + analysis (sc5-29, all ratios)"
+
+Both commits predate Round-7 execution (Round-7 freeze began at 1937f4c).
+The session-start snapshot reflected a prior transient state; the repository
+has been clean throughout the current session.
+
+====================================================================
+ROUND-7 CLEANLINESS DEFINITION
+====================================================================
+
+Round-7 cleanliness is defined as:
+  git status --porcelain --untracked-files=all
+  produces EMPTY OUTPUT.
+
+Correct description: "tracked-clean" (porcelain is literally empty).
+
+Before each Round-7 execution step, verify:
+  1. git status --porcelain --untracked-files=all is empty.
+  2. No new untracked files exist.
+  3. No tracked file is modified.
+
+Exception: transient worker log files written to results/ during execution
+  are expected outputs; their existence during execution does not violate
+  cleanliness. They become new artifacts to be committed after the run.
+
+====================================================================
+ACCEPTED C2 RAW RESULT SHA256 (frozen reference for equivalence gate)
+====================================================================
+
+  b4dbc4bc0f8646f197d0a575f42dc785e97710f22460c7f2c8a1913866c6b129
+  artifacts/manuscript_completion/results/gate_f_sc30-54_1p25_c2manuscript.json
+
+====================================================================
+ROUND-7 FROZEN FILE SHA256s (commit 49d67d1)
+====================================================================
+
+  8673560f90330e2620cd2edf5b15e7f8210a27ab9975bfc02afcfcb7852fa755  c7_selectors.py
+  025bac7ca7f106c4cd66a6267cfa2aeeeea01d184b651d9998a4df2b470f6538  c7_gate_f_run.py
+  d8a5d6ec66adb994d31971de860718c698455499ef3a7cda1ef3957b7910d3a3  c7_launch_parallel.py
+  19636adc9575c5a33ac1e89a8600af2cf5db3a271cf310cc8edc4bb412bf7289  c7_merge.py
+  c186faa9aa96fcb6a36635d775a804d795890c7d955529b29803748cca45641e  c7_equivalence_gate.py
+  3314ba6a46b147433a67162be4419060f964ef1efdb2bde5d01906336e0e0374  c7_analysis.py
+  71de8abcd92cb8b800aecb401f1dc2a4edbcada8a971e72afa6491778d290c34  f2_local_scheduling_reference.json
+  b0594373af48fe6bb840ddc32c5628d7c3c26384e11c42fd58f4b9b27555ce48  f2_replay_denominator.json
