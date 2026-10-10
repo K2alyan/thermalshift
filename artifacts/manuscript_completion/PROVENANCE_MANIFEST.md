@@ -146,6 +146,47 @@ step — it is not a post-hoc modification of the analysis logic.
 
 ---
 
+## Round-7 — Corrective Structural Comparator (PositionGroupHash)
+
+Position-LOO withdrawn: LOO formula reverses within-group node ordering.
+PositionGroupHash accepted as fair structural replacement.
+Round-7 is post-exposure corrective robustness, not preregistered evidence.
+
+### Frozen runner SHAs (Round-7, commit 49d67d1 / amended freeze)
+
+| File | SHA256 |
+|---|---|
+| `c7_selectors.py` | `8673560f90330e2620cd2edf5b15e7f8210a27ab9975bfc02afcfcb7852fa755` |
+| `c7_gate_f_run.py` | `025bac7ca7f106c4cd66a6267cfa2aeeeea01d184b651d9998a4df2b470f6538` |
+| `c7_launch_parallel.py` | `d8a5d6ec66adb994d31971de860718c698455499ef3a7cda1ef3957b7910d3a3` |
+| `c7_merge.py` | `19636adc9575c5a33ac1e89a8600af2cf5db3a271cf310cc8edc4bb412bf7289` |
+| `c7_analysis.py` (corrected) | `439c59044cd8d45cdbca82e68603792e41046809d7d73c6b89207556e85f40e0` |
+
+### Canonical beta (beta_F = 1.11416358, sc30-54)
+
+| Artifact | SHA256 | Commit |
+|---|---|---|
+| `gate_f_sc30-54_1p0_1p25_c7primary.json` (merged raw) | `7bca547c732f8ce2b299a5fadf337fdc2a5bf50de06b184a9d0144515b1514ea` | 1e31568 |
+| `c7primary_analysis.json` (corrected verdict) | `8e4608d7f3fc52c66c8af9d10265e8cc68ba9bcebabf7a1fea90732cb5e3ce56` | 3bbb568 |
+
+Notes:
+- SC30 compatibility smoke: preflight evidence at `results/preflight/gate_f_sc30-30_1p0_1p25_c7primary.json` (SHA 514d2da7...)
+- Full-field equivalence gate: 253,455 fields, 0 failures, max diff = 0.0 vs accepted C2 (b4dbc4bc).
+- Verdict-fix: commit 3bbb568 corrects misclassification of straddling I as B; C2 regression verified (sc51 correctly I). Zero scientific change to capacities or crossings.
+
+### Beta sensitivity (beta_F = 0.960, sc30-54)
+
+| Artifact | SHA256 | Commit |
+|---|---|---|
+| `gate_f_sc30-54_1p0_1p25_c7beta0p960.json` (merged raw) | `3c1f38babca9ec69b4604684621ab03d87daef7d3b659f167bf249356d6cfa3f` | d51d89c |
+| `c7beta0p960_analysis.json` | `e1dcf7007615f8e4f01265de1aaa7cce1d59cf11c658aabd360d4c3323e88391` | 6de1488 |
+
+Notes:
+- Differential audit: 1,750 upstream structural/seed fields identical to canonical run; beta_F confirmed as only scientific change.
+- All four comparisons preserve direction. No B verdicts at either beta.
+
+---
+
 ## Operational events (non-scientific)
 
 | Event | Date | Record |

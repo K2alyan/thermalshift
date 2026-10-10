@@ -91,15 +91,20 @@ No right-censoring in any policy at either beta.
 | fp_withincab_placebo | B_ratio: 22, S_ratio: 3 | B_ratio: 21, S_ratio: 4 |
 | full_random | B_ratio: 22, S_ratio: 3 | B_ratio: 23, S_ratio: 2 |
 
-At lower beta, S_ratio binds more frequently for structured policies
-(tighter budget means supply constraint is reached sooner relative to demand).
-FP remains exclusively B_ratio constrained at both betas.
+At beta=0.960 (weaker fingerprint-to-temperature coupling), the thermal-severity
+constraint (S_ratio) becomes first-binding in more scenarios for structured
+policies: PGH shifts from 2 to 4 S_ratio-first-binding scenarios.
+FP remains exclusively B_ratio (thermal-incidence-ratio) constrained at both betas.
+
+Note: B_ratio is the thermal-incidence-ratio constraint; S_ratio is the
+thermal-severity-ratio constraint. Neither is a supply constraint.
 
 ## Interpretation
 
 The beta=0.960 sensitivity confirms that the structural hierarchy
 Random < PositionGroupHash < FP is robust to the independently-motivated
-prospective coefficient. Magnitudes attenuate by 16–37%, consistent with a
-tighter budget reducing overall scheduling headroom. No comparison reverses
-direction; no new B verdicts appear. The corrected structural baseline story
-survives the sensitivity intact.
+prospective coefficient. Beta=0.960 represents weaker fingerprint-to-temperature
+coupling relative to the canonical value; it is not a tighter budget.
+Magnitudes attenuate by 16–37%, consistent with reduced thermal separation at
+the weaker coupling. No comparison reverses direction; no new B verdicts appear.
+The corrected structural baseline story survives the sensitivity intact.
