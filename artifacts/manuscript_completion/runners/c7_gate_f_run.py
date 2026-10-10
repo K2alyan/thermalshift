@@ -243,7 +243,7 @@ print(f"    {len(node_to_cab):,} nodes, {len(all_cabinets)} cabinets")
 
 print("\n[2] Building position_group_hash fingerprint ...")
 fp_topo_df = pd.read_csv(TABLE_DIR / "fp_node_topology.csv")
-GROUP_FA_dict, _n_groups, _n_nan = build_position_group_hash_fa(fp_topo_df, FA_dict)
+GROUP_FA_dict, _n_groups, _n_singletons, _n_nan = build_position_group_hash_fa(fp_topo_df, FA_dict)
 
 print("\n[2b] Building within-cabinet placebo FA (per-scenario override below) ...")
 # Per-scenario placebo FAs are built in the scenario loop using per-scenario seeds.
@@ -1241,8 +1241,9 @@ result = {
     "f2_reference_sha256"            : _C2_CAB_REF_SHA,
     "f2_replay_denominator_sha256"   : _C2_DENOM_SHA,
     "B_cab_hist_F2_replay_h"         : _C2_B_CAB_HIST_F2,
-    "position_group_hash_n_groups"   : _n_groups,
-    "position_group_hash_n_nan"      : _n_nan,
+    "position_group_hash_n_groups"    : _n_groups,
+    "position_group_hash_n_singletons": _n_singletons,
+    "position_group_hash_n_nan"       : _n_nan,
     "per_scenario_placebo_seed_root" : _R3_ROOT,
     "scenario_results"               : scenario_results,
     "elapsed_total_s"                : round(time.time() - t_script, 1),

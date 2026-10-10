@@ -34,11 +34,19 @@ for w in range(N_WORKERS):
     first += n
 
 env = os.environ.copy()
+
+# GATE_F_BETA must be set explicitly — no default at launch time
+if "GATE_F_BETA" not in env:
+    print("ERROR: GATE_F_BETA must be set explicitly at launch.")
+    print("  Part C canonical run: GATE_F_BETA=1.11416358")
+    print("  Part D sensitivity:   GATE_F_BETA=0.960")
+    sys.exit(1)
+
 if "GATE_F_RATIOS_ONLY" not in env:
     env["GATE_F_RATIOS_ONLY"] = "1.0,1.25"
 
 print(f"Launching {N_WORKERS} C7 workers")
-print(f"  GATE_F_BETA={env.get('GATE_F_BETA', 'default (PRIMARY_BETA_CHALLENGE)')}")
+print(f"  GATE_F_BETA={env['GATE_F_BETA']}")
 print(f"  GATE_F_RATIOS_ONLY={env['GATE_F_RATIOS_ONLY']}")
 print(f"  Splits: {splits}")
 
