@@ -229,8 +229,8 @@ for sc_i in range(30, 55):
 # ── Report ────────────────────────────────────────────────────────────────────
 total_checks = n_float_checks + n_exact_checks
 print(f"Checked {total_checks} fields "
-      f"({n_float_checks} float ≤{FLOAT_TOL}, {n_exact_checks} exact) "
-      f"across {len(CHECK_POLICIES)} policies × 25 scenarios")
+      f"({n_float_checks} float <={FLOAT_TOL}, {n_exact_checks} exact) "
+      f"across {len(CHECK_POLICIES)} policies x 25 scenarios")
 print()
 
 if failures:
