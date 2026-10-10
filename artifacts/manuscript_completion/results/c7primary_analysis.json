@@ -16,8 +16,8 @@
       "policy_A": "full_fp",
       "policy_B": "position_group_hash",
       "n_A": 24,
-      "n_I": 0,
-      "n_B": 1,
+      "n_I": 1,
+      "n_B": 0,
       "median_delta_lo_pp": 7.265249409382278,
       "median_delta_hi_pp": 7.977488473044822,
       "CI_lo_pp": 5.120259861351715,
@@ -114,7 +114,7 @@
       "exploratory_sign_test": {
         "note": "exploratory only \u2014 not used for claims; no multiplicity adjustment",
         "n_pos": 24,
-        "n_neg": 1,
+        "n_neg": 0,
         "binom_p": null
       }
     },
@@ -124,8 +124,8 @@
       "policy_A": "position_group_hash",
       "policy_B": "full_random",
       "n_A": 21,
-      "n_I": 0,
-      "n_B": 4,
+      "n_I": 4,
+      "n_B": 0,
       "median_delta_lo_pp": 4.582008190552271,
       "median_delta_hi_pp": 4.763174534739938,
       "CI_lo_pp": 2.9011496562677017,
@@ -223,7 +223,7 @@
       "exploratory_sign_test": {
         "note": "exploratory only \u2014 not used for claims; no multiplicity adjustment",
         "n_pos": 21,
-        "n_neg": 4,
+        "n_neg": 0,
         "binom_p": null
       }
     },
@@ -341,8 +341,8 @@
       "policy_A": "full_fp",
       "policy_B": "fp_withincab_placebo",
       "n_A": 24,
-      "n_I": 0,
-      "n_B": 1,
+      "n_I": 1,
+      "n_B": 0,
       "median_delta_lo_pp": 10.882838553340594,
       "median_delta_hi_pp": 11.467721549019085,
       "CI_lo_pp": 5.958630280025323,
@@ -439,7 +439,7 @@
       "exploratory_sign_test": {
         "note": "exploratory only \u2014 not used for claims; no multiplicity adjustment",
         "n_pos": 24,
-        "n_neg": 1,
+        "n_neg": 0,
         "binom_p": null
       }
     }
@@ -460,8 +460,8 @@
       "n_left_boundary": 0,
       "n_right_censored": 0,
       "first_binding_distribution": {
-        "B_ratio": 23,
-        "S_ratio": 2
+        "S_ratio": 2,
+        "B_ratio": 23
       }
     },
     "full_random": {
@@ -479,8 +479,27 @@
       "n_left_boundary": 9,
       "n_right_censored": 0,
       "first_binding_distribution": {
-        "B_ratio": 22,
-        "S_ratio": 3
+        "S_ratio": 3,
+        "B_ratio": 22
+      }
+    },
+    "fp_withincab_placebo": {
+      "C_lower_pct": {
+        "median": 4.037480877852996,
+        "q1": 1.0722332155964898,
+        "q3": 10.827527220477933
+      },
+      "C_upper_pct": {
+        "median": 4.231517797207518,
+        "q1": 1.5523904029829858,
+        "q3": 11.288789540341499,
+        "n_finite": 25
+      },
+      "n_left_boundary": 2,
+      "n_right_censored": 0,
+      "first_binding_distribution": {
+        "S_ratio": 3,
+        "B_ratio": 22
       }
     },
     "full_fp": {
@@ -499,25 +518,6 @@
       "n_right_censored": 0,
       "first_binding_distribution": {
         "B_ratio": 25
-      }
-    },
-    "fp_withincab_placebo": {
-      "C_lower_pct": {
-        "median": 4.037480877852996,
-        "q1": 1.0722332155964898,
-        "q3": 10.827527220477933
-      },
-      "C_upper_pct": {
-        "median": 4.231517797207518,
-        "q1": 1.5523904029829858,
-        "q3": 11.288789540341499,
-        "n_finite": 25
-      },
-      "n_left_boundary": 2,
-      "n_right_censored": 0,
-      "first_binding_distribution": {
-        "B_ratio": 22,
-        "S_ratio": 3
       }
     }
   }

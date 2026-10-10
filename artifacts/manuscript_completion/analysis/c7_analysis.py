@@ -154,24 +154,29 @@ def analyze_pair(label: str, pol_A: str, pol_B: str, is_new: bool) -> dict:
         C_lo_B_vals.append(C_lo_B)
         C_up_B_vals.append(C_up_B if C_up_B is not None else float("nan"))
 
-        # delta_lo verdict
+        # Compute delta_lo and delta_hi before applying verdict
         if C_up_B is None:
-            # B right-censored: verdict indeterminate
-            delta_lo = float("nan")
-            n_I += 1
+            delta_lo = float("nan")     # right-censored B
         else:
             delta_lo = C_lo_A - C_up_B
-            if delta_lo > 0:   n_A += 1
-            elif delta_lo < 0: n_B += 1
-            else:              n_I += 1
         delta_lo_vals.append(delta_lo)
 
-        # delta_hi (optimistic bound)
         if C_up_A is None or C_lo_B is None:
             delta_hi = float("nan")
         else:
             delta_hi = C_up_A - C_lo_B
         delta_hi_vals.append(delta_hi)
+
+        # Verdict: A iff delta_lo > 0; B iff delta_hi < 0; I otherwise.
+        # Straddling (delta_lo <= 0 <= delta_hi) and right-censored B → both I.
+        if C_up_B is None:
+            n_I += 1
+        elif delta_lo > 0:
+            n_A += 1
+        elif not math.isnan(delta_hi) and delta_hi < 0:
+            n_B += 1
+        else:
+            n_I += 1
 
     arr_lo = np.array([v for v in delta_lo_vals if not math.isnan(v)])
     arr_hi = np.array([v for v in delta_hi_vals if not math.isnan(v)])
