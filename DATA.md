@@ -39,20 +39,53 @@ $env:THERMALSHIFT_DATA_DIR = "C:\path\to\frontier\dataset"
 
 ## Derived Artifacts Included in This Repo
 
-The following derived files are small enough to be included directly and are
-sufficient to reproduce all final figures and validation results without the
-raw dataset:
+The repository includes frozen simulation outputs at every analysis tier. No raw
+Frontier telemetry is required to reproduce any analysis beyond fingerprint
+derivation from scratch.
+
+### Development analysis (Phase 3B)
 
 | File | Contents |
 |------|----------|
 | `artifacts/phase1/analysis/phase3a_fingerprint_2024.parquet` | Thermal fingerprints (FA_2024, 2,000 nodes) |
 | `artifacts/phase1/analysis/phase3a_test_set.parquet` | 2,637 base test jobs |
 | `artifacts/phase1/analysis/phase3b3f_results.json` | Full-cabinet power model results |
-| `artifacts/phase1/analysis/phase3b_mc_results.json` | Monte Carlo final outputs (30 scenarios) |
+| `artifacts/phase1/analysis/phase3b_mc_results.json` | Monte Carlo outputs (30 development scenarios) |
 | `artifacts/phase1/analysis/phase3b_mc_analysis.json` | Post-MC summary statistics |
 
 Running `phase3b_mc_analysis.py`, `phase3b_mc_validate.py`, and `phase3b_figures.py`
-requires only these included files (no raw dataset access needed).
+reproduces the development-era (Phase 3B) analysis without raw dataset access.
+Running `phase3b_mc.py` to regenerate the Monte Carlo from scratch requires
+`THERMALSHIFT_DATA_DIR`.
 
-Running `phase3b_mc.py` (to reproduce the Monte Carlo from scratch) additionally
-requires the raw Frontier telemetry via `THERMALSHIFT_DATA_DIR`.
+### Primary challenge experiment (R2, sc30–54) — preregistered
+
+| File | Contents |
+|------|----------|
+| `artifacts/revision2/results/gate_f_sc30-54_all_r2challenge_merged.json` | Merged raw simulation outputs, all 25 challenge scenarios |
+| `artifacts/revision2/challenge_analysis.json` | Frozen analysis output (8 comparisons, bootstrap CIs) |
+| `artifacts/revision2/results/sensitivity_cabinet_scale.json` | E1 cabinet-scale sensitivity outputs |
+| `artifacts/revision2/results/sensitivity_loo_beta.json` | E2 beta sensitivity outputs |
+
+### Corrected-reference analyses (C1/C2) — primary claims source
+
+| File | Contents |
+|------|----------|
+| `artifacts/manuscript_completion/results/gate_f_sc5-29_all.json` | C1 raw: sc5–sc29, all ratios, corrected reference |
+| `artifacts/manuscript_completion/results/gate_f_sc30-54_1p25_c2manuscript.json` | C2 raw: sc30–sc54, r=1.25, corrected reference |
+| `artifacts/manuscript_completion/results/c1_correctedref_analysis.json` | C1 frozen analysis output |
+| `artifacts/manuscript_completion/results/c2_correctedref_analysis.json` | C2 frozen analysis output |
+
+### Structural position analysis (Round-7, PositionGroupHash) — post-exposure corrective robustness
+
+| File | Contents |
+|------|----------|
+| `artifacts/manuscript_completion/results/gate_f_sc30-54_1p0_1p25_c7primary.json` | C7 raw: sc30–54, canonical beta |
+| `artifacts/manuscript_completion/results/c7primary_analysis.json` | C7 frozen analysis output |
+
+### Gate F held-out evaluation (revision1) — preregistered held-out design
+
+| File | Contents |
+|------|----------|
+| `artifacts/revision1/results/gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json` | Gate F raw: sc5–sc29, multiple ratios |
+| `artifacts/revision1/results/gate_f_heldout_analysis_E1.json` | Gate F frozen analysis output |

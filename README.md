@@ -454,16 +454,17 @@ The result did not come from a single model. It is the product of eleven sequent
 The modeled base workload represents 1.09% of all fleet node-hours in the matched replay
 windows (H\_cohort\_base / H\_all\_replay = 78,907 / 7,260,985). The 2,000-node cohort
 is physically ~20% of Frontier's nodes; the 1.09% reflects the 78,907 node-hours in the
-selected 2,637-job base workload, not all activity on those nodes. Based on Gate F's
-authoritative median conservative C_lower separation of +3.6 to +5.6 pp across tested ratios
-(primary ratio r = 1.25: +4.77 pp), an algebraic replay-model translation gives approximately
-**2,800–4,400 additional cohort node-hours** per replay window (replay-model translation only,
-not observed output), or approximately **0.04–0.06% of total fleet activity** in those windows.
+selected 2,637-job base workload, not all activity on those nodes. At the preregistered primary ratio (r = 1.25), the R2 Challenge median δ_lo of +6.71 pp
+translates algebraically to approximately **5,300 additional cohort node-hours** per replay
+window (replay-model translation only, not observed output), or approximately **0.07% of
+total fleet activity** in those windows. The Gate F held-out δ_lo of +4.77 pp gives
+approximately 3,800 cohort node-hours (~0.05%).
 
 This figure is reported for scope honesty, not as the primary result. The experiment
 has thermal fingerprints only for the 2,000-node study cohort. It does not show what
 would happen if fingerprint-aware scheduling were deployed across all 9,856 Frontier nodes.
-The cohort-relative scheduling improvement (+3.6 to +5.6 pp, Gate F held-out) is the correct primary metric.
+The cohort-relative capacity advantage — +6.71 pp (R2 Challenge, preregistered primary)
+and +4.77 pp (Gate F, preregistered held-out) — is the correct primary metric.
 
 ---
 
@@ -484,10 +485,11 @@ The result is best framed as:
 > availability levels (r = 1.25–8.0). The paired bootstrap intervals across those scenarios
 > exclude zero at every ratio.
 
-The +3.6 to +5.6 pp range reflects the corrected cabinet-power model and a conservative
-capacity metric (C_lower, the lower bound of the crossing bracket). An earlier development
-analysis estimated +15.5 pp under the pre-correction model; that result is documented
-historically but is superseded for scientific conclusions by Gate F's held-out evaluation.
+The +3.6 to +5.6 pp range (Gate F, preregistered held-out, original reference) and
++6.71 pp (R2 Challenge, preregistered) both reflect the corrected cabinet-power model and
+the conservative δ_lo metric. An earlier development analysis estimated +15.5 pp under
+the pre-correction model; that result is documented historically but is superseded by the
+preregistered experiments and corrected-reference analyses (C2: +12.48 pp at r=1.25).
 
 **What this is not:**
 
@@ -543,9 +545,12 @@ historically but is superseded for scientific conclusions by Gate F's held-out e
   (Phase 3B) was conducted with a pre-correction cabinet-power node mapping that placed
   3.2% of nodes in incorrect cabinets. The corrected mapping (Gate C) tightens cabinet
   power constraints and shifts the dominant binding regime from node-level thermal budget
-  to cabinet power for fingerprint-aware policies. The revised magnitude estimate
-  (+3.6 to +5.6 pp) reflects this correction; the development-era +15.5 pp should not
-  be used as the primary result.
+  to cabinet power for fingerprint-aware policies. The Gate F held-out result
+  (+3.6 to +5.6 pp, preregistered, original reference) and R2 Challenge (+6.71 pp,
+  preregistered) both reflect the corrected model. The corrected-reference analysis C2
+  shows +12.48 pp at r=1.25 under the revised concurrent-load cabinet reference and is
+  the primary claims source per the scientific claims audit. The development-era +15.5 pp
+  should not be used as the primary result.
 
 - **Bootstrap intervals are scenario-specific, not population bounds.** The paired
   bootstrap intervals reported for Gate F are computed across the 25 held-out workload-
@@ -585,33 +590,106 @@ historically but is superseded for scientific conclusions by Gate F's held-out e
 
 ---
 
+## Reproducing the Results
+
+All analyses from fingerprint derivation onward can be reproduced from the frozen
+artifacts in this repository. The raw Frontier telemetry (`THERMALSHIFT_DATA_DIR`)
+is required only to re-derive fingerprints from scratch or regenerate the base
+test-job parquet.
+
+**Prerequisites:** Python 3.9+, packages in `requirements.txt`.
+
+### Primary challenge experiment (R2, sc30–54)
+```bash
+python artifacts/revision2/r2_gate_f_challenge_analysis.py
+# output: artifacts/revision2/challenge_analysis.json
+
+python artifacts/revision2/analyze_sensitivity_e1.py
+python artifacts/revision2/analyze_sensitivity_e2.py
+```
+
+### Corrected-reference analyses — primary claims source
+```bash
+python artifacts/manuscript_completion/analysis/c1_correctedref_analysis.py
+# reads: artifacts/manuscript_completion/results/gate_f_sc5-29_all.json
+# output: artifacts/manuscript_completion/results/c1_correctedref_analysis.json
+
+python artifacts/manuscript_completion/analysis/c2_correctedref_analysis.py
+# reads: artifacts/manuscript_completion/results/gate_f_sc30-54_1p25_c2manuscript.json
+# output: artifacts/manuscript_completion/results/c2_correctedref_analysis.json
+```
+
+### Structural position analysis (Round-7, PositionGroupHash)
+```bash
+python artifacts/manuscript_completion/analysis/c7_analysis.py
+# reads: artifacts/manuscript_completion/results/gate_f_sc30-54_1p0_1p25_c7primary.json
+# output: artifacts/manuscript_completion/results/c7primary_analysis.json
+```
+
+### Gate F held-out evaluation (preregistered)
+```bash
+python artifacts/revision1/analysis/r1_gate_f_heldout_analysis.py
+# reads per-scenario JSON files in artifacts/revision1/results/
+# output: artifacts/revision1/results/gate_f_heldout_analysis_E1.json
+```
+
+### Development analysis (Phase 3B, historical)
+```bash
+python artifacts/phase1/analysis/phase3b_mc_analysis.py
+python artifacts/phase1/analysis/phase3b_mc_validate.py
+python artifacts/phase1/analysis/phase3b_figures.py
+```
+
+Provenance hashes for all frozen raw result files are recorded in
+`artifacts/manuscript_completion/PROVENANCE_MANIFEST.md`.
+
+---
+
 ## File Structure
 
 ```
 thermalops/
-  README.md
+  README.md         — this file
+  DATA.md           — dataset access and derived artifact map
+  requirements.txt  — Python dependencies
   artifacts/
-    phase1/
-      figures/
-        fig_mc_paired.png           paired Random vs FP outcomes (30 scenarios)
-        fig_mc_dc_dist.png          dC distribution with bootstrap CI
-        fig_mc_constraints.png      binding constraint breakdown
+    phase0/         — fleet fingerprint diagnostic (Phase 0)
+    phase1/         — fingerprint derivation, capacity model, Phase 3B MC (development)
       analysis/
-        phase3a_fingerprint_2024.parquet   thermal fingerprints (FA_2024)
-        phase3a_test_set.parquet           2,637 base test jobs
-        phase3b2d_capacity.py             deterministic capacity baseline
-        phase3b2d_results.json
-        phase3b3f_fullcab.py              full-cabinet power reconstruction
-        phase3b3f_results.json
-        phase3b3f_val.py                  node-power validation (60 jobs)
-        phase3b_mc.py                     Monte Carlo simulation (30 scenarios)
-        phase3b_mc_checkpoint.json        per-scenario checkpoint
-        phase3b_mc_results.json           final MC output
-        phase3b_mc_analysis.py            post-MC summary statistics
-        phase3b_mc_analysis.txt           human-readable results
-        phase3b_mc_analysis.json          machine-readable results
-        phase3b_mc_validate.py            bootstrap CI + discrete sensitivity
-        phase3b_figures.py                figure generation script
+        phase3a_fingerprint_2024.parquet  thermal fingerprints (FA_2024, 2,000 nodes)
+        phase3a_test_set.parquet          2,637 base test jobs
+        phase3b_mc.py                     Monte Carlo simulation
+        phase3b_mc_results.json           frozen MC outputs (30 dev scenarios)
+        phase3b_mc_analysis.py            summary statistics
+        phase3b_figures.py                figure generation
+    revision1/      — Gate F held-out design, M1-M6 manuscript analyses
+      analysis/
+        r1_gate_f_heldout_analysis.py     frozen held-out summarizer (sc5-29)
+        r1_gate_f_helpers.py              shared estimand functions
+      results/
+        gate_f_heldout_analysis_E1.json   frozen Gate F output
+    revision2/      — R2 preregistered challenge experiment (sc30-54)
+      r2_challenge_orchestrator.py        parallel challenge runner
+      r2_gate_f_challenge_analysis.py     preregistered analysis script
+      figures/
+        fig_r2_factorial_r125.png         primary result figure (8 comparisons, r=1.25)
+        fig_r2_robustness.png             E1/E2 sensitivity panels
+      results/
+        gate_f_sc30-54_all_r2challenge_merged.json  frozen challenge outputs
+        challenge_analysis.json                      frozen analysis output
+    revision3/      — Task-D F2 reference construction, supplementary audits
+    manuscript_completion/
+      analysis/     — C1-C8 analysis scripts (corrected-reference, equivalence gates)
+      runners/      — parallel execution infrastructure for C1-C8
+      results/      — frozen raw simulation outputs and analysis JSONs
+        gate_f_sc5-29_all.json              C1 raw (sc5-29, corrected reference)
+        gate_f_sc30-54_1p25_c2manuscript.json  C2 raw (sc30-54, r=1.25)
+        c1_correctedref_analysis.json       C1 frozen output
+        c2_correctedref_analysis.json       C2 frozen output
+        c7primary_analysis.json             Round-7 / PositionGroupHash frozen output
+      PROVENANCE_MANIFEST.md               SHA256 hashes for all frozen raw files
+      FINAL_SCIENTIFIC_CLAIMS_AUDIT.md     authoritative claims table with evidence sources
+      FINAL_SCIENTIFIC_FREEZE.md           canonical accepted values and governance
   docs/
     PHASE_0_THERMAL_FINGERPRINT.md
     THERMALOPS_FEASIBILITY.md
