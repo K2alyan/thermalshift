@@ -55,7 +55,24 @@ temperature prediction. This creates the scientific chain:
 
 ## Results at a Glance
 
-### Gate F held-out results (authoritative, corrected model)
+> **Evidence hierarchy.** This repository spans several generations of the study with
+> different preregistration status and reference definitions. The table below is the
+> authoritative guide; the full claims audit is at
+> `artifacts/manuscript_completion/FINAL_SCIENTIFIC_CLAIMS_AUDIT.md`.
+>
+> | Analysis | Scenarios | Reference type | Status | FP vs Random δ_lo at r=1.25 |
+> |---|---|---|---|---|
+> | Gate F (revision1 held-out) | sc5–sc29 | Original job-contribution | Preregistered held-out design | +4.77 pp (25/0/0) |
+> | R2 Challenge | sc30–sc54 | Original job-contribution | Preregistered challenge — primary | +6.71 pp (22/1/2) |
+> | C1 (corrected reference) | sc5–sc29 | Corrected concurrent-load | Post-exposure sensitivity | +16.17 pp (25/0/0) |
+> | C2 (corrected reference) | sc30–sc54 | Corrected concurrent-load | Post-exposure sensitivity — primary claims source | +12.48 pp (25/0/0) |
+> | Round-7 / PositionGroupHash | sc30–sc54 | Corrected reference | Post-exposure corrective robustness | FP vs PGH +7.265 pp (24/1/0) |
+>
+> Gate F and the R2 Challenge are preregistered. C1, C2, and Round-7 are post-exposure;
+> C2 is the primary claims source per the scientific claims audit. Original Experiments 1
+> and 2 (pre-R2, original reference) are superseded and not used for primary claims.
+
+### Gate F held-out results (preregistered held-out design, original reference)
 
 | Ratio r | full_fp wins | n_ind | full_random wins | Median δ_lo | 95% paired bootstrap CI |
 |---|---|---|---|---|---|
@@ -75,13 +92,19 @@ the 25 held-out replay scenarios; they are not population-level uncertainty boun
 deployments. Cabinet power was the dominant binding constraint for full_fp, increasing
 from 20–21/25 scenarios at r = 1.25–1.5 to 24–25/25 at r ≥ 2 and unrestricted.
 
+**Corrected-reference sensitivity (C1, post-exposure):** Rerunning the same sc5–sc29
+scenarios with the corrected concurrent-load cabinet reference yields FP vs Random 25/0/0
+at every nondegenerate ratio, with median δ_lo = +16.17 pp (95% CI [+11.53, +21.50]) at
+r=1.25. The direction and sign are identical to Gate F; the magnitude is higher because the
+corrected reference sets a tighter operating constraint, leaving more capacity unlocked by
+fingerprint placement. C1 is a post-exposure analysis; the preregistered held-out design
+is Gate F. See `artifacts/manuscript_completion/C1_CORRECTEDREF_ANALYSIS.md`.
+
 **Historical development result (pre-correction, for reference):** The original 30-scenario
 Phase 3B analysis estimated a median paired advantage of +15.5 pp (bootstrap 95% CI:
 +11.5 to +21.9 pp) under the pre-correction cabinet-power model, using the FP-cap-10 policy
-and an interpolated crossing metric. The reduction in estimated magnitude coincides with a
-corrected cabinet-power node mapping (Gate C revision), revised thermal calibration
-(BETA_F = 1.125 vs 0.957; T_thr = 63.6°C vs 60.6°C), a more conservative C_lower metric,
-and evaluation on held-out scenarios. The Gate F result is the authoritative magnitude estimate.
+and an interpolated crossing metric. This result is superseded by the corrected-reference
+analyses (C1/C2) and is not used for primary claims.
 
 ---
 
@@ -232,7 +255,63 @@ at low availability but can achieve diversification without that penalty at high
 
 **Gate F note:** The pre-specified Gate F confirmatory result is the full_fp vs full_random comparison at restricted ratios. The FPSpread regime dependence was exploratory in Gate F.
 
-**Review-2 challenge confirmation (preregistered secondary finding):** The FPSpread crossover was preregistered as a secondary finding in the Review-2 challenge. Challenge results (sc30–sc54) replicate the crossover: FPSpread vs FP is −2.64 pp [−4.49, −2.00] at r = 1.25 (FP wins), +0.72 pp at r = 8.0 (FPSpread wins), and +2.01 pp median delta_lo at unrestricted (FPSpread wins). A plausible interpretation — explicitly labeled as an interpretation, not a tested causal mechanism — is that under limited candidate choice, forcing additional spreading restricts direct exploitation of the most favorable individual nodes; once the choice set is large enough, spreading and fingerprint selection can become complementary. The mechanism is consistent with the binding-constraint regime shift but has not been separately tested.
+**Corrected-reference result (C1, post-exposure):** Under the corrected concurrent-load
+reference on the same sc5–sc29 scenarios, FP beats FPSpread at **every nondegenerate
+ratio** — verdicts 0/1/24 at r=1.25, 0/1/24 at r=1.5, 0/0/25 at r=2.0 and r=4.0,
+0/4/21 at r=8.0, and 0/1/24 at unrestricted. This reverses the r=4.0, r=8.0, and
+unrestricted crossover seen under the original reference. The corrected reference
+imposes a tighter operating constraint; under it, FPSpread's geographic dispersion
+forfeits thermally favorable capacity at every availability level tested.
+
+**Review-2 challenge (preregistered secondary finding, r=1.25 only):** FPSpread vs FP
+at the preregistered primary ratio: verdict 4/3/18, median δ_lo = −2.64 pp
+[−4.49, −2.00] (FP wins). The challenge experiment was conducted only at r=1.25, so
+the multi-ratio crossover seen in Gate F was not directly retested in Review-2.
+
+A plausible interpretation — explicitly labeled as an interpretation, not a tested causal
+mechanism — is that under limited candidate choice, forcing additional spreading restricts
+direct exploitation of the most favorable individual nodes; once the choice set is large
+enough, spreading and fingerprint selection can become complementary. The mechanism is
+consistent with the binding-constraint regime shift but has not been separately tested.
+Under the corrected reference, the crossover does not appear across the tested ratio range.
+
+---
+
+## Structural Position Analysis (post-exposure corrective robustness)
+
+A reviewer raised the concern that the original C2 structural comparator (PositionLOO)
+contained a formula defect: `(S_g − F_i) / (n_g − 1)` reverses node ranking within
+structural groups, preferentially selecting hot nodes from groups where they are outliers.
+PositionLOO was withdrawn and results are retained for provenance only. The accepted
+replacement is **PositionGroupHash**: a group-constant structural score (chassis × slot ×
+board × node_position) with BLAKE2b hash tie-breaking that is policy-blind and does not
+leak individual node identity.
+
+Round-7 is a **post-exposure corrective robustness analysis**, not a preregistered result.
+Its value is that the corrected structural comparator produces a credible hierarchical
+ordering that survives the methodology correction.
+
+**Round-7 results (sc30–sc54, r=1.25, canonical beta=1.11416358):**
+
+| Comparison | A/I/B | Median δ_lo | 95% CI |
+|---|---|---|---|
+| FP vs Random | 25/0/0 | +12.476 pp | [+11.095, +19.039] |
+| FP vs WithinCabPlacebo | 24/1/0 | +10.883 pp | [+5.959, +17.399] |
+| FP vs PositionGroupHash | 24/1/0 | +7.265 pp | [+5.120, +12.497] |
+| PositionGroupHash vs Random | 21/4/0 | +4.582 pp | [+2.901, +8.224] |
+
+The hierarchical ordering — Random < PositionGroupHash < WithinCabPlacebo < FP — is
+consistent with a stratification from no fingerprint information (Random), through
+group-level structural position (PGH), to cabinet-membership-preserving permuted
+fingerprints (WithinCab), to individual node-level fingerprints (FP). FP and PGH
+are both uncensored at r=1.25 (zero left-boundary scenarios each), making the
+FP–PGH separation (+7.265 pp) a cleaner magnitude comparison than FP–Random (where
+Random has 9/25 left-boundary scenarios). Beta sensitivity (β=0.960) preserves all
+four verdicts with no B results; FP vs PGH: 23/2/0, +5.120 pp [+2.331, +11.219].
+
+All Round-7 results must be labeled post-exposure corrective robustness in manuscript text.
+See `artifacts/manuscript_completion/FINAL_SCIENTIFIC_FREEZE.md` for frozen values and
+governance notes.
 
 ---
 
@@ -267,10 +346,13 @@ The result did not come from a single model. It is the product of eleven sequent
     bottleneck that thermal-only optimization creates.
 11. **Robustness** — 30 paired Monte Carlo development scenarios (common random numbers,
     varied workload draws and residual permutations) show FP-cap-10 outperforms random in
-    all 30 under the pre-correction model. A subsequent held-out evaluation (Gate F, 25
-    scenarios, corrected cabinet model) confirms the direction and consistency at every
-    tested availability level (r = 1.25–8.0), with the authoritative magnitude now
-    +3.6 to +5.6 pp under the corrected model and conservative C_lower metric.
+    all 30 under the pre-correction model. A preregistered held-out evaluation (Gate F, 25
+    scenarios, sc5–sc29, original job-contribution reference) confirms the direction at every
+    tested availability level (r = 1.25–8.0), with δ_lo ranging +3.6 to +5.6 pp. A
+    preregistered challenge experiment (R2, sc30–sc54) independently replicates the primary
+    finding: +6.71 pp vs Random (22/1/2) at r = 1.25. Post-exposure corrected-reference
+    analyses (C2, sc30–sc54) show +12.48 pp under the revised concurrent-load cabinet
+    reference and are the primary claims source per the scientific claims audit.
 
 ---
 
