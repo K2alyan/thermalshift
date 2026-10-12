@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use this work, please cite it as below."
 type: software
 title: "ThermalShift: Telemetry-aware workload placement using persistent server thermal fingerprints"
-version: 0.1.0
-date-released: "2026-09-28"
+version: 1.1.0
+date-released: "2026-10-12"
 license: MIT
 repository-code: "https://github.com/K2alyan/thermalshift"
 doi: "10.5281/zenodo.23020901"
@@ -22,8 +22,12 @@ keywords:
   - frontier
 abstract: >
   ThermalShift demonstrates that persistent machine-level thermal differences
-  on the Frontier supercomputer can be converted into a workload-placement signal.
-  Across 30 matched historical-replay Monte Carlo scenarios, fingerprint-aware
-  scheduling (FP-cap-10) outperformed thermally unaware random placement in all 30
-  scenarios. Among 29 uncensored scenarios, the median paired feasible-capacity
-  advantage was +15.5 percentage points (bootstrap 95% CI: +11.5 to +21.9 pp).
+  on the Frontier supercomputer can be converted into a workload-placement signal
+  beyond what cabinet-level structure alone explains. In a preregistered held-out
+  challenge experiment (25 new scenarios, sc30–sc54), fingerprint-guided placement
+  produced a median conservative bracket separation of +6.71 pp versus random
+  placement (bootstrap 95% CI: [+3.92, +8.72] pp) and +3.54 pp versus a
+  within-cabinet permutation placebo (95% CI: [+0.56, +4.44] pp), both excluding
+  zero at the preregistered 1.25x choice ratio. A prior held-out evaluation
+  (Gate F, sc5–sc29, corrected cabinet model) confirmed a positive advantage at
+  every nondegenerate tested ratio (r = 1.25–8.0).

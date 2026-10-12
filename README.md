@@ -57,7 +57,7 @@ temperature prediction. This creates the scientific chain:
 
 ### Gate F held-out results (authoritative, corrected model)
 
-| Ratio r | full_fp wins | n_ind | full_random wins | Median ΔC_lower | 95% paired bootstrap CI |
+| Ratio r | full_fp wins | n_ind | full_random wins | Median δ_lo | 95% paired bootstrap CI |
 |---|---|---|---|---|---|
 | 1.0 (degenerate control) | 0 | 25 | 0 | −0.003 pp | [−0.301, 0.000] |
 | 1.25 | **25** | 0 | 0 | +4.77 pp | [+2.59, +6.06] |
@@ -67,8 +67,10 @@ temperature prediction. This creates the scientific chain:
 | 8.0  | **24** | 0 | 1 | +3.59 pp | [+2.59, +4.39] |
 | unrestricted | **22** | 1 | 2 | +4.24 pp | [+2.87, +5.30] |
 
-25 held-out scenarios (sc5–sc29), commit 301d269. ΔC_lower = C_lower(full_fp) − C_lower(full_random),
-the difference in conservative lower-bound capacity unlock. Bootstrap CIs are paired across
+25 held-out scenarios (sc5–sc29), commit 301d269. δ_lo = C_lower(full_fp) − C_upper(full_random),
+a pessimistic conservative bracket separation: positive only when full_fp's lower bound exceeds
+full_random's upper bound. At r = 1.0 all policies converge by construction (no selection freedom),
+explaining the near-zero δ_lo at the degenerate control. Bootstrap CIs are paired across
 the 25 held-out replay scenarios; they are not population-level uncertainty bounds for real
 deployments. Cabinet power was the dominant binding constraint for full_fp, increasing
 from 20–21/25 scenarios at r = 1.25–1.5 to 24–25/25 at r ≥ 2 and unrestricted.
@@ -273,6 +275,13 @@ The result did not come from a single model. It is the product of eleven sequent
 ---
 
 ## Experimental Setup
+
+> **Scope note:** This section documents the development-era parameters (Phase 3B, 30 scenarios,
+> 8 load points, FP-cap-10 policy). The preregistered held-out evaluation (Gate F, sc5–sc29)
+> and the Review-2 challenge experiment (sc30–sc54) use different scenario counts, policy sets,
+> and load sweeps; their parameters are documented in
+> `artifacts/revision1/analysis/r1_gate_f_heldout_analysis.py` and
+> `artifacts/revision2/r2_challenge_orchestrator.py` respectively.
 
 ### Cohort
 
