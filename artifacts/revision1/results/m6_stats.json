@@ -1,0 +1,109 @@
+{
+  "script": "r1_m6_stats.py",
+  "git_sha": "e61b037c703e231a18147cc6638fad5c7876b4cf",
+  "timestamp": "2026-09-29T03:46:55.302981Z",
+  "input_files": {
+    "phase3a_fingerprint_2024.parquet": {
+      "path": "C:\\Users\\kalya\\thermalops\\artifacts\\phase1\\analysis\\phase3a_fingerprint_2024.parquet",
+      "sha256": "0afee1b2727aa8b45ecd1aae3018cc7e3651fef7b855afb6394ea3d72c39d3a4"
+    },
+    "phase3a_test_set.parquet": {
+      "path": "C:\\Users\\kalya\\thermalops\\artifacts\\phase1\\analysis\\phase3a_test_set.parquet",
+      "sha256": "b97c4df326a9154352bfba8b60f6d163c381ed4dd6193b49c3518a8fc7c59516"
+    },
+    "phase3b_mc_analysis.json": {
+      "path": "C:\\Users\\kalya\\thermalops\\artifacts\\phase1\\analysis\\phase3b_mc_analysis.json",
+      "sha256": "b97ca82b25d7a65e6524abbd7ca8bf56e0a71524de768ce50c86cc0db100a77e"
+    },
+    "phase3a_results.json": {
+      "path": "C:\\Users\\kalya\\thermalops\\artifacts\\phase1\\analysis\\phase3a_results.json",
+      "sha256": "c64151201f120e0218e73c3f9b3d5199ef3be4febcc006dbe7f91dc3c761a1d8"
+    }
+  },
+  "m6_1_frozen_r2": {
+    "node_job_level": {
+      "n_obs": 64545,
+      "fa_column": "F_2024",
+      "target_column": "delta_T_p95",
+      "r2_frozen_no_refit": 0.20641925914435766,
+      "r2_calibrated_ols": 0.20671878310273128,
+      "pearson_r": 0.45466337339039203,
+      "calib_slope": 0.9725586034196417,
+      "calib_intercept": 0.02475588614005205,
+      "note": "frozen R2 \u2248 calibrated R2 because calib_slope \u2248 1; no meaningful refit inflation"
+    },
+    "node_level": {
+      "n_nodes": 2000,
+      "aggregation": "median per node across 2025 test jobs",
+      "pearson_r": 0.925877096971658,
+      "spearman_r": 0.935799494963746,
+      "r2_frozen_no_refit": 0.8482261482495985,
+      "r2_as_pearson_sq_what_paper_reported": 0.8572483986966649,
+      "warning": "Paper reported Pearson r^2 as 'R2'. True 1-SSE/SST frozen R2 = 0.8482 vs paper's 0.8572"
+    }
+  },
+  "m6_5_spearman_brown": {
+    "raw_half_length_icc": 0.7085,
+    "spearman_brown_full_30min": 0.8293824992683642,
+    "formula": "2*r / (1+r)",
+    "note": "r is the ICC between the two 15-minute halves of the GPU fleet diagnostic job"
+  },
+  "m6_6_censored_median": {
+    "n_scenarios": 30,
+    "n_uncensored": 29,
+    "n_censored": 1,
+    "censored_scenarios": [
+      {
+        "scenario": 27,
+        "fp_capacity_at_lambda_max": 36.22039685424574,
+        "lambda_max": 1.5,
+        "random_C_feasible": 4.033326847855347,
+        "delta_C_lower_bound": 32.18707000639039
+      }
+    ],
+    "uncensored_order_stats": {
+      "min": 4.001718433340305,
+      "q1": 10.208717620692571,
+      "median": 15.54393825303266,
+      "q3": 22.20040735917396,
+      "max": 30.05921712021044,
+      "all_values_sorted": [
+        4.001718433340305,
+        5.285594570349982,
+        6.49052379485847,
+        8.4309439354011,
+        8.564860437911065,
+        9.107928153162746,
+        9.526447578480639,
+        10.208717620692571,
+        10.758052457883876,
+        11.524285872449536,
+        14.313686505081899,
+        14.416188202544234,
+        14.42288388336093,
+        15.48421037075037,
+        15.54393825303266,
+        17.13464854359866,
+        18.52531139586516,
+        18.649866195051594,
+        21.1704218061751,
+        21.926617356987677,
+        22.186756344273377,
+        22.20040735917396,
+        23.07762246478026,
+        23.09318866218462,
+        24.569672206214594,
+        24.81060963564804,
+        26.57087886611141,
+        29.55771200406773,
+        30.05921712021044
+      ]
+    },
+    "all_30_median": {
+      "position_15_value": 15.54393825303266,
+      "position_16_value": 17.13464854359866,
+      "median": 16.33929339831566,
+      "logic": "Censored obs lb exceeds all uncensored -> it occupies position 30 -> median=(pos15+pos16)/2"
+    }
+  }
+}

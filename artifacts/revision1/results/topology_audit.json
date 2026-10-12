@@ -1,0 +1,55 @@
+{
+  "script": "r1_00b_topology_audit.py",
+  "git_sha": "e61b037c703e231a18147cc6638fad5c7876b4cf",
+  "timestamp": "2026-09-29T04:00:46.760790Z",
+  "input_sha256": {
+    "frontier-completed-job-info.parquet": "e7a8213889a3847d8335bd346129bd8f731b7f6dd0153ffda4563e16b25aa4a3",
+    "phase3a_fingerprint_2024.parquet": "0afee1b2727aa8b45ecd1aae3018cc7e3651fef7b855afb6394ea3d72c39d3a4",
+    "cohort_manifest.csv": "a80b88e2e8952092cfc3e4abbfcb7b3bcc8ccb3f5c415226e7b55bd1a4298c9d"
+  },
+  "string_truncation_bug": {
+    "bug_description": "phase3b_mc.py line 70, phase3b3f_fullcab.py line 77, phase3b3f_val.py line 46 all use 'for hn, xn in zip(hl, str(nl).split())' instead of 'for hn, xn in zip(hl, nl)'. For jobs with node_count > numpy print threshold (1000), str(ndarray) abbreviates with '...', causing hostname-xname misalignment and dropped nodes.",
+    "numpy_print_threshold": 1000,
+    "jobs_affected": {
+      "count": 4904,
+      "fraction": 0.03217847769028871,
+      "affected_node_hours": 13635312.755,
+      "fraction_of_total_node_hours": 0.6583099961375374
+    },
+    "ellipsis_hits_in_buggy_parse": 4904
+  },
+  "hostname_xname_mapping": {
+    "correct_unique_hostnames": 9856,
+    "correct_multi_xname_count": 0,
+    "correct_unique_cabinets": 77,
+    "buggy_unique_hostnames": 9856,
+    "buggy_multi_xname_count": 480,
+    "jobs_with_len_mismatch": 0,
+    "fleet_wide_cab_wrong_in_buggy": 312,
+    "fleet_wide_missing_in_buggy": 0
+  },
+  "fp_nodes_impact": {
+    "n_fp_nodes": 2000,
+    "fp_cabinet_correct_in_both": 1962,
+    "fp_cabinet_wrong_in_frozen": 38,
+    "fp_cabinet_missing_in_frozen": 0,
+    "verdict": "CABINET RESULTS SUPERSEDED"
+  },
+  "frozen_results_status": {
+    "phase3b_mc_fingerprint_prospective": "UNAFFECTED \u2014 bug only affects cabinet assignment, not fingerprint computation",
+    "phase3b_mc_cabinet_constraint": "SUPERSEDED \u2014 cabinet map was built with buggy str(nl).split()",
+    "phase3b3f_fullcab_power": "SUPERSEDED \u2014 cabinet-level power reconstruction used buggy map",
+    "phase3b3f_val": "SUPERSEDED \u2014 cabinet validation used buggy map",
+    "action": "M3/M4 must rebuild cabinet map with native array zip before rerunning MC."
+  },
+  "manifest_fingerprint_discrepancy": {
+    "fp_nodes": 2000,
+    "manifest_nodes": 2000,
+    "overlap": 1333,
+    "only_in_fp": 667,
+    "only_in_manifest": 667,
+    "conclusion": "cohort_manifest.csv (2000 nodes) is a DIFFERENT set from phase3a_fingerprint_2024.parquet (2000 nodes). Only 1333 overlap. The fingerprint and test_set parquets define the authoritative analysis cohort. For M1 location analysis use fp_node_topology.csv.",
+    "test_set_consistent_with_fp": true
+  },
+  "elapsed_seconds": 11.2
+}

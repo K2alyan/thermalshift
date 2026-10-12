@@ -1,0 +1,22 @@
+{
+  "script": "artifacts/revision2/check_sensitivity_equivalence.py",
+  "plan_ref": "POST_EXPOSURE_SENSITIVITY_RECOVERY.md \u00a7Baseline equivalence requirement",
+  "status": "PASS",
+  "tolerance": 1e-09,
+  "ratio": "1.25",
+  "policies_checked": [
+    "full_random",
+    "full_fp"
+  ],
+  "n_scenarios": 25,
+  "frozen_challenge_source": "gate_f_sc30-54_all_r2challenge_merged.json",
+  "sensitivity_source_files": [
+    "gate_f_sc30-54_1p25_r2sensitivity_sc1p00_bprimary.json"
+  ],
+  "n_scenarios_compared": 25,
+  "crossing_mismatches": 0,
+  "null_asymmetries": 0,
+  "lambda_row_mismatches": 0,
+  "max_float_diff": 0.0,
+  "mismatch_details": []
+}

@@ -1,0 +1,1 @@
+INVALID FOR EVIDENCE — runner 4913388 was committed, but execution began before the pre-execution manifest was updated from runner 850c863 to 4913388. Run stopped after approximately 4/25 scenarios. No corrected-reference result was produced. This checkpoint must not be resumed.

@@ -1,0 +1,17 @@
+{
+  "label": "software preflight only \u2014 not accepted R3-0 evidence",
+  "runner_commit": "bfb658b",
+  "runner_sha256": "11bc0dd626d6246425ce8298c13e29355f80aeda910c38ffbf97ca1a0cc71e1a",
+  "scenario": 30,
+  "policies_checked": [
+    "full_fp",
+    "full_random"
+  ],
+  "ratio_checked": "1.25",
+  "tolerance": 1e-09,
+  "n_checks_passed": 1059,
+  "n_failures": 0,
+  "max_absolute_numeric_diff": 0.0,
+  "pass": true,
+  "failures": []
+}

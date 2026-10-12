@@ -1,0 +1,18 @@
+{
+  "document": "R3-0 Start-Gate Verification",
+  "created": "2026-10-05",
+  "runner_commit": "4913388",
+  "runner_sha256_matches_manifest_v2": true,
+  "static_preflight_pass": true,
+  "seed_check_25_of_25_pass": true,
+  "manifest_v2_committed": true,
+  "manifest_v2_commit": "68bfc24",
+  "git_status_clean": true,
+  "results_dir_empty": true,
+  "no_python_process_running": true,
+  "no_invalidated_checkpoint_in_results": true,
+  "invalidated_precommit_run_archived": true,
+  "invalidated_output_assembly_run_archived": true,
+  "invalidated_stale_manifest_run_archived": true,
+  "all_checks_pass": true
+}

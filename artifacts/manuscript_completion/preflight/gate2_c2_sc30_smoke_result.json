@@ -1,0 +1,30 @@
+{
+  "description": "Gate 2: C2 sc30 smoke vs r3f2local reference",
+  "c2_file": "gate_f_sc30-30_1p25_c2manuscript.json",
+  "r3_reference": "gate_f_sc30-54_1p25_r3f2local.json",
+  "bug_fixed": "c2_gate_f_run.py: _COMPAT_POLICY_ORDER now defaults to CHALLENGE_POLICY_IDS not GATE_F_POLICIES",
+  "scenario_30": {
+    "scen_seed_match": true,
+    "wl_seed_match": true,
+    "B_ref_s_match": true,
+    "S_ref_s_match": true
+  },
+  "crossings": {
+    "full_fp": {
+      "status": "exact_bracket",
+      "C_lower_pct": 15.91847740162898,
+      "C_upper_pct": 16.176717936024303,
+      "first_binding_constraint": "B_ratio",
+      "right_censored": false
+    },
+    "full_random": {
+      "status": "exact_bracket",
+      "C_lower_pct": 4.817588542690798,
+      "C_upper_pct": 4.823682184991017,
+      "first_binding_constraint": "B_ratio",
+      "right_censored": false
+    }
+  },
+  "all_fields_match": true,
+  "overall_pass": true
+}

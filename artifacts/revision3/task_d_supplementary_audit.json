@@ -1,0 +1,225 @@
+{
+  "audit_date": "2026-10-06",
+  "plan_commit": "c674209",
+  "r3_evidence_commit": "a80d51f",
+  "support": {
+    "total_rows": 152400,
+    "qualifying_jobs": 152400,
+    "excluded_jobs": {
+      "nonpositive_mean_power": 0,
+      "missing_start_or_end": 0,
+      "nonpositive_node_count": 0,
+      "note": "Overlap categories possible; total_rows - qualifying_jobs may exceed sum"
+    },
+    "n_unique_dates": 135,
+    "n_blocks": 106,
+    "total_calendar_support_h": 3240.0,
+    "active_fraction": {
+      "median": 0.9979089506172839,
+      "iqr": 0.003677812071330555,
+      "min": 0.5402626028806584,
+      "max": 0.9999267832647463
+    },
+    "concurrent_observed_jobs_at_event_ts": {
+      "n_sample": 5000,
+      "median": 55.0,
+      "p90": 130.0,
+      "p99": 205.01000000000022,
+      "max": 271,
+      "note": "Computed from unique event timestamps (start/end of qualifying jobs) sampled uniformly"
+    },
+    "concurrent_observed_nodes_at_event_ts": {
+      "n_sample": 5000,
+      "median": 6661.0,
+      "p90": 9384.0,
+      "p99": 9664.02,
+      "max": 9809,
+      "note": "Computed from unique event timestamps (start/end of qualifying jobs) sampled uniformly"
+    }
+  },
+  "edge_effects": {
+    "n_blocks_with_nonzero_start_power": 0,
+    "n_blocks_with_nonzero_end_power": 0,
+    "n_job_instances_crossing_block_start": 0,
+    "n_job_instances_crossing_block_end": 0,
+    "start_power_kW": {
+      "median": null,
+      "p90": null,
+      "max": null
+    },
+    "end_power_kW": {
+      "median": null,
+      "p90": null,
+      "max": null
+    },
+    "note": "start_power_kW and end_power_kW are sums of mean_power for crossing jobs per block, not per-cabinet values"
+  },
+  "f1_stats": {
+    "Q_F1_kW": {
+      "min": 68.74125732927479,
+      "p10": 84.83322906711575,
+      "median": 92.48734323804247,
+      "p90": 95.01828590513635,
+      "max": 95.9782434895832
+    },
+    "f1_exceedance_fraction": {
+      "mean_across_cabinets": 0.4239552869969537,
+      "median": 0.4117988683127572,
+      "iqr": 0.039411093964334676,
+      "p90": 0.4832163923182442,
+      "max": 0.6130808470507545,
+      "min": 0.27571913580246915
+    }
+  },
+  "f2_stats": {
+    "Q_F2_kW": {
+      "min": 162.0298540939291,
+      "p10": 199.8533265170794,
+      "median": 211.63198186813483,
+      "p90": 218.36736382666737,
+      "max": 223.92013070312527
+    },
+    "f2_exceedance_fraction": {
+      "mean_across_cabinets": 0.0097196468654802,
+      "median": 0.009944615912208505,
+      "iqr": 0.00017163923182441677,
+      "p90": 0.009992369684499314,
+      "max": 0.00999982853223594,
+      "min": 0.00786076817558299
+    },
+    "n_cabinets_exceedance_le_1pct": 77,
+    "n_cabinets_exceedance_le_1p5pct": 77,
+    "n_cabinets_exceedance_le_2pct": 77
+  },
+  "f2_f1_ratio": {
+    "min": 2.096497131842036,
+    "p10": 2.1616565360671185,
+    "median": 2.309701634137194,
+    "iqr": 0.09344058891531226,
+    "p90": 2.402983859794004,
+    "max": 2.8288541232290236,
+    "n_F2_gt_F1": 77,
+    "n_F2_approx_eq_F1": 0,
+    "n_F2_lt_F1": 0,
+    "pearson_r": 0.7295921758796501,
+    "spearman_r": 0.4835228393450928
+  },
+  "active_only_sensitivity": {
+    "ratio_active_only_over_calendar": {
+      "min": 1.0,
+      "median": 1.0,
+      "iqr": 0.00040019935769364245,
+      "max": 1.0510687367692473
+    },
+    "max_abs_kW_difference": 8.274659967482393,
+    "n_cabinets_diff_gt_1pct": 3,
+    "n_cabinets_diff_gt_5pct": 1,
+    "n_cabinets_diff_gt_10pct": 0
+  },
+  "f3_vs_f2": {
+    "ratio_Q_F3_over_Q_F2": {
+      "min": 0.8286630419706278,
+      "median": 0.8935723637168409,
+      "iqr": 0.07551077868801004,
+      "p90": 0.9479704011734522,
+      "max": 1.0376868407057618
+    },
+    "pearson_r_Q_F3_vs_Q_F2": 0.44402966225964297,
+    "spearman_r_Q_F3_vs_Q_F2": -0.060019717389345736,
+    "tendency": "F3 tends to be below F2 (median ratio 0.8936)"
+  },
+  "severity": {
+    "fleet_total_severity_f1_kWh": 3982736.320702429,
+    "fleet_total_severity_f2_kWh": 92813.08051327002,
+    "pct_reduction_f2_vs_f1": 97.66961523335542,
+    "per_cabinet_f1_kWh": {
+      "median": 49491.433917964896,
+      "p90": 60326.95923520023
+    },
+    "per_cabinet_f2_kWh": {
+      "median": 1206.7639139344758,
+      "p90": 1408.7567069636314
+    }
+  },
+  "late_cabinets": {
+    "2600": {
+      "Q_F1_kW": 71.17105449833713,
+      "Q_F1_rank": 2,
+      "Q_F1_percentile": 2.5974025974025974,
+      "Q_F2_kW": 162.0298540939291,
+      "Q_F2_rank": 1,
+      "Q_F2_percentile": 1.2987012987012987,
+      "Q_F3_kW": 168.13624739474483,
+      "ratio_F2_over_F1": 2.2766257326946704,
+      "active_fraction": 0.5402626028806584,
+      "f1_exceedance_fraction": 0.27571913580246915,
+      "f2_exceedance_fraction": 0.009843707133058984,
+      "severity_f1_kWh": 33101.71855577419,
+      "severity_f2_kWh": 480.1655627449434
+    },
+    "2601": {
+      "Q_F1_kW": 74.00896172973643,
+      "Q_F1_rank": 4,
+      "Q_F1_percentile": 5.194805194805195,
+      "Q_F2_kW": 173.06430985040222,
+      "Q_F2_rank": 3,
+      "Q_F2_percentile": 3.896103896103896,
+      "Q_F3_kW": 169.2935198816586,
+      "ratio_F2_over_F1": 2.3384236963408966,
+      "active_fraction": 0.7187505144032922,
+      "f1_exceedance_fraction": 0.3864212962962963,
+      "f2_exceedance_fraction": 0.009941443758573388,
+      "severity_f1_kWh": 48842.06165791812,
+      "severity_f2_kWh": 1198.1497161222637
+    },
+    "2602": {
+      "Q_F1_kW": 68.74125732927479,
+      "Q_F1_rank": 1,
+      "Q_F1_percentile": 1.2987012987012987,
+      "Q_F2_kW": 163.09897424280138,
+      "Q_F2_rank": 2,
+      "Q_F2_percentile": 2.5974025974025974,
+      "Q_F3_kW": 167.2203133636873,
+      "ratio_F2_over_F1": 2.3726504370082644,
+      "active_fraction": 0.7195201474622771,
+      "f1_exceedance_fraction": 0.3371695816186557,
+      "f2_exceedance_fraction": 0.009969821673525378,
+      "severity_f1_kWh": 40990.01641790013,
+      "severity_f2_kWh": 608.3365993688739
+    },
+    "conclusion": "Yes â€” late cabinets 2600, 2601, 2602 remain among the lowest cabinet-reference thresholds under F2 (ranks [1, 3, 2] out of 77)."
+  },
+  "concurrency_association": {
+    "n_cabinets": 77,
+    "note": "Per-cabinet concurrent counts computed from sample of <=500 event timestamps per cabinet",
+    "spearman_ratio_F2F1_vs_mean_concurrent_jobs": {
+      "r": 0.48907585271101833,
+      "p": 6.381372915521246e-06
+    },
+    "spearman_ratio_F2F1_vs_p99_concurrent_jobs": {
+      "r": -0.07140603423823308,
+      "p": 0.537152094581001
+    },
+    "spearman_ratio_F2F1_vs_mean_concurrent_nodes": {
+      "r": 0.34016207583990804,
+      "p": 0.0024707383221501235
+    },
+    "spearman_ratio_F2F1_vs_p99_concurrent_nodes": {
+      "r": -0.17352422950989213,
+      "p": 0.1312378586624722
+    }
+  },
+  "date_dir_semantics": {
+    "documentation_found": true,
+    "documentation_excerpt": "README.md key quotes: (1) 'date_dir | String | End date directory location'; (2) 'Jobs in the job_info files have an associated job_idx and date_dir based on their end time and position in the dataframe when ordered by end time. These identifiers are used in the name and location of their corresponding telemetry files. Job with job_idx 000001 ending on 2024-01-17 has telemetry files in /job-telemetry/2024-01-17/000001/'",
+    "empirical_analysis": {
+      "n_jobs_checked": 26378,
+      "n_sample_dates": 20,
+      "frac_start_time_within_date_dir_day": 0.8366820835544773,
+      "frac_end_time_within_date_dir_day": 0.7786033816058837,
+      "frac_job_spans_date_dir_day": 0.8373644703919934
+    },
+    "conclusion": "date_dir = job END date. Dataset README states explicitly: 'date_dir | String | End date directory location' and 'Jobs in the job_info files have an associated job_idx and date_dir based on their end time and position in the dataframe when ordered by end time.' The empirical frac_end=0.779 < frac_start=0.837 because many jobs that end on a given date started on the prior date, so only ~78% of end times fall within the same date_dir day (end-of-shift jobs span midnight).",
+    "limitation": "No limitation — documentation definitively establishes date_dir = end date. The empirical frac_end < frac_start pattern is consistent with the end-date convention for jobs that span midnight."
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "document": "F2 Scheduling Plan",
+  "version": "1.0",
+  "created": "2026-10-06",
+  "primary_f2_reference": {
+    "name": "F2_local_date_support",
+    "cabinet_reference_mode": "corrected_timeweighted_total_p99_local",
+    "definition": "Time-weighted P99 of observed reconstructed concurrent cabinet power over America/New_York calendar end-date support blocks, converted to UTC for event integration"
+  },
+  "rationale": {
+    "date_dir_resolution": "America/New_York local calendar end date",
+    "audit_matches": "152,400/152,400 exact matches in Task-D2 audit commit ab3119c",
+    "selection_basis": "metadata-semantics correction, not performance-driven"
+  },
+  "utc_variant": {
+    "name": "F2_UTC_support_sensitivity",
+    "artifact": "f2_timeweighted_cabinet_reference.json",
+    "status": "retained, not overwritten or relabeled"
+  },
+  "governance": {
+    "pre_observation_correction": true,
+    "correction_made_before_any_f2_scheduling_result_observed": true,
+    "not_selected_based_on_policy_performance": true
+  },
+  "frozen_evidence": {
+    "r3_0_commit": "a80d51f",
+    "r3_0_checks": "27,400/0",
+    "task_d_commit": "90dc62f",
+    "task_d_provenance_audit_commit": "a83bfa1",
+    "task_d2_commit": "ab3119c",
+    "task_d2_match_count": "152,400/152,400"
+  },
+  "authorized_run": {
+    "scenario_range": "30-54",
+    "n_scenarios": 25,
+    "policies": ["full_fp", "full_random"],
+    "ratio": 1.25,
+    "cabinet_reference_mode": "corrected_timeweighted_total_p99_local"
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "delta_kW_mean": 118.41629547445683,
+  "delta_kW_median": 120.05871206921881,
+  "delta_kW_iqr": 6.388226436939831,
+  "delta_kW_p10": 107.98708999621488,
+  "delta_kW_p90": 127.26336014890273,
+  "delta_kW_min": 90.85879959559196,
+  "delta_kW_max": 132.01613593750028,
+  "ratio_F2_over_F1_mean": 2.313301088437346,
+  "ratio_F2_over_F1_median": 2.309701634137194,
+  "ratio_F2_over_F1_iqr": 0.09344058891531226,
+  "ratio_F2_over_F1_p10": 2.1616565360671185,
+  "ratio_F2_over_F1_p90": 2.402983859794004,
+  "ratio_F2_over_F1_min": 2.096497131842036,
+  "ratio_F2_over_F1_max": 2.8288541232290236,
+  "n_F2_gt_F1": 77,
+  "n_F2_approx_eq_F1": 0,
+  "n_F2_lt_F1": 0,
+  "pearson_r": 0.7295921758796501,
+  "pearson_p": 5.231997702922191e-14,
+  "spearman_r": 0.4835228393450928,
+  "spearman_p": 8.406581008870701e-06,
+  "top10_largest_positive_delta": [
+    {
+      "cabinet": 2301,
+      "Q_F1_kW": 91.90399476562499,
+      "Q_F2_kW": 223.92013070312527,
+      "delta_kW": 132.01613593750028
+    },
+    {
+      "cabinet": 2610,
+      "Q_F1_kW": 71.38540877187515,
+      "Q_F2_kW": 201.93890794270834,
+      "delta_kW": 130.5534991708332
+    },
+    {
+      "cabinet": 2302,
+      "Q_F1_kW": 90.74033345833357,
+      "Q_F2_kW": 220.9116438802085,
+      "delta_kW": 130.17131042187492
+    },
+    {
+      "cabinet": 2609,
+      "Q_F1_kW": 78.38090039612392,
+      "Q_F2_kW": 208.2295529248047,
+      "delta_kW": 129.84865252868076
+    },
+    {
+      "cabinet": 2611,
+      "Q_F1_kW": 80.72802721500001,
+      "Q_F2_kW": 208.79384059637283,
+      "delta_kW": 128.06581338137283
+    },
+    {
+      "cabinet": 2211,
+      "Q_F1_kW": 93.89276711571851,
+      "Q_F2_kW": 221.6894969813556,
+      "delta_kW": 127.79672986563709
+    },
+    {
+      "cabinet": 2103,
+      "Q_F1_kW": 95.39306809401381,
+      "Q_F2_kW": 223.12736000000064,
+      "delta_kW": 127.73429190598682
+    },
+    {
+      "cabinet": 2210,
+      "Q_F1_kW": 92.68968887562511,
+      "Q_F2_kW": 220.26759179687517,
+      "delta_kW": 127.57790292125006
+    },
+    {
+      "cabinet": 2300,
+      "Q_F1_kW": 94.03512703857442,
+      "Q_F2_kW": 221.08879200591227,
+      "delta_kW": 127.05366496733785
+    },
+    {
+      "cabinet": 2204,
+      "Q_F1_kW": 92.48420609325005,
+      "Q_F2_kW": 219.17440000000042,
+      "delta_kW": 126.69019390675037
+    }
+  ],
+  "top10_largest_negative_delta": [
+    {
+      "cabinet": 2600,
+      "Q_F1_kW": 71.17105449833713,
+      "Q_F2_kW": 162.0298540939291,
+      "delta_kW": 90.85879959559196
+    },
+    {
+      "cabinet": 2602,
+      "Q_F1_kW": 68.74125732927479,
+      "Q_F2_kW": 163.09897424280138,
+      "delta_kW": 94.35771691352659
+    },
+    {
+      "cabinet": 2601,
+      "Q_F1_kW": 74.00896172973643,
+      "Q_F2_kW": 173.06430985040222,
+      "delta_kW": 99.0553481206658
+    },
+    {
+      "cabinet": 2002,
+      "Q_F1_kW": 94.15524700598745,
+      "Q_F2_kW": 198.01555705088518,
+      "delta_kW": 103.86031004489773
+    },
+    {
+      "cabinet": 2004,
+      "Q_F1_kW": 94.9212626464844,
+      "Q_F2_kW": 199.00215488917908,
+      "delta_kW": 104.08089224269469
+    },
+    {
+      "cabinet": 2000,
+      "Q_F1_kW": 91.34974692997685,
+      "Q_F2_kW": 196.70359510895452,
+      "delta_kW": 105.35384817897767
+    },
+    {
+      "cabinet": 2001,
+      "Q_F1_kW": 92.7141841113281,
+      "Q_F2_kW": 198.80361888673204,
+      "delta_kW": 106.08943477540394
+    },
+    {
+      "cabinet": 2003,
+      "Q_F1_kW": 93.98596446411105,
+      "Q_F2_kW": 201.83608612950698,
+      "delta_kW": 107.85012166539593
+    },
+    {
+      "cabinet": 2008,
+      "Q_F1_kW": 95.31550110355255,
+      "Q_F2_kW": 203.3939033203134,
+      "delta_kW": 108.07840221676085
+    },
+    {
+      "cabinet": 2009,
+      "Q_F1_kW": 94.18618451111065,
+      "Q_F2_kW": 203.66975330435514,
+      "delta_kW": 109.48356879324449
+    }
+  ],
+  "late_cabinets": {
+    "2600": {
+      "Q_F1_kW": 71.17105449833713,
+      "Q_F2_kW": 162.0298540939291,
+      "delta_kW": 90.85879959559196
+    },
+    "2601": {
+      "Q_F1_kW": 74.00896172973643,
+      "Q_F2_kW": 173.06430985040222,
+      "delta_kW": 99.0553481206658
+    },
+    "2602": {
+      "Q_F1_kW": 68.74125732927479,
+      "Q_F2_kW": 163.09897424280138,
+      "delta_kW": 94.35771691352659
+    }
+  },
+  "provenance": {
+    "plan_commit": "c674209",
+    "r3_evidence_commit": "a80d51f",
+    "script_sha256": "8273f4df651435f7f294a9a650625417edd710b3e944253feb3f90d5125c08aa",
+    "metadata_source_path": "C:\\Users\\kalya\\OneDrive\\Documents\\frontier-job-centric-telemetry-dataset\\frontier-completed-job-info.parquet",
+    "python_version": "3.12.2",
+    "numpy_version": "2.0.0",
+    "pandas_version": "2.2.2",
+    "support_definition_version": "v1",
+    "weighted_quantile_convention": "Sort state intervals by power value; find smallest power P such that cumulative duration >= q * total_support_duration. Zero-power intervals (idle observed state) are included. Weights are duration_s of each interval."
+  }
+}

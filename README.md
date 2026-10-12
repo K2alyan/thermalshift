@@ -17,11 +17,17 @@ useful work the system can absorb before reaching historical thermal and power o
 > Can telemetry-aware placement deliver more useful compute from existing infrastructure
 > before thermal or electrical constraints become binding?
 
-**Answer: yes** — and the advantage is robust.
+**Answer: yes** — and a preregistered held-out challenge experiment provides evidence that individual node-level thermal fingerprints contribute scheduling value beyond cabinet-level structure and spreading alone under the historical operating-envelope replay model.
 
-Across 30 matched workload-replay scenarios, thermal-aware fingerprint placement outperformed
-thermally unaware random placement in every single scenario. The median paired capacity
-advantage was **+15.5 percentage points**, with a bootstrap 95% CI of **+11.5 to +21.9 pp**.
+Across 25 held-out workload-replay scenarios (Gate F, sc5–sc29), thermal-fingerprint-aware placement showed a
+positive capacity advantage over thermally unaware placement at every nondegenerate
+availability level tested (fp node availability ratio r = 1.25–8.0), with median
+conservative bracket separations of **+3.6 to +5.6 percentage points** and paired bootstrap
+intervals across the held-out scenarios excluding zero at every ratio. When scheduler
+availability is reduced to exactly the minimum required (r = 1.0), all policies converge
+by construction — no selection freedom means no placement signal.
+
+A subsequent preregistered challenge experiment (Review-2, sc30–sc54, 25 new scenarios) addressed whether that benefit reflects individual node-level thermal identity or cabinet-level structure. At the preregistered 1.25× choice ratio, fingerprint-guided placement produced a median conservative bracket separation of **+6.71 percentage points** versus random placement (bootstrap 95% CI [+3.92, +8.72] pp) and **+3.54 percentage points** versus a within-cabinet permutation placebo that preserves cabinet membership and score distribution while breaking the node–fingerprint association (95% CI [+0.56, +4.44] pp). Both intervals exclude zero. Spreading alone showed no clear primary-ratio advantage. See [Review-2 Challenge Results](#review-2-challenge-results-sc30sc54) below.
 
 ---
 
@@ -33,7 +39,7 @@ carry real, durable predictive information about future node behavior.
 | Validation | Result |
 |------------|--------|
 | 30-min fleet diagnostic vs. longitudinal fingerprint (FA, n=1,435 nodes) | Pearson r = 0.88 |
-| Frozen 2024 fingerprint vs. node's typical 2025 thermal position | r = 0.926, R² = 0.857 |
+| Frozen 2024 fingerprint vs. node's typical 2025 thermal position | r = 0.926, R² = 0.848 |
 | Power-only model MAE | 1.071 °C |
 | Power + fingerprint model MAE | 0.718 °C |
 | Test population | 2,000 nodes |
@@ -49,25 +55,73 @@ temperature prediction. This creates the scientific chain:
 
 ## Results at a Glance
 
-| Metric | Random-feasible | FP-cap-10 |
-|--------|----------------|-----------|
-| Median extra cohort workload | 1.95% | 19.94% |
-| 90% simulation interval | 0.18 – 6.85% | 9.39 – 29.53% |
-| Wins (30 matched scenarios) | — | **30 / 30** |
-| Median paired advantage | — | **+15.5 pp** |
-| Bootstrap 95% CI on median | — | **+11.5 to +21.9 pp** |
-| Discrete lower-bound (symmetric) | — | **+15.6 pp, 28/29** |
-| Primary binding constraint | Thermal S-budget | Thermal B-budget (25/30) |
+### Gate F held-out results (authoritative, corrected model)
 
-Paired magnitude statistics are based on **29 uncensored scenarios**. One additional scenario
-(s27) was right-censored: FP remained feasible at the maximum tested load (lambda = 1.50,
-capacity_unlock_pct = 36.2% vs. Random's 4.0%), giving a confirmed lower-bound advantage
-of **at least 32.2 pp**. It is counted as a directional win but excluded from magnitude statistics.
+| Ratio r | full_fp wins | n_ind | full_random wins | Median ΔC_lower | 95% paired bootstrap CI |
+|---|---|---|---|---|---|
+| 1.0 (degenerate control) | 0 | 25 | 0 | −0.003 pp | [−0.301, 0.000] |
+| 1.25 | **25** | 0 | 0 | +4.77 pp | [+2.59, +6.06] |
+| 1.5  | **25** | 0 | 0 | +5.61 pp | [+3.18, +8.97] |
+| 2.0  | **24** | 1 | 0 | +4.86 pp | [+3.56, +7.42] |
+| 4.0  | **24** | 1 | 0 | +4.44 pp | [+3.17, +5.45] |
+| 8.0  | **24** | 0 | 1 | +3.59 pp | [+2.59, +4.39] |
+| unrestricted | **22** | 1 | 2 | +4.24 pp | [+2.87, +5.30] |
 
-The symmetric discrete lower-bound check uses each policy's last confirmed-feasible load point
-rather than linear interpolation. The median advantage is essentially unchanged (+15.6 pp vs
-+15.5 pp interpolated), confirming the result is not manufactured by interpolation across
-the sparse load grid.
+25 held-out scenarios (sc5–sc29), commit 301d269. ΔC_lower = C_lower(full_fp) − C_lower(full_random),
+the difference in conservative lower-bound capacity unlock. Bootstrap CIs are paired across
+the 25 held-out replay scenarios; they are not population-level uncertainty bounds for real
+deployments. Cabinet power was the dominant binding constraint for full_fp, increasing
+from 20–21/25 scenarios at r = 1.25–1.5 to 24–25/25 at r ≥ 2 and unrestricted.
+
+**Historical development result (pre-correction, for reference):** The original 30-scenario
+Phase 3B analysis estimated a median paired advantage of +15.5 pp (bootstrap 95% CI:
++11.5 to +21.9 pp) under the pre-correction cabinet-power model, using the FP-cap-10 policy
+and an interpolated crossing metric. The reduction in estimated magnitude coincides with a
+corrected cabinet-power node mapping (Gate C revision), revised thermal calibration
+(BETA_F = 1.125 vs 0.957; T_thr = 63.6°C vs 60.6°C), a more conservative C_lower metric,
+and evaluation on held-out scenarios. The Gate F result is the authoritative magnitude estimate.
+
+---
+
+### Review-2 Challenge Results (sc30–sc54)
+
+**Preregistered factorial decomposition — 25 new held-out scenarios.**
+Scientific code frozen at Git commit 5733b73 (runner SHA256 750150c337a1f81368bdba35e2af6ccda23f2917297d5f9ab3ebf51dd8281856) before challenge execution. Analysis plan frozen at the same commit (5,000 bootstrap replicates, seed 9999). Completion audit passed all 16 checks before analysis was run. Evidence frozen at commit f1c78a3.
+
+**Primary endpoint — FP vs Random at r = 1.25 (H4):**
+
+| Metric | Value |
+|--------|-------|
+| n_definitely_FP / n_total | **22 / 25** |
+| Median conservative bracket separation (delta_lo) | **+6.71 pp** |
+| Bootstrap 95% CI | [+3.92, +8.72] pp |
+| Verdict | **primary_success** |
+
+**Preregistered factorial decomposition at r = 1.25:**
+
+All eight comparisons, preregistered before challenge exposure. delta_lo = C_lower_A − C_upper_B; definitely_A when delta_lo > 0.
+
+| Comparison | A / Indist / B | Median delta_lo | Bootstrap 95% CI |
+|---|---|---|---|
+| **FP vs Random** (primary) | **22 / 1 / 2** | +6.71 pp | [+3.92, +8.72] |
+| **FP vs WithinCabPlacebo** (node-specificity) | **20 / 5 / 0** | +3.54 pp | [+0.56, +4.44] |
+| FP vs GlobalPlacebo | 22 / 1 / 2 | +4.55 pp | [+2.95, +7.82] |
+| FPSpread vs RandomSpread | 20 / 5 / 0 | +2.15 pp | [+0.52, +4.25] |
+| RandomSpread vs Random | 8 / 14 / 3 | 0.00 pp | [−0.26, +0.03] |
+| FPSpread vs FP | 4 / 3 / 18 | −2.64 pp | [−4.49, −2.00] |
+| FP vs PositionTemplate | 16 / 5 / 4 | +0.74 pp | [−0.82, +1.50] |
+| FPSpread vs PositionTemplate | 6 / 11 / 8 | −1.16 pp | [−2.29, −0.25] |
+
+**Negative control (r = 1.0):** All 8 comparisons: 0 / 25 / 0 (all indistinguishable). No policy separates where no scheduling choice exists.
+
+**Right-censored crossing events:** 0 across all 25 scenarios × 7 ratios × 7 policies.
+
+**Node-specificity interpretation:**
+The within-cabinet placebo preserves cabinet membership and the within-cabinet distribution of fingerprint scores while breaking the association between a particular node and its historical fingerprint. Fingerprint-guided placement beat this placebo in 20/25 held-out scenarios (median conservative bracket separation +3.54 pp, 95% CI [+0.56, +4.44] pp), providing held-out evidence that individual node-level fingerprint information contributes scheduling value beyond the cabinet-level score structure retained by the placebo.
+
+The global placebo (22/25, +4.55 pp) shows that an arbitrary globally permuted ranking does not reproduce the observed advantage. FPSpread beating RandomSpread (20/25, +2.15 pp) provides evidence that fingerprint ranking adds value even when both policies use the spreading rule. RandomSpread vs Random (8/14/3, 0.00 pp) shows no clear primary-ratio advantage from spreading alone.
+
+**Position-template limitation:** Fingerprint-guided placement was not statistically separated from the thermally informed structural-position template at the primary choice ratio (16/5/4, median delta_lo +0.74 pp, 95% CI [−0.82, +1.50] pp). The position template is thermally informed — it reflects the average historical fingerprint at each physical position — not a purely topological index. We do not claim fingerprints outperform all thermally informed placement strategies.
 
 ---
 
@@ -75,27 +129,108 @@ the sparse load grid.
 
 | Figure | Description |
 |--------|-------------|
-| `figures/fig_mc_paired.png` | Paired Random vs FP capacity across all 30 scenarios |
-| `figures/fig_mc_dc_dist.png` | Distribution of paired ΔC with bootstrap CI |
-| `figures/fig_mc_constraints.png` | Binding constraint breakdown and FP capacity by constraint type |
+| `artifacts/phase1/figures/fig_mc_paired.png` | Paired Random vs FP capacity across all 30 scenarios (Phase 3B development) |
+| `artifacts/phase1/figures/fig_mc_dc_dist.png` | Distribution of paired ΔC with bootstrap CI (Phase 3B development) |
+| `artifacts/phase1/figures/fig_mc_constraints.png` | Binding constraint breakdown and FP capacity by constraint type (Phase 3B development) |
+| `artifacts/revision2/figures/fig_r2_factorial_r125.png` | Forest plot: 8 preregistered comparisons at r = 1.25 (Review-2, sc30–sc54) |
+| `artifacts/revision2/figures/fig_r2_fpspread_crossover.png` | FPSpread vs FP crossover across ratio sweep (Review-2) |
+| `artifacts/revision2/figures/fig_r2_policy_matrix.png` | Policy comparison matrix across all ratios (Review-2) |
+| `artifacts/revision2/figures/fig_r2_robustness.png` | Supplemental: E1 cabinet-scale sensitivity and E2 beta sensitivity (H8=ROBUST, H7=STABLE) |
+
+---
+
+### Review-2 Sensitivity Analyses (E1/E2)
+
+**Post-exposure disclosure:** Phases E1 and E2 were prespecified at Git commit 5733b73 before any challenge scenario (sc30–sc54) was executed. Execution occurred after primary challenge results (Phase G) were exposed, due to an omission discovered during post-analysis review. The analysis design (parameters, scenarios, comparisons, and interpretation rules) was not changed after primary-result exposure. Full disclosure: `artifacts/revision2/POST_EXPOSURE_SENSITIVITY_RECOVERY.md`.
+
+**E1 — Cabinet-envelope scale sensitivity (H8 = ROBUST):**
+
+FP_vs_Random at r = 1.25, 25 challenge scenarios, across 5 cabinet-envelope scale factors:
+
+| Scale factor | n_A / n_I / n_B | Median delta_lo | 95% CI |
+|---|---|---|---|
+| 0.90 | 18 / 6 / 1 | +0.81 pp | [+0.002, +2.38] |
+| 0.95 | 21 / 4 / 0 | +2.98 pp | [+0.55, +4.28] |
+| **1.00 (primary)** | **22 / 1 / 2** | **+6.71 pp** | **[+3.92, +8.72]** |
+| 1.05 | 20 / 3 / 2 | +4.40 pp | [+3.20, +5.54] |
+| 1.10 | 20 / 2 / 3 | +4.69 pp | [+0.87, +5.33] |
+
+H8 interpretation (frozen): Sign stable across [0.90, 1.10] → **ROBUST**. The median is positive at all five scale factors. At scale = 0.90 the CI just clears zero ([+0.002, +2.38]); at the primary scale the result is substantially above zero.
+
+**E2 — Beta sensitivity (H7 = STABLE):**
+
+FP_vs_Random at r = 1.25, 25 challenge scenarios, across 6 prespecified beta values:
+
+| Beta label | Value | n_A / n_I / n_B | Median delta_lo |
+|---|---|---|---|
+| **Primary (LOO CF)** | **1.11416** | **22 / 1 / 2** | **+6.71 pp** |
+| Frozen | 1.12484 | 22 / 1 / 2 | +6.48 pp |
+| Prospective (M1) | 0.96 | 22 / 1 / 2 | +6.67 pp |
+| Jackknife mean | 1.08293 | 22 / 1 / 2 | +5.59 pp |
+| CF P5 (5th pct) | 1.06587 | 21 / 2 / 2 | +6.42 pp |
+| CF P95 (95th pct) | 1.16910 | 22 / 1 / 2 | +5.35 pp |
+
+H7 interpretation (frozen): No sign reversal across any beta value → **STABLE**. All medians positive; sign and qualitative verdict identical across all 6 beta values.
+
+See `artifacts/revision2/sensitivity_cabinet_scale.json` (E1) and `artifacts/revision2/sensitivity_loo_beta.json` (E2).
 
 ---
 
 ## Mechanism
 
-FP-cap-10 does not reduce job heat. It **delays the accumulation** of high-temperature
-node-hours by routing jobs to nodes with persistent thermal headroom (low historical F-score).
+Fingerprint-aware placement does not reduce job heat. It **delays the accumulation** of
+high-temperature node-hours by routing jobs to nodes with persistent thermal headroom
+(low historical F-score).
 
-This shows up in the binding-constraint data: FP is limited by the cumulative
-exceedance-hours budget (B-budget: node-hours above the temperature threshold) in 25/30
-scenarios. Random scheduling is typically limited by the severity-weighted S-budget
-(degree-C times node-hours above threshold) — because without routing guidance, work
-lands on thermally unfavorable nodes without regard to persistent thermal differences,
-causing severity-weighted exposure to accumulate faster. Cabinet electrical power
-binds FP in only 4/30 scenarios.
+Under the corrected revision1 model (Gate F), the dominant binding constraint for full_fp
+is **cabinet electrical power** (B_cab_ratio: 20–21/25 scenarios at r = 1.25–1.5;
+24–25/25 at r ≥ 2 and unrestricted). This is consistent with fingerprint-aware placement
+concentrating high-demand jobs in thermally favorable cabinets, which may exhaust those
+cabinets' power envelopes before the fleet-wide thermal budget is reached. The corrected
+cabinet model (Gate C) is materially tighter than the pre-correction version, which bound
+on node-level thermal budget (B_th) in 25/30 original Phase 3B scenarios.
 
-The distinction matters. FP does not simply push jobs to a different bottleneck; it
-restructures which resource runs out first, and does so consistently across workloads.
+The signal chain remains valid: persistent thermal differences create a real scheduling
+signal, and exploiting that signal consistently delivers more capacity than ignoring it.
+The revised model identifies cabinet power as the binding resource for the fingerprint-
+aware policy — a distinction that matters for system operators weighing power versus
+cooling constraints.
+
+The Review-2 challenge experiment adds a further element to this chain: the association between individual nodes and their historical thermal fingerprints is load-bearing beyond cabinet-level structure. Permuting fingerprint scores among nodes within the same cabinet materially reduced scheduling performance in 20/25 held-out challenge scenarios. This does not establish a causal physical mechanism for the fingerprint; it establishes that the scheduling signal is not reducible to the cabinet-level structure retained by the placebo.
+
+---
+
+## Policy Regime Dependence (exploratory)
+
+Gate F also evaluated a geographically diversified policy (full_fp_spread) that combines
+thermal preference with cabinet-spread selection. Paired bootstrap comparison against
+full_fp across the 25 held-out scenarios:
+
+| Ratio r | FPSpread wins | n_ind | FP wins | Median ΔC_lower | 95% paired bootstrap CI |
+|---|---|---|---|---|---|
+| 1.25 | 3 | 3 | **19** | −3.36 pp | [−4.94, −1.88] |
+| 1.5  | 1 | 3 | **21** | −3.29 pp | [−4.89, −2.40] |
+| 2.0  | 3 | 5 | **17** | −2.88 pp | [−3.90, −1.30] |
+| 4.0  | 16 | 3 | 6 | +0.54 pp | [−0.64, +1.74] |
+| 8.0  | **20** | 4 | 1 | +1.53 pp | [+0.72, +2.99] |
+| unrestricted | **20** | 3 | 2 | +2.85 pp | [+0.60, +3.70] |
+
+FP's advantage over FPSpread is statistically robust at r = 1.25, 1.5, and 2.0 (bootstrap
+intervals exclude zero in FP's favor). At r = 4.0, the two policies are statistically
+indistinguishable (CI = [−0.64, +1.74], spanning zero). At r = 8.0 and unrestricted,
+FPSpread's advantage over FP is statistically distinguishable (CI excludes zero in
+FPSpread's favor). No single crossover ratio can be precisely identified from the current data.
+
+Descriptive binding-constraint analysis shows that at r = 1.25, FPSpread is predominantly
+node-thermally bound (B_ratio: 16/25 scenarios), while full_fp is cabinet-power bound.
+At r = 8.0, FPSpread converges toward cabinet binding (19/25), matching full_fp's pattern.
+This constraint-regime shift coincides with the performance reversal and is consistent with
+a mechanism in which geographic diversification forces thermally inferior node selection
+at low availability but can achieve diversification without that penalty at high availability.
+
+**Gate F note:** The pre-specified Gate F confirmatory result is the full_fp vs full_random comparison at restricted ratios. The FPSpread regime dependence was exploratory in Gate F.
+
+**Review-2 challenge confirmation (preregistered secondary finding):** The FPSpread crossover was preregistered as a secondary finding in the Review-2 challenge. Challenge results (sc30–sc54) replicate the crossover: FPSpread vs FP is −2.64 pp [−4.49, −2.00] at r = 1.25 (FP wins), +0.72 pp at r = 8.0 (FPSpread wins), and +2.01 pp median delta_lo at unrestricted (FPSpread wins). A plausible interpretation — explicitly labeled as an interpretation, not a tested causal mechanism — is that under limited candidate choice, forcing additional spreading restricts direct exploitation of the most favorable individual nodes; once the choice set is large enough, spreading and fingerprint selection can become complementary. The mechanism is consistent with the binding-constraint regime shift but has not been separately tested.
 
 ---
 
@@ -128,9 +263,12 @@ The result did not come from a single model. It is the product of eleven sequent
 10. **Second failure mode** — Tier-cap-20's aggressive cool-node routing concentrates
     power in low-F cabinets. Cabinet power becomes the binding constraint — an electrical
     bottleneck that thermal-only optimization creates.
-11. **Robustness** — 30 paired Monte Carlo scenarios (common random numbers, varied
-    workload draws and residual permutations) show FP-cap-10 outperforms random in all 30,
-    with stable median advantage across a wide range of workload mixes.
+11. **Robustness** — 30 paired Monte Carlo development scenarios (common random numbers,
+    varied workload draws and residual permutations) show FP-cap-10 outperforms random in
+    all 30 under the pre-correction model. A subsequent held-out evaluation (Gate F, 25
+    scenarios, corrected cabinet model) confirms the direction and consistency at every
+    tested availability level (r = 1.25–8.0), with the authoritative magnitude now
+    +3.6 to +5.6 pp under the corrected model and conservative C_lower metric.
 
 ---
 
@@ -140,8 +278,11 @@ The result did not come from a single model. It is the product of eleven sequent
 
 - 2,000 AMD MI250X GPU nodes across 77 Olympus rack HPE cabinets
 - ~26 cohort nodes per cabinet (20.3% of each cabinet's 128 nodes)
-- Thermal fingerprints: FA\_2024, trained on 2024 historical telemetry, beta\_F = 0.9569
-- Test threshold: T\_P95 = 60.60 C
+- Thermal fingerprints: FA\_2024, trained on 2024 historical telemetry
+- BETA\_F (revision1, frozen): 1.12484 (training-median; replaces published 0.957 test-set value); Review-2 primary: 1.11416 (LOO cross-fitted; −0.95% from frozen value, within the pre-specified negligible-correction threshold)
+- Thermal threshold: T\_thr = 63.625°C primary / 60.602°C secondary (revision1 calibration)
+- Cabinet power model: Corrected node-to-cabinet mapping (Gate C); 3.2% of original assignments
+  corrected; cabinet P99 envelopes validated against telemetry (MAE 0.37 kW)
 
 ### Base workload
 
@@ -173,14 +314,16 @@ The result did not come from a single model. It is the product of eleven sequent
 The modeled base workload represents 1.09% of all fleet node-hours in the matched replay
 windows (H\_cohort\_base / H\_all\_replay = 78,907 / 7,260,985). The 2,000-node cohort
 is physically ~20% of Frontier's nodes; the 1.09% reflects the 78,907 node-hours in the
-selected 2,637-job base workload, not all activity on those nodes. The median incremental gain
-corresponds to approximately **12,265 additional node-hours** per replay window, or
-**0.17% of total fleet activity** in those windows.
+selected 2,637-job base workload, not all activity on those nodes. Based on Gate F's
+authoritative median conservative C_lower separation of +3.6 to +5.6 pp across tested ratios
+(primary ratio r = 1.25: +4.77 pp), an algebraic replay-model translation gives approximately
+**2,800–4,400 additional cohort node-hours** per replay window (replay-model translation only,
+not observed output), or approximately **0.04–0.06% of total fleet activity** in those windows.
 
-This number is reported for scope honesty, not as the primary result. The experiment
+This figure is reported for scope honesty, not as the primary result. The experiment
 has thermal fingerprints only for the 2,000-node study cohort. It does not show what
 would happen if fingerprint-aware scheduling were deployed across all 9,856 Frontier nodes.
-The cohort-relative scheduling improvement (+15.5 pp) is the correct primary metric.
+The cohort-relative scheduling improvement (+3.6 to +5.6 pp, Gate F held-out) is the correct primary metric.
 
 ---
 
@@ -194,14 +337,21 @@ remaining within historical thermal and power operating envelopes.
 The result is best framed as:
 
 > Thermal fingerprints are schedulable information that existing telemetry infrastructure
-> already generates. In historical replay, using that information consistently lets the
-> scheduler accept materially more work before the same thermal and power operating
-> envelopes are exhausted — with a median paired advantage of +15.5 pp in cohort-relative
-> capacity across 30 workload scenarios.
+> already generates. In held-out historical replay, using that information consistently
+> allows the scheduler to accept materially more work before the same thermal and power
+> operating envelopes are exhausted — with median conservative lower-bound advantages of
+> +3.6 to +5.6 pp in cohort-relative capacity across 25 held-out scenarios and all tested
+> availability levels (r = 1.25–8.0). The paired bootstrap intervals across those scenarios
+> exclude zero at every ratio.
+
+The +3.6 to +5.6 pp range reflects the corrected cabinet-power model and a conservative
+capacity metric (C_lower, the lower bound of the crossing bracket). An earlier development
+analysis estimated +15.5 pp under the pre-correction model; that result is documented
+historically but is superseded for scientific conclusions by Gate F's held-out evaluation.
 
 **What this is not:**
 
-- A prediction that Frontier (or any system) has 15.5% spare capacity waiting to be
+- A claim that Frontier (or any system) has a fixed percentage of spare capacity waiting to be
   reclaimed system-wide.
 - A dollar-savings projection. Infrastructure costs, cooling, and capital amortization
   are not modeled.
@@ -212,9 +362,12 @@ The result is best framed as:
 **What this is:**
 
 - Evidence that persistent machine-level thermal heterogeneity, where it exists, is
-  actionable scheduling information.
+  actionable scheduling information — and that the scheduling signal contains node-specific
+  information beyond the cabinet-level structure retained by the within-cabinet placebo and
+  beyond spreading alone, within the historical operating-envelope replay model.
 - A replicable methodology: fingerprint derivation, stateful replay, Monte Carlo
-  robustness testing, symmetric discrete-bound validation.
+  robustness testing, symmetric discrete-bound validation, preregistered factorial
+  placebo decomposition.
 - A demonstration that naive thermal optimization has a failure mode (power concentration)
   that a simple cap constraint can avoid — and that the constrained policy is still
   consistently better than thermally unaware placement.
@@ -243,8 +396,52 @@ The result is best framed as:
 
 - **Workload sensitivity unexplained.** Simple workload summary statistics (mean GPU
   utilization, power per node, job size, runtime) do not significantly explain the
-  per-scenario variation in ΔC at n = 29. The variance is genuine but its structural
+  per-scenario variation in ΔC at n = 25. The variance is genuine but its structural
   drivers are not identified.
+
+- **Corrected cabinet model changes binding regime.** The original development analysis
+  (Phase 3B) was conducted with a pre-correction cabinet-power node mapping that placed
+  3.2% of nodes in incorrect cabinets. The corrected mapping (Gate C) tightens cabinet
+  power constraints and shifts the dominant binding regime from node-level thermal budget
+  to cabinet power for fingerprint-aware policies. The revised magnitude estimate
+  (+3.6 to +5.6 pp) reflects this correction; the development-era +15.5 pp should not
+  be used as the primary result.
+
+- **Bootstrap intervals are scenario-specific, not population bounds.** The paired
+  bootstrap intervals reported for Gate F are computed across the 25 held-out workload-
+  replay scenarios. They quantify uncertainty in the median paired advantage over those
+  scenarios; they do not represent population-level uncertainty bounds for real HPC
+  deployments with different workloads, thermal profiles, or scheduling policies.
+
+- **Position-template separation is unresolved at the primary ratio.** Fingerprint-guided
+  placement was not statistically separated from the thermally informed structural-position
+  template at r = 1.25 (16/5/4, median conservative bracket separation +0.74 pp, 95% CI
+  [−0.82, +1.50] pp). The position template is thermally informed — it reflects the average
+  historical fingerprint at each physical position — not a purely topological index. We do
+  not claim fingerprints outperform all thermally informed placement strategies.
+
+- **Node-level scheduling evidence is within the replay model.** The Review-2 challenge
+  experiment provides held-out evidence that the association between individual nodes and
+  their historical thermal fingerprints is load-bearing beyond cabinet-level structure in
+  the historical operating-envelope replay model. This does not establish a causal physical
+  mechanism for the fingerprint signal, and does not constitute evidence about live
+  scheduling behavior outside the replay framework.
+
+- **Cabinet-envelope scaling at ±10% (H8=ROBUST, with caveat at −10%).** The E1 sensitivity
+  analysis tested FP_vs_Random under ±10% cabinet-envelope scaling. The sign of the advantage
+  is positive at all five tested scale factors. At −10% scale, the advantage is substantially
+  weakened (median +0.81 pp, 95% CI [+0.002, +2.38]), with the CI barely clearing zero.
+  Claims of robustness to cabinet-envelope calibration error should not exceed this range.
+
+- **Thermal threshold T_thr not directly tested.** The primary thermal threshold
+  (T_thr = 63.625°C) was fixed at Gate F and was not separately varied in the Review-2
+  sensitivity analyses. The E1 cabinet-scale sensitivity is a partial proxy for calibration
+  uncertainty but does not directly test T_thr sensitivity.
+
+- **Sensitivity analyses executed post-exposure.** Phases E1 and E2 were prespecified before
+  challenge execution but run after primary results were observed, due to an omission
+  discovered during post-analysis review. The design was not changed after exposure.
+  Full disclosure: `artifacts/revision2/POST_EXPOSURE_SENSITIVITY_RECOVERY.md`.
 
 ---
 

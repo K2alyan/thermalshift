@@ -1,0 +1,25 @@
+{
+  "description": "Gate 3b: C3 P95 sc30 smoke vs r3f2local reference",
+  "c3_file": "gate_f_sc30-30_1p25_t63p625_c3smoke.json",
+  "r3_reference": "gate_f_sc30-54_1p25_r3f2local.json",
+  "T_THR_C3": 63.625,
+  "note": "At T_THR_C3=P95=63.625, c3 must match c2/r3f2local exactly",
+  "crossings": {
+    "full_fp": {
+      "status": "exact_bracket",
+      "C_lower_pct": 15.91847740162898,
+      "C_upper_pct": 16.176717936024303,
+      "first_binding_constraint": "B_ratio",
+      "right_censored": false
+    },
+    "full_random": {
+      "status": "exact_bracket",
+      "C_lower_pct": 4.817588542690798,
+      "C_upper_pct": 4.823682184991017,
+      "first_binding_constraint": "B_ratio",
+      "right_censored": false
+    }
+  },
+  "all_crossings_match_r3f2local": true,
+  "overall_pass": true
+}

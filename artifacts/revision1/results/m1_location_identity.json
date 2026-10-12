@@ -1,0 +1,226 @@
+{
+  "script": "r1_m1_location_identity.py",
+  "git_sha": "e458af378d082bef0d980399ecec71e3db632d11",
+  "timestamp": "2026-09-29T05:36:27.812703Z",
+  "input_files": {
+    "phase3a_fingerprint_2024.parquet": "0afee1b2727aa8b45ecd1aae3018cc7e3651fef7b855afb6394ea3d72c39d3a4",
+    "phase3a_test_set.parquet": "b97c4df326a9154352bfba8b60f6d163c381ed4dd6193b49c3518a8fc7c59516",
+    "fp_node_topology.csv": "878974416e2c66e27dbd6e1d75730b482641ba71bc6ff4e600f4004374d0a3f7"
+  },
+  "random_seed": 7,
+  "n_permutations": 2000,
+  "m1_1_topology": {
+    "n_nodes": 2000,
+    "n_cabinets": 77,
+    "n_chassis_unique": 208,
+    "n_slots_unique": 1158,
+    "nodes_per_cabinet_median": 26.0,
+    "nodes_per_cabinet_min": 24,
+    "nodes_per_cabinet_max": 26
+  },
+  "m1_2_variance_decomposition": {
+    "target": "FA_2024",
+    "method": "OLS R2 with nested location group means",
+    "cumulative_R2_by_level": {
+      "cabinet": 0.20280329290465637,
+      "cabinet:chassis": 0.25307731013867973,
+      "cabinet:chassis:slot": 0.63485319401273,
+      "cabinet:chassis:slot:board": 1.0
+    },
+    "node_specific_residual_fraction": 0.0,
+    "bootstrap_95ci_residual": {
+      "lo": 0.0,
+      "hi": 0.0
+    },
+    "bootstrap_n": 1000,
+    "bootstrap_cluster": "cabinet",
+    "topology_artifact_note": "board_level_R2=1.0 because (cabinet,chassis,slot,board) uniquely identifies each fp analysis node in Frontier's xname hierarchy. The 'node-specific residual' fraction is 0 by construction. This does NOT mean location explains the thermal signal \u2014 it means the finest location descriptor IS the node identifier. Primary evidence for node-specific signal comes from M1.3 prediction R2."
+  },
+  "m1_3_location_prediction": {
+    "target": "Y_2025 (node-level median delta_T_p95 across 2025 test jobs)",
+    "note_frozen_r2": "All R2 values are frozen/no-refit: the predictor is built from 2024 FA LOO means only; no slope or intercept is fitted to 2025 Y data. Calibrated OLS values (slope+intercept fitted to 2025) are provided separately for reference.",
+    "predictors_frozen": {
+      "A_cabinet_loo": {
+        "n": 2000,
+        "pearson_r": 0.3685107634793325,
+        "spearman_r": 0.19599227010052403,
+        "r2_frozen": 0.1271023224736142,
+        "mae": 0.7500808914190095,
+        "rmse": 0.9463014284356435
+      },
+      "B_chassis_loo": {
+        "n": 1976,
+        "pearson_r": 0.31810134984104843,
+        "spearman_r": 0.15564327813777204,
+        "r2_frozen": 0.059294365829533624,
+        "mae": 0.7787437995435138,
+        "rmse": 0.9819387820552471
+      },
+      "C_slot_loo": {
+        "n": 1684,
+        "pearson_r": 0.08897484566395812,
+        "spearman_r": 0.02710998573850653,
+        "r2_frozen": -0.872448491373949,
+        "mae": 1.0916732060264627,
+        "rmse": 1.3464572756526545
+      },
+      "D_combined_loc": {
+        "n": 2000,
+        "pearson_r": 0.3165029329911154,
+        "spearman_r": 0.15599048112506675,
+        "r2_frozen": 0.05846979220614623,
+        "mae": 0.778883375455658,
+        "rmse": 0.9827995655832473
+      },
+      "E_repeated_position": {
+        "n": 1990,
+        "pearson_r": 0.3083191242134456,
+        "spearman_r": 0.2860240715279366,
+        "r2_frozen": 0.07755770034225029,
+        "mae": 0.745474501690305,
+        "rmse": 0.9665294212959868
+      },
+      "F_individual_F": {
+        "n": 2000,
+        "pearson_r": 0.9258770969716581,
+        "spearman_r": 0.935799494963746,
+        "r2_frozen": 0.8482261482495985,
+        "mae": 0.26445953280382606,
+        "rmse": 0.39459020876544304
+      }
+    },
+    "frozen_predictive_r2_comparison": {
+      "r2_frozen_location_combined": 0.05846979220614623,
+      "r2_frozen_repeated_position": 0.07755770034225029,
+      "r2_frozen_individual_F": 0.8482261482495985,
+      "difference_in_frozen_predictive_R2": 0.7897563560434523,
+      "note": "difference_in_frozen_predictive_R2 = r2_frozen_individual_F - r2_frozen_location_combined. This is the difference in standalone frozen predictive performance, NOT a partial R2 from a combined model with independently fitted coefficients."
+    },
+    "calibrated_ols_reference": {
+      "note": "slope+intercept fitted to 2025 Y \u2014 NOT the primary comparison",
+      "location_only_ols_R2": 0.10017410659197834,
+      "location_plus_F_ols_R2": 0.8574738506444994
+    },
+    "pos_key_stats": {
+      "n_unique_positions": 67,
+      "median_group_size": 8.0,
+      "n_singleton_groups": 10
+    }
+  },
+  "m1_4_permutation_null": {
+    "A_global": {
+      "strategy": "global",
+      "n_perm": 2000,
+      "observed_r": 0.925877096971658,
+      "null_mean": -0.0010682478882756406,
+      "null_p95": 0.03606847301710882,
+      "null_p99": 0.049883095469924914,
+      "empirical_p": 0.0,
+      "p_display": "p < 1/2001 (~0.0005)"
+    },
+    "B_within_cabinet": {
+      "strategy": "cabinet",
+      "n_perm": 2000,
+      "observed_r": 0.925877096971658,
+      "null_mean": 0.1948770359504713,
+      "null_p95": 0.22734586988463687,
+      "null_p99": 0.2405647124508385,
+      "empirical_p": 0.0,
+      "p_display": "p < 1/2001 (~0.0005)"
+    },
+    "C_within_chassis": {
+      "strategy": "chassis",
+      "n_perm": 2000,
+      "observed_r": 0.925877096971658,
+      "null_mean": 0.24208378022466354,
+      "null_p95": 0.2725474511340745,
+      "null_p99": 0.2853118985635473,
+      "empirical_p": 0.0,
+      "p_display": "p < 1/2001 (~0.0005)"
+    }
+  },
+  "m1_5_full_channel_restriction": {
+    "status": "RUN",
+    "n_nodes_restricted": 1994,
+    "gcd_channels_required": 8,
+    "min_valid_ts_per_channel": 5,
+    "n_training_jobs_used": 2499,
+    "r_restricted_vs_unrestricted_fingerprint": 0.9869661545736198,
+    "restricted_FA_on_Y2025": {
+      "pearson_r": 0.9154671512099466,
+      "r2_frozen": 0.7900363029564,
+      "mae": 0.3274259188725178,
+      "rmse": 0.4608942132439784
+    },
+    "unrestricted_FA_same_nodes": {
+      "pearson_r": 0.9276396662437985,
+      "r2_frozen": 0.8515817064562443,
+      "mae": 0.2620319628673891,
+      "rmse": 0.3875010349113574
+    },
+    "delta_restricted_minus_unrestricted": {
+      "delta_r": -0.01217251503385186,
+      "delta_r2": -0.061545403499844276,
+      "delta_mae": 0.0653939560051287,
+      "delta_rmse": 0.07339317833262099
+    }
+  },
+  "m1_6_power_adjusted_fingerprint": {
+    "n_nodes": 1994,
+    "n_training_jobs_qualifying": 2501,
+    "training_sample_cap": null,
+    "min_jobs_per_node": 5,
+    "F_power_vs_Y2025": {
+      "pearson_r": 0.9203006212726524,
+      "r2_frozen": 0.8216424140237542,
+      "mae": 0.30100818582743477,
+      "rmse": 0.4247906437381402
+    },
+    "FA_2024_vs_Y2025_same_nodes": {
+      "pearson_r": 0.9276396662437985,
+      "r2_frozen": 0.8515817064562443
+    },
+    "r_FA_vs_FP": 0.9805248650233708,
+    "note": "F^P_i = mean_j(e_ij) where e_ij = T_p95_ij - (a_j + b_j*P_ij), OLS fit per 2024 training job j across fingerprinted nodes. T_p95=p95 of mean(GCD temperature channels) per node-job; P=mean(node-level power) per node-job. Frozen on 2024 training jobs, tested prospectively on 2025 Y_2025.",
+    "fa_split_half_r_even_odd": 0.35297827042148044,
+    "fa_spearman_brown_full_year": 0.5217796591981044
+  },
+  "m1_7_hardware_move": {
+    "status": "NOT FEASIBLE",
+    "reason": "Phase 0.1 showed hostname <-> xname mapping is perfectly 1:1 across all 152,400 jobs (0 hostnames with >1 xname, 0 xnames with >1 hostname). No hardware relocations are detectable in this dataset. The thermal fingerprint cannot be attributed to hardware vs permanent slot: both explanations are observationally equivalent. This analysis is NOT FEASIBLE with available data."
+  },
+  "m1_8_allocation_list_position": {
+    "section": "allocation-list-position analysis",
+    "note": "Tests whether a node's typical ordinal position in the Slurm allocation list (host_list order) correlates with its thermal fingerprint. The dataset records allocation-list order but does NOT expose MPI task rank, I/O aggregator role, or communication topology metadata.",
+    "n_nodes": 2000,
+    "n_training_jobs_used": 3945,
+    "correlations": {
+      "r_mean_norm_pos_vs_F": -0.11602880273241158,
+      "r_mean_norm_pos_vs_Y2025": -0.12663755577862135,
+      "r_frac_first_vs_F": 0.003745829098112583,
+      "r_frac_first_vs_Y2025": -0.0019747107556084614
+    },
+    "incremental_analysis": {
+      "note": "OLS calibrated to Y_2025; reported for reference",
+      "r2_location_only": 0.10017410659197834,
+      "r2_location_plus_alloc_pos": 0.10364686047302363,
+      "r2_loc_alloc_pos_plus_F": 0.8577549245314438,
+      "incremental_R2_F_after_both": 0.7541080640584201
+    }
+  },
+  "m1_verdict": {
+    "classification": "RESOLVED IN FAVOUR OF NODE-SPECIFIC SIGNAL",
+    "note": "Location group means (cabinet/chassis LOO) predict Y_2025 with frozen R2=0.058. Repeated-position model (cross-cabinet) predicts with frozen R2=0.078. Individual F_2024 predicts Y_2025 with frozen R2=0.848. Difference in frozen predictive R2 (F minus location-only, not a partial R2) = 0.790. Within-chassis permutation p < 1/2001 (~0.0005). These results support a persistent node-slot thermal fingerprint that is not reducible to cabinet or chassis location effects. Whether the fingerprint follows the physical hardware or the permanent rack slot cannot be resolved because hostname and xname are in 1:1 correspondence throughout.",
+    "key_stats": {
+      "r2_frozen_location_only": 0.05846979220614623,
+      "r2_frozen_repeated_position": 0.07755770034225029,
+      "r2_frozen_individual_F": 0.8482261482495985,
+      "difference_in_frozen_predictive_R2": 0.7897563560434523,
+      "within_chassis_permutation": "p < 1/2001 (~0.0005)",
+      "individual_F_pearson_r": 0.9258770969716581,
+      "combined_location_pearson_r": 0.3165029329911154,
+      "topology_artifact_note": "board_level_variance_decomp_R2=1.0 is structural (each fp node is uniquely identified at the board level in Frontier's xname hierarchy). Primary evidence for node-specific signal is prediction-based (M1.3)."
+    }
+  },
+  "elapsed_seconds": 251.2
+}

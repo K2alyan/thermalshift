@@ -1,0 +1,202 @@
+{
+  "sc55": {
+    "seed_index": 0,
+    "scenario_index": 55,
+    "scen_seed": 1904386450,
+    "wl_seed": 977279263,
+    "placebo_global_seed": 2514122466,
+    "placebo_withincab_seed": 4138460386
+  },
+  "sc56": {
+    "seed_index": 1,
+    "scenario_index": 56,
+    "scen_seed": 313800891,
+    "wl_seed": 498745018,
+    "placebo_global_seed": 239530002,
+    "placebo_withincab_seed": 2821695500
+  },
+  "sc57": {
+    "seed_index": 2,
+    "scenario_index": 57,
+    "scen_seed": 2025222357,
+    "wl_seed": 1950300279,
+    "placebo_global_seed": 3621860046,
+    "placebo_withincab_seed": 2637602780
+  },
+  "sc58": {
+    "seed_index": 3,
+    "scenario_index": 58,
+    "scen_seed": 477937402,
+    "wl_seed": 1029216890,
+    "placebo_global_seed": 545698191,
+    "placebo_withincab_seed": 4163530149
+  },
+  "sc59": {
+    "seed_index": 4,
+    "scenario_index": 59,
+    "scen_seed": 638036904,
+    "wl_seed": 1599240198,
+    "placebo_global_seed": 190970408,
+    "placebo_withincab_seed": 1026495243
+  },
+  "sc60": {
+    "seed_index": 5,
+    "scenario_index": 60,
+    "scen_seed": 1896999442,
+    "wl_seed": 541016197,
+    "placebo_global_seed": 3116675064,
+    "placebo_withincab_seed": 3324370430
+  },
+  "sc61": {
+    "seed_index": 6,
+    "scenario_index": 61,
+    "scen_seed": 1227074784,
+    "wl_seed": 99709171,
+    "placebo_global_seed": 2485654332,
+    "placebo_withincab_seed": 635301088
+  },
+  "sc62": {
+    "seed_index": 7,
+    "scenario_index": 62,
+    "scen_seed": 1831068730,
+    "wl_seed": 1303540434,
+    "placebo_global_seed": 1342144885,
+    "placebo_withincab_seed": 1003500168
+  },
+  "sc63": {
+    "seed_index": 8,
+    "scenario_index": 63,
+    "scen_seed": 692298778,
+    "wl_seed": 1171597058,
+    "placebo_global_seed": 2673015118,
+    "placebo_withincab_seed": 1148566559
+  },
+  "sc64": {
+    "seed_index": 9,
+    "scenario_index": 64,
+    "scen_seed": 1866114391,
+    "wl_seed": 512454599,
+    "placebo_global_seed": 2922433317,
+    "placebo_withincab_seed": 3151530878
+  },
+  "sc65": {
+    "seed_index": 10,
+    "scenario_index": 65,
+    "scen_seed": 597289215,
+    "wl_seed": 777856846,
+    "placebo_global_seed": 2063110589,
+    "placebo_withincab_seed": 896152315
+  },
+  "sc66": {
+    "seed_index": 11,
+    "scenario_index": 66,
+    "scen_seed": 1310291338,
+    "wl_seed": 867962360,
+    "placebo_global_seed": 4022789993,
+    "placebo_withincab_seed": 1775581892
+  },
+  "sc67": {
+    "seed_index": 12,
+    "scenario_index": 67,
+    "scen_seed": 281306444,
+    "wl_seed": 1760341653,
+    "placebo_global_seed": 2236687990,
+    "placebo_withincab_seed": 3332431586
+  },
+  "sc68": {
+    "seed_index": 13,
+    "scenario_index": 68,
+    "scen_seed": 765916616,
+    "wl_seed": 1376942482,
+    "placebo_global_seed": 2194622976,
+    "placebo_withincab_seed": 436439489
+  },
+  "sc69": {
+    "seed_index": 14,
+    "scenario_index": 69,
+    "scen_seed": 2073810169,
+    "wl_seed": 225153310,
+    "placebo_global_seed": 340492901,
+    "placebo_withincab_seed": 3132632523
+  },
+  "sc70": {
+    "seed_index": 15,
+    "scenario_index": 70,
+    "scen_seed": 648527551,
+    "wl_seed": 1811153282,
+    "placebo_global_seed": 4109598880,
+    "placebo_withincab_seed": 3507870418
+  },
+  "sc71": {
+    "seed_index": 16,
+    "scenario_index": 71,
+    "scen_seed": 1221674886,
+    "wl_seed": 1180004610,
+    "placebo_global_seed": 1995312588,
+    "placebo_withincab_seed": 3821245189
+  },
+  "sc72": {
+    "seed_index": 17,
+    "scenario_index": 72,
+    "scen_seed": 44859,
+    "wl_seed": 583818257,
+    "placebo_global_seed": 2665193087,
+    "placebo_withincab_seed": 1241988281
+  },
+  "sc73": {
+    "seed_index": 18,
+    "scenario_index": 73,
+    "scen_seed": 1780201749,
+    "wl_seed": 481639077,
+    "placebo_global_seed": 462462717,
+    "placebo_withincab_seed": 883960542
+  },
+  "sc74": {
+    "seed_index": 19,
+    "scenario_index": 74,
+    "scen_seed": 868128083,
+    "wl_seed": 1101340298,
+    "placebo_global_seed": 3965125396,
+    "placebo_withincab_seed": 314023354
+  },
+  "sc75": {
+    "seed_index": 20,
+    "scenario_index": 75,
+    "scen_seed": 527967842,
+    "wl_seed": 698767369,
+    "placebo_global_seed": 1002510123,
+    "placebo_withincab_seed": 3224669518
+  },
+  "sc76": {
+    "seed_index": 21,
+    "scenario_index": 76,
+    "scen_seed": 1428443707,
+    "wl_seed": 946098883,
+    "placebo_global_seed": 2867200991,
+    "placebo_withincab_seed": 3961623455
+  },
+  "sc77": {
+    "seed_index": 22,
+    "scenario_index": 77,
+    "scen_seed": 1520695285,
+    "wl_seed": 1637364493,
+    "placebo_global_seed": 2702104386,
+    "placebo_withincab_seed": 3362594012
+  },
+  "sc78": {
+    "seed_index": 23,
+    "scenario_index": 78,
+    "scen_seed": 209700599,
+    "wl_seed": 529424009,
+    "placebo_global_seed": 2848031429,
+    "placebo_withincab_seed": 1745551056
+  },
+  "sc79": {
+    "seed_index": 24,
+    "scenario_index": 79,
+    "scen_seed": 960876882,
+    "wl_seed": 1885369134,
+    "placebo_global_seed": 1242389544,
+    "placebo_withincab_seed": 2325658828
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "script": "artifacts/revision2/generate_final_output_audit.py",
+  "plan_ref": "REVIEW2_CHALLENGE_PLAN.md \u00a713",
+  "generated_at": "2026-10-05T05:11:21.062950Z",
+  "phase_i_overall": "PASS",
+  "n_prerequisite_artifacts_expected": 12,
+  "n_prerequisite_artifacts_present": 12,
+  "prerequisite_artifacts_pass": true,
+  "final_output_audit_generated": true,
+  "n_phase_i_outputs_total": 13,
+  "phase_i_outputs_complete": 13,
+  "phase_i_complete": true,
+  "phase_i_artifact_summary": "12/12 prerequisite artifacts verified; final_output_audit.json generated as artifact 13 \u2014 13/13 Phase-I outputs complete.",
+  "required_artifacts": [
+    {
+      "path": "artifacts\\revision2\\REVIEW2_CHALLENGE_PLAN.md",
+      "exists": true,
+      "sha256": "b83f0b393b735f09876a889da415d1d34ea394ad185d33546a4adf1f668bc31e",
+      "item": 1,
+      "label": "REVIEW2_CHALLENGE_PLAN.md"
+    },
+    {
+      "path": "artifacts\\revision2\\cabinet_timeline_audit.json",
+      "exists": true,
+      "sha256": "4b3ffc9d7e4b465177bbcaaf908b76ec15f9f158f1b6d145d696bc06f698cbcc",
+      "item": 2,
+      "label": "cabinet_timeline_audit.json"
+    },
+    {
+      "path": "artifacts\\revision2\\cabinet_timeline_audit.md",
+      "exists": true,
+      "sha256": "50e32ebaefc1f399c6be8bd94a9ba882b330a01f7957483b58776b0fb4d97c47",
+      "item": 3,
+      "label": "cabinet_timeline_audit.md"
+    },
+    {
+      "path": "artifacts\\revision2\\prospective_accuracy_by_job_size.json",
+      "exists": true,
+      "sha256": "3983bb5e16d9e07ff7a2ad254ef7127f6c18abc100a2d0ce2bb5fa3872e9564e",
+      "item": 4,
+      "label": "prospective_accuracy_by_job_size.json"
+    },
+    {
+      "path": "artifacts\\revision2\\m1_sensitivity_summary.json",
+      "exists": true,
+      "sha256": "2eca23875b8c714c1f24a8deaa9df1f5c8387b1a28f5f0e50fae60fa7c5d3b30",
+      "item": 5,
+      "label": "m1_sensitivity_summary.json"
+    },
+    {
+      "path": "artifacts\\revision2\\gate_f_manuscript_tables.json",
+      "exists": true,
+      "sha256": "f1ee0b9c460595832cd2731f309c6fc4bd1d4fbf6b91535e42e7ad8cb79bff0c",
+      "item": 6,
+      "label": "gate_f_manuscript_tables.json"
+    },
+    {
+      "path": "artifacts\\revision2\\loo_beta_results.json",
+      "exists": true,
+      "sha256": "228c13f2dc3d11eeeaba72efe41729c8fac5970dfe963c07cc4cbc0819da8979",
+      "item": 7,
+      "label": "loo_beta_results.json"
+    },
+    {
+      "path": "artifacts\\revision2\\challenge_preflight.json",
+      "exists": true,
+      "sha256": "2cc5dec4a107d8a261672b3e558cba8d6a588cf0f2fe76d9ba4ceb71224eea81",
+      "item": 8,
+      "label": "challenge_preflight.json"
+    },
+    {
+      "path": "artifacts\\revision2\\results\\gate_f_sc30-54_all_r2challenge_merged.json",
+      "exists": true,
+      "sha256": "181161082cbf79e32fb138779af20327fd026d5383d70a942e7373a64d635a71",
+      "item": 9,
+      "label": "results/gate_f_sc30-54_all_r2challenge_merged.json"
+    },
+    {
+      "path": "artifacts\\revision2\\challenge_analysis.json",
+      "exists": true,
+      "sha256": "3a8bbd0aba95209e8d383bb94f9b57b93df98a37d8cfa7423d8db0db115edac4",
+      "item": 10,
+      "label": "challenge_analysis.json"
+    },
+    {
+      "path": "artifacts\\revision2\\sensitivity_cabinet_scale.json",
+      "exists": true,
+      "sha256": "42c6fdd7622d950ef363501049eef8a45ddd5809b16f9ac2772ed0ebf9484739",
+      "item": 11,
+      "label": "sensitivity_cabinet_scale.json"
+    },
+    {
+      "path": "artifacts\\revision2\\sensitivity_loo_beta.json",
+      "exists": true,
+      "sha256": "2191c835075bc39ea86c548ca41a40541ee829e60e946e8f647d9b6d98a20665",
+      "item": 12,
+      "label": "sensitivity_loo_beta.json"
+    }
+  ],
+  "additional_provenance": {
+    "sensitivity_runner_sha256": "ae6087e3a7a38095b52e6b53f694897685f2e09c5fd1402682bc158dfda72e36",
+    "sensitivity_runner_path": "artifacts\\revision2\\r2_sensitivity_run.py",
+    "sensitivity_equivalence_status": "PASS",
+    "sensitivity_equivalence_sha256": "6d974732f962faf1d7c2c058bfd61454552bc7899c8b0db3b557bf6d9b082858",
+    "beta_jackknife_recovery_sha256": "4611720261dc6b9e9087e5318967dbff543dcba47288eb337c7dd3a4a7ae1af0",
+    "BETA_F_JACKKNIFE_MEAN": 1.08293397,
+    "jackknife_cross_check_pass": true,
+    "post_exposure_recovery_doc_sha256": "0b9bb9d47d44c255b34aa9860bf2d64e60d5edee2992460380d98b8f8262eb3c"
+  },
+  "post_exposure_disclosure": "Phase E1 and E2 sensitivity analyses were prespecified and design-frozen at Git commit 5733b73, before any challenge scenario (sc30-sc54) was executed. However, execution occurred after primary challenge results (Phase G) were exposed, due to an omission discovered during post-analysis review. This is disclosed explicitly per POST_EXPOSURE_SENSITIVITY_RECOVERY.md. The analysis design (parameters, scenarios, comparisons, and interpretation rules) was not changed after primary-result exposure."
+}

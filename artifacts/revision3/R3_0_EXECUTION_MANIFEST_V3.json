@@ -1,0 +1,74 @@
+{
+  "document": "R3-0 Pre-Execution Provenance Manifest V3",
+  "execution_manifest_version": 3,
+  "created": "2026-10-06",
+
+  "plan_commit": "c674209",
+  "plan_version": "2.2",
+
+  "executable_runner_commit": "bfb658b",
+  "runner_file": "artifacts/revision3/r3_gate_f_run.py",
+  "runner_sha256": "11bc0dd626d6246425ce8298c13e29355f80aeda910c38ffbf97ca1a0cc71e1a",
+  "runner_parent_commit": "4913388",
+  "runner_finalization_reason": "Fixed _COMPAT_POLICY_ORDER to default to list(CHALLENGE_POLICY_IDS) instead of list(GATE_F_POLICIES). GATE_F_RESTRICT_POLICIES was silently shifting which RNG stream was assigned to each policy, causing full_random to receive full_fp's seed and fail equivalence with 2,574 differences.",
+
+  "checker_file": "artifacts/revision3/check_r3_legacy_equivalence.py",
+  "checker_sha256": "0f58c29de8fa1cb8fee2c8c2c3bfecf62a5abf86591254ca5a8505f5a18d93e3",
+  "checker_selftest_sha256": "9dc806196f85311bf050d0f7406f173c0247bebfda68fa800bdc7030609e3105",
+
+  "r2_merged_artifact": "artifacts/revision2/results/gate_f_sc30-54_all_r2challenge_merged.json",
+  "r2_merged_artifact_sha256": "181161082cbf79e32fb138779af20327fd026d5383d70a942e7373a64d635a71",
+
+  "policy_seed_schedule_audit": "artifacts/revision3/r2_policy_seed_schedule_audit.json",
+  "policy_seed_schedule_audit_sha256": "84a0a41f60687789d52e47b9803f27d8060f53b063d9ae2ffcb120b5cfd65858",
+
+  "seed_schedule_check_225": "artifacts/revision3/r3_policy_seed_schedule_check.json",
+  "seed_schedule_check_225_sha256": "3b4aa9582c02f0f21d72078d72d5681a959640e9077e21f2b3c348f0360960ab",
+  "seed_schedule_check_225_result": "PASS (225/225)",
+
+  "seed_schedule_restricted_invariance_50_result": "PASS (50/50)",
+
+  "seed_schedule_selftest": "artifacts/revision3/r3_policy_seed_schedule_selftest.json",
+  "seed_schedule_selftest_sha256": "f135a56e70f1bcbc75c4cdced32cff0ec7a0bd3b04daa60366f7580fc752a2ed",
+  "seed_schedule_selftest_result": "PASS (5/5 mutation tests detected)",
+
+  "bug_demonstration": "artifacts/revision3/r3_policy_seed_bug_demonstration.json",
+  "bug_demonstration_sha256": "498050c81fe322ac702d1c0c02f1004aa4bd6a675527b0c90881584ca3498720",
+
+  "previous_failed_equivalence_raw_output_sha256": "76aab0ab33136b226fd2b19d6613d29183509e826f98ce813ff359fc98057af9",
+  "previous_failed_equivalence_archived_at": "artifacts/revision3/failed_equivalence_seed_schedule/",
+  "previous_failed_equivalence_reused": false,
+
+  "run_parameters": {
+    "scenario_range": "30-54",
+    "n_scenarios": 25,
+    "policies": ["full_fp", "full_random"],
+    "ratio": 1.25,
+    "cabinet_reference_mode": "legacy_job_contribution_p99",
+    "beta_challenge": 1.11416358,
+    "t_thr_primary_c": 63.625,
+    "challenge_seed": 2042,
+    "seed_index_rule": "default_rng(2042).integers(0,2**31) x25 scen, x25 wl, x1 pg, x1 pwc, then x25 per policy in CHALLENGE_POLICY_IDS order; sc_idx maps to array index sc_idx-30"
+  },
+
+  "environment_variables": {
+    "THERMALSHIFT_DATA_DIR": "C:/Users/kalya/OneDrive/Documents/frontier-job-centric-telemetry-dataset",
+    "GATE_F_RESTRICT_POLICIES": "full_fp,full_random",
+    "GATE_F_RATIOS_ONLY": "1.25",
+    "R3_CABINET_REFERENCE_MODE": "legacy_job_contribution_p99 (default, not set)"
+  },
+
+  "invalidated_precommit_run_exists": true,
+  "invalidated_precommit_run_reused": false,
+  "invalidated_output_assembly_run_exists": true,
+  "invalidated_output_assembly_run_reused": false,
+  "invalidated_stale_manifest_run_exists": true,
+  "invalidated_stale_manifest_run_reused": false,
+  "invalidated_failed_equivalence_run_exists": true,
+  "invalidated_failed_equivalence_run_reused": false,
+
+  "sc30_smoke_equivalence_artifact": "artifacts/revision3/r3_sc30_seedfix_smoke_equivalence.json",
+  "sc30_smoke_equivalence_sha256": "b0d7cfe574f894bc991290db43b02e58710076188fb0f4709001b59946c79be5",
+  "sc30_smoke_equivalence_result": "PASS (1059/1059 checks, max_diff=0.0, full_fp and full_random both exact)",
+  "supersedes": ["R3_0_EXECUTION_MANIFEST.json", "R3_0_EXECUTION_MANIFEST_V2.json"]
+}

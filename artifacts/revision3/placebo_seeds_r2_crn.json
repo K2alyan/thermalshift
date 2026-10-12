@@ -1,0 +1,210 @@
+{
+  "label": "Placebo permutation seeds for R3-0 corrected-mode run (sc30-54 CRN)",
+  "R3_ROOT": 847291653,
+  "derivation_formula": "SeedSequence([R3_ROOT, scenario_idx, placebo_id]).generate_state(1)[0]",
+  "placebo_global_id": 1,
+  "placebo_withincab_id": 2,
+  "note": "These seeds are for scenario-specific placebo robustness using sc30-54 CRN. The sc55-79 general scenario/workload seeds are retained only for calendar-split temporal replication.",
+  "seeds": {
+    "sc30": {
+      "scenario_idx": 30,
+      "derivation": "SeedSequence([847291653, 30, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 2859003422,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 2009185711
+    },
+    "sc31": {
+      "scenario_idx": 31,
+      "derivation": "SeedSequence([847291653, 31, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 930964874,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 3325779592
+    },
+    "sc32": {
+      "scenario_idx": 32,
+      "derivation": "SeedSequence([847291653, 32, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 539090760,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 3944833347
+    },
+    "sc33": {
+      "scenario_idx": 33,
+      "derivation": "SeedSequence([847291653, 33, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 2684467371,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 2126471350
+    },
+    "sc34": {
+      "scenario_idx": 34,
+      "derivation": "SeedSequence([847291653, 34, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 514327558,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 3659236961
+    },
+    "sc35": {
+      "scenario_idx": 35,
+      "derivation": "SeedSequence([847291653, 35, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 4172421246,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 3487760064
+    },
+    "sc36": {
+      "scenario_idx": 36,
+      "derivation": "SeedSequence([847291653, 36, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 3203417211,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 4088468103
+    },
+    "sc37": {
+      "scenario_idx": 37,
+      "derivation": "SeedSequence([847291653, 37, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 2106589302,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 52249388
+    },
+    "sc38": {
+      "scenario_idx": 38,
+      "derivation": "SeedSequence([847291653, 38, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 1140667981,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 1268376099
+    },
+    "sc39": {
+      "scenario_idx": 39,
+      "derivation": "SeedSequence([847291653, 39, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 2739344013,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 3815691856
+    },
+    "sc40": {
+      "scenario_idx": 40,
+      "derivation": "SeedSequence([847291653, 40, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 977039946,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 4126583247
+    },
+    "sc41": {
+      "scenario_idx": 41,
+      "derivation": "SeedSequence([847291653, 41, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 2608129134,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 3990298945
+    },
+    "sc42": {
+      "scenario_idx": 42,
+      "derivation": "SeedSequence([847291653, 42, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 1781345646,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 2816375477
+    },
+    "sc43": {
+      "scenario_idx": 43,
+      "derivation": "SeedSequence([847291653, 43, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 742139036,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 661602228
+    },
+    "sc44": {
+      "scenario_idx": 44,
+      "derivation": "SeedSequence([847291653, 44, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 1559256199,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 236257758
+    },
+    "sc45": {
+      "scenario_idx": 45,
+      "derivation": "SeedSequence([847291653, 45, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 3106161300,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 1256488861
+    },
+    "sc46": {
+      "scenario_idx": 46,
+      "derivation": "SeedSequence([847291653, 46, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 1765735595,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 453476909
+    },
+    "sc47": {
+      "scenario_idx": 47,
+      "derivation": "SeedSequence([847291653, 47, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 1599209060,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 304729679
+    },
+    "sc48": {
+      "scenario_idx": 48,
+      "derivation": "SeedSequence([847291653, 48, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 1569983441,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 1988153334
+    },
+    "sc49": {
+      "scenario_idx": 49,
+      "derivation": "SeedSequence([847291653, 49, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 3776402394,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 468534585
+    },
+    "sc50": {
+      "scenario_idx": 50,
+      "derivation": "SeedSequence([847291653, 50, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 3100451888,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 3130617277
+    },
+    "sc51": {
+      "scenario_idx": 51,
+      "derivation": "SeedSequence([847291653, 51, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 2167820255,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 2181935491
+    },
+    "sc52": {
+      "scenario_idx": 52,
+      "derivation": "SeedSequence([847291653, 52, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 374843738,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 1742908689
+    },
+    "sc53": {
+      "scenario_idx": 53,
+      "derivation": "SeedSequence([847291653, 53, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 1587335045,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 2511448493
+    },
+    "sc54": {
+      "scenario_idx": 54,
+      "derivation": "SeedSequence([847291653, 54, placebo_id]).generate_state(1)[0]",
+      "placebo_global_id": 1,
+      "placebo_global_seed": 2089130782,
+      "placebo_withincab_id": 2,
+      "placebo_withincab_seed": 2256344853
+    }
+  }
+}

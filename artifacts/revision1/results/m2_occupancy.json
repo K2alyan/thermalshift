@@ -1,0 +1,205 @@
+{
+  "script": "r1_m2_occupancy.py",
+  "git_sha": "e61b037c703e231a18147cc6638fad5c7876b4cf",
+  "timestamp": "2026-09-29T05:08:10.901077Z",
+  "input_files": {
+    "phase3a_fingerprint_2024.parquet": "0afee1b2727aa8b45ecd1aae3018cc7e3651fef7b855afb6394ea3d72c39d3a4",
+    "phase3a_test_set.parquet": "b97c4df326a9154352bfba8b60f6d163c381ed4dd6193b49c3518a8fc7c59516",
+    "fp_node_topology.csv": "878974416e2c66e27dbd6e1d75730b482641ba71bc6ff4e600f4004374d0a3f7"
+  },
+  "methodology_note": "Occupancy computed via native array zip of host_list (not str().split()) to avoid the string-truncation bug documented in r1_00b_topology_audit.py. This matches the methodology used in phase3b1_counterfactual.py.",
+  "m2_1_occupancy": {
+    "n_test_jobs": 2637,
+    "phase3b1_verification": {
+      "n_matched": 2637,
+      "max_diff_n_available": 0.0,
+      "mean_diff": 0.0
+    }
+  },
+  "m2_2_placement_freedom": {
+    "n_test_jobs": 2637,
+    "n_feasible": 2420,
+    "feasibility_rate": 0.9177095183921122,
+    "n_infeasible": 217,
+    "placement_freedom_stats": {
+      "min": 0.05670103092783505,
+      "p5": 0.6278571428571429,
+      "p25": 3.53125,
+      "median": 12.1796875,
+      "p75": 44.111111111111114,
+      "p95": 214.19999999999982,
+      "max": 666.3333333333334
+    }
+  },
+  "m2_3_cap10_headroom": {
+    "cap_pct": 10.0,
+    "n_fp_nodes_in_coolest_cap_pct": 1800,
+    "cap_fa_boundary": 1.2747593317353825,
+    "available_headroom_frac_stats": {
+      "mean": 0.5083428974967144,
+      "median": 0.5014306151645207,
+      "p5": 0.4592083359023368,
+      "p95": 0.5816326530612245
+    }
+  },
+  "m2_4_topology_spread": {
+    "total_fp_cabinets": 77,
+    "available_fp_node_stats": {
+      "min": 7,
+      "p5": 43.0,
+      "p25": 212.0,
+      "median": 679.0,
+      "p75": 1252.0,
+      "p95": 1829.3999999999996,
+      "max": 2000,
+      "mean": 768.4224497535077
+    },
+    "cabinet_span_of_available_nodes": {
+      "mean": 62.19264315510049,
+      "median": 75.0,
+      "min": 2,
+      "max": 77
+    },
+    "cabinet_span_of_coolest_N": {
+      "mean": 25.565036025786878,
+      "median": 22.0
+    }
+  },
+  "m2_5_temporal": [
+    {
+      "month": "2025-01",
+      "n_jobs": 171,
+      "mean_avail": 580.4035087719299,
+      "median_avail": 516.0,
+      "feasibility_rate": 0.9005847953216374,
+      "mean_pf": 22.20932515400294
+    },
+    {
+      "month": "2025-02",
+      "n_jobs": 200,
+      "mean_avail": 909.01,
+      "median_avail": 978.0,
+      "feasibility_rate": 0.965,
+      "mean_pf": 24.54731234697506
+    },
+    {
+      "month": "2025-03",
+      "n_jobs": 290,
+      "mean_avail": 821.1896551724138,
+      "median_avail": 655.0,
+      "feasibility_rate": 0.9448275862068966,
+      "mean_pf": 43.63025556345652
+    },
+    {
+      "month": "2025-04",
+      "n_jobs": 514,
+      "mean_avail": 974.1089494163424,
+      "median_avail": 982.0,
+      "feasibility_rate": 0.9727626459143969,
+      "mean_pf": 71.32920796581921
+    },
+    {
+      "month": "2025-05",
+      "n_jobs": 129,
+      "mean_avail": 886.5813953488372,
+      "median_avail": 713.0,
+      "feasibility_rate": 0.8682170542635659,
+      "mean_pf": 30.4557509530748
+    },
+    {
+      "month": "2025-06",
+      "n_jobs": 53,
+      "mean_avail": 569.433962264151,
+      "median_avail": 202.0,
+      "feasibility_rate": 0.5660377358490566,
+      "mean_pf": 5.857721367992594
+    },
+    {
+      "month": "2025-07",
+      "n_jobs": 193,
+      "mean_avail": 924.7512953367876,
+      "median_avail": 1058.0,
+      "feasibility_rate": 0.8756476683937824,
+      "mean_pf": 93.79246254994527
+    },
+    {
+      "month": "2025-08",
+      "n_jobs": 104,
+      "mean_avail": 1039.5288461538462,
+      "median_avail": 1204.5,
+      "feasibility_rate": 0.9326923076923077,
+      "mean_pf": 57.42811692528933
+    },
+    {
+      "month": "2025-09",
+      "n_jobs": 172,
+      "mean_avail": 539.5174418604652,
+      "median_avail": 201.5,
+      "feasibility_rate": 0.7790697674418605,
+      "mean_pf": 13.886415782204338
+    },
+    {
+      "month": "2025-10",
+      "n_jobs": 329,
+      "mean_avail": 690.6595744680851,
+      "median_avail": 455.0,
+      "feasibility_rate": 0.9361702127659575,
+      "mean_pf": 33.48727562231288
+    },
+    {
+      "month": "2025-11",
+      "n_jobs": 400,
+      "mean_avail": 506.565,
+      "median_avail": 299.5,
+      "feasibility_rate": 0.9525,
+      "mean_pf": 55.07196933975801
+    },
+    {
+      "month": "2025-12",
+      "n_jobs": 78,
+      "mean_avail": 573.4487179487179,
+      "median_avail": 408.5,
+      "feasibility_rate": 0.8205128205128205,
+      "mean_pf": 15.177175801927833
+    },
+    {
+      "month": "2026-01",
+      "n_jobs": 4,
+      "mean_avail": 1981.5,
+      "median_avail": 1983.0,
+      "feasibility_rate": 1.0,
+      "mean_pf": 57.6615234375
+    }
+  ],
+  "m2_6_by_job_size": [
+    {
+      "size_bin": "1-8",
+      "n_jobs": 497,
+      "feasibility_rate": 1.0,
+      "mean_avail": 830.0623742454728,
+      "mean_pf": 162.02178547475327
+    },
+    {
+      "size_bin": "9-32",
+      "n_jobs": 582,
+      "feasibility_rate": 0.9896907216494846,
+      "mean_avail": 785.0103092783505,
+      "mean_pf": 48.33823064710258
+    },
+    {
+      "size_bin": "33-128",
+      "n_jobs": 1147,
+      "feasibility_rate": 0.9040976460331299,
+      "mean_avail": 725.7035745422842,
+      "mean_pf": 11.196902131452816
+    },
+    {
+      "size_bin": "129-512",
+      "n_jobs": 411,
+      "feasibility_rate": 0.754257907542579,
+      "mean_avail": 789.6131386861314,
+      "mean_pf": 4.100902653342976
+    }
+  ],
+  "elapsed_seconds": 5.7
+}

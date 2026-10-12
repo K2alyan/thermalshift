@@ -1,0 +1,85 @@
+{
+  "experiment": "F2_local_date_cabinet_reference_scheduling",
+  "date": "2026-10-06",
+  "execution_manifest": "F2_EXECUTION_MANIFEST_V2.json (commit 59e1d7c)",
+  "runner_commit": "4fa1b50d3c512d78292ab14e174dfb2ad667be1b",
+  "runner_sha256": "3bc8bcb07defd342d925e3eed2e5258be5424a7d596201c0246ba41d0613a6e1",
+
+  "inputs": {
+    "cabinet_reference_mode": "corrected_timeweighted_total_p99_local",
+    "f2_reference_sha256": "71de8abcd92cb8b800aecb401f1dc2a4edbcada8a971e72afa6491778d290c34",
+    "f2_replay_denominator_sha256": "b0594373af48fe6bb840ddc32c5628d7c3c26384e11c42fd58f4b9b27555ce48",
+    "B_cab_hist_F2_replay_h": 871.3691666666647,
+    "B_cab_hist_F1_h": 67917.76333331302,
+    "B_cab_hist_taskD_diagnostic_only_h": 2454.5711111111104,
+    "scenarios": "sc30-sc54",
+    "n_scenarios": 25,
+    "policies": ["full_fp", "full_random"],
+    "ratio": 1.25,
+    "checkpoint_reused": false
+  },
+
+  "result_file": "artifacts/revision3/results/gate_f_sc30-54_1p25_r3f2local.json",
+  "result_sha256": "5982264fcf719cc4746b23ae6ef0aaf9e22a9700e4b6ef3e19e49a98b5460dca",
+
+  "f2_primary": {
+    "A_I_B": [25, 0, 0],
+    "n_left_boundary_fp": 0,
+    "n_left_boundary_random": 9,
+    "n_right_censored_fp": 0,
+    "n_right_censored_random": 0,
+    "median_delta_lo_pp": 12.7566,
+    "mean_delta_lo_pp": 15.8651,
+    "delta_lo_IQR_pp": [10.8787, 22.1001],
+    "median_delta_hi_pp": 12.5797,
+    "bootstrap_seed": 9999,
+    "bootstrap_draws": 5000,
+    "bootstrap_CI_95_pp": [11.1009, 19.3492],
+    "interpretation": "SUPPORTS_FP",
+    "fp_capacity_median_pp": 15.354,
+    "fp_capacity_IQR_pp": [12.233, 22.830],
+    "fp_capacity_min_pp": 4.895,
+    "fp_capacity_max_pp": 42.308,
+    "random_capacity_median_pp": 0.103,
+    "random_capacity_IQR_pp": [0.000, 3.481],
+    "random_capacity_min_pp": 0.000,
+    "random_capacity_max_pp": 14.720,
+    "first_binding_fp": {"B_ratio": 25},
+    "first_binding_random": {"B_ratio": 22, "S_ratio": 3}
+  },
+
+  "f1_reference": {
+    "result_file": "artifacts/revision3/results/gate_f_sc30-54_1p25_r3legacy.json",
+    "result_sha256": "0f2736058fca95117d5a03cb43e08eab93145c3d5ea7c82054ecc4cb08ddea97",
+    "A_I_B": [22, 0, 3],
+    "n_left_boundary_random": 9,
+    "median_delta_lo_pp": 6.7799,
+    "bootstrap_CI_95_pp": [4.0679, 8.8238],
+    "interpretation": "SUPPORTS_FP",
+    "fp_capacity_median_pp": 7.332,
+    "random_capacity_median_pp": 0.103,
+    "first_binding_fp": {"B_cab_ratio": 23, "B_ratio": 2},
+    "first_binding_random": {"B_ratio": 19, "B_cab_ratio": 4, "S_ratio": 2}
+  },
+
+  "comparison": {
+    "directional_agreement": true,
+    "f2_stronger_than_f1": true,
+    "delta_lo_median_shift_pp": 5.9767,
+    "CI_lower_shift_pp": 7.0330,
+    "f2_A_count_vs_f1": "25 vs 22",
+    "first_binding_shift": "F1 cabinet-budget dominated (23/25 FP); F2 thermal-budget dominated (25/25 FP). Under the corrected F2 cabinet reference and replay-matched historical denominator, cabinet power is no longer the first-binding constraint for FP in any of the 25 scenarios; B_ratio (thermal) binds first in all 25.",
+    "left_boundary_random_count": "9/25 under F2 and 9/25 under F1; identical set of 9 scenarios (array_i 6,8,11,14,15,17,21,22,24). Eight of nine have B_ratio>1 at lambda=1 (cumulative thermal exceedance budget). Four also have S_ratio>1 (severity-weighted thermal exposure budget, deg-C x node-hours above threshold): sc41,sc51,sc52,sc54. sc51 is the only case where S_ratio alone makes the baseline infeasible (B_ratio=0.987<1). All nine are infeasible due to thermal B and/or severity-weighted S budgets; B_cab_ratio<1 in all 9 under both references. Left-boundary status is unchanged by the F2 correction.",
+    "cabinet_constraint_f1_vs_f2": "Under F1, B_cab_ratio was first-binding for FP 23/25 times, capping capacity. Under the corrected F2 cabinet reference and replay-matched historical denominator, B_ratio (thermal) is first-binding for FP in all 25 scenarios, allowing higher unlocked capacity (median 15.4% vs 7.3%)."
+  },
+
+  "frozen_interpretation": {
+    "rule": "CI entirely above zero = SUPPORTS_FP; CI includes zero = INCONCLUSIVE",
+    "f2_CI": [11.1009, 19.3492],
+    "f2_result": "SUPPORTS_FP",
+    "f1_CI": [4.0679, 8.8238],
+    "f1_result": "SUPPORTS_FP",
+    "agreement": true,
+    "conclusion": "The corrected local-date F2 cabinet reference (time-weighted P99 with replay-matched historical denominator) produces a result consistent in direction with the frozen F1 legacy reference. Both support FP over Random at r=1.25. The F2 result is stronger in magnitude. Under the corrected F2 cabinet reference, B_ratio (thermal) is the first-binding constraint for FP in all 25 scenarios, whereas under F1 the cabinet constraint was first-binding in 23/25. The 9/25 Random left_boundary scenarios are identical in F1 and F2 and are driven by thermal (B_ratio) or space (S_ratio) infeasibility, not the cabinet reference."
+  }
+}

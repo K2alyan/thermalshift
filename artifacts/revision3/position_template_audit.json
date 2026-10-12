@@ -1,0 +1,71 @@
+{
+  "audit_label": "Position Template Audit — Round-3 Task M",
+  "plan_ref": "artifacts/revision3/THIRD_REVIEW_ANALYSIS_PLAN.md §M",
+  "post_exposure_label": "produced after sc30-sc54 primary results observed",
+  "source_script": "artifacts/revision2/r2_gate_f_run.py (lines 236-246)",
+
+  "scheduling_key": {
+    "pos_key_formula": "chassis + '_' + slot + '_' + board + '_' + node_pos",
+    "grouping_columns": ["chassis", "slot", "board", "node_pos"],
+    "construction": "Mean FA_2024 over all fp nodes sharing the same pos_key. NaN filled with global mean FA_2024."
+  },
+
+  "from_m4_selector_audit": {
+    "source": "artifacts/revision1/results/m4_selector_audit.json full_loc",
+    "n_unique_scores": 67,
+    "n_duplicated_nodes": 1933,
+    "n_duplicated_groups": 57,
+    "max_multiplicity": 73,
+    "hash_immune": false,
+    "note": "67 unique position-template scores for 2000 nodes. 1933 nodes share a score with >=1 other node. Max group size = 73. Tie-breaking within score groups uses hostname sort (deterministic, not thermally informed)."
+  },
+
+  "loo_position_score": {
+    "description": "Leave-one-out position score: for each node, compute pos_key group mean excluding that node",
+    "fallback_hierarchy": [
+      {
+        "level": 1,
+        "name": "primary_LOO",
+        "rule": "Mean FA_2024 over same pos_key, excluding the target node",
+        "applies_when": "pos_key group has >= 2 members after excluding target"
+      },
+      {
+        "level": 2,
+        "name": "cross_chassis_slot_board_nodepos",
+        "rule": "Mean FA_2024 over all nodes with same (slot, board, node_pos) across all chassis",
+        "applies_when": "primary LOO not available (singleton pos_key group)"
+      },
+      {
+        "level": 3,
+        "name": "cross_chassis_slot_board",
+        "rule": "Mean FA_2024 over all nodes with same (slot, board) across all chassis",
+        "applies_when": "level 2 not available"
+      },
+      {
+        "level": 4,
+        "name": "global_mean",
+        "rule": "Global mean FA_2024 over all fp nodes",
+        "applies_when": "levels 1-3 not available (fallback of last resort)"
+      }
+    ],
+    "application_rule": "Apply first level where the group has >= 2 members (after excluding target node)",
+    "validation": "Compute Spearman rank correlation between LOO variant scores and original LOC_FA. Report correlation between each fallback level used.",
+    "status": "PENDING — requires fp_node_topology.csv and FA_2024 values to compute"
+  },
+
+  "singleton_analysis": {
+    "status": "PENDING",
+    "question": "How many pos_key groups are singletons (only one node)? These nodes cannot use primary LOO and must fall back.",
+    "expected_from_selector_audit": "n_duplicated_groups=57 non-singleton groups out of 67 total unique scores implies ~10 singleton groups (67 - 57 = 10 unique scores with group_size=1)"
+  },
+
+  "primary_challenge_result": {
+    "comparison": "FP_vs_PositionTemplate at r=1.25",
+    "A_I_B": "16/5/4",
+    "median_delta_lo_pp": 0.7411,
+    "bootstrap95_delta_lo": ["-0.82", "+1.50"],
+    "verdict": "Not statistically separated (CI spans zero)",
+    "interpretation": "FP is not statistically separated from the thermally-informed structural position template at the primary choice ratio. LOO Position is a robustness check on this finding.",
+    "source": "artifacts/revision2/challenge_analysis.json"
+  }
+}

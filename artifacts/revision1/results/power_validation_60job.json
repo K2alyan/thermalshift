@@ -1,0 +1,41 @@
+{
+  "n_jobs_selected": 60,
+  "n_jobs_ok": 60,
+  "jobs_per_tier": 20,
+  "topology": "CORRECT (native array zip)",
+  "by_tier": {
+    "small": {
+      "n_cab_job_pairs": 727,
+      "mae_kW": 0.039080035991328275,
+      "mean_rel_err": 0.011605728705037914,
+      "p95_abs_kW": 0.10789563165504586,
+      "spearman_rho_median": 0.5071428571428571,
+      "pct_rho_ge_09": 0.11764705882352941
+    },
+    "medium": {
+      "n_cab_job_pairs": 1300,
+      "mae_kW": 0.13914894604427314,
+      "mean_rel_err": 0.008419009860920264,
+      "p95_abs_kW": 0.40437067554299155,
+      "spearman_rho_median": 0.768376561930424,
+      "pct_rho_ge_09": 0.15
+    },
+    "large": {
+      "n_cab_job_pairs": 1493,
+      "mae_kW": 0.737463111308859,
+      "mean_rel_err": 0.002725010590455957,
+      "p95_abs_kW": 2.0120318862707576,
+      "spearman_rho_median": 0.8684189091759387,
+      "pct_rho_ge_09": 0.35
+    }
+  },
+  "overall": {
+    "n_cab_job_pairs": 3520,
+    "mae_kW": 0.3722548980702776,
+    "mean_rel_err": 0.006662079090712968,
+    "p95_abs_kW": 1.538686293786806,
+    "spearman_rho_mean": 0.6889199820044368,
+    "spearman_rho_median": 0.7957252466203872,
+    "pct_rho_ge_09": 0.21052631578947367
+  }
+}

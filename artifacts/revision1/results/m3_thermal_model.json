@@ -1,0 +1,87 @@
+{
+  "script": "r1_m3_thermal_model.py",
+  "git_sha": "e61b037c703e231a18147cc6638fad5c7876b4cf",
+  "timestamp": "2026-09-29T05:13:16.459605Z",
+  "input_files": {
+    "phase3a_fingerprint_2024.parquet": "0afee1b2727aa8b45ecd1aae3018cc7e3651fef7b855afb6394ea3d72c39d3a4",
+    "phase3a_test_set.parquet": "b97c4df326a9154352bfba8b60f6d163c381ed4dd6193b49c3518a8fc7c59516"
+  },
+  "methodology_note": "BETA_F_frozen is the median per-job slope from 2024 training telemetry. Per-job slope = cov(FA_2024, delta_T_p95) / var(FA_2024) within each training job. The published ref value (0.9566) was fitted on 2025 test data (phase3a_validation.py line 354) and is NOT a frozen prospective parameter. M3 provides the prospectively frozen slope and validates it on 2025.",
+  "m3_1_training_slopes": {
+    "n_qualifying_jobs": 462,
+    "training_sample_size": 1000,
+    "min_fp_per_job": 8,
+    "beta_F_frozen": 1.1248435235209087,
+    "beta_F_mean_training": 1.1674859255071641,
+    "beta_F_ref_test_fit": 0.9566,
+    "beta_F_diff_frozen_minus_ref": 0.16824352352090866,
+    "beta_training_stats": {
+      "min": -0.14241673799419605,
+      "p5": 0.6839995766124066,
+      "p25": 0.8786844299565042,
+      "median": 1.1248435235209087,
+      "mean": 1.1674859255071641,
+      "p75": 1.3712859271376345,
+      "p95": 1.7268556163334108,
+      "max": 6.103593802130633,
+      "std": 0.4492252386280473
+    }
+  },
+  "m3_2_frozen_validation": {
+    "n_obs": 64545,
+    "beta_F_frozen": 1.1248435235209087,
+    "beta_F_ref_test": 0.9566,
+    "beta_F_in_sample_2025": 0.9725586034196414,
+    "frozen_model": {
+      "r2": 0.20147973593379875,
+      "mae": 1.0363291607564027,
+      "rmse": 1.9580285993962985
+    },
+    "ref_model": {
+      "r2": 0.20653963311529033,
+      "mae": 1.016588900446565,
+      "rmse": 1.9518151264346681
+    },
+    "in_sample_2025": {
+      "r2": 0.20671878310273128,
+      "note": "refitted to 2025 test data \u2014 NOT a valid prospective model"
+    }
+  },
+  "m3_3_slope_stability": {
+    "training_betas": {
+      "n": 462,
+      "median": 1.1248435235209087,
+      "mean": 1.1674859255071641,
+      "std": 0.4492252386280473,
+      "p5": 0.6839995766124066,
+      "p95": 1.7268556163334108
+    },
+    "test_betas": {
+      "n": 2321,
+      "median": 0.9989925446750852,
+      "mean": 1.0648030052072242,
+      "std": 0.6285597834526576,
+      "p5": 0.47076079665142295,
+      "p95": 1.7996710614780036
+    },
+    "ks_test_stat": 0.14840688537371002,
+    "ks_test_p": 7.138914963556458e-08,
+    "interpretation": "Low KS p -> training and test beta distributions are significantly different. High KS p -> distributions are compatible (frozen model generalizes well)."
+  },
+  "m3_4_residual_table": {
+    "output_file": "C:\\Users\\kalya\\thermalops\\artifacts\\revision1\\results\\m3_test_residuals.parquet",
+    "n_rows": 64545,
+    "columns": [
+      "job_idx",
+      "node",
+      "FA_2024",
+      "delta_T_p95",
+      "pred_frozen_model",
+      "resid_frozen_model",
+      "beta_F_frozen"
+    ],
+    "beta_F_frozen_used": 1.1248435235209087,
+    "note": "resid_frozen_model = delta_T_p95 - BETA_F_frozen * FA_2024. This is the unexplained thermal deviation after removing the fingerprint signal with the prospectively frozen slope. Input for M4 capacity-unlock analysis."
+  },
+  "elapsed_seconds": 24.5
+}

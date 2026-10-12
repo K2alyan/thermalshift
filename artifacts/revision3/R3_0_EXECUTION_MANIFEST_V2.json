@@ -1,0 +1,63 @@
+{
+  "document": "R3-0 Pre-Execution Provenance Manifest V2",
+  "execution_manifest_version": 2,
+  "created": "2026-10-05",
+
+  "plan_commit": "c674209",
+  "plan_version": "2.2",
+
+  "executable_runner_commit": "4913388",
+  "runner_file": "artifacts/revision3/r3_gate_f_run.py",
+  "runner_sha256": "022d12c54c7f0738c954a11fc7dd15b73622b312bf852c40c5b2ccb3e17ade37",
+  "runner_finalization_reason": "Added explicit legacy-only CABINET_REFERENCE_MODE definition/guard after 850c863 completed scenario computation but failed final JSON assembly.",
+
+  "checker_file": "artifacts/revision3/check_r3_legacy_equivalence.py",
+  "checker_sha256": "0f58c29de8fa1cb8fee2c8c2c3bfecf62a5abf86591254ca5a8505f5a18d93e3",
+  "checker_selftest_sha256": "9dc806196f85311bf050d0f7406f173c0247bebfda68fa800bdc7030609e3105",
+
+  "r2_merged_artifact": "artifacts/revision2/results/gate_f_sc30-54_all_r2challenge_merged.json",
+  "r2_merged_artifact_sha256": "181161082cbf79e32fb138779af20327fd026d5383d70a942e7373a64d635a71",
+
+  "static_preflight_artifact": "artifacts/revision3/r3_runner_static_preflight.json",
+  "static_preflight_sha256": "e90c7e441803e5881c6b72b2bea618236edf7655a92e80a3af4ba63bfd56ce01",
+  "static_preflight_result": "PASS",
+
+  "seed_check_artifact": "artifacts/revision3/r3_preexecution_seed_check_runner4913388.json",
+  "seed_check_sha256": "cfa34d01693e47a3aa82634419e861f817088681bffe842932a1340334a989b2",
+  "seed_check_result": "PASS",
+  "seed_check_n_pass": 25,
+  "seed_check_n_total": 25,
+
+  "run_parameters": {
+    "scenario_range": "30-54",
+    "n_scenarios": 25,
+    "policies": ["full_fp", "full_random"],
+    "ratio": 1.25,
+    "cabinet_reference_mode": "legacy_job_contribution_p99",
+    "beta_challenge": 1.11416358,
+    "t_thr_primary_c": 63.625,
+    "challenge_seed": 2042,
+    "seed_index_rule": "default_rng(2042).integers(0,2**31) x25 for scen_seeds, then x25 for wl_seeds; sc_idx maps to array index sc_idx-30"
+  },
+
+  "environment_variables": {
+    "THERMALSHIFT_DATA_DIR": "C:/Users/kalya/OneDrive/Documents/frontier-job-centric-telemetry-dataset",
+    "GATE_F_RESTRICT_POLICIES": "full_fp,full_random",
+    "GATE_F_RATIOS_ONLY": "1.25",
+    "R3_CABINET_REFERENCE_MODE": "legacy_job_contribution_p99 (default, not set)"
+  },
+
+  "invalidated_precommit_run_exists": true,
+  "invalidated_precommit_run_reused": false,
+  "invalidated_precommit_run_location": "artifacts/revision3/invalidated_precommit_r3_0/",
+
+  "invalidated_output_assembly_run_exists": true,
+  "invalidated_output_assembly_run_reused": false,
+  "invalidated_output_assembly_run_location": "artifacts/revision3/invalidated_output_assembly_850c863/",
+
+  "invalidated_stale_manifest_run_exists": true,
+  "invalidated_stale_manifest_run_reused": false,
+  "invalidated_stale_manifest_run_location": "artifacts/revision3/invalidated_stale_manifest_r3_0/",
+
+  "supersedes": "R3_0_EXECUTION_MANIFEST.json"
+}

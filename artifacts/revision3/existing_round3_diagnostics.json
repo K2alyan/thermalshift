@@ -1,0 +1,791 @@
+{
+  "script": "artifacts/revision3/analyze_existing_round3_requests.py",
+  "amendment": "2",
+  "plan_version": "2.1",
+  "plan_ref": "artifacts/revision3/THIRD_REVIEW_ANALYSIS_PLAN.md \u00a7B",
+  "post_exposure_label": "post-exposure reviewer-requested; designed and executed after sc30-sc54 primary results observed",
+  "source_artifact": "artifacts\\revision2\\challenge_analysis.json",
+  "n_bootstrap": 5000,
+  "bootstrap_seed": 9999,
+  "B1_absolute_capacity_r125": {
+    "full_fp": {
+      "median_C_lower_pct": 7.331811,
+      "median_C_upper_pct": 7.375572,
+      "median_bracket_width_excl_infeasible": 0.185475,
+      "n_right_censored": 0,
+      "n_base_infeasible": 0,
+      "n_floor_at_zero": 0,
+      "n_total_C_lower_0": 0,
+      "n_scenarios": 25,
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
+    },
+    "full_random": {
+      "median_C_lower_pct": 0.102774,
+      "median_C_upper_pct": 0.575167,
+      "median_bracket_width_excl_infeasible": 0.243002,
+      "n_right_censored": 0,
+      "n_base_infeasible": 9,
+      "n_floor_at_zero": 3,
+      "n_total_C_lower_0": 12,
+      "n_scenarios": 25,
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
+    },
+    "full_fp_spread": {
+      "median_C_lower_pct": 4.961128,
+      "median_C_upper_pct": 5.538898,
+      "median_bracket_width_excl_infeasible": 0.31957,
+      "n_right_censored": 0,
+      "n_base_infeasible": 0,
+      "n_floor_at_zero": 0,
+      "n_total_C_lower_0": 0,
+      "n_scenarios": 25,
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
+    },
+    "random_spread": {
+      "median_C_lower_pct": 0.119882,
+      "median_C_upper_pct": 0.833983,
+      "median_bracket_width_excl_infeasible": 0.281065,
+      "n_right_censored": 0,
+      "n_base_infeasible": 10,
+      "n_floor_at_zero": 1,
+      "n_total_C_lower_0": 11,
+      "n_scenarios": 25,
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
+    },
+    "fp_withincab_placebo": {
+      "median_C_lower_pct": 2.884776,
+      "median_C_upper_pct": 3.994231,
+      "median_bracket_width_excl_infeasible": 0.445556,
+      "n_right_censored": 0,
+      "n_base_infeasible": 2,
+      "n_floor_at_zero": 0,
+      "n_total_C_lower_0": 2,
+      "n_scenarios": 25,
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
+    },
+    "fp_global_placebo": {
+      "median_C_lower_pct": 0.7558,
+      "median_C_upper_pct": 1.301766,
+      "median_bracket_width_excl_infeasible": 0.312281,
+      "n_right_censored": 0,
+      "n_base_infeasible": 7,
+      "n_floor_at_zero": 1,
+      "n_total_C_lower_0": 8,
+      "n_scenarios": 25,
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
+    },
+    "position_template": {
+      "median_C_lower_pct": 4.574479,
+      "median_C_upper_pct": 5.779951,
+      "median_bracket_width_excl_infeasible": 0.427788,
+      "n_right_censored": 0,
+      "n_base_infeasible": 0,
+      "n_floor_at_zero": 0,
+      "n_total_C_lower_0": 0,
+      "n_scenarios": 25,
+      "floor_rule": "base_infeasible=[0,0] excluded from bracket-width stats; floor_at_zero=C_lower=0,C_upper>0 included in delta_lo as 0-C_upper_B"
+    }
+  },
+  "B2_binding_constraint_diagnostic": {
+    "FP_vs_Random": {
+      "label": "legacy_cabinet_reference_binding_diagnostic",
+      "policy_A": "full_fp",
+      "policy_B": "full_random",
+      "n_definitely_A": 22,
+      "n_indistinguishable": 1,
+      "n_definitely_B": 2,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 23,
+        "B_ratio": 2
+      },
+      "median_delta_lo": 6.706291,
+      "bootstrap95_delta_lo": [
+        3.919654,
+        8.724856
+      ],
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
+    },
+    "FP_vs_WithinCabPlacebo": {
+      "label": "legacy_cabinet_reference_binding_diagnostic",
+      "policy_A": "full_fp",
+      "policy_B": "fp_withincab_placebo",
+      "n_definitely_A": 20,
+      "n_indistinguishable": 5,
+      "n_definitely_B": 0,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 23,
+        "B_ratio": 2
+      },
+      "median_delta_lo": 3.53776,
+      "bootstrap95_delta_lo": [
+        0.558065,
+        4.435295
+      ],
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
+    },
+    "FP_vs_GlobalPlacebo": {
+      "label": "legacy_cabinet_reference_binding_diagnostic",
+      "policy_A": "full_fp",
+      "policy_B": "fp_global_placebo",
+      "n_definitely_A": 22,
+      "n_indistinguishable": 1,
+      "n_definitely_B": 2,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 23,
+        "B_ratio": 2
+      },
+      "median_delta_lo": 4.547527,
+      "bootstrap95_delta_lo": [
+        2.944597,
+        7.817352
+      ],
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
+    },
+    "RandomSpread_vs_Random": {
+      "label": "legacy_cabinet_reference_binding_diagnostic",
+      "policy_A": "random_spread",
+      "policy_B": "full_random",
+      "n_definitely_A": 8,
+      "n_indistinguishable": 14,
+      "n_definitely_B": 3,
+      "n_both_base_infeasible": 6,
+      "first_binding_constraint_counts_polA": {
+        "B_ratio": 9,
+        "S_ratio": 3,
+        "B_cab_ratio": 3
+      },
+      "median_delta_lo": 0.0,
+      "bootstrap95_delta_lo": [
+        -0.255787,
+        0.030009
+      ],
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
+    },
+    "FPSpread_vs_RandomSpread": {
+      "label": "legacy_cabinet_reference_binding_diagnostic",
+      "policy_A": "full_fp_spread",
+      "policy_B": "random_spread",
+      "n_definitely_A": 20,
+      "n_indistinguishable": 5,
+      "n_definitely_B": 0,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 8,
+        "B_ratio": 13,
+        "S_ratio": 4
+      },
+      "median_delta_lo": 2.151777,
+      "bootstrap95_delta_lo": [
+        0.524724,
+        4.249484
+      ],
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
+    },
+    "FPSpread_vs_FP": {
+      "label": "legacy_cabinet_reference_binding_diagnostic",
+      "policy_A": "full_fp_spread",
+      "policy_B": "full_fp",
+      "n_definitely_A": 4,
+      "n_indistinguishable": 3,
+      "n_definitely_B": 18,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 8,
+        "B_ratio": 13,
+        "S_ratio": 4
+      },
+      "median_delta_lo": -2.640257,
+      "bootstrap95_delta_lo": [
+        -4.489121,
+        -2.004226
+      ],
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
+    },
+    "FP_vs_PositionTemplate": {
+      "label": "legacy_cabinet_reference_binding_diagnostic",
+      "policy_A": "full_fp",
+      "policy_B": "position_template",
+      "n_definitely_A": 16,
+      "n_indistinguishable": 5,
+      "n_definitely_B": 4,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 23,
+        "B_ratio": 2
+      },
+      "median_delta_lo": 0.741114,
+      "bootstrap95_delta_lo": [
+        -0.816285,
+        1.503522
+      ],
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
+    },
+    "FPSpread_vs_PositionTemplate": {
+      "label": "legacy_cabinet_reference_binding_diagnostic",
+      "policy_A": "full_fp_spread",
+      "policy_B": "position_template",
+      "n_definitely_A": 6,
+      "n_indistinguishable": 11,
+      "n_definitely_B": 8,
+      "n_both_base_infeasible": 0,
+      "first_binding_constraint_counts_polA": {
+        "B_cab_ratio": 8,
+        "B_ratio": 13,
+        "S_ratio": 4
+      },
+      "median_delta_lo": -1.159137,
+      "bootstrap95_delta_lo": [
+        -2.294362,
+        -0.254073
+      ],
+      "note": "Cabinet reference = legacy event-weighted job-contribution P99 (cabinet_power_envelopes.json)"
+    }
+  },
+  "B3_fpspread_vs_fp_both_directions": {
+    "1.0": {
+      "FPSpread_vs_FP": {
+        "median_delta_lo": -0.2302168204,
+        "bootstrap95_delta_lo": [
+          -0.412414261,
+          0.0
+        ],
+        "A_I_B": "0/25/0"
+      },
+      "FP_over_FPSpread_reverse": {
+        "method": "median(-delta_hi_per_scenario) from FPSpread_vs_FP data",
+        "identity": "delta_lo(FP, FPSpread) = -delta_hi(FPSpread, FP)",
+        "median_delta_lo": -0.2302168204,
+        "bootstrap95_delta_lo": [
+          -0.412414261,
+          0.0
+        ],
+        "note": "NEVER negate delta_lo; uses -delta_hi identity"
+      }
+    },
+    "1.25": {
+      "FPSpread_vs_FP": {
+        "median_delta_lo": -2.6402565745,
+        "bootstrap95_delta_lo": [
+          -4.489121157,
+          -2.0042260589
+        ],
+        "A_I_B": "4/3/18"
+      },
+      "FP_over_FPSpread_reverse": {
+        "method": "median(-delta_hi_per_scenario) from FPSpread_vs_FP data",
+        "identity": "delta_lo(FP, FPSpread) = -delta_hi(FPSpread, FP)",
+        "median_delta_lo": 2.1481645082,
+        "bootstrap95_delta_lo": [
+          0.1893454132,
+          3.9924456578
+        ],
+        "note": "NEVER negate delta_lo; uses -delta_hi identity"
+      }
+    },
+    "1.5": {
+      "FPSpread_vs_FP": {
+        "median_delta_lo": -2.8761234792,
+        "bootstrap95_delta_lo": [
+          -5.8599819206,
+          -1.3364762165
+        ],
+        "A_I_B": "1/4/20"
+      },
+      "FP_over_FPSpread_reverse": {
+        "method": "median(-delta_hi_per_scenario) from FPSpread_vs_FP data",
+        "identity": "delta_lo(FP, FPSpread) = -delta_hi(FPSpread, FP)",
+        "median_delta_lo": 1.0733058515,
+        "bootstrap95_delta_lo": [
+          0.425843508,
+          5.244916562
+        ],
+        "note": "NEVER negate delta_lo; uses -delta_hi identity"
+      }
+    },
+    "2.0": {
+      "FPSpread_vs_FP": {
+        "median_delta_lo": -2.9506433385,
+        "bootstrap95_delta_lo": [
+          -3.9851934842,
+          -1.7136529612
+        ],
+        "A_I_B": "4/4/17"
+      },
+      "FP_over_FPSpread_reverse": {
+        "method": "median(-delta_hi_per_scenario) from FPSpread_vs_FP data",
+        "identity": "delta_lo(FP, FPSpread) = -delta_hi(FPSpread, FP)",
+        "median_delta_lo": 1.8552137987,
+        "bootstrap95_delta_lo": [
+          -0.1159872535,
+          3.2312490539
+        ],
+        "note": "NEVER negate delta_lo; uses -delta_hi identity"
+      }
+    },
+    "4.0": {
+      "FPSpread_vs_FP": {
+        "median_delta_lo": -0.4638110183,
+        "bootstrap95_delta_lo": [
+          -2.6453712209,
+          1.6284056864
+        ],
+        "A_I_B": "12/3/10"
+      },
+      "FP_over_FPSpread_reverse": {
+        "method": "median(-delta_hi_per_scenario) from FPSpread_vs_FP data",
+        "identity": "delta_lo(FP, FPSpread) = -delta_hi(FPSpread, FP)",
+        "median_delta_lo": -1.3968863544,
+        "bootstrap95_delta_lo": [
+          -2.7236747005,
+          1.3468030216
+        ],
+        "note": "NEVER negate delta_lo; uses -delta_hi identity"
+      }
+    },
+    "8.0": {
+      "FPSpread_vs_FP": {
+        "median_delta_lo": 0.7215333643,
+        "bootstrap95_delta_lo": [
+          -0.09503829,
+          2.4252946296
+        ],
+        "A_I_B": "17/3/5"
+      },
+      "FP_over_FPSpread_reverse": {
+        "method": "median(-delta_hi_per_scenario) from FPSpread_vs_FP data",
+        "identity": "delta_lo(FP, FPSpread) = -delta_hi(FPSpread, FP)",
+        "median_delta_lo": -2.6315543886,
+        "bootstrap95_delta_lo": [
+          -3.0957593287,
+          -1.0514095748
+        ],
+        "note": "NEVER negate delta_lo; uses -delta_hi identity"
+      }
+    },
+    "unrestricted": {
+      "FPSpread_vs_FP": {
+        "median_delta_lo": 2.0116859303,
+        "bootstrap95_delta_lo": [
+          1.2066710746,
+          3.976756729
+        ],
+        "A_I_B": "21/3/1"
+      },
+      "FP_over_FPSpread_reverse": {
+        "method": "median(-delta_hi_per_scenario) from FPSpread_vs_FP data",
+        "identity": "delta_lo(FP, FPSpread) = -delta_hi(FPSpread, FP)",
+        "median_delta_lo": -3.2505681177,
+        "bootstrap95_delta_lo": [
+          -5.0011842471,
+          -2.1075933827
+        ],
+        "note": "NEVER negate delta_lo; uses -delta_hi identity"
+      }
+    },
+    "crossover_point": "8.0"
+  },
+  "B4_sign_tests_holm": [
+    {
+      "comparison": "FP_vs_Random",
+      "policy_A": "full_fp",
+      "policy_B": "full_random",
+      "category": "primary",
+      "n_definitely_A": 22,
+      "n_indistinguishable": 1,
+      "n_definitely_B": 2,
+      "n_decisive": 24,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 3.5882e-05,
+      "p_holm_adjusted_two_sided_full": 0.00021529197692871094,
+      "p_holm_adjusted_two_sided": 0.000215292,
+      "reject_H0_alpha05": true
+    },
+    {
+      "comparison": "FP_vs_WithinCabPlacebo",
+      "policy_A": "full_fp",
+      "policy_B": "fp_withincab_placebo",
+      "category": "node_level_placebo",
+      "n_definitely_A": 20,
+      "n_indistinguishable": 5,
+      "n_definitely_B": 0,
+      "n_decisive": 20,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 1.9073e-06,
+      "p_holm_adjusted_two_sided_full": 1.52587890625e-05,
+      "p_holm_adjusted_two_sided": 1.52588e-05,
+      "reject_H0_alpha05": true
+    },
+    {
+      "comparison": "FP_vs_GlobalPlacebo",
+      "policy_A": "full_fp",
+      "policy_B": "fp_global_placebo",
+      "category": "global_placebo",
+      "n_definitely_A": 22,
+      "n_indistinguishable": 1,
+      "n_definitely_B": 2,
+      "n_decisive": 24,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 3.5882e-05,
+      "p_holm_adjusted_two_sided_full": 0.00021529197692871094,
+      "p_holm_adjusted_two_sided": 0.000215292,
+      "reject_H0_alpha05": true
+    },
+    {
+      "comparison": "RandomSpread_vs_Random",
+      "policy_A": "random_spread",
+      "policy_B": "full_random",
+      "category": "spread_baseline",
+      "n_definitely_A": 8,
+      "n_indistinguishable": 14,
+      "n_definitely_B": 3,
+      "n_decisive": 11,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 0.2265625,
+      "p_holm_adjusted_two_sided_full": 0.453125,
+      "p_holm_adjusted_two_sided": 0.453125,
+      "reject_H0_alpha05": false
+    },
+    {
+      "comparison": "FPSpread_vs_RandomSpread",
+      "policy_A": "full_fp_spread",
+      "policy_B": "random_spread",
+      "category": "spread_advantage",
+      "n_definitely_A": 20,
+      "n_indistinguishable": 5,
+      "n_definitely_B": 0,
+      "n_decisive": 20,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 1.9073e-06,
+      "p_holm_adjusted_two_sided_full": 1.52587890625e-05,
+      "p_holm_adjusted_two_sided": 1.52588e-05,
+      "reject_H0_alpha05": true
+    },
+    {
+      "comparison": "FPSpread_vs_FP",
+      "policy_A": "full_fp_spread",
+      "policy_B": "full_fp",
+      "category": "spread_vs_fp",
+      "n_definitely_A": 4,
+      "n_indistinguishable": 3,
+      "n_definitely_B": 18,
+      "n_decisive": 22,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 0.0043435097,
+      "p_holm_adjusted_two_sided_full": 0.017374038696289062,
+      "p_holm_adjusted_two_sided": 0.0173740387,
+      "reject_H0_alpha05": true
+    },
+    {
+      "comparison": "FP_vs_PositionTemplate",
+      "policy_A": "full_fp",
+      "policy_B": "position_template",
+      "category": "position_placebo",
+      "n_definitely_A": 16,
+      "n_indistinguishable": 5,
+      "n_definitely_B": 4,
+      "n_decisive": 20,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 0.0118179321,
+      "p_holm_adjusted_two_sided_full": 0.03545379638671875,
+      "p_holm_adjusted_two_sided": 0.0354537964,
+      "reject_H0_alpha05": true
+    },
+    {
+      "comparison": "FPSpread_vs_PositionTemplate",
+      "policy_A": "full_fp_spread",
+      "policy_B": "position_template",
+      "category": "spread_vs_position",
+      "n_definitely_A": 6,
+      "n_indistinguishable": 11,
+      "n_definitely_B": 8,
+      "n_decisive": 14,
+      "test": "two-sided exact binomial on decisive scenarios only",
+      "p_raw_two_sided": 0.7905273438,
+      "p_holm_adjusted_two_sided_full": 0.79052734375,
+      "p_holm_adjusted_two_sided": 0.7905273438,
+      "reject_H0_alpha05": false
+    }
+  ],
+  "B5_decomposition_contrasts": {
+    "label": "Direct paired decomposition contrasts (post-exposure exploratory)",
+    "note": "Algebraic median subtraction NOT used. Direct per-scenario bracket contrasts only.",
+    "r": "1.25",
+    "n_scenarios": 25,
+    "contrasts": {
+      "GlobalPlacebo_vs_Random": {
+        "label": "global_placebo_vs_random",
+        "policy_A": "fp_global_placebo",
+        "policy_B": "full_random",
+        "n_definitely_A": 8,
+        "n_indistinguishable": 13,
+        "n_definitely_B": 4,
+        "n_decisive": 12,
+        "n_both_base_infeasible": 5,
+        "median_delta_lo": 0.0,
+        "median_delta_hi": 0.2540732012,
+        "bootstrap95_delta_lo": [
+          -0.3727763675,
+          0.5088110354
+        ],
+        "p_sign_test_two_sided": 0.3876953125,
+        "method": "direct paired contrasts: delta_lo=C_lower(A)-C_upper(B), delta_hi=C_upper(A)-C_lower(B)",
+        "both_infeasible_treatment": "both left_boundary -> [0,0] brackets -> indistinguishable"
+      },
+      "WithinCabPlacebo_vs_GlobalPlacebo": {
+        "label": "withincab_vs_global",
+        "policy_A": "fp_withincab_placebo",
+        "policy_B": "fp_global_placebo",
+        "n_definitely_A": 14,
+        "n_indistinguishable": 7,
+        "n_definitely_B": 4,
+        "n_decisive": 18,
+        "n_both_base_infeasible": 2,
+        "median_delta_lo": 0.0140727582,
+        "median_delta_hi": 0.9559928524,
+        "bootstrap95_delta_lo": [
+          -0.3434959058,
+          1.4483521096
+        ],
+        "p_sign_test_two_sided": 0.0308837890625,
+        "method": "direct paired contrasts: delta_lo=C_lower(A)-C_upper(B), delta_hi=C_upper(A)-C_lower(B)",
+        "both_infeasible_treatment": "both left_boundary -> [0,0] brackets -> indistinguishable"
+      },
+      "FP_vs_WithinCabPlacebo": {
+        "label": "fp_vs_withincab",
+        "policy_A": "full_fp",
+        "policy_B": "fp_withincab_placebo",
+        "n_definitely_A": 20,
+        "n_indistinguishable": 5,
+        "n_definitely_B": 0,
+        "n_decisive": 20,
+        "n_both_base_infeasible": 0,
+        "median_delta_lo": 3.5377603176,
+        "median_delta_hi": 3.9417191659,
+        "bootstrap95_delta_lo": [
+          0.558064633,
+          4.4352953915
+        ],
+        "p_sign_test_two_sided": 1.9073486328125e-06,
+        "method": "direct paired contrasts: delta_lo=C_lower(A)-C_upper(B), delta_hi=C_upper(A)-C_lower(B)",
+        "both_infeasible_treatment": "both left_boundary -> [0,0] brackets -> indistinguishable"
+      }
+    }
+  },
+  "B6_order_stat_median_ci": {
+    "n_scenarios": 25,
+    "OS_lower_k": 8,
+    "OS_upper_k": 18,
+    "actual_coverage": 0.9567,
+    "method": "Exact binomial order-statistic CI on median (Conover 1999)",
+    "comparisons": {
+      "FP_vs_Random": {
+        "median_delta_lo": 6.706291,
+        "os_ci_lower": 3.919654,
+        "os_ci_upper": 8.724856,
+        "bootstrap95_lo": 3.919654,
+        "bootstrap95_hi": 8.724856
+      },
+      "FP_vs_WithinCabPlacebo": {
+        "median_delta_lo": 3.53776,
+        "os_ci_lower": 0.558065,
+        "os_ci_upper": 4.435295,
+        "bootstrap95_lo": 0.558065,
+        "bootstrap95_hi": 4.435295
+      },
+      "FP_vs_GlobalPlacebo": {
+        "median_delta_lo": 4.547527,
+        "os_ci_lower": 2.944597,
+        "os_ci_upper": 7.817352,
+        "bootstrap95_lo": 2.944597,
+        "bootstrap95_hi": 7.817352
+      },
+      "RandomSpread_vs_Random": {
+        "median_delta_lo": 0.0,
+        "os_ci_lower": -0.255787,
+        "os_ci_upper": 0.030009,
+        "bootstrap95_lo": -0.255787,
+        "bootstrap95_hi": 0.030009
+      },
+      "FPSpread_vs_RandomSpread": {
+        "median_delta_lo": 2.151777,
+        "os_ci_lower": 0.524724,
+        "os_ci_upper": 4.249484,
+        "bootstrap95_lo": 0.524724,
+        "bootstrap95_hi": 4.249484
+      },
+      "FPSpread_vs_FP": {
+        "median_delta_lo": -2.640257,
+        "os_ci_lower": -4.489121,
+        "os_ci_upper": -2.004226,
+        "bootstrap95_lo": -4.489121,
+        "bootstrap95_hi": -2.004226
+      },
+      "FP_vs_PositionTemplate": {
+        "median_delta_lo": 0.741114,
+        "os_ci_lower": -0.816285,
+        "os_ci_upper": 1.503522,
+        "bootstrap95_lo": -0.816285,
+        "bootstrap95_hi": 1.503522
+      },
+      "FPSpread_vs_PositionTemplate": {
+        "median_delta_lo": -1.159137,
+        "os_ci_lower": -2.294362,
+        "os_ci_upper": -0.254073,
+        "bootstrap95_lo": -2.294362,
+        "bootstrap95_hi": -0.254073
+      }
+    }
+  },
+  "B7_sc5_sc29_evaluation": {
+    "label": "development-era sc5\u2013sc29 evaluation on the same underlying base dataset",
+    "authoritative_source": "artifacts\\revision1\\results\\gate_f_heldout_analysis.json",
+    "note": "Values read directly from gate_f_heldout_analysis.json (authoritative source). NOT from gate_f_sc5-29 file.",
+    "analysis_type": "held_out",
+    "n_scenarios": 25,
+    "scenario_indices": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29
+    ],
+    "policies_available": [
+      "full_random",
+      "full_fp",
+      "full_loc",
+      "full_fp_spread"
+    ],
+    "ratios_available": [
+      "1.0",
+      "1.25",
+      "1.5",
+      "2.0",
+      "4.0",
+      "8.0",
+      "unrestricted"
+    ],
+    "comparisons_frozen": [
+      "FP_vs_Random",
+      "Loc_vs_Random",
+      "FPSpread_vs_Random",
+      "FPSpread_vs_FP",
+      "FPSpread_vs_Loc"
+    ],
+    "validation": {
+      "n_cells_expected": 700,
+      "n_cells_found": 700,
+      "n_inversions": 0,
+      "n_nan_inf": 0,
+      "n_right_censored": 0,
+      "n_qos_violations": 0,
+      "missing_scenarios": [],
+      "extra_scenarios": [],
+      "all_pass": true
+    },
+    "comparisons_r125": {
+      "FP_vs_Random": {
+        "n": 25,
+        "n_definitely_A": 25,
+        "n_indistinguishable": 0,
+        "n_definitely_B": 0,
+        "median_delta_lo": 4.771026215725731,
+        "bootstrap95_delta_lo": [
+          2.5850237443823865,
+          6.063253295506707
+        ],
+        "median_delta_hi": 5.322289625791537,
+        "bootstrap95_delta_hi": [
+          3.3126704646709206,
+          6.978088540157944
+        ]
+      },
+      "Loc_vs_Random": {
+        "n": 25,
+        "n_definitely_A": 22,
+        "n_indistinguishable": 3,
+        "n_definitely_B": 0,
+        "median_delta_lo": 2.620803387138577,
+        "bootstrap95_delta_lo": [
+          1.100455122561609,
+          5.149012277788035
+        ],
+        "median_delta_hi": 3.3923039142386333,
+        "bootstrap95_delta_hi": [
+          3.083372443005514,
+          5.2789635122098275
+        ]
+      },
+      "FPSpread_vs_Random": {
+        "n": 25,
+        "n_definitely_A": 21,
+        "n_indistinguishable": 4,
+        "n_definitely_B": 0,
+        "median_delta_lo": 1.6114255110190558,
+        "bootstrap95_delta_lo": [
+          0.43815857958838433,
+          2.9087510438002657
+        ],
+        "median_delta_hi": 2.166352147068463,
+        "bootstrap95_delta_hi": [
+          0.7871651657525798,
+          3.4911124473472417
+        ]
+      },
+      "FPSpread_vs_FP": {
+        "n": 25,
+        "n_definitely_A": 3,
+        "n_indistinguishable": 3,
+        "n_definitely_B": 19,
+        "median_delta_lo": -3.36299705027933,
+        "bootstrap95_delta_lo": [
+          -4.935221185257498,
+          -1.8796049132978032
+        ],
+        "median_delta_hi": -2.7733845292222554,
+        "bootstrap95_delta_hi": [
+          -4.491650141754276,
+          -0.8951472531478082
+        ]
+      },
+      "FPSpread_vs_Loc": {
+        "n": 25,
+        "n_definitely_A": 2,
+        "n_indistinguishable": 11,
+        "n_definitely_B": 12,
+        "median_delta_lo": -1.1706224807686718,
+        "bootstrap95_delta_lo": [
+          -3.295356212626209,
+          -0.48661482888592955
+        ],
+        "median_delta_hi": 0.0,
+        "bootstrap95_delta_hi": [
+          -1.180282540754823,
+          0.5041079122586893
+        ]
+      }
+    }
+  }
+}

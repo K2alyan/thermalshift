@@ -1,0 +1,459 @@
+{
+  "script": "r1_m3_completion.py",
+  "git_sha": "89e188e400d0dd673a0ec08e8a1efc2c91bf65a6",
+  "timestamp": "2026-09-29T06:39:16.411981Z",
+  "input_files": {
+    "phase3a_fingerprint_2024.parquet": "0afee1b2727aa8b45ecd1aae3018cc7e3651fef7b855afb6394ea3d72c39d3a4",
+    "phase3a_test_set.parquet": "b97c4df326a9154352bfba8b60f6d163c381ed4dd6193b49c3518a8fc7c59516",
+    "m3_test_residuals.parquet": "8c2db2d9db014990b675be91feb7770b44cae556df407e9fae4504c61cbbb85c",
+    "m3_train_betas.parquet": "9dfb7f11617896a6c24286d0e964f4bab95fb9e7bff6dec60d7ccac44a9b9fc5",
+    "phase3b_mc_results.json": "a0ca1d10055e3efb76946438b798edeebf959eb6ad66811de10cca9052873257",
+    "phase3b_mc_analysis.json": "b97ca82b25d7a65e6524abbd7ca8bf56e0a71524de768ce50c86cc0db100a77e"
+  },
+  "D1_D2_training_thresholds": {
+    "n_node_job_pairs_training": 17780,
+    "n_training_jobs": 462,
+    "t_p95_mean_2024": 49.097694473458674,
+    "t_p95_p90_2024": 61.800625,
+    "t_p95_p95_2024": 63.625,
+    "t_p95_p99_2024": 66.2638125,
+    "fixed_threshold": 60.602770562770566,
+    "test_set_p95": 60.75,
+    "note": "Thresholds derived from 2024 training telemetry (same jobs that generated BETA_F_frozen=1.1248). Node-job pairs: fp nodes in qualifying training jobs with all 8 GCD channels and >=5 valid timestamps."
+  },
+  "D3_D4_identity_replay": {
+    "beta_F_frozen": 1.12484352,
+    "B_hist_ref_h": 6093.113611111112,
+    "S_hist_ref_Cdoth": 18167.222220346302,
+    "identity_model_bias_C": -0.028632205911033663,
+    "identity_model_rmse_C": 1.9580285993962985,
+    "r_exceedance_obs_vs_model": 0.8867109620795652,
+    "note": "T_pred_ij = alpha_j + BETA_F_frozen * FA_2024_i, where alpha_j = mean(T_p95_obs) across fp nodes in job j (test set). Model-identity B/S uses T_pred; observed B/S uses T_obs. Ratios normalised against B_hist/S_hist at the fixed 60.60C threshold.",
+    "by_threshold": {
+      "fixed_60_60": {
+        "threshold_C": 60.602770562770566,
+        "B_obs_h": 6093.113611111112,
+        "S_obs_Cdoth": 18167.222220346302,
+        "B_model_id_h": 5974.084166666667,
+        "S_model_id_Cdoth": 15356.087002484986,
+        "B_obs_ratio": 1.0,
+        "S_obs_ratio": 1.0,
+        "B_model_ratio": 0.9804649228553054,
+        "S_model_ratio": 0.8452633438526999
+      },
+      "p90_2024": {
+        "threshold_C": 61.800625,
+        "B_obs_h": 4213.542222222222,
+        "S_obs_Cdoth": 12027.878327777791,
+        "B_model_id_h": 4340.081388888889,
+        "S_model_id_Cdoth": 9178.54246638227,
+        "B_obs_ratio": 0.6915253007163049,
+        "S_obs_ratio": 0.6620647990041769,
+        "B_model_ratio": 0.7122928712464056,
+        "S_model_ratio": 0.5052254194426489
+      },
+      "p95_2024": {
+        "threshold_C": 63.625,
+        "B_obs_h": 2474.2830555555556,
+        "S_obs_Cdoth": 5906.025267361109,
+        "B_model_id_h": 1990.8561111111112,
+        "S_model_id_Cdoth": 3561.4179964819377,
+        "B_obs_ratio": 0.40607860175847876,
+        "S_obs_ratio": 0.3250923666660873,
+        "B_model_ratio": 0.326738714912632,
+        "S_model_ratio": 0.1960353626595343
+      },
+      "p99_2024": {
+        "threshold_C": 66.2638125,
+        "B_obs_h": 783.9016666666666,
+        "S_obs_Cdoth": 1748.4492922569436,
+        "B_model_id_h": 463.72416666666663,
+        "S_model_id_Cdoth": 914.7498376993207,
+        "B_obs_ratio": 0.1286537092033178,
+        "S_obs_ratio": 0.09624197200047321,
+        "B_model_ratio": 0.07610627279639778,
+        "S_model_ratio": 0.0503516622742056
+      }
+    }
+  },
+  "D5_residual_bin_sensitivity": {
+    "residual_source": "resid_frozen_model from m3_test_residuals.parquet (= T_obs - T_pred_frozen)",
+    "binning_variable": "FA_2024 quantile within each test job",
+    "by_K": {
+      "K1": {
+        "K": 1,
+        "r2_bins_explain": 0.0,
+        "within_var_fraction": 1.0,
+        "n_jobs_underbinned": 0,
+        "n_jobs_total": 2637
+      },
+      "K3": {
+        "K": 3,
+        "r2_bins_explain": 0.06743017109634186,
+        "within_var_fraction": 0.9325698289036581,
+        "n_jobs_underbinned": 62,
+        "n_jobs_total": 2637
+      },
+      "K5": {
+        "K": 5,
+        "r2_bins_explain": 0.10098218920087043,
+        "within_var_fraction": 0.8990178107991296,
+        "n_jobs_underbinned": 587,
+        "n_jobs_total": 2637
+      },
+      "K10": {
+        "K": 10,
+        "r2_bins_explain": 0.15361010748875403,
+        "within_var_fraction": 0.846389892511246,
+        "n_jobs_underbinned": 1247,
+        "n_jobs_total": 2637
+      }
+    },
+    "parametric_heteroscedastic": {
+      "model": "log|residual| ~ a + b * FA_2024",
+      "slope_b": -0.0009420668491709234,
+      "intercept_a": -0.7032002404203768,
+      "pearson_r": -0.0007302969451985025,
+      "note": "Negative slope means cooler nodes (low FA_2024) have larger absolute residuals, consistent with larger relative variance at the thermal floor. Small |r| suggests the heteroscedasticity is modest."
+    }
+  },
+  "D6_nonmonotonicity": {
+    "n_scenarios": 30,
+    "lambda_sweep": [
+      1.0,
+      1.06,
+      1.1,
+      1.15,
+      1.2,
+      1.3,
+      1.4,
+      1.5
+    ],
+    "note": "Non-monotonicity occurs when B_node_ratio or S_node_ratio decreases at a higher lambda due to MC stochasticity (different job assignment draws). S is more volatile because exceedance severity is a continuous quantity sensitive to which specific thermal extremes are assigned.",
+    "by_policy": {
+      "fp": {
+        "n_B_nonmonotonic": 8,
+        "n_S_nonmonotonic": 22,
+        "B_nonmono_rate": 0.26666666666666666,
+        "S_nonmono_rate": 0.7333333333333333,
+        "B_max_drop_magnitude": 0.0232109482066023,
+        "B_median_drop_magnitude": 0.009452086825340711
+      },
+      "random": {
+        "n_B_nonmonotonic": 6,
+        "n_S_nonmonotonic": 18,
+        "B_nonmono_rate": 0.2,
+        "S_nonmono_rate": 0.6,
+        "B_max_drop_magnitude": 0.013091600814015392,
+        "B_median_drop_magnitude": 0.007141395370337922
+      }
+    }
+  },
+  "D7_conservative_brackets": {
+    "n_binding_scenarios": 29,
+    "n_censored": 1,
+    "units": "capacity_unlock_pct (extra cohort node-hours / hist cohort node-hours * 100)",
+    "conservative_bracket_lo": {
+      "median_pct": 18.218106060136428,
+      "p5_pct": 8.552404086395823,
+      "p95_pct": 25.47695929248749
+    },
+    "interpolated_c_feasible": {
+      "median_pct": 19.938865344393633,
+      "p5_pct": 9.385992419975134,
+      "p95_pct": 29.525489109176647
+    },
+    "lambda_interval_width_pct": {
+      "median": 6.295985723543051,
+      "max": 8.516452300884861
+    },
+    "note": "C_bracket_lo = capacity_unlock_pct at the last lambda below the B_node_ratio=1.0 crossing (conservative lower bound on safe capacity unlock). C_bracket_hi = first lambda where B_node_ratio >= 1.0. C_feasible = interpolated crossing estimate. All in capacity_unlock_pct units (same scale). C_system_replay (fleet-wide fraction) is a separate derived metric in the enriched analysis and is ~100x smaller than capacity_unlock_pct."
+  },
+  "D8_scenario27_extension": {
+    "scenario_idx": 27,
+    "scenario_seed": 2819,
+    "beta_F": 0.9569,
+    "n_bins": 5,
+    "original_max_lambda": 1.5,
+    "full_lambda_sweep": [
+      1.0,
+      1.06,
+      1.1,
+      1.15,
+      1.2,
+      1.3,
+      1.4,
+      1.5,
+      1.55,
+      1.6,
+      1.7,
+      1.8,
+      1.9,
+      2.0
+    ],
+    "first_binding_lambda": 1.3,
+    "bracket_lo_lambda": 1.2,
+    "bracket_hi_lambda": 1.3,
+    "interpolated_lambda_star": 1.283679101835073,
+    "extended_rows": [
+      {
+        "lambda_val": 1.0,
+        "policy": "fp",
+        "n_syn_admit": 0,
+        "syn_node_hours": 0.0,
+        "capacity_unlock_pct": 0.0,
+        "B_node_ratio": 0.8509365012204801,
+        "S_node_ratio": 0.8183662734908274
+      },
+      {
+        "lambda_val": 1.06,
+        "policy": "fp",
+        "n_syn_admit": 146,
+        "syn_node_hours": 4415.836944444443,
+        "capacity_unlock_pct": 5.596228241705845,
+        "B_node_ratio": 0.914402228854988,
+        "S_node_ratio": 0.8906711223867424
+      },
+      {
+        "lambda_val": 1.1,
+        "policy": "fp",
+        "n_syn_admit": 248,
+        "syn_node_hours": 7514.693333333334,
+        "capacity_unlock_pct": 9.523435667765455,
+        "B_node_ratio": 0.9324429960981907,
+        "S_node_ratio": 0.9030856377432637
+      },
+      {
+        "lambda_val": 1.15,
+        "policy": "fp",
+        "n_syn_admit": 366,
+        "syn_node_hours": 9545.484444444446,
+        "capacity_unlock_pct": 12.09707475634258,
+        "B_node_ratio": 0.9394012612325685,
+        "S_node_ratio": 0.9008213661747004
+      },
+      {
+        "lambda_val": 1.2,
+        "policy": "fp",
+        "n_syn_admit": 489,
+        "syn_node_hours": 11725.561388888887,
+        "capacity_unlock_pct": 14.859905068938437,
+        "B_node_ratio": 0.9633707615915577,
+        "S_node_ratio": 0.911114364198456
+      },
+      {
+        "lambda_val": 1.3,
+        "policy": "fp",
+        "n_syn_admit": 717,
+        "syn_node_hours": 16830.026666666665,
+        "capacity_unlock_pct": 21.32883793618241,
+        "B_node_ratio": 1.007144221876345,
+        "S_node_ratio": 0.9754194609854933
+      },
+      {
+        "lambda_val": 1.4,
+        "policy": "fp",
+        "n_syn_admit": 949,
+        "syn_node_hours": 23360.751388888908,
+        "capacity_unlock_pct": 29.60528169737856,
+        "B_node_ratio": 1.1184027925149924,
+        "S_node_ratio": 1.0432333417811732
+      },
+      {
+        "lambda_val": 1.5,
+        "policy": "fp",
+        "n_syn_admit": 1190,
+        "syn_node_hours": 29550.26444444446,
+        "capacity_unlock_pct": 37.449304970811454,
+        "B_node_ratio": 1.154808964892926,
+        "S_node_ratio": 1.090780792501238
+      },
+      {
+        "lambda_val": 1.55,
+        "policy": "fp",
+        "n_syn_admit": 1308,
+        "syn_node_hours": 34238.54194444446,
+        "capacity_unlock_pct": 43.39079947808994,
+        "B_node_ratio": 1.2165234441121584,
+        "S_node_ratio": 1.1683707544906137
+      },
+      {
+        "lambda_val": 1.6,
+        "policy": "fp",
+        "n_syn_admit": 1434,
+        "syn_node_hours": 36328.84888888895,
+        "capacity_unlock_pct": 46.039863495512755,
+        "B_node_ratio": 1.2283761691078487,
+        "S_node_ratio": 1.1790012054398142
+      },
+      {
+        "lambda_val": 1.7,
+        "policy": "fp",
+        "n_syn_admit": 1669,
+        "syn_node_hours": 41215.006666666726,
+        "capacity_unlock_pct": 52.23213338533108,
+        "B_node_ratio": 1.244173465591324,
+        "S_node_ratio": 1.1760114986776264
+      },
+      {
+        "lambda_val": 1.8,
+        "policy": "fp",
+        "n_syn_admit": 1895,
+        "syn_node_hours": 46078.85000000002,
+        "capacity_unlock_pct": 58.39612398726598,
+        "B_node_ratio": 1.2744790806415387,
+        "S_node_ratio": 1.1947742898632738
+      },
+      {
+        "lambda_val": 1.9,
+        "policy": "fp",
+        "n_syn_admit": 2142,
+        "syn_node_hours": 50264.009722222254,
+        "capacity_unlock_pct": 63.70001299589795,
+        "B_node_ratio": 1.3522711363269893,
+        "S_node_ratio": 1.283892055748399
+      },
+      {
+        "lambda_val": 2.0,
+        "policy": "fp",
+        "n_syn_admit": 2357,
+        "syn_node_hours": 56927.59444444447,
+        "capacity_unlock_pct": 72.1448313808737,
+        "B_node_ratio": 1.4140382250289936,
+        "S_node_ratio": 1.3236133538682167
+      }
+    ],
+    "original_mc_rows_lambda_le_150": [
+      {
+        "lambda_val": 1.0,
+        "policy": "fp",
+        "capacity_unlock_pct": 0.0,
+        "syn_node_hours": 0.0,
+        "n_syn_admit": 0,
+        "n_drop_cap": 0,
+        "n_drop_physical": 0,
+        "n_drop_la": 0,
+        "B_node_ratio": 0.8509365012204801,
+        "S_node_ratio": 0.8183662734908274,
+        "B_cab_ratio_full": 0.9955322561904507,
+        "gini_util": 0.29447102754710386,
+        "coolest10_share": 0.13338039906344626,
+        "large_job_frac": null
+      },
+      {
+        "lambda_val": 1.06,
+        "policy": "fp",
+        "capacity_unlock_pct": 4.27241983101573,
+        "syn_node_hours": 3371.2544444444443,
+        "n_syn_admit": 148,
+        "n_drop_cap": 8,
+        "n_drop_physical": 2,
+        "n_drop_la": 0,
+        "B_node_ratio": 0.8662781375823679,
+        "S_node_ratio": 0.8436124269314561,
+        "B_cab_ratio_full": 0.9967597595229013,
+        "gini_util": 0.29769992526073535,
+        "coolest10_share": 0.1344752481046998,
+        "large_job_frac": null
+      },
+      {
+        "lambda_val": 1.1,
+        "policy": "fp",
+        "capacity_unlock_pct": 6.693041612124433,
+        "syn_node_hours": 5281.303611111112,
+        "n_syn_admit": 241,
+        "n_drop_cap": 18,
+        "n_drop_physical": 5,
+        "n_drop_la": 0,
+        "B_node_ratio": 0.8780269656879038,
+        "S_node_ratio": 0.8443396699019238,
+        "B_cab_ratio_full": 0.9973699180120175,
+        "gini_util": 0.2951579246836732,
+        "coolest10_share": 0.1339756506987816,
+        "large_job_frac": null
+      },
+      {
+        "lambda_val": 1.15,
+        "policy": "fp",
+        "capacity_unlock_pct": 8.913787349393708,
+        "syn_node_hours": 7033.635833333337,
+        "n_syn_admit": 363,
+        "n_drop_cap": 24,
+        "n_drop_physical": 8,
+        "n_drop_la": 1,
+        "B_node_ratio": 0.8815644747218951,
+        "S_node_ratio": 0.8479305532890625,
+        "B_cab_ratio_full": 0.9979236344212329,
+        "gini_util": 0.30784855701155855,
+        "coolest10_share": 0.13698740810751436,
+        "large_job_frac": null
+      },
+      {
+        "lambda_val": 1.2,
+        "policy": "fp",
+        "capacity_unlock_pct": 11.360142184142141,
+        "syn_node_hours": 8963.990277777784,
+        "n_syn_admit": 478,
+        "n_drop_cap": 35,
+        "n_drop_physical": 13,
+        "n_drop_la": 1,
+        "B_node_ratio": 0.8904536081694046,
+        "S_node_ratio": 0.8455567613661343,
+        "B_cab_ratio_full": 0.997909464241911,
+        "gini_util": 0.3115900392013672,
+        "coolest10_share": 0.13901165391618972,
+        "large_job_frac": null
+      },
+      {
+        "lambda_val": 1.3,
+        "policy": "fp",
+        "capacity_unlock_pct": 20.374446821105753,
+        "syn_node_hours": 16076.941666666666,
+        "n_syn_admit": 712,
+        "n_drop_cap": 55,
+        "n_drop_physical": 19,
+        "n_drop_la": 5,
+        "B_node_ratio": 0.9138143611943698,
+        "S_node_ratio": 0.8532398408681656,
+        "B_cab_ratio_full": 0.9983060995555656,
+        "gini_util": 0.3087564600801986,
+        "coolest10_share": 0.13888835493135743,
+        "large_job_frac": null
+      },
+      {
+        "lambda_val": 1.4,
+        "policy": "fp",
+        "capacity_unlock_pct": 28.143250047253886,
+        "syn_node_hours": 22207.100555555553,
+        "n_syn_admit": 948,
+        "n_drop_cap": 67,
+        "n_drop_physical": 32,
+        "n_drop_la": 8,
+        "B_node_ratio": 0.9541974275239412,
+        "S_node_ratio": 0.8930726776075015,
+        "B_cab_ratio_full": 0.9993668903631644,
+        "gini_util": 0.30182012721631335,
+        "coolest10_share": 0.13931850088035946,
+        "large_job_frac": null
+      },
+      {
+        "lambda_val": 1.5,
+        "policy": "fp",
+        "capacity_unlock_pct": 36.22039685424574,
+        "syn_node_hours": 28580.565277777812,
+        "n_syn_admit": 1178,
+        "n_drop_cap": 80,
+        "n_drop_physical": 43,
+        "n_drop_la": 17,
+        "B_node_ratio": 0.984837983535967,
+        "S_node_ratio": 0.9009654187111419,
+        "B_cab_ratio_full": 0.9990938389594981,
+        "gini_util": 0.2969007951315595,
+        "coolest10_share": 0.1397303440188953,
+        "large_job_frac": null
+      }
+    ],
+    "note": "Full trajectory [1.0..2.0] for scenario 27 (the right-censored scenario in the 30-scenario MC). Uses same scen_seed=2819 and wl_seed=52819, but pool sized for LAMBDA_MAX=2.0 (n_extra=2637 vs original 1318). Lambda<=1.50 values may differ slightly from original MC due to different pool composition. BETA_F=0.9569 (original unfrozen value, for consistency with existing results). B_node_ratio = B_node_h / B_hist_node_h."
+  },
+  "elapsed_seconds": 314.3
+}

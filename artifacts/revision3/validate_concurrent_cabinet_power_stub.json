@@ -1,0 +1,8 @@
+{
+  "script": "artifacts/revision3/validate_concurrent_cabinet_power.py",
+  "plan_ref": "artifacts/revision3/THIRD_REVIEW_ANALYSIS_PLAN.md \u00a7H",
+  "post_exposure_label": "Post-exposure: designed after sc30-sc54 primary results observed. Validation of concurrent cabinet power reconstruction completeness.",
+  "status": "STUB \u2014 requires raw job telemetry",
+  "validation_condition": "Only bins where all concurrent jobs have usable power telemetry",
+  "cross_check": "Reconstructed concurrent cabinet power vs sum of per-job contributions"
+}

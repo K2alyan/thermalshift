@@ -1,0 +1,80 @@
+{
+  "audit_label": "Cabinet Reference Audit V3 — Amendment 2 correction",
+  "plan_ref": "artifacts/revision3/THIRD_REVIEW_ANALYSIS_PLAN.md §C/F (Amendment 2)",
+  "amendment": "2",
+  "supersedes": ["cabinet_reference_audit.json (v1)", "CABINET_REFERENCE_AUDIT.md (v1)"],
+  "post_exposure_label": "produced after sc30-sc54 primary results were observed",
+
+  "legacy_formula": {
+    "description": "P_cab_j = (mean_power_j / node_count_j) * n_nodes_in_cabinet_j",
+    "n_jobs_used": 152400,
+    "stat": "P99 of per-job contributions per cabinet (EVENT-WEIGHTED, not time-weighted)",
+    "weighting": "Each job contributes one observation regardless of duration. P99 is computed over job-count (event-count) observations, not time bins.",
+    "condition": "jobs with reported mean_power > 0",
+    "topology": "CORRECT (native array zip, fixed from earlier bug)"
+  },
+
+  "replay_cabinet_power": {
+    "description": "The frozen replay computes CONCURRENT TOTAL cabinet power at each simulation timestep.",
+    "implementation": "sweep_cab_budget_fast() creates job-start and job-end events, maintains a running sum P_cab[c] per cabinet, adds the contribution of each job when it starts and removes it when it ends, and integrates the duration for which the total exceeds the reference threshold.",
+    "formula": "P_c_total(t) = sum_j P_job_c(t) over all jobs j overlapping at time t",
+    "key_fact": "The replay DOES sum overlapping contributions. Cabinet power in replay is the concurrent total of all overlapping job contributions, not a per-job marginal."
+  },
+
+  "key_distinction_verbatim": "The legacy cabinet reference is the P99 of individual job-cabinet power contributions (event-weighted: each job contributes one observation, P99 computed over job count). Replay cabinet exposure is computed from the sum of all concurrent overlapping job contributions in each cabinet. The mismatch therefore concerns how Q_c is estimated, not whether replay power is summed. The legacy Q_c treats jobs independently (marginal P99); the corrected Q_c accounts for concurrent job overlap (time-weighted concurrent total P99).",
+
+  "amendment_2_correction": "Previous audit versions (v1) incorrectly stated that replay-job cabinet contributions are NOT summed. This was false. The replay implementation (sweep_cab_budget_fast) explicitly sums concurrent overlapping job contributions. The correction is in the description of what the LEGACY REFERENCE REPRESENTS, not in the replay mechanics.",
+
+  "fleet_summary": {
+    "fleet_median_p99_kW": 92.487,
+    "fleet_min_p99_kW": 68.741,
+    "fleet_max_p99_kW": 95.978,
+    "n_cabinets": 77
+  },
+
+  "late_cabinets": {
+    "2600": {"p99_kW": 71.171, "first_job_data": "2024-11-22", "fa_2024_mean": -2.221, "n_jobs_train_mean": 6.27},
+    "2601": {"p99_kW": 74.009, "first_job_data": "2024-07-18", "fa_2024_mean": -1.244, "n_jobs_train_mean": 23.65},
+    "2602": {"p99_kW": 68.741, "first_job_data": "2024-07-18", "fa_2024_mean": -1.841, "n_jobs_train_mean": 18.46}
+  },
+
+  "e1_corrected_behavior": {
+    "what_scales": "CAB_SCALE multiplies each cabinet P99 threshold uniformly: Q_c_scaled = P99_c * CAB_SCALE",
+    "what_does_not_scale": "B_ref_s (historical budget denominator) is computed at the FIXED base threshold (CAB_SCALE=1.0) and does NOT scale with CAB_SCALE. Verified: B_ref_s is identical across all 5 CAB_SCALE values for sc30 in sensitivity run files.",
+    "what_changes": "B_primary_h (counterfactual exceedance) is recomputed using the scaled threshold. Higher CAB_SCALE -> higher threshold -> less exceedance -> lower B_primary_h -> lower B_cab_ratio. Lower CAB_SCALE -> lower threshold -> more exceedance -> higher B_primary_h -> higher B_cab_ratio. Since the denominator B_ref_s is fixed, the ratio changes nonlinearly.",
+    "incorrect_statement_removed": "The prior plan said 'the historical B_cab denominator scales proportionally'. This is FALSE. B_ref_s is invariant to CAB_SCALE.",
+    "label": "cabinet-reference-scale sensitivity (not a fixed-budget test, not T_thr sensitivity)",
+    "e1_b_ref_s_verification": {
+      "source": "artifacts/revision2/results/gate_f_sc30-54_1p25_r2sensitivity_sc*_bprimary.json",
+      "sc30_B_ref_s_all_scales": 2449.9311111111115,
+      "note": "B_ref_s is identical at all 5 CAB_SCALE values for sc30, confirming denominator is fixed"
+    },
+    "e1_b_cab_hours": {
+      "note": "The ~89264/~77950/~67918/~58851/~50288 cabinet-hour figures refer to fleet-total historical B_cab across the full observation window, not to B_ref_s in the 25-scenario simulation. These require THERMALSHIFT_DATA_DIR (not available in current environment) for exact recomputation. The relative ordering (0.90>0.95>1.00>1.05>1.10) is consistent with higher CAB_SCALE reducing exceedance above a higher threshold.",
+      "status": "REQUIRES_EXTERNAL_DATA"
+    }
+  },
+
+  "corrected_modes_defined": {
+    "F1": {
+      "name": "legacy_job_contribution_p99",
+      "weighting": "event-weighted (per-job contribution)",
+      "status": "used in all sc0-sc54 results",
+      "source": "cabinet_power_envelopes.json"
+    },
+    "F2": {
+      "name": "corrected_timeweighted_total_p99",
+      "weighting": "time-weighted (duration of each concurrent power state)",
+      "description": "P99 of P_c_total(t) computed exactly over supported intervals using event-driven piecewise-constant process. No hourly binning.",
+      "status": "definition frozen; implementation pending Task D event-driven support audit",
+      "requires": "THERMALSHIFT_DATA_DIR/frontier-completed-job-info.parquet"
+    },
+    "F3": {
+      "name": "corrected_eventweighted_total_p99",
+      "weighting": "event-weighted (per unique state-change timestamp)",
+      "description": "P99 of P_c_total sampled once at each unique state-change event (start or end of any job). Post-event power state recorded.",
+      "status": "definition frozen; implementation pending Task D",
+      "requires": "THERMALSHIFT_DATA_DIR/frontier-completed-job-info.parquet"
+    }
+  }
+}

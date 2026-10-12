@@ -1,0 +1,789 @@
+{
+  "provenance": {
+    "plan_commit": "c674209",
+    "r3_evidence_commit": "a80d51f",
+    "script_sha256": "8273f4df651435f7f294a9a650625417edd710b3e944253feb3f90d5125c08aa",
+    "metadata_source_path": "C:\\Users\\kalya\\OneDrive\\Documents\\frontier-job-centric-telemetry-dataset\\frontier-completed-job-info.parquet",
+    "python_version": "3.12.2",
+    "numpy_version": "2.0.0",
+    "pandas_version": "2.2.2",
+    "support_definition_version": "v1",
+    "weighted_quantile_convention": "Sort state intervals by power value; find smallest power P such that cumulative duration >= q * total_support_duration. Zero-power intervals (idle observed state) are included. Weights are duration_s of each interval."
+  },
+  "n_cabinets": 77,
+  "n_pass": 77,
+  "fleet_median_p99_kW": 92.48734323804247,
+  "mismatch_flag": false,
+  "per_cabinet": {
+    "2000.0": {
+      "cabinet": 2000,
+      "n_obs": 25653,
+      "reproduced_p99_kW": 91.34974692997683,
+      "f1_ref_kW": 91.34974692997685,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2001.0": {
+      "cabinet": 2001,
+      "n_obs": 24835,
+      "reproduced_p99_kW": 92.7141841113281,
+      "f1_ref_kW": 92.7141841113281,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2002.0": {
+      "cabinet": 2002,
+      "n_obs": 24604,
+      "reproduced_p99_kW": 94.15524700598746,
+      "f1_ref_kW": 94.15524700598745,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2003.0": {
+      "cabinet": 2003,
+      "n_obs": 25100,
+      "reproduced_p99_kW": 93.98596446411105,
+      "f1_ref_kW": 93.98596446411105,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2004.0": {
+      "cabinet": 2004,
+      "n_obs": 24681,
+      "reproduced_p99_kW": 94.9212626464844,
+      "f1_ref_kW": 94.9212626464844,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2005.0": {
+      "cabinet": 2005,
+      "n_obs": 24731,
+      "reproduced_p99_kW": 94.98903398437503,
+      "f1_ref_kW": 94.98903398437503,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2006.0": {
+      "cabinet": 2006,
+      "n_obs": 24841,
+      "reproduced_p99_kW": 95.9782434895832,
+      "f1_ref_kW": 95.9782434895832,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2007.0": {
+      "cabinet": 2007,
+      "n_obs": 24588,
+      "reproduced_p99_kW": 95.67595480732697,
+      "f1_ref_kW": 95.67595480732699,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2008.0": {
+      "cabinet": 2008,
+      "n_obs": 24833,
+      "reproduced_p99_kW": 95.31550110355256,
+      "f1_ref_kW": 95.31550110355255,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2009.0": {
+      "cabinet": 2009,
+      "n_obs": 24755,
+      "reproduced_p99_kW": 94.18618451111065,
+      "f1_ref_kW": 94.18618451111065,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2010.0": {
+      "cabinet": 2010,
+      "n_obs": 24828,
+      "reproduced_p99_kW": 94.3796165418542,
+      "f1_ref_kW": 94.3796165418542,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2011.0": {
+      "cabinet": 2011,
+      "n_obs": 25131,
+      "reproduced_p99_kW": 93.46896504866609,
+      "f1_ref_kW": 93.46896504866608,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2100.0": {
+      "cabinet": 2100,
+      "n_obs": 25028,
+      "reproduced_p99_kW": 93.41971533203099,
+      "f1_ref_kW": 93.41971533203099,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2101.0": {
+      "cabinet": 2101,
+      "n_obs": 25100,
+      "reproduced_p99_kW": 93.94243444039145,
+      "f1_ref_kW": 93.94243444039145,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2102.0": {
+      "cabinet": 2102,
+      "n_obs": 25244,
+      "reproduced_p99_kW": 94.84130033333332,
+      "f1_ref_kW": 94.84130033333332,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2103.0": {
+      "cabinet": 2103,
+      "n_obs": 25311,
+      "reproduced_p99_kW": 95.39306809401381,
+      "f1_ref_kW": 95.39306809401381,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2104.0": {
+      "cabinet": 2104,
+      "n_obs": 25390,
+      "reproduced_p99_kW": 93.94871166345997,
+      "f1_ref_kW": 93.94871166345996,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2105.0": {
+      "cabinet": 2105,
+      "n_obs": 25485,
+      "reproduced_p99_kW": 94.13677507706925,
+      "f1_ref_kW": 94.13677507706925,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2106.0": {
+      "cabinet": 2106,
+      "n_obs": 25663,
+      "reproduced_p99_kW": 95.06216378627835,
+      "f1_ref_kW": 95.06216378627835,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2107.0": {
+      "cabinet": 2107,
+      "n_obs": 25703,
+      "reproduced_p99_kW": 93.94014440017149,
+      "f1_ref_kW": 93.9401444001715,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2108.0": {
+      "cabinet": 2108,
+      "n_obs": 25244,
+      "reproduced_p99_kW": 95.48702003593748,
+      "f1_ref_kW": 95.48702003593748,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2109.0": {
+      "cabinet": 2109,
+      "n_obs": 25750,
+      "reproduced_p99_kW": 95.85707330322252,
+      "f1_ref_kW": 95.85707330322252,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2110.0": {
+      "cabinet": 2110,
+      "n_obs": 25967,
+      "reproduced_p99_kW": 95.5590468335938,
+      "f1_ref_kW": 95.55904683359381,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2111.0": {
+      "cabinet": 2111,
+      "n_obs": 26217,
+      "reproduced_p99_kW": 94.55313091406252,
+      "f1_ref_kW": 94.55313091406252,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2200.0": {
+      "cabinet": 2200,
+      "n_obs": 25802,
+      "reproduced_p99_kW": 94.81849688695263,
+      "f1_ref_kW": 94.81849688695262,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2201.0": {
+      "cabinet": 2201,
+      "n_obs": 26144,
+      "reproduced_p99_kW": 93.76115502929679,
+      "f1_ref_kW": 93.76115502929679,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2202.0": {
+      "cabinet": 2202,
+      "n_obs": 25944,
+      "reproduced_p99_kW": 94.07806190881442,
+      "f1_ref_kW": 94.07806190881442,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2203.0": {
+      "cabinet": 2203,
+      "n_obs": 25891,
+      "reproduced_p99_kW": 93.61473024902295,
+      "f1_ref_kW": 93.61473024902295,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2204.0": {
+      "cabinet": 2204,
+      "n_obs": 26067,
+      "reproduced_p99_kW": 92.48420609325005,
+      "f1_ref_kW": 92.48420609325005,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2205.0": {
+      "cabinet": 2205,
+      "n_obs": 25909,
+      "reproduced_p99_kW": 92.38977829511079,
+      "f1_ref_kW": 92.3897782951108,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2206.0": {
+      "cabinet": 2206,
+      "n_obs": 25759,
+      "reproduced_p99_kW": 93.01363413574124,
+      "f1_ref_kW": 93.01363413574124,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2207.0": {
+      "cabinet": 2207,
+      "n_obs": 26057,
+      "reproduced_p99_kW": 92.13393664354625,
+      "f1_ref_kW": 92.13393664354625,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2208.0": {
+      "cabinet": 2208,
+      "n_obs": 25926,
+      "reproduced_p99_kW": 92.59664330310768,
+      "f1_ref_kW": 92.59664330310768,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2209.0": {
+      "cabinet": 2209,
+      "n_obs": 25533,
+      "reproduced_p99_kW": 92.62479696281899,
+      "f1_ref_kW": 92.62479696281899,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2210.0": {
+      "cabinet": 2210,
+      "n_obs": 25497,
+      "reproduced_p99_kW": 92.68968887562511,
+      "f1_ref_kW": 92.68968887562511,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2211.0": {
+      "cabinet": 2211,
+      "n_obs": 25602,
+      "reproduced_p99_kW": 93.89276711571851,
+      "f1_ref_kW": 93.89276711571851,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2300.0": {
+      "cabinet": 2300,
+      "n_obs": 25256,
+      "reproduced_p99_kW": 94.0351270385744,
+      "f1_ref_kW": 94.03512703857442,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2301.0": {
+      "cabinet": 2301,
+      "n_obs": 25285,
+      "reproduced_p99_kW": 91.90399476562499,
+      "f1_ref_kW": 91.90399476562499,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2302.0": {
+      "cabinet": 2302,
+      "n_obs": 25586,
+      "reproduced_p99_kW": 90.74033345833357,
+      "f1_ref_kW": 90.74033345833357,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2303.0": {
+      "cabinet": 2303,
+      "n_obs": 25353,
+      "reproduced_p99_kW": 90.69542759063623,
+      "f1_ref_kW": 90.69542759063623,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2304.0": {
+      "cabinet": 2304,
+      "n_obs": 25271,
+      "reproduced_p99_kW": 89.37083003417958,
+      "f1_ref_kW": 89.37083003417958,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2306.0": {
+      "cabinet": 2306,
+      "n_obs": 25060,
+      "reproduced_p99_kW": 91.59564729697966,
+      "f1_ref_kW": 91.59564729697966,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2307.0": {
+      "cabinet": 2307,
+      "n_obs": 25410,
+      "reproduced_p99_kW": 91.0872389819336,
+      "f1_ref_kW": 91.08723898193358,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2308.0": {
+      "cabinet": 2308,
+      "n_obs": 25404,
+      "reproduced_p99_kW": 90.92998881020314,
+      "f1_ref_kW": 90.92998881020316,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2309.0": {
+      "cabinet": 2309,
+      "n_obs": 25438,
+      "reproduced_p99_kW": 91.06986496826178,
+      "f1_ref_kW": 91.06986496826178,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2310.0": {
+      "cabinet": 2310,
+      "n_obs": 25692,
+      "reproduced_p99_kW": 90.12384523591965,
+      "f1_ref_kW": 90.12384523591965,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2311.0": {
+      "cabinet": 2311,
+      "n_obs": 25459,
+      "reproduced_p99_kW": 90.9498635489156,
+      "f1_ref_kW": 90.9498635489156,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2400.0": {
+      "cabinet": 2400,
+      "n_obs": 25780,
+      "reproduced_p99_kW": 93.97115889404273,
+      "f1_ref_kW": 93.97115889404273,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2401.0": {
+      "cabinet": 2401,
+      "n_obs": 25516,
+      "reproduced_p99_kW": 92.77273124521469,
+      "f1_ref_kW": 92.77273124521469,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2402.0": {
+      "cabinet": 2402,
+      "n_obs": 25400,
+      "reproduced_p99_kW": 92.52752907725441,
+      "f1_ref_kW": 92.52752907725443,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2403.0": {
+      "cabinet": 2403,
+      "n_obs": 25219,
+      "reproduced_p99_kW": 92.52343045096953,
+      "f1_ref_kW": 92.52343045096954,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2404.0": {
+      "cabinet": 2404,
+      "n_obs": 25328,
+      "reproduced_p99_kW": 94.57002571289061,
+      "f1_ref_kW": 94.57002571289061,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2405.0": {
+      "cabinet": 2405,
+      "n_obs": 25722,
+      "reproduced_p99_kW": 91.59693500000056,
+      "f1_ref_kW": 91.59693500000056,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2406.0": {
+      "cabinet": 2406,
+      "n_obs": 25655,
+      "reproduced_p99_kW": 91.00489341866925,
+      "f1_ref_kW": 91.00489341866925,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2407.0": {
+      "cabinet": 2407,
+      "n_obs": 25760,
+      "reproduced_p99_kW": 92.48734323804247,
+      "f1_ref_kW": 92.48734323804247,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2408.0": {
+      "cabinet": 2408,
+      "n_obs": 25578,
+      "reproduced_p99_kW": 91.67867065798197,
+      "f1_ref_kW": 91.67867065798197,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2409.0": {
+      "cabinet": 2409,
+      "n_obs": 25454,
+      "reproduced_p99_kW": 89.56146453383766,
+      "f1_ref_kW": 89.56146453383766,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2410.0": {
+      "cabinet": 2410,
+      "n_obs": 25640,
+      "reproduced_p99_kW": 88.76154864843757,
+      "f1_ref_kW": 88.76154864843757,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2411.0": {
+      "cabinet": 2411,
+      "n_obs": 25722,
+      "reproduced_p99_kW": 88.66479465192718,
+      "f1_ref_kW": 88.66479465192718,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2500.0": {
+      "cabinet": 2500,
+      "n_obs": 25395,
+      "reproduced_p99_kW": 87.95524057189243,
+      "f1_ref_kW": 87.95524057189243,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2501.0": {
+      "cabinet": 2501,
+      "n_obs": 25581,
+      "reproduced_p99_kW": 88.14133018421077,
+      "f1_ref_kW": 88.14133018421077,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2502.0": {
+      "cabinet": 2502,
+      "n_obs": 25977,
+      "reproduced_p99_kW": 86.68099796311998,
+      "f1_ref_kW": 86.68099796311996,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2503.0": {
+      "cabinet": 2503,
+      "n_obs": 25744,
+      "reproduced_p99_kW": 86.41277679421762,
+      "f1_ref_kW": 86.41277679421762,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2504.0": {
+      "cabinet": 2504,
+      "n_obs": 25869,
+      "reproduced_p99_kW": 86.37190922131514,
+      "f1_ref_kW": 86.37190922131515,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2505.0": {
+      "cabinet": 2505,
+      "n_obs": 25759,
+      "reproduced_p99_kW": 86.54807679183848,
+      "f1_ref_kW": 86.54807679183848,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2506.0": {
+      "cabinet": 2506,
+      "n_obs": 25233,
+      "reproduced_p99_kW": 86.7062223435375,
+      "f1_ref_kW": 86.7062223435375,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2507.0": {
+      "cabinet": 2507,
+      "n_obs": 25736,
+      "reproduced_p99_kW": 86.19005124444458,
+      "f1_ref_kW": 86.19005124444458,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2508.0": {
+      "cabinet": 2508,
+      "n_obs": 25950,
+      "reproduced_p99_kW": 86.0744185019269,
+      "f1_ref_kW": 86.07441850192689,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2509.0": {
+      "cabinet": 2509,
+      "n_obs": 25678,
+      "reproduced_p99_kW": 85.1556810020182,
+      "f1_ref_kW": 85.1556810020182,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2510.0": {
+      "cabinet": 2510,
+      "n_obs": 26004,
+      "reproduced_p99_kW": 84.34955116476208,
+      "f1_ref_kW": 84.34955116476209,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2511.0": {
+      "cabinet": 2511,
+      "n_obs": 27383,
+      "reproduced_p99_kW": 82.39819529333339,
+      "f1_ref_kW": 82.39819529333339,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2600.0": {
+      "cabinet": 2600,
+      "n_obs": 14258,
+      "reproduced_p99_kW": 71.17105449833711,
+      "f1_ref_kW": 71.17105449833713,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2601.0": {
+      "cabinet": 2601,
+      "n_obs": 19154,
+      "reproduced_p99_kW": 74.00896172973643,
+      "f1_ref_kW": 74.00896172973643,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2602.0": {
+      "cabinet": 2602,
+      "n_obs": 17293,
+      "reproduced_p99_kW": 68.74125732927477,
+      "f1_ref_kW": 68.74125732927479,
+      "abs_diff": 1.4210854715202004e-14,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2609.0": {
+      "cabinet": 2609,
+      "n_obs": 29362,
+      "reproduced_p99_kW": 78.38090039612392,
+      "f1_ref_kW": 78.38090039612392,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2610.0": {
+      "cabinet": 2610,
+      "n_obs": 24361,
+      "reproduced_p99_kW": 71.38540877187515,
+      "f1_ref_kW": 71.38540877187515,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    },
+    "2611.0": {
+      "cabinet": 2611,
+      "n_obs": 13042,
+      "reproduced_p99_kW": 80.72802721500001,
+      "f1_ref_kW": 80.72802721500001,
+      "abs_diff": 0.0,
+      "within_1e9": true,
+      "within_1e6": true,
+      "status": "PASS"
+    }
+  }
+}

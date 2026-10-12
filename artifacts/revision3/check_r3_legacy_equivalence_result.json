@@ -1,0 +1,17 @@
+{
+  "script": "artifacts/revision3/check_r3_legacy_equivalence.py",
+  "plan_ref": "artifacts/revision3/THIRD_REVIEW_ANALYSIS_PLAN.md \u00a7Q",
+  "amendment": "3",
+  "post_exposure_label": "Post-exposure: designed after sc30-sc54 primary results observed. Equivalence check verifies Round-3 legacy mode matches revision2 challenge on ALL 25 sc30-sc54 scenarios. Partial sets and extra scenarios both fail.",
+  "r2_source": "artifacts\\revision2\\results\\gate_f_sc30-54_all_r2challenge_merged.json",
+  "r3_source": "artifacts/revision3/results/gate_f_sc30-54_1p25_r3legacy.json",
+  "pass": true,
+  "hard_failure": false,
+  "tolerance": 1e-09,
+  "n_required_scenarios": 25,
+  "n_policies_checked": 2,
+  "ratio_checked": "1.25",
+  "n_checks_passed": 27400,
+  "n_failures": 0,
+  "failures": []
+}

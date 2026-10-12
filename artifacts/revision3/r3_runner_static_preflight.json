@@ -1,0 +1,50 @@
+{
+  "document": "R3-0 Runner Static Preflight Check",
+  "created": "2026-10-05",
+
+  "runner_commit": "4913388",
+  "runner_file": "artifacts/revision3/r3_gate_f_run.py",
+  "runner_sha256": "022d12c54c7f0738c954a11fc7dd15b73622b312bf852c40c5b2ccb3e17ade37",
+
+  "py_compile": "PASS",
+
+  "undefined_name_checker": "ruff",
+  "undefined_name_checker_flag": "F821",
+  "undefined_name_count": 0,
+  "undefined_name_result": "All checks passed!",
+
+  "final_assembly_name_audit": {
+    "method": "grep all names in result-dict literal at lines 1218-1245; verify each is defined before line 1218",
+    "names_audited": [
+      "_is_compat", "CHALLENGE_SEED", "CABINET_REFERENCE_MODE",
+      "_PROV", "BETA_CHALLENGE", "BETA_F_FROZEN", "N_SCENARIOS_TOTAL",
+      "SCENARIO_FIRST", "N_DEV", "N_FIRST", "GATE_F_RATIOS", "GATE_F_POLICIES",
+      "LAMBDA_SWEEP", "TARGET_PP", "PLACEBO_GLOBAL_PERM_SEED",
+      "PLACEBO_WITHINCAB_PERM_SEED", "scenario_results", "t_script", "r_label"
+    ],
+    "definitions_confirmed": {
+      "_is_compat": "line 114",
+      "CHALLENGE_SEED": "line 79",
+      "CABINET_REFERENCE_MODE": "lines 110-120 (added in 4913388)",
+      "_PROV": "line 199 (_git_provenance())",
+      "BETA_CHALLENGE": "line 77",
+      "BETA_F_FROZEN": "line 63",
+      "N_SCENARIOS_TOTAL": "line 78",
+      "SCENARIO_FIRST": "line 82",
+      "N_DEV": "line 128",
+      "N_FIRST": "line 129",
+      "GATE_F_RATIOS": "lines 101-107",
+      "GATE_F_POLICIES": "line 109",
+      "LAMBDA_SWEEP": "line 68",
+      "TARGET_PP": "line 73",
+      "PLACEBO_GLOBAL_PERM_SEED": "imported from r2_selectors line 41",
+      "PLACEBO_WITHINCAB_PERM_SEED": "imported from r2_selectors line 41",
+      "scenario_results": "line 1056",
+      "t_script": "line 211",
+      "r_label": "line 1054 (lambda)"
+    },
+    "result": "PASS"
+  },
+
+  "overall": "PASS"
+}

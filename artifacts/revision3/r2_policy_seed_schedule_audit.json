@@ -1,0 +1,89 @@
+{
+  "document": "r2 Policy Seed Schedule Audit",
+  "source_file": "artifacts/revision2/r2_gate_f_run.py",
+  "source_lines": "994-1015",
+  "challenge_seed": 2042,
+  "n_scenarios_total": 25,
+  "canonical_challenge_policy_ids": [
+    "full_random",
+    "full_fp",
+    "position_template",
+    "full_fp_spread",
+    "random_spread",
+    "fp_global_placebo",
+    "fp_withincab_placebo"
+  ],
+  "draw_sequence": [
+    {
+      "stage": "scen_seeds",
+      "n_draws": 25,
+      "rng_indices": "0-24",
+      "shape": "1D list len 25"
+    },
+    {
+      "stage": "wl_seeds",
+      "n_draws": 25,
+      "rng_indices": "25-49",
+      "shape": "1D list len 25"
+    },
+    {
+      "stage": "placebo_global_perm_seed",
+      "n_draws": 1,
+      "rng_index": 50,
+      "note": "non-compat only; asserted against PLACEBO_GLOBAL_PERM_SEED import"
+    },
+    {
+      "stage": "placebo_withincab_perm_seed",
+      "n_draws": 1,
+      "rng_index": 51,
+      "note": "non-compat only; asserted against PLACEBO_WITHINCAB_PERM_SEED import"
+    },
+    {
+      "stage": "pol_seeds[full_random]",
+      "n_draws": 25,
+      "rng_indices": "52-76"
+    },
+    {
+      "stage": "pol_seeds[full_fp]",
+      "n_draws": 25,
+      "rng_indices": "77-101"
+    },
+    {
+      "stage": "pol_seeds[position_template]",
+      "n_draws": 25,
+      "rng_indices": "102-126"
+    },
+    {
+      "stage": "pol_seeds[full_fp_spread]",
+      "n_draws": 25,
+      "rng_indices": "127-151"
+    },
+    {
+      "stage": "pol_seeds[random_spread]",
+      "n_draws": 25,
+      "rng_indices": "152-176"
+    },
+    {
+      "stage": "pol_seeds[fp_global_placebo]",
+      "n_draws": 25,
+      "rng_indices": "177-201"
+    },
+    {
+      "stage": "pol_seeds[fp_withincab_placebo]",
+      "n_draws": 25,
+      "rng_indices": "202-226"
+    }
+  ],
+  "seed_generation_is": "policy-major (all N scenarios for policy[i] before any draws for policy[i+1])",
+  "exact_source_block": "_challenge_rng = np.random.default_rng(CHALLENGE_SEED)\nscen_seeds = [int(_challenge_rng.integers(0, 2**31)) for _ in range(N_SCENARIOS_TOTAL)]\nwl_seeds   = [int(_challenge_rng.integers(0, 2**31)) for _ in range(N_SCENARIOS_TOTAL)]\nif not _is_compat:\n    _pg_seed  = int(_challenge_rng.integers(0, 2**31))\n    _pwc_seed = int(_challenge_rng.integers(0, 2**31))\n    assert _pg_seed  == PLACEBO_GLOBAL_PERM_SEED\n    assert _pwc_seed == PLACEBO_WITHINCAB_PERM_SEED\n_pol_seeds_all = {p: [int(_challenge_rng.integers(0, 2**31)) for _ in range(N_SCENARIOS_TOTAL)]\n                  for p in _COMPAT_POLICY_ORDER}\npol_seeds: dict[str, list] = {}\nfor _p_raw, _seeds in _pol_seeds_all.items():\n    _p_active = _POL_ALIAS.get(_p_raw, _p_raw)\n    if _p_active in GATE_F_POLICIES:\n        pol_seeds[_p_active] = _seeds\ndel _challenge_rng",
+  "critical_invariant": "_COMPAT_POLICY_ORDER must equal CHALLENGE_POLICY_IDS in non-compat mode. GATE_F_RESTRICT_POLICIES controls execution, never RNG allocation.",
+  "placebo_draws_position": "between wl_seeds and pol_seeds; consumed unconditionally in non-compat mode",
+  "r2_reference_values_sc30_idx0": {
+    "scen_seed": 1520047186,
+    "wl_seed": 1994769663,
+    "placebo_global": 218767960,
+    "placebo_withincab": 365514213,
+    "pol_full_random": 1310625525,
+    "pol_full_fp": 1160149723
+  }
+}

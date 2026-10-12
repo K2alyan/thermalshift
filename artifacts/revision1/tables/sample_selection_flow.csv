@@ -1,0 +1,7 @@
+stage,n_jobs,n_nodes
+Full Frontier dataset,152400,19006721
+Longitudinal analysis set (globus_batch.txt),8304,NA
+Pre-2025 training split,3945,NA
+2025+ candidate split,4359,NA
+2025 qualifying test jobs (frozen),2637,2000
++ Fleet diagnostic job 107165,1,fleet-wide

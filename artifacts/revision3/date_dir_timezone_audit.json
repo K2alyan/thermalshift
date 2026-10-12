@@ -1,0 +1,26 @@
+{
+  "timestamp_tz_aware": true,
+  "timestamp_dtype": "datetime64[ms, UTC]",
+  "utc_assumption": "timestamps are UTC-aware",
+  "n_total": 152400,
+  "n_match_utc": 123945,
+  "frac_match_utc": 0.813287,
+  "n_match_eastern": 152400,
+  "frac_match_eastern": 1.0,
+  "best_timezone": "America/New_York",
+  "utc_mismatch_hour_histogram": {
+    "0": 7169,
+    "1": 6550,
+    "2": 6725,
+    "3": 5923,
+    "4": 2088
+  },
+  "eastern_mismatch_hour_histogram": {},
+  "mismatch_analysis": {
+    "n_remaining_mismatches_best_tz": 0,
+    "offset_lt_1h_count": 0,
+    "offset_gt_23h_count": 0,
+    "timestamps_appear_rounded": false,
+    "notes": "Mismatches likely arise because date_dir records the UTC calendar date on which the job ended, but some jobs end just before or after UTC midnight. The residual mismatches after applying the best timezone are consistent with cross-midnight jobs that straddle the date boundary. No systematic timezone-convention error was detected."
+  }
+}

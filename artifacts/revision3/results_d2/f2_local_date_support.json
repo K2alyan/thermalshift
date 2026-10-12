@@ -1,0 +1,544 @@
+{
+  "label": "eastern_local_date",
+  "per_cabinet": [
+    {
+      "cabinet": 2000,
+      "Q_F2_kW": 196.90393885895418,
+      "Q_F2_original_kW": 196.70359510895452,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.943034036351166
+    },
+    {
+      "cabinet": 2001,
+      "Q_F2_kW": 198.80361888673173,
+      "Q_F2_original_kW": 198.80361888673204,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9430118312757202
+    },
+    {
+      "cabinet": 2002,
+      "Q_F2_kW": 198.71443830852255,
+      "Q_F2_original_kW": 198.01555705088518,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9407778635116598
+    },
+    {
+      "cabinet": 2003,
+      "Q_F2_kW": 201.89969750631695,
+      "Q_F2_original_kW": 201.83608612950698,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9424106652949246
+    },
+    {
+      "cabinet": 2004,
+      "Q_F2_kW": 200.63400355902797,
+      "Q_F2_original_kW": 199.00215488917908,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9413363340192044
+    },
+    {
+      "cabinet": 2005,
+      "Q_F2_kW": 206.48887878125052,
+      "Q_F2_original_kW": 205.22539311771953,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9396182270233197
+    },
+    {
+      "cabinet": 2006,
+      "Q_F2_kW": 208.61115278125018,
+      "Q_F2_original_kW": 207.29444411621148,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9407758916323731
+    },
+    {
+      "cabinet": 2007,
+      "Q_F2_kW": 209.02378393554702,
+      "Q_F2_original_kW": 208.3435934244796,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9408145576131687
+    },
+    {
+      "cabinet": 2008,
+      "Q_F2_kW": 204.68200748697973,
+      "Q_F2_original_kW": 203.3939033203134,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9411574931412895
+    },
+    {
+      "cabinet": 2009,
+      "Q_F2_kW": 204.16296604166732,
+      "Q_F2_original_kW": 203.66975330435514,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9444284122085048
+    },
+    {
+      "cabinet": 2010,
+      "Q_F2_kW": 213.97668090124608,
+      "Q_F2_original_kW": 215.259442176871,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9428679698216735
+    },
+    {
+      "cabinet": 2011,
+      "Q_F2_kW": 212.50986127192976,
+      "Q_F2_original_kW": 214.4300685340926,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9454360425240055
+    },
+    {
+      "cabinet": 2100,
+      "Q_F2_kW": 213.57772778486415,
+      "Q_F2_original_kW": 215.77166916302343,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9419598765432099
+    },
+    {
+      "cabinet": 2101,
+      "Q_F2_kW": 215.25944217687098,
+      "Q_F2_original_kW": 215.77166916302377,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9442337962962963
+    },
+    {
+      "cabinet": 2102,
+      "Q_F2_kW": 215.259442176871,
+      "Q_F2_original_kW": 216.17762945419202,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.941889146090535
+    },
+    {
+      "cabinet": 2103,
+      "Q_F2_kW": 222.6103827659577,
+      "Q_F2_original_kW": 223.12736000000064,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9381251714677641
+    },
+    {
+      "cabinet": 2104,
+      "Q_F2_kW": 215.25944217687135,
+      "Q_F2_original_kW": 215.77166916302394,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9411345164609054
+    },
+    {
+      "cabinet": 2105,
+      "Q_F2_kW": 214.43006853409256,
+      "Q_F2_original_kW": 216.8746133928574,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9379861111111111
+    },
+    {
+      "cabinet": 2106,
+      "Q_F2_kW": 215.10086884855815,
+      "Q_F2_original_kW": 216.06702778486437,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9421486625514404
+    },
+    {
+      "cabinet": 2107,
+      "Q_F2_kW": 213.21357500000047,
+      "Q_F2_original_kW": 214.0248933411461,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9441280006858711
+    },
+    {
+      "cabinet": 2108,
+      "Q_F2_kW": 213.5777277848643,
+      "Q_F2_original_kW": 215.20607619747474,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9414214677640603
+    },
+    {
+      "cabinet": 2109,
+      "Q_F2_kW": 219.17440000000008,
+      "Q_F2_original_kW": 220.34831933593838,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9462003600823046
+    },
+    {
+      "cabinet": 2110,
+      "Q_F2_kW": 214.25251133132664,
+      "Q_F2_original_kW": 215.25944217687118,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9469487311385459
+    },
+    {
+      "cabinet": 2111,
+      "Q_F2_kW": 212.4176675906963,
+      "Q_F2_original_kW": 213.4933881835942,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9471687242798353
+    },
+    {
+      "cabinet": 2200,
+      "Q_F2_kW": 213.3383150490297,
+      "Q_F2_original_kW": 213.7130588854226,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9437155349794238
+    },
+    {
+      "cabinet": 2201,
+      "Q_F2_kW": 213.71305888542233,
+      "Q_F2_original_kW": 217.4621000000005,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9509020919067216
+    },
+    {
+      "cabinet": 2202,
+      "Q_F2_kW": 217.82933971111183,
+      "Q_F2_original_kW": 217.829339711112,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9474258401920439
+    },
+    {
+      "cabinet": 2203,
+      "Q_F2_kW": 214.87483832193044,
+      "Q_F2_original_kW": 215.259442176871,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9460042866941015
+    },
+    {
+      "cabinet": 2204,
+      "Q_F2_kW": 217.81532388091213,
+      "Q_F2_original_kW": 219.17440000000042,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9504877400548697
+    },
+    {
+      "cabinet": 2205,
+      "Q_F2_kW": 216.12543325591216,
+      "Q_F2_original_kW": 217.8153238809122,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9478629972565158
+    },
+    {
+      "cabinet": 2206,
+      "Q_F2_kW": 212.37294804050637,
+      "Q_F2_original_kW": 213.02784642187675,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.944511574074074
+    },
+    {
+      "cabinet": 2207,
+      "Q_F2_kW": 212.59830017496535,
+      "Q_F2_original_kW": 215.10086884855798,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9493471364883402
+    },
+    {
+      "cabinet": 2208,
+      "Q_F2_kW": 211.89600000000004,
+      "Q_F2_original_kW": 213.81049364507692,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9473791152263374
+    },
+    {
+      "cabinet": 2209,
+      "Q_F2_kW": 212.9042007078348,
+      "Q_F2_original_kW": 213.85202700591233,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.94988048696845
+    },
+    {
+      "cabinet": 2210,
+      "Q_F2_kW": 220.2675917968752,
+      "Q_F2_original_kW": 220.26759179687517,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9502154492455418
+    },
+    {
+      "cabinet": 2211,
+      "Q_F2_kW": 221.68949698135506,
+      "Q_F2_original_kW": 221.6894969813556,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9536168552812071
+    },
+    {
+      "cabinet": 2300,
+      "Q_F2_kW": 221.08879200591213,
+      "Q_F2_original_kW": 221.08879200591227,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9505271776406036
+    },
+    {
+      "cabinet": 2301,
+      "Q_F2_kW": 223.92013070312507,
+      "Q_F2_original_kW": 223.92013070312527,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9519375
+    },
+    {
+      "cabinet": 2302,
+      "Q_F2_kW": 220.91164388020857,
+      "Q_F2_original_kW": 220.9116438802085,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9533002400548697
+    },
+    {
+      "cabinet": 2303,
+      "Q_F2_kW": 210.38516936813477,
+      "Q_F2_original_kW": 210.38516936813477,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9514862825788751
+    },
+    {
+      "cabinet": 2304,
+      "Q_F2_kW": 211.79587654406077,
+      "Q_F2_original_kW": 211.7958765440608,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9536067386831276
+    },
+    {
+      "cabinet": 2306,
+      "Q_F2_kW": 211.89600000000004,
+      "Q_F2_original_kW": 211.89600000000007,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9520743312757202
+    },
+    {
+      "cabinet": 2307,
+      "Q_F2_kW": 211.17247029406047,
+      "Q_F2_original_kW": 211.17247029406144,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.956051011659808
+    },
+    {
+      "cabinet": 2308,
+      "Q_F2_kW": 211.73801311813443,
+      "Q_F2_original_kW": 211.73801311813452,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.952281121399177
+    },
+    {
+      "cabinet": 2309,
+      "Q_F2_kW": 211.54217561813442,
+      "Q_F2_original_kW": 211.7380131181348,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9544684499314129
+    },
+    {
+      "cabinet": 2310,
+      "Q_F2_kW": 211.6319818681348,
+      "Q_F2_original_kW": 211.6319818681349,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9510242626886145
+    },
+    {
+      "cabinet": 2311,
+      "Q_F2_kW": 211.00857561813442,
+      "Q_F2_original_kW": 211.00857561813442,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9496664951989026
+    },
+    {
+      "cabinet": 2400,
+      "Q_F2_kW": 211.63198186813466,
+      "Q_F2_original_kW": 211.63198186813523,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9527702331961592
+    },
+    {
+      "cabinet": 2401,
+      "Q_F2_kW": 211.6319818681345,
+      "Q_F2_original_kW": 211.63198186813483,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9497027606310013
+    },
+    {
+      "cabinet": 2402,
+      "Q_F2_kW": 211.63198186813443,
+      "Q_F2_original_kW": 211.6319818681345,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9500728737997256
+    },
+    {
+      "cabinet": 2403,
+      "Q_F2_kW": 211.00857561813442,
+      "Q_F2_original_kW": 211.00857561813442,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.952849451303155
+    },
+    {
+      "cabinet": 2404,
+      "Q_F2_kW": 211.8593418218381,
+      "Q_F2_original_kW": 212.13983140517203,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9511492626886145
+    },
+    {
+      "cabinet": 2405,
+      "Q_F2_kW": 213.91851193646124,
+      "Q_F2_original_kW": 214.18730796767207,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9529477023319616
+    },
+    {
+      "cabinet": 2406,
+      "Q_F2_kW": 215.38865273040295,
+      "Q_F2_original_kW": 215.3886527304035,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9497588305898491
+    },
+    {
+      "cabinet": 2407,
+      "Q_F2_kW": 208.87561809082052,
+      "Q_F2_original_kW": 207.80154866927137,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9518513374485597
+    },
+    {
+      "cabinet": 2408,
+      "Q_F2_kW": 207.71549073092345,
+      "Q_F2_original_kW": 207.71549073092336,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9522830075445816
+    },
+    {
+      "cabinet": 2409,
+      "Q_F2_kW": 203.61564651705277,
+      "Q_F2_original_kW": 202.1973469387762,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9498049554183814
+    },
+    {
+      "cabinet": 2410,
+      "Q_F2_kW": 201.85983928420626,
+      "Q_F2_original_kW": 201.8598392842062,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9509878257887517
+    },
+    {
+      "cabinet": 2411,
+      "Q_F2_kW": 198.53607715210362,
+      "Q_F2_original_kW": 198.53607715210367,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9483744855967078
+    },
+    {
+      "cabinet": 2500,
+      "Q_F2_kW": 203.841504761623,
+      "Q_F2_original_kW": 203.8415047616235,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9504810528120713
+    },
+    {
+      "cabinet": 2501,
+      "Q_F2_kW": 206.01324866927084,
+      "Q_F2_original_kW": 205.9376651974111,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.952346793552812
+    },
+    {
+      "cabinet": 2502,
+      "Q_F2_kW": 209.6646335733698,
+      "Q_F2_original_kW": 209.6646335733698,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9532800068587106
+    },
+    {
+      "cabinet": 2503,
+      "Q_F2_kW": 204.27347114653725,
+      "Q_F2_original_kW": 204.27347114653725,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9461581790123457
+    },
+    {
+      "cabinet": 2504,
+      "Q_F2_kW": 204.31560854096313,
+      "Q_F2_original_kW": 204.315608540963,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9516917009602195
+    },
+    {
+      "cabinet": 2505,
+      "Q_F2_kW": 206.03579555974662,
+      "Q_F2_original_kW": 206.0357955597467,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9513476508916324
+    },
+    {
+      "cabinet": 2506,
+      "Q_F2_kW": 202.78567168402782,
+      "Q_F2_original_kW": 202.7856716840281,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9501435185185185
+    },
+    {
+      "cabinet": 2507,
+      "Q_F2_kW": 206.59659784875765,
+      "Q_F2_original_kW": 206.5965978487575,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9554502743484224
+    },
+    {
+      "cabinet": 2508,
+      "Q_F2_kW": 208.4071968750006,
+      "Q_F2_original_kW": 207.60945483398487,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9560601851851852
+    },
+    {
+      "cabinet": 2509,
+      "Q_F2_kW": 200.89341219112336,
+      "Q_F2_original_kW": 200.89341219112328,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.954522633744856
+    },
+    {
+      "cabinet": 2510,
+      "Q_F2_kW": 202.01521551992786,
+      "Q_F2_original_kW": 202.0152155199276,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9530249485596708
+    },
+    {
+      "cabinet": 2511,
+      "Q_F2_kW": 200.42077426901295,
+      "Q_F2_original_kW": 200.42077426901295,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9616147976680384
+    },
+    {
+      "cabinet": 2600,
+      "Q_F2_kW": 161.76448658449246,
+      "Q_F2_original_kW": 162.0298540939291,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.5153614540466392
+    },
+    {
+      "cabinet": 2601,
+      "Q_F2_kW": 173.53919928531167,
+      "Q_F2_original_kW": 173.06430985040222,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.6912314814814815
+    },
+    {
+      "cabinet": 2602,
+      "Q_F2_kW": 163.12551238783743,
+      "Q_F2_original_kW": 163.09897424280138,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.6784058641975309
+    },
+    {
+      "cabinet": 2609,
+      "Q_F2_kW": 209.00374296276794,
+      "Q_F2_original_kW": 208.2295529248047,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9619363854595336
+    },
+    {
+      "cabinet": 2610,
+      "Q_F2_kW": 200.71150000000006,
+      "Q_F2_original_kW": 201.93890794270834,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.960232938957476
+    },
+    {
+      "cabinet": 2611,
+      "Q_F2_kW": 208.327,
+      "Q_F2_original_kW": 208.79384059637283,
+      "calendar_support_h": 3240.0,
+      "active_fraction": 0.9223632544581619
+    }
+  ]
+}
