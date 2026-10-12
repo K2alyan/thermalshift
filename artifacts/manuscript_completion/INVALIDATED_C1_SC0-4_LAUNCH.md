@@ -98,8 +98,7 @@ block is uncontaminated.
 The full task stdout is preserved in the ephemeral background-task output file:
 
 ```
-C:\Users\kalya\AppData\Local\Temp\claude\C--users-kalya-thermalops\
-  31aed3a6-030e-4804-af8a-6d84deacb6b2\tasks\b1iuu7ed9.output
+[session-scoped background task output file — not persisted]
 ```
 
 This file is session-scoped and will not persist beyond the current terminal session.

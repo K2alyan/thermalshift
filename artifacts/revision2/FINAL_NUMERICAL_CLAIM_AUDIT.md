@@ -188,7 +188,7 @@ Note: All three populated bins show positive Pearson r and >75% sign agreement. 
 | Contribution 3 | "16-condition completion audit — including simulation equivalence, analysis regression, seed-index" | "16/16 preflight gate (before execution) + separate completion audit (after scenarios)" — preflight and completion audit are distinct events |
 | Reproducibility | "cannot be redistributed due to ORNL data-use agreement" | "available through OLCF Open Data Initiative (DOI 10.13139/OLCF/3013979); see DATA.md" |
 | Reproducibility | "DOI to be assigned at camera-ready" | Existing DOI: 10.5281/zenodo.23020901 |
-| AI disclosure | Named only Claude; said AI had no role in hypotheses | Named both ChatGPT and Claude; AI participated in brainstorming and methodological critique; authors retained final decision authority |
+| AI disclosure | Named AI tools; said AI had no role in hypotheses | Named AI tools used; AI participated in brainstorming and methodological critique; authors retained final decision authority |
 
 ---
 

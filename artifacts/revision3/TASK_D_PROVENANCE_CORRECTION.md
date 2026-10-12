@@ -8,7 +8,7 @@
 
 1. The Task-D F2 methodology was specified externally in a chat instruction before Task-D computation began.
 
-2. During Claude Code execution, Task-D result files already existed in the working tree before git commit f403998 was made. Therefore f403998 is a repository capture of the externally pre-specified Task-D method and code, NOT a cryptographic pre-computation git freeze.
+2. During automated analysis execution, Task-D result files already existed in the working tree before git commit f403998 was made. Therefore f403998 is a repository capture of the externally pre-specified Task-D method and code, NOT a cryptographic pre-computation git freeze.
 
 3. 90dc62f contains the first committed Task-D result package.
 

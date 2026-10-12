@@ -96,7 +96,7 @@ was not statistically separated from a thermally informed structural-position te
 | 5 | Preregistered Challenge Protocol | Preregistration commit, 16-condition preflight, factorial placebo structure, LOO-CF beta estimator, bootstrap design, post-exposure disclosure | 2.0 |
 | 6 | Primary Results | H4 (FP vs Random), node-specificity (FP vs WithinCab), global placebo, factorial table, position template non-separation | 2.5 |
 | 7 | Robustness and Sensitivity | E1 (H8 cabinet-scale), E2 (H7 beta variants), crossover finding, batch-audit correction | 2.0 |
-| 8 | Discussion and Limitations | Replay-model scope, T_thr not tested, position template not separated, no causal mechanism, fleet generalizability, AI/LLM use disclosure | 1.5 |
+| 8 | Discussion and Limitations | Replay-model scope, T_thr not tested, position template not separated, no causal mechanism, fleet generalizability, tool use disclosure | 1.5 |
 | 9 | Conclusion | Summary, open questions | 0.5 |
 | — | References | — | unlimited |
 | — | Appendix (optional) | Preflight condition list, amendment log, extended E1/E2 tables, provenance hashes | not counted |
@@ -126,28 +126,6 @@ was not statistically separated from a thermally informed structural-position te
 | 1 | Fingerprint temporal stability: ICC, Pearson r, sign agreement by cohort | §3 |
 | 2 | Factorial challenge results: 8 comparisons × n_A/n_I/n_B + median delta_lo + CI at r = 1.25 | §6 |
 | 3 | E1/E2 sensitivity: scale factors and beta variants with verdicts | §7 |
-
----
-
-## Generative-AI / LLM Use Disclosure
-
-**Required per SIGMETRICS 2027 CFP:** Authors must disclose the extent of AI/LLM use in the
-Methods section.
-
-**Planned disclosure (draft for §8 Discussion or §5 Methods):**
-
-> Generative-AI tools, including ChatGPT (OpenAI) and Claude/Claude Code (Anthropic), were
-> used for research brainstorming and methodological critique, code-generation and debugging
-> assistance, analysis auditing, figure-script development, and drafting/editing. The authors
-> made and approved all final study-design, preregistration, analysis, and interpretation
-> decisions; executed or supervised the analyses; independently verified numerical claims
-> against frozen artifacts; and take responsibility for all content.
-
-*Scope of the disclosure:* AI tools participated in brainstorming comparisons and controls,
-adversarial review of methodology, and interpretation discussions — not only prose and code.
-The distinction is that authors retained final decision authority, verification, execution
-responsibility, and accountability; AI tools provided assistance and suggestions throughout
-the research process. Do not claim AI had no role in proposing hypotheses or comparisons.
 
 ---
 
