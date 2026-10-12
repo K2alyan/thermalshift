@@ -1,5 +1,9 @@
 # ThermalShift
 
+<p align="center">
+  <img src="assets/cover.png" alt="ThermalShift: The hidden capacity of computing" width="480"/>
+</p>
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23020901.svg)](https://doi.org/10.5281/zenodo.23020901)
 
 **Turning persistent server thermal differences into scheduling capacity.**
