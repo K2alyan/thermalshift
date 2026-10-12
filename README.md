@@ -315,26 +315,30 @@ unrestricted crossover seen under the original reference. The corrected referenc
 imposes a tighter operating constraint; under it, FPSpread's geographic dispersion
 forfeits thermally favorable capacity at every availability level tested.
 
-**Review-2 challenge, FPSpread vs FP — all ratios (Plan H9):** The preregistered analysis
-plan (H9) requires reporting FPSpread vs FP at all tested ratios. Results from the frozen
-raw data (`gate_f_sc30-54_all_r2challenge_merged.json`), 25 scenarios, bootstrap seed 9999:
+**Review-2 challenge, FPSpread vs FP — all ratios (Plan H9, preregistered secondary):**
+Plan H9 prespecified reporting FPSpread vs FP at all tested ratios. Results from the frozen
+raw data (`gate_f_sc30-54_all_r2challenge_merged.json`), 25 scenarios, bootstrap seed 9999.
+Classification: n_FPSpread = δ_lo > 0; n_FP = δ_hi < 0; n_I = brackets overlap.
 
-| Ratio r | n_FPSpread / n_I / n_FP | Median δ_lo | 95% CI |
-|---|---|---|---|
-| 1.0 (degenerate) | 0 / 9 / 16 | −0.23 pp | [−0.41, 0.00] |
-| **1.25 (primary)** | **4 / 0 / 21** | **−2.64 pp** | **[−4.49, −2.00]** |
-| 1.5 | 1 / 0 / 24 | −2.88 pp | [−5.86, −1.34] |
-| 2.0 | 4 / 0 / 21 | −2.95 pp | [−3.99, −1.71] |
-| 4.0 | 12 / 0 / 13 | −0.46 pp | [−2.65, +1.63] |
-| 8.0 | 17 / 0 / 8 | +0.72 pp | [−0.10, +2.43] |
-| unrestricted | 21 / 0 / 4 | +2.01 pp | [+1.21, +3.98] |
+| Ratio r | n_FPSpread / n_I / n_FP | Median δ_lo | 95% CI (δ_lo) | Median δ_hi | 95% CI (δ_hi) |
+|---|---|---|---|---|---|
+| 1.0 (degenerate) | 0 / 25 / 0 | −0.23 pp | [−0.41, 0.00] | +0.23 pp | [0.00, +0.41] |
+| **1.25 (primary)** | **4 / 3 / 18** | **−2.64 pp** | **[−4.49, −2.00]** | **−2.15 pp** | **[−3.99, −0.19]** |
+| 1.5 | 1 / 4 / 20 | −2.88 pp | [−5.86, −1.34] | −1.07 pp | [−5.25, −0.43] |
+| 2.0 | 4 / 4 / 17 | −2.95 pp | [−3.99, −1.71] | −1.86 pp | [−3.23, +0.12] |
+| 4.0 | 12 / 3 / 10 | −0.46 pp | [−2.65, +1.63] | +1.40 pp | [−1.35, +2.72] |
+| 8.0 | 17 / 3 / 5 | +0.72 pp | [−0.10, +2.43] | +2.63 pp | [+1.05, +3.10] |
+| unrestricted | 21 / 3 / 1 | +2.01 pp | [+1.21, +3.98] | +3.25 pp | [+2.11, +5.00] |
 
-The crossover pattern from Gate F replicates in Review-2: FP outperforms FPSpread at the
-primary ratio and at restricted availability (r=1.25–2.0); the advantage narrows and
-reverses at high availability. At r=8.0 the CI includes zero (indistinguishable); at
-unrestricted, FPSpread's CI excludes zero from above. These are non-preregistered secondary
-observations from the frozen seven-ratio data; the preregistered primary endpoint remains
-r=1.25 (H4).
+The crossover pattern from Gate F replicates in Review-2. At r=1.25 (primary endpoint)
+and r=1.5, both δ_lo and δ_hi CIs exclude zero, indicating FP superior. At r=2.0, the
+δ_lo CI excludes zero but the δ_hi CI marginally includes zero ([−3.23, +0.12]), so
+full FP superiority at r=2.0 is not established — 17/25 scenarios show FP winning
+definitively but the bootstrap median optimistic bound spans zero. At r=4.0 both
+intervals span zero (indeterminate). At r=8.0, δ_lo CI marginally includes zero
+but δ_hi CI excludes zero from above, indicating FPSpread trending positive. At
+unrestricted, both intervals exclude zero from above (FPSpread superior). These are
+preregistered secondary results (H9); the preregistered primary endpoint remains r=1.25 (H4).
 
 A plausible interpretation — explicitly labeled as an interpretation, not a tested causal
 mechanism — is that under limited candidate choice, forcing additional spreading restricts
