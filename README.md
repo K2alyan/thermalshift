@@ -53,6 +53,55 @@ temperature prediction. This creates the scientific chain:
 
 ---
 
+## Key Definitions
+
+**What the fingerprint measures.**
+The thermal fingerprint (FA) is the mean per-node thermal residual: the fraction of a
+node's temperature not explained by its workload power draw, averaged over historical jobs.
+It captures persistent thermal character beyond what power consumption alone predicts.
+Physical slot position is included as a covariate in the residual model, so the fingerprint
+reflects node-level excess thermal behavior with cabinet-level and slot-level effects
+partially conditioned out. What remains may reflect hardware heterogeneity (cooling
+efficiency, thermal interface material, airflow path) or persistent slot-specific effects —
+the study cannot distinguish these; see the hardware-vs-slot-assignment limitation in
+`artifacts/manuscript_completion/FINAL_SCIENTIFIC_CLAIMS_AUDIT.md` (claim 12).
+
+**What the replay model holds fixed and what changes.**
+The 2,637 historical base workload jobs retain their original start times, durations,
+requested node counts, and per-node power trajectories. A counterfactual replay assigns
+cohort-node placements under each policy but does not delay, reschedule, or under-serve
+any base job. Synthetic incremental jobs are added beyond the base workload. Only the
+node-selection rule differs across policies; the workload is identical across all
+policy comparisons within a scenario.
+
+**Capacity's denominator.**
+Capacity unlock is the maximum admitted incremental synthetic workload, expressed as a
+fraction of the historical base node-hours, before the system exhausts its historical
+thermal or power operating envelopes. A capacity unlock of 15% means the replay model
+admitted 15% more cohort node-hours beyond the historical base load before a budget
+constraint became binding. This is **not** application throughput, energy efficiency,
+or wall-clock time — it is a replay-model accounting of absorbed synthetic node-hours
+under historically calibrated constraints.
+
+**What the choice ratio means.**
+At ratio r, a job requesting k nodes receives floor(r × k) thermally eligible candidate
+nodes, from which the scheduling policy selects k. At r = 1.25, a four-node job receives
+5 candidates; at r = 2.0, it receives 8. At r = 1.0, every job receives exactly k
+candidates — no selection freedom exists — making all policies identical by construction.
+The r = 1.0 row is therefore a negative control, not a competitive result.
+
+**How crossing brackets and paired comparisons work.**
+For each policy and scenario, the simulation sweeps an incremental load factor λ. The
+capacity-unlock crossing is the λ at which the first budget constraint binds. Because
+crossing falls between discrete λ grid points, each scenario produces a lower bound
+(C_lower: last λ before binding) and an upper bound (C_upper: first λ where binding
+occurs). The conservative bracket separation δ_lo = C_lower(A) − C_upper(B) is positive
+only when policy A's lower bound strictly exceeds policy B's upper bound — a pessimistic
+test that intentionally understates the advantage. Paired bootstrap comparisons resample
+across the N scenarios (not nodes or jobs) with 5,000 replicates, seed 9999.
+
+---
+
 ## Results at a Glance
 
 > **Evidence hierarchy.** This repository spans several generations of the study with
