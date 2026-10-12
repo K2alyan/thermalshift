@@ -53,10 +53,12 @@ derivation from scratch.
 | `artifacts/phase1/analysis/phase3b_mc_results.json` | Monte Carlo outputs (30 development scenarios) |
 | `artifacts/phase1/analysis/phase3b_mc_analysis.json` | Post-MC summary statistics |
 
-Running `phase3b_mc_analysis.py`, `phase3b_mc_validate.py`, and `phase3b_figures.py`
-reproduces the development-era (Phase 3B) analysis without raw dataset access.
-Running `phase3b_mc.py` to regenerate the Monte Carlo from scratch requires
-`THERMALSHIFT_DATA_DIR`.
+Running `phase3b_mc_validate.py` and `phase3b_figures.py` reproduces the development-era
+(Phase 3B) analysis from frozen artifacts without raw dataset access. Running
+`phase3b_mc_analysis.py` also requires the external OLCF job metadata file
+`frontier-completed-job-info.parquet` (set `THERMALSHIFT_DATA_DIR`) for its
+workload-sensitivity section. Running `phase3b_mc.py` to regenerate the Monte Carlo
+from scratch requires `THERMALSHIFT_DATA_DIR`.
 
 ### Primary challenge experiment (R2, sc30–54) — preregistered
 
@@ -88,4 +90,4 @@ Running `phase3b_mc.py` to regenerate the Monte Carlo from scratch requires
 | File | Contents |
 |------|----------|
 | `artifacts/revision1/results/gate_f_sc5-29_1p25_1p5_2p0_4p0_8p0.json` | Gate F raw: sc5–sc29, multiple ratios |
-| `artifacts/revision1/results/gate_f_heldout_analysis_E1.json` | Gate F frozen analysis output |
+| `artifacts/revision1/results/gate_f_heldout_analysis.json` | Gate F frozen analysis output |

@@ -315,13 +315,26 @@ unrestricted crossover seen under the original reference. The corrected referenc
 imposes a tighter operating constraint; under it, FPSpread's geographic dispersion
 forfeits thermally favorable capacity at every availability level tested.
 
-**Review-2 challenge (preregistered secondary finding, r=1.25 primary endpoint):** FPSpread vs FP
-at the preregistered primary ratio: verdict 4/3/18, median δ_lo = −2.64 pp
-[−4.49, −2.00] (FP wins). The preregistered challenge analysis was limited to the r=1.25
-primary endpoint; the frozen raw results (`gate_f_sc30-54_all_r2challenge_merged.json`)
-contain all seven tested ratios (1.0, 1.25, 1.5, 2.0, 4.0, 8.0, unrestricted), but the
-multi-ratio FPSpread crossover seen in Gate F was not part of the preregistered analysis
-plan and has not been formally analyzed in Review-2.
+**Review-2 challenge, FPSpread vs FP — all ratios (Plan H9):** The preregistered analysis
+plan (H9) requires reporting FPSpread vs FP at all tested ratios. Results from the frozen
+raw data (`gate_f_sc30-54_all_r2challenge_merged.json`), 25 scenarios, bootstrap seed 9999:
+
+| Ratio r | n_FPSpread / n_I / n_FP | Median δ_lo | 95% CI |
+|---|---|---|---|
+| 1.0 (degenerate) | 0 / 9 / 16 | −0.23 pp | [−0.41, 0.00] |
+| **1.25 (primary)** | **4 / 0 / 21** | **−2.64 pp** | **[−4.49, −2.00]** |
+| 1.5 | 1 / 0 / 24 | −2.88 pp | [−5.86, −1.34] |
+| 2.0 | 4 / 0 / 21 | −2.95 pp | [−3.99, −1.71] |
+| 4.0 | 12 / 0 / 13 | −0.46 pp | [−2.65, +1.63] |
+| 8.0 | 17 / 0 / 8 | +0.72 pp | [−0.10, +2.43] |
+| unrestricted | 21 / 0 / 4 | +2.01 pp | [+1.21, +3.98] |
+
+The crossover pattern from Gate F replicates in Review-2: FP outperforms FPSpread at the
+primary ratio and at restricted availability (r=1.25–2.0); the advantage narrows and
+reverses at high availability. At r=8.0 the CI includes zero (indistinguishable); at
+unrestricted, FPSpread's CI excludes zero from above. These are non-preregistered secondary
+observations from the frozen seven-ratio data; the preregistered primary endpoint remains
+r=1.25 (H4).
 
 A plausible interpretation — explicitly labeled as an interpretation, not a tested causal
 mechanism — is that under limited candidate choice, forcing additional spreading restricts
@@ -681,7 +694,7 @@ thermalops/
         r1_gate_f_heldout_analysis.py     frozen held-out summarizer (sc5-29)
         r1_gate_f_helpers.py              shared estimand functions
       results/
-        gate_f_heldout_analysis_E1.json   frozen Gate F output
+        gate_f_heldout_analysis.json      frozen Gate F output
     revision2/      — R2 preregistered challenge experiment (sc30-54)
       r2_challenge_orchestrator.py        parallel challenge runner
       r2_gate_f_challenge_analysis.py     preregistered analysis script
