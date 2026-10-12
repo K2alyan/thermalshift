@@ -56,14 +56,15 @@ temperature prediction. This creates the scientific chain:
 ## Key Definitions
 
 **What the fingerprint measures.**
-The thermal fingerprint (FA) is the mean per-node thermal residual: the fraction of a
-node's temperature not explained by its workload power draw, averaged over historical jobs.
-It captures persistent thermal character beyond what power consumption alone predicts.
-Physical slot position is included as a covariate in the residual model, so the fingerprint
-reflects node-level excess thermal behavior with cabinet-level and slot-level effects
-partially conditioned out. What remains may reflect hardware heterogeneity (cooling
-efficiency, thermal interface material, airflow path) or persistent slot-specific effects —
-the study cannot distinguish these; see the hardware-vs-slot-assignment limitation in
+The thermal fingerprint FA_2024 is the mean per-node within-job temperature deviation:
+for each training job, each node's mean temperature minus the job's mean temperature
+across all participating nodes; then these residuals are averaged across all training jobs
+for that node. No power regression is applied; no slot or cabinet covariate is conditioned
+out. The separate validation analysis (Power-only MAE 1.071°C vs. Power+fingerprint MAE
+0.718°C) measures FA's predictive value — it is not a step in FA's derivation. What the
+fingerprint captures may reflect hardware heterogeneity (cooling efficiency, thermal
+interface material, airflow path), persistent slot-specific effects, or both — the study
+cannot distinguish these; see the hardware-vs-slot-assignment limitation in
 `artifacts/manuscript_completion/FINAL_SCIENTIFIC_CLAIMS_AUDIT.md` (claim 12).
 
 **What the replay model holds fixed and what changes.**
@@ -84,9 +85,11 @@ or wall-clock time — it is a replay-model accounting of absorbed synthetic nod
 under historically calibrated constraints.
 
 **What the choice ratio means.**
-At ratio r, a job requesting k nodes receives floor(r × k) thermally eligible candidate
-nodes, from which the scheduling policy selects k. At r = 1.25, a four-node job receives
-5 candidates; at r = 2.0, it receives 8. At r = 1.0, every job receives exactly k
+At ratio r, a job requesting k nodes receives min(eligible_count, ceil(r × k)) thermally
+eligible candidate nodes, from which the scheduling policy selects k. At r = 1.25, a
+four-node job receives min(eligible, ceil(5.0)) = min(eligible, 5) candidates; at r = 2.0,
+it receives min(eligible, 8). The ceil ensures a single-node job at r = 1.25 receives 2
+candidates (ceil(1.25) = 2), not 1. At r = 1.0, every job receives exactly k
 candidates — no selection freedom exists — making all policies identical by construction.
 The r = 1.0 row is therefore a negative control, not a competitive result.
 
@@ -312,10 +315,13 @@ unrestricted crossover seen under the original reference. The corrected referenc
 imposes a tighter operating constraint; under it, FPSpread's geographic dispersion
 forfeits thermally favorable capacity at every availability level tested.
 
-**Review-2 challenge (preregistered secondary finding, r=1.25 only):** FPSpread vs FP
+**Review-2 challenge (preregistered secondary finding, r=1.25 primary endpoint):** FPSpread vs FP
 at the preregistered primary ratio: verdict 4/3/18, median δ_lo = −2.64 pp
-[−4.49, −2.00] (FP wins). The challenge experiment was conducted only at r=1.25, so
-the multi-ratio crossover seen in Gate F was not directly retested in Review-2.
+[−4.49, −2.00] (FP wins). The preregistered challenge analysis was limited to the r=1.25
+primary endpoint; the frozen raw results (`gate_f_sc30-54_all_r2challenge_merged.json`)
+contain all seven tested ratios (1.0, 1.25, 1.5, 2.0, 4.0, 8.0, unrestricted), but the
+multi-ratio FPSpread crossover seen in Gate F was not part of the preregistered analysis
+plan and has not been formally analyzed in Review-2.
 
 A plausible interpretation — explicitly labeled as an interpretation, not a tested causal
 mechanism — is that under limited candidate choice, forcing additional spreading restricts
@@ -592,10 +598,13 @@ preregistered experiments and corrected-reference analyses (C2: +12.48 pp at r=1
 
 ## Reproducing the Results
 
-All analyses from fingerprint derivation onward can be reproduced from the frozen
-artifacts in this repository. The raw Frontier telemetry (`THERMALSHIFT_DATA_DIR`)
-is required only to re-derive fingerprints from scratch or regenerate the base
-test-job parquet.
+All primary analyses (Gate F, R2 Challenge, C1/C2 corrected-reference, Round-7) can be
+reproduced from the frozen artifacts in this repository. The raw Frontier telemetry
+(`THERMALSHIFT_DATA_DIR`) is required only to re-derive fingerprints from scratch or
+regenerate the base test-job parquet. The Phase 3B development analysis
+(`phase3b_mc_analysis.py`) additionally requires the external OLCF job metadata file
+`frontier-completed-job-info.parquet` for its workload-sensitivity section; without it
+the script will raise `FileNotFoundError` at that step.
 
 **Prerequisites:** Python 3.9+, packages in `requirements.txt`.
 
@@ -630,10 +639,15 @@ python artifacts/manuscript_completion/analysis/c7_analysis.py
 ```bash
 python artifacts/revision1/analysis/r1_gate_f_heldout_analysis.py
 # reads per-scenario JSON files in artifacts/revision1/results/
-# output: artifacts/revision1/results/gate_f_heldout_analysis_E1.json
+# output: artifacts/revision1/results/gate_f_heldout_analysis.json
 ```
 
 ### Development analysis (Phase 3B, historical)
+
+**Note:** `phase3b_mc_analysis.py` requires `frontier-completed-job-info.parquet` from the
+OLCF dataset (set `THERMALSHIFT_DATA_DIR`). `phase3b_mc_validate.py` and
+`phase3b_figures.py` run from frozen artifacts only.
+
 ```bash
 python artifacts/phase1/analysis/phase3b_mc_analysis.py
 python artifacts/phase1/analysis/phase3b_mc_validate.py

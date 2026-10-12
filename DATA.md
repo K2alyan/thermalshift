@@ -64,8 +64,8 @@ Running `phase3b_mc.py` to regenerate the Monte Carlo from scratch requires
 |------|----------|
 | `artifacts/revision2/results/gate_f_sc30-54_all_r2challenge_merged.json` | Merged raw simulation outputs, all 25 challenge scenarios |
 | `artifacts/revision2/challenge_analysis.json` | Frozen analysis output (8 comparisons, bootstrap CIs) |
-| `artifacts/revision2/results/sensitivity_cabinet_scale.json` | E1 cabinet-scale sensitivity outputs |
-| `artifacts/revision2/results/sensitivity_loo_beta.json` | E2 beta sensitivity outputs |
+| `artifacts/revision2/sensitivity_cabinet_scale.json` | E1 cabinet-scale sensitivity outputs |
+| `artifacts/revision2/sensitivity_loo_beta.json` | E2 beta sensitivity outputs |
 
 ### Corrected-reference analyses (C1/C2) — primary claims source
 
